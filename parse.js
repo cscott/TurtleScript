@@ -121,6 +121,8 @@ var make_parse = function () {
         return left;
     };
 
+    // CSA: statement also always returns an array, since some statements
+    // are desugared on parsing.
     var statement = function () {
         var n = token, v;
 
@@ -128,13 +130,28 @@ var make_parse = function () {
             advance();
             scope.reserve(n);
             return n.std();
+        } else {
+            v = expression(0);
+            if (!v.assignment && v.id !== "(") {
+                v.error("Bad expression statement.");
+            }
+            advance(";");
         }
-        v = expression(0);
-        if (!v.assignment && v.id !== "(") {
-            v.error("Bad expression statement.");
+        return v ? [ v ] : null;
+    };
+
+    // CSA: hoist all declarations in a block to the top.
+    var hoist_var = function(stmt_list) {
+        var v = [], s = [], i = 0;
+        while (i < stmt_list.length) {
+            if (stmt_list[i].value === "var") {
+                v.push(stmt_list[i]);
+            } else {
+                s.push(stmt_list[i]);
+            }
+            i += 1;
         }
-        advance(";");
-        return v;
+        return v.concat(s);
     };
 
     var statements = function () {
@@ -145,10 +162,12 @@ var make_parse = function () {
             }
             s = statement();
             if (s) {
-                a.push(s);
+                // CSA: a statement doesn't make a new block context
+                a.push.apply(a, s);
             }
         }
-        return a.length === 0 ? null : a.length === 1 ? a[0] : a;
+        // CSA: statements() should always return a list, with hoisted vars.
+        return hoist_var(a);
     };
 
     var block = function () {
@@ -442,17 +461,22 @@ var make_parse = function () {
         var a = statements();
         advance("}");
         scope.pop();
-        return a;
+	// CSA: make block structure (scope) explicit in the parse tree
+        return [ { value: "block", arity: "statement", first: a } ];
     });
 
     stmt("var", function () {
-        var a = [], n, t;
+        var a = [], n, t, v;
         while (true) {
             n = token;
             if (n.arity !== "name") {
                 n.error("Expected a new variable name.");
             }
             scope.define(n);
+            // CSA: record 'var' as a statement
+            v = { value: "var", arity: "statement", first: n };
+            a.push(v);
+            // END CSA
             advance();
             if (token.id === "=") {
                 t = token;
@@ -468,7 +492,7 @@ var make_parse = function () {
             advance(",");
         }
         advance(";");
-        return a.length === 0 ? null : a.length === 1 ? a[0] : a;
+        return a; // a list of statements, but not a block
     });
 
     stmt("if", function () {
@@ -484,7 +508,7 @@ var make_parse = function () {
             this.third = null;
         }
         this.arity = "statement";
-        return this;
+        return [ this ];
     });
 
     stmt("return", function () {
@@ -496,7 +520,7 @@ var make_parse = function () {
             token.error("Unreachable statement.");
         }
         this.arity = "statement";
-        return this;
+        return [ this ];
     });
 
     stmt("break", function () {
@@ -505,7 +529,7 @@ var make_parse = function () {
             token.error("Unreachable statement.");
         }
         this.arity = "statement";
-        return this;
+        return [ this ];
     });
 
     stmt("while", function () {
@@ -514,7 +538,7 @@ var make_parse = function () {
         advance(")");
         this.second = block();
         this.arity = "statement";
-        return this;
+        return [ this ];
     });
 
     return function (source) {
