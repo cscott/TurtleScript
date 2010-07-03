@@ -47,6 +47,7 @@ table {width: 90%; border: 0px; cellpadding: 0px;}
 <SCRIPT src="./tokens.js"></SCRIPT>
 <SCRIPT src="./parse.js"></SCRIPT>
 <SCRIPT src="./json2.js"></SCRIPT>
+<SCRIPT src="./compile.js"></SCRIPT>
 <PRE><SCRIPT>
 /*jslint evil: true */
 
@@ -88,6 +89,10 @@ try {
     if (tree) {
         document.write(JSON.stringify(tree, ['key', 'name', 'message',
             'value', 'arity', 'first', 'second', 'third', 'fourth'], 4));
+        document.write("\n\n");
+        // recompile!
+        compile = make_compile();
+        document.write(compile(tree));
     }
 
 } catch (e) {

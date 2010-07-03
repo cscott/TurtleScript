@@ -499,11 +499,11 @@ var make_parse = function () {
         advance("(");
         this.first = expression(0);
         advance(")");
-        this.second = block();
+        this.second = block()[0];
         if (token.id === "else") {
             scope.reserve(token);
             advance("else");
-            this.third = token.id === "if" ? statement() : block();
+            this.third = token.id === "if" ? { value: "block", arity: "statement", first: statement() } : block()[0];
         } else {
             this.third = null;
         }
@@ -536,7 +536,7 @@ var make_parse = function () {
         advance("(");
         this.first = expression(0);
         advance(")");
-        this.second = block();
+        this.second = block()[0];
         this.arity = "statement";
         return [ this ];
     });
