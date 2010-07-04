@@ -76,6 +76,11 @@ Object.prototype.error = function (message, t) {
     throw t;
 };
 
+// Properly escape < > & for html
+function html_escape(s) {
+    var table = { "<":"&lt;", ">":"&gt;", "&":"&amp;" };
+    return s.replace(/[<>&]/g, function(ss) { return table[ss]; });
+}
 
 try {
     parse = make_parse();
@@ -87,12 +92,13 @@ try {
     source = "var make_parse = " + source + ";";
     tree = parse(source);
     if (tree) {
-        document.write(JSON.stringify(tree, ['key', 'name', 'message',
-            'value', 'arity', 'first', 'second', 'third', 'fourth'], 4));
+        document.write(html_escape(
+            JSON.stringify(tree, ['key', 'name', 'message',
+            'value', 'arity', 'first', 'second', 'third', 'fourth'], 4)));
         document.write("\n\n");
         // recompile!
         compile = make_compile();
-        document.write(compile(tree));
+        document.write(html_escape(compile(tree)));
     }
 
 } catch (e) {
