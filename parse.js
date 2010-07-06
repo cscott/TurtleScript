@@ -383,6 +383,8 @@ var make_parse = function () {
     prefix("function", function () {
         var a = [];
         new_scope();
+        // 'arguments' is defined inside every function.
+        scope.define({ value: "arguments", arity: "name" });
         if (token.arity === "name") {
             scope.define(token);
             this.name = token.value;
@@ -461,7 +463,7 @@ var make_parse = function () {
         var a = statements();
         advance("}");
         scope.pop();
-	// CSA: make block structure (scope) explicit in the parse tree
+        // CSA: make block structure (scope) explicit in the parse tree
         return [ { value: "block", arity: "statement", first: a } ];
     });
 
