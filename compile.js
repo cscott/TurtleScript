@@ -222,7 +222,7 @@ var make_compile = function() {
 
     // Odd cases
     dispatch['this'] = function() { return "this"; } // literal
-    dispatch.function = with_prec(0, function() {
+    dispatch['function'] = with_prec(0, function() {
             var result = "function";
             if (this.name) result += " " + this.name;
             result += " (" + gather(this.first, ", ", compile) + ") {";
