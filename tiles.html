@@ -7,7 +7,7 @@
 <link href="jquery/pepper-grinder/jquery-ui-1.8.2.custom.css"
       rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="jquery/jquery-1.4.2.js" />
-<script type="text/javascript" src="jquery/jquery-ui-1.8.2.js" />
+<script type="text/javascript" src="jquery/jquery-ui-1.9pre.js" />
 
 <!-- my stuff -->
 <script type="text/javascript">
@@ -17,7 +17,7 @@ $(function() {
     placeholder: 'ui-state-highlight',
     connectWith: '.ts, .ts > li ul'
   });
-  $("#canvas, #palette").disableSelection();
+  $(".ts, .ts li, .ts li span").disableSelection();
 });
 </script>
 <style type="text/css">
@@ -70,5 +70,5 @@ hr { clear: both; }
 
 <hr>
 <address></address>
-<!-- hhmts start -->Last modified: Thu Jul  8 11:46:39 EDT 2010 <!-- hhmts end -->
+<!-- hhmts start -->Last modified: Thu Jul  8 12:41:02 EDT 2010 <!-- hhmts end -->
 </body> </html>
