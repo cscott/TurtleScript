@@ -3,31 +3,72 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>TurtleScript tile test</title>
-<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+<!-- jquery stuff -->
+<link href="jquery/pepper-grinder/jquery-ui-1.8.2.custom.css"
+      rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="jquery/jquery-1.4.2.js" />
 <script type="text/javascript" src="jquery/jquery-ui-1.8.2.js" />
+
+<!-- my stuff -->
 <script type="text/javascript">
 $(function() {
-  $(".ts").draggable({containment: '#canvas', revert: true});
+  $("#palette li").addClass("ui-state-default");
+  $(".ts, .ts > li ul").sortable({
+    placeholder: 'ui-state-highlight',
+    connectWith: '.ts, .ts > li ul'
+  });
+  $("#canvas, #palette").disableSelection();
 });
 </script>
+<style type="text/css">
+.ts { font-size: 12px; }
+ul.ts, .ts ul {
+  list-style-type: none; margin: 0; padding: 0;
+}
+#palette, #canvas {
+  width: 49%;
+  border: 1px solid #ccc;
+  height: 10em;
+  float: left;
+}
+.ts > li { float: left; }
+.ts li {
+  margin: 0; padding: .25em;
+  display: inline-block;
+  min-width: 3em;
+  min-height: 1.5em;
+}
+.ts > li ul {
+  display: inline-block;
+  background: white;
+  min-width: 3.5em;
+  min-height: 1.5em;
+  vertical-align: middle;
+}
+.ts .name { font-style: italic; text-align: center; }
+hr { clear: both; }
+</style>
 </head>
 
 <body>
 <h1>TurtleScript tile test</h1>
 
-<div id="canvas">
+<ul id="palette" class="ts">
 
-<span class="ts if">
-  <span class="ts name">b</span>
-  <span class="ts block">
-    <span class="ts return">return</span>
-  </span>
-</span>
+<li class="if"><span>if</span> (<ul class="expr"><li class="name">b</li></ul>)
+                  {<ul class="block"></ul>}</li>
+
+<li class="stmt">return;</li>
+<li class="stmt">break;</li>
+<li class="name">b</li>
+</ul>
+
+<ul id="canvas" class="ts">
+</ul>
 
 </div>
-  
+
 <hr>
 <address></address>
-<!-- hhmts start -->Last modified: Thu Jul  8 10:18:58 EDT 2010 <!-- hhmts end -->
+<!-- hhmts start -->Last modified: Thu Jul  8 11:46:39 EDT 2010 <!-- hhmts end -->
 </body> </html>
