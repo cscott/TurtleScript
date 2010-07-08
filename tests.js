@@ -44,6 +44,18 @@ var make_tests = function(make_parse, make_compile) {
     test[i+=1] = function(x) {
         if (x) { x += 1; } else if (!x) { x += 2; } else { x+= 3; }
     };
+    /** Tile-generation tests */
+    test[i+=1] = function() {
+	function foo(a, b) {
+	    var c;
+	    c = b;
+	    while (1) {
+		break;
+	    }
+	    return a+b;
+	};
+    };
+    /** Block scoping tests (don't currently work) */
     /*
     test[i+=1] = function() {
         var x = 3, z;

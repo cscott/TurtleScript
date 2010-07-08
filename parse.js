@@ -132,7 +132,8 @@ var make_parse = function () {
             return n.std();
         } else {
             v = expression(0);
-            if (!v.assignment && v.id !== "(") {
+            if ((!v.assignment) && v.id !== "(" &&
+                !(v.arity == 'function' && v.name)) {
                 v.error("Bad expression statement.");
             }
             advance(";");
