@@ -167,8 +167,8 @@ $(function() {
   font-style: normal;
 }
 
-/* Blocks and variable declarations should be indented in their parent */
-.ts ul.block, .ts div.variables {
+/* Blocks should be indented in their parent */
+.ts .block {
   margin-left: 1em;
 }
 
@@ -192,8 +192,11 @@ hr { clear: both; }
   <div class="function">
     <div class="header">function <span class="name">foo</span>
       (<ul class="arguments"><li class="name">a</li><li class="name">b</li></ul>) {</div>
-    <div class="variables">var <ul class="variables"><li class="name">c</li></ul>;</div>
-    <ul class="block">
+    <div class="block">
+     <div class="variables">
+      var <ul class="variables"><li class="name">c</li></ul>;
+     </div>
+     <ul>
       <li class="stmt">
         <ul class="expr fixed"><!-- a expression statement -->
 	  <li class="binop">
@@ -216,6 +219,7 @@ hr { clear: both; }
 	;
       </li>
     </ul>
+    </div>
     <div class="footer">}</div>
   </div>
 
@@ -223,5 +227,5 @@ hr { clear: both; }
 
 <hr>
 <address></address>
-<!-- hhmts start -->Last modified: Thu Jul  8 16:57:34 EDT 2010 <!-- hhmts end -->
+<!-- hhmts start -->Last modified: Thu Jul  8 17:03:14 EDT 2010 <!-- hhmts end -->
 </body> </html>
