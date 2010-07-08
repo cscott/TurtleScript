@@ -11,8 +11,21 @@
 
 <!-- my stuff -->
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
+<script src="./global.js" type="text/javascript"></script>
+<script src="./tokens.js" type="text/javascript"></script>
+<script src="./parse.js" type="text/javascript"></script>
+<script src="./compile.js" type="text/javascript"></script>
+<script src="./tests.js" type="text/javascript"></script>
 <script type="text/javascript">
 $(function() {
+  // generate some stuff on the canvas
+  var parse = make_parse();
+  var compile = make_compile();
+  var source = make_tests(make_parse, make_compile)[11];
+  //$("#debug").append(html_escape(source)+"\n");
+  var tree = parse(source);
+  //$("#debug").append(html_escape(compile(tree)));
+
   $(".ts ul").sortable({
     placeholder: 'placeholder active',
     forcePlaceholderSize: true, // use dynamic size of draggable if height=0
@@ -56,6 +69,8 @@ hr { clear: both; }
 <body>
 <h1>TurtleScript tile test</h1>
 
+<pre id="debug">
+</pre>
 <div id="canvas" class="ts">
 
   <div class="function">
@@ -109,5 +124,5 @@ hr { clear: both; }
 
 <hr>
 <address></address>
-<!-- hhmts start -->Last modified: Thu Jul  8 17:57:45 EDT 2010 <!-- hhmts end -->
+<!-- hhmts start -->Last modified: Thu Jul  8 18:19:09 EDT 2010 <!-- hhmts end -->
 </body> </html>
