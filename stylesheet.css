@@ -1,32 +1,165 @@
-/* from http://css-tricks.com/examples/ButtonMaker/ */
-
+/* Default font sizes & colors */
 .ts {
-   display: inline-block; /* ensure top and bottom margins don't collapse */
-   border-top: 1px solid #96d1f8;
-   border-left: 1px solid #96d1f8;
-   background: #65a9d7;
-   background: -webkit-gradient(linear, left top, left bottom, from(#3e779d), to(#65a9d7));
-   background: -moz-linear-gradient(top, #3e779d, #65a9d7);
-   padding: 5.5px 11px;
-   -webkit-border-radius: 8px;
-   -moz-border-radius: 8px;
-   border-radius: 8px;
-   -webkit-box-shadow: rgba(0,0,0,0.75) 1px 1px 0;
-   -moz-box-shadow: rgba(0,0,0,0.75) 1px 1px 0;
-   box-shadow: rgba(0,0,0,0.75) 1px 1px 0;
-   text-shadow: rgba(0,0,0,.4) 0 1px 0;
-   color: white;
-   font-size: 12px;
-   font-family: Helvetica, Arial, Sans-Serif;
-   text-decoration: none;
-   }
+  font-size: 14px;
+  font-family: Helvetica, Arial, Sans-Serif;
+  color: black;
+}
 
-.ts:hover {
-   border-top-color: #28597a;
-   background: #28597a;
-   color: #ccc;
-   }
-.ts:active {
-   border-top-color: #1b435e;
-   background: #1b435e;
-   }
+/* Default backgrounds */
+.ts > div, .ts li:not(.placeholder) {
+  /* Borrowed from .ui-state-default */
+  background: #f8f7f6 url(jquery/pepper-grinder/images/ui-bg_fine-grain_10_f8f7f6_60x60.png) 50% 50% repeat;
+  font-weight: bold; color: #654b24;
+}
+.ts > div.ui-draggable-dragging,
+.ts li.ui-sortable-helper {
+  /* Borrowed from .ui-state-active */
+  border: 1px solid #d9d6c4;
+  background: #eceadf url(jquery/pepper-grinder/images/ui-bg_fine-grain_15_eceadf_60x60.png) 50% 50% repeat;
+  font-weight: bold; color: #140f06;
+}
+.ts li.placeholder {
+  /* Borrowed from .ui-state-highlight */
+  border: 1px solid #b2a266;
+  background: #f7f3de url(images/ui-bg_fine-grain_15_f7f3de_60x60.png) 50% 50% repeat;
+  color: #3a3427;
+}
+
+/* Don't style any lists as lists. */
+.ts ul {
+  list-style-type: none; margin: 0; padding: 0;
+}
+
+/* Don't show text-selection cursor */
+.ts, .ts li, .ts span { cursor: default; }
+
+/* Fine tune the padding around elements */
+.ts div.function {
+  display: inline-block;
+  padding: 5px;
+  margin: 5px;
+}
+.ts div.function div.header,
+.ts div.function div.variables {
+  margin-bottom: 2px;
+}
+.ts ul li {
+  padding: 1px;
+}
+
+/* Give moveable things a 3d effect */
+.ts ul:not(.fixed) > li:not(.placeholder), .ts div.function {
+  border: 1px solid #ccc;
+  -webkit-box-shadow: rgba(0,0,0,0.75) 1px 1px 0;
+  -moz-box-shadow: rgba(0,0,0,0.75) 1px 1px 0;
+  box-shadow: rgba(0,0,0,0.75) 1px 2px 0;
+}
+
+/* Round top edge of vertical lists */
+.ts ul:not(.fixed):not(.arguments):not(.variables):not(.expr) > li:first-child,
+.ts ul li.ui-sortable-helper,
+.ts div.function {
+  -webkit-border-top-left-radius: 3px;
+  -webkit-border-top-right-radius: 3px;
+  -moz-border-radius-topleft: 3px;
+  -moz-border-radius-topright: 3px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+/* Round bottom edge of vertical lists */
+.ts ul:not(.fixed):not(.arguments):not(.variables):not(.expr) > li:last-child,
+.ts ul li.ui-sortable-helper,
+.ts div.function {
+  -webkit-border-bottom-right-radius: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  -moz-border-radius-bottomright: 3px;
+  -moz-border-radius-bottomleft: 3px;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+/* Round left edge of horizontal lists */
+.ts ul.arguments > li:first-child,
+.ts ul.variables > li:first-child,
+.ts ul.expr > li:first-child {
+  -webkit-border-top-left-radius: 3px;
+  -moz-border-radius-topleft: 3px;
+  border-top-left-radius: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  -moz-border-radius-bottomleft: 3px;
+  border-bottom-left-radius: 3px;
+}
+/* Round right edge of horizontal lists */
+.ts ul.arguments > li:last-child,
+.ts ul.variables > li:last-child,
+.ts ul.expr > li:last-child {
+  -webkit-border-top-right-radius: 3px;
+  -moz-border-radius-topright: 3px;
+  border-top-right-radius: 3px;
+  -webkit-border-bottom-right-radius: 3px;
+  -moz-border-radius-bottomright: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+/* Format horizontally-oriented lists */
+.ts ul.expr, .ts ul.expr li,
+.ts ul.arguments, .ts ul.arguments li,
+.ts ul.variables, .ts ul.variables li {
+  display: inline-block;
+}
+/* Argument/variable lists are comma-separated */
+.ts ul.arguments li:after,
+.ts ul.variables li:after{
+  content: ", ";
+  font-family: Helvetica, Arial, Sans-Serif;
+  font-style: normal;
+}
+.ts ul.arguments li:last-child:after,
+.ts ul.variables li:last-child:after,
+.ts ul.arguments li.ui-sortable-helper:after,
+.ts ul.variables li.ui-sortable-helper:after {
+  content: "";
+}
+
+.ts ul.arguments, .ts ul.variables {
+  padding-left: 0.25em; /* make space to drop at start */
+  padding-right: 0.25em; /* make space to drop at end */
+}
+
+/* this section is a workaround for wonky sortable behavior for
+ * horizontally-aligned lists. */
+.ts ul.arguments, .ts ul.variables { vertical-align: middle; }
+.ts ul.arguments li, .ts ul.variables li { float: left; }
+
+/* Give some content to the placeholder element. */
+.ts ul li.placeholder:before {
+  content: "..."; /* give it a baseline */
+  font-family: Helvetica, Arial, Sans-Serif;
+  font-style: normal;
+}
+/* use the dynamic height of the placeholder for block lists */
+.ts .block > ul > li.placeholder.active { height: 0; }
+
+/* Blocks should be indented in their parent */
+.ts .block {
+  margin-left: 1em;
+  margin-right: 4px;
+}
+/* Ensure that even an empty block/expr has some height/width */
+.ts .block > ul { min-height: 1em; }
+.ts ul.expr,
+.ts ul.arguments,
+.ts ul.variables { min-width: 1em; min-height: 1em; }
+/* XXX: :empty selector doesn't work if block has whitespace in it! */
+/* should work around by adding a .placeholder div if the last child
+   is moved out of a block/expr/etc. */
+.ts .block > ul:empty,
+.ts ul.expr:empty,
+.ts ul.arguments:empty,
+.ts ul.variables:empty { border: 1px solid red; }
+
+/* Names are serif italic */
+.ts .name {
+  font-family: Times, Serif;
+  font-style: italic;
+  text-align: center;
+}

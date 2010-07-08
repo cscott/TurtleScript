@@ -10,20 +10,34 @@
 <script type="text/javascript" src="jquery/jquery-ui-1.9pre.js"></script>
 
 <!-- my stuff -->
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript">
 $(function() {
   $(".ts ul").sortable({
-    placeholder: 'ui-state-highlight placeholder',
-    //forcePlaceholderSize: true,
-    //forceHelperSize: true,
+    placeholder: 'placeholder active',
+    forcePlaceholderSize: true, // use dynamic size of draggable if height=0
     revert: 100/*ms: fast revert*/,
     tolerance: 'pointer',
     distance: 0,
+    cancel: '.placeholder',
     //items: '> *:not(.fixed)',
     cursor: 'default',
     //cursorAt: { bottom: 0, right: 0 }, // iphone only?
-    //connectWith: '.ts, .ts > li ul'
   });
+  var interconnect = [
+    // statements can be dropped on other statement lists
+    ".ts .block > ul",
+    // expressions can be dropped on other expressions
+    ".ts ul.expr",
+    // variables in var/argument lists can be dropped on each other
+    ".ts ul.arguments, .ts ul.variables",
+  ];
+  var i=0;
+  while (i < interconnect.length) {
+    $(interconnect[i]).sortable( "option", "connectWith", interconnect[i] );
+    i += 1;
+  }
+
   $(".ts div.function").draggable();
   $(".ts, .ts ul, .ts li, .ts span, .ts *").disableSelection().
     css("WebkitUserSelect", "none");
@@ -32,151 +46,6 @@ $(function() {
 <style type="text/css">
 #canvas {
   border: 1px solid #ccc;
-}
-
-/* Default font sizes & colors */
-.ts {
-  font-size: 14px;
-  font-family: Helvetica, Arial, Sans-Serif;
-  color: black;
-}
-
-/* Default background (borrowed from .ui-widget-content style */
-.ts > div, .ts li:not(.placeholder) {
-  /* Borrowed from .ui-state-default */
-  background: #f8f7f6 url(jquery/pepper-grinder/images/ui-bg_fine-grain_10_f8f7f6_60x60.png) 50% 50% repeat;
-  font-weight: bold; color: #654b24;
-}
-.ts > div.ui-draggable-dragging,
-.ts li.ui-sortable-helper {
-  /* Borrowed from .ui-state-active */
-  border: 1px solid #d9d6c4;
-  background: #eceadf url(jquery/pepper-grinder/images/ui-bg_fine-grain_15_eceadf_60x60.png) 50% 50% repeat;
-  font-weight: bold; color: #140f06;
-}
-
-/* Don't style any lists as lists. */
-.ts ul {
-  list-style-type: none; margin: 0; padding: 0;
-}
-
-/* Don't show text-selection cursor */
-.ts, .ts li, .ts span { cursor: default; }
-
-/* Fine tune the padding around elements */
-.ts div.function {
-  display: inline-block;
-  padding: 5px;
-  margin: 5px;
-}
-.ts div.function div.header,
-.ts div.function div.variables {
-  margin-bottom: 2px;
-}
-.ts ul li {
-  padding: 1px;
-}
-
-/* Give moveable things a 3d effect */
-.ts ul:not(.fixed) > li:not(.placeholder), .ts div.function {
-  border: 1px solid #ccc;
-  -webkit-box-shadow: rgba(0,0,0,0.75) 1px 1px 0;
-  -moz-box-shadow: rgba(0,0,0,0.75) 1px 1px 0;
-  box-shadow: rgba(0,0,0,0.75) 1px 2px 0;
-}
-
-/* Round top edge of vertical lists */
-.ts ul:not(.fixed):not(.arguments):not(.variables):not(.expr) > li:first-child,
-.ts ul li.ui-sortable-helper,
-.ts div.function {
-  -webkit-border-top-left-radius: 3px;
-  -webkit-border-top-right-radius: 3px;
-  -moz-border-radius-topleft: 3px;
-  -moz-border-radius-topright: 3px;
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-}
-/* Round bottom edge of vertical lists */
-.ts ul:not(.fixed):not(.arguments):not(.variables):not(.expr) > li:last-child,
-.ts ul li.ui-sortable-helper,
-.ts div.function {
-  -webkit-border-bottom-right-radius: 3px;
-  -webkit-border-bottom-left-radius: 3px;
-  -moz-border-radius-bottomright: 3px;
-  -moz-border-radius-bottomleft: 3px;
-  border-bottom-right-radius: 3px;
-  border-bottom-left-radius: 3px;
-}
-/* Round left edge of horizontal lists */
-.ts ul.arguments > li:first-child,
-.ts ul.variables > li:first-child,
-.ts ul.expr > li:first-child {
-  -webkit-border-top-left-radius: 3px;
-  -moz-border-radius-topleft: 3px;
-  border-top-left-radius: 3px;
-  -webkit-border-bottom-left-radius: 3px;
-  -moz-border-radius-bottomleft: 3px;
-  border-bottom-left-radius: 3px;
-}
-/* Round right edge of horizontal lists */
-.ts ul.arguments > li:last-child,
-.ts ul.variables > li:last-child,
-.ts ul.expr > li:last-child {
-  -webkit-border-top-right-radius: 3px;
-  -moz-border-radius-topright: 3px;
-  border-top-right-radius: 3px;
-  -webkit-border-bottom-right-radius: 3px;
-  -moz-border-radius-bottomright: 3px;
-  border-bottom-right-radius: 3px;
-}
-
-/* Format horizontally-oriented lists */
-.ts ul.expr, .ts ul.expr li,
-.ts ul.arguments, .ts ul.arguments li,
-.ts ul.variables, .ts ul.variables li {
-  display: inline-block;
-}
-/* Argument/variable lists are comma-separated */
-.ts ul.arguments li:after,
-.ts ul.variables li:after{
-  content: ", ";
-  font-family: Helvetica, Arial, Sans-Serif;
-  font-style: normal;
-}
-.ts ul.arguments li:last-child:after,
-.ts ul.variables li:last-child:after,
-.ts ul.arguments li.ui-sortable-helper:after,
-.ts ul.variables li.ui-sortable-helper:after {
-  content: "";
-}
-
-.ts ul.arguments, .ts ul.variables {
-  padding-left: 0.25em; /* make space to drop at start */
-  padding-right: 0.25em; /* make space to drop at end */
-}
-
-/* this section is a workaround for wonky sortable behavior for
- * horizontally-aligned lists. */
-.ts ul.arguments, .ts ul.variables { vertical-align: middle; }
-.ts ul.arguments li, .ts ul.variables li { float: left; }
-
-/* Give some content to the placeholder element. */
-.ts ul li.placeholder:before {
-  content: "..."; /* give it a baseline */
-  font-family: Helvetica, Arial, Sans-Serif;
-  font-style: normal;
-}
-
-/* Blocks should be indented in their parent */
-.ts .block {
-  margin-left: 1em;
-}
-
-/* Names are serif italic */
-.ts .name {
-  font-family: Times, Serif;
-  font-style: italic;
-  text-align: center;
 }
 
 /* just make sure the footer is properly at the bottom */
@@ -208,6 +77,19 @@ hr { clear: both; }
 	;
       </li>
 
+      <li class="stmt">
+        <div class="header">while
+	  (<ul class="expr"><li class="literal">1</li></ul>) {
+	</div>
+	<div class="block">
+	  <div class="variables">
+	    var <ul class="variables"><li class="placeholder"></li></ul>;
+	  </div>
+	  <ul><li class="stmt">break;</li></ul>
+	</div>
+	<div class="footer">}</div>
+      </li>
+
       <li class="stmt">return
         <ul class="expr">
 	  <li class="binop">
@@ -227,5 +109,5 @@ hr { clear: both; }
 
 <hr>
 <address></address>
-<!-- hhmts start -->Last modified: Thu Jul  8 17:03:14 EDT 2010 <!-- hhmts end -->
+<!-- hhmts start -->Last modified: Thu Jul  8 17:57:45 EDT 2010 <!-- hhmts end -->
 </body> </html>
