@@ -6,46 +6,161 @@
 <!-- jquery stuff -->
 <link href="jquery/pepper-grinder/jquery-ui-1.8.2.custom.css"
       rel="stylesheet" type="text/css" />
-<script type="text/javascript" src="jquery/jquery-1.4.2.js" />
-<script type="text/javascript" src="jquery/jquery-ui-1.9pre.js" />
+<script type="text/javascript" src="jquery/jquery-1.4.2.js"></script>
+<script type="text/javascript" src="jquery/jquery-ui-1.9pre.js"></script>
 
 <!-- my stuff -->
 <script type="text/javascript">
 $(function() {
-  $("#palette li").addClass("ui-state-default");
-  $(".ts, .ts > li ul").sortable({
-    placeholder: 'ui-state-highlight',
-    connectWith: '.ts, .ts > li ul'
+  $(".ts ul").sortable({
+    placeholder: 'ui-state-highlight placeholder',
+    //forcePlaceholderSize: true,
+    //forceHelperSize: true,
+    revert: 100/*ms: fast revert*/,
+    tolerance: 'pointer',
+    distance: 0,
+    //items: '> *:not(.fixed)',
+    cursor: 'default',
+    //cursorAt: { bottom: 0, right: 0 }, // iphone only?
+    //connectWith: '.ts, .ts > li ul'
   });
-  $(".ts, .ts li, .ts li span").disableSelection();
+  $(".ts div.function").draggable();
+  $(".ts, .ts ul, .ts li, .ts span, .ts *").disableSelection().
+    css("WebkitUserSelect", "none");
 });
 </script>
 <style type="text/css">
-.ts { font-size: 12px; }
-ul.ts, .ts ul {
+#canvas {
+  border: 1px solid #ccc;
+}
+
+/* Default font sizes & colors */
+.ts {
+  font-size: 14px;
+  font-family: Helvetica, Arial, Sans-Serif;
+  color: black;
+}
+
+/* Default background */
+.ts > div, .ts li:not(.placeholder) {
+  background: white;
+}
+
+/* Don't style any lists as lists. */
+.ts ul {
   list-style-type: none; margin: 0; padding: 0;
 }
-#palette, #canvas {
-  width: 49%;
-  border: 1px solid #ccc;
-  height: 10em;
-  float: left;
-}
-.ts > li { float: left; }
-.ts li {
-  margin: 0; padding: .25em;
+
+/* Don't show text-selection cursor */
+.ts, .ts li, .ts span { cursor: default; }
+
+/* Fine tune the padding around elements */
+.ts div.function {
   display: inline-block;
-  min-width: 3em;
-  min-height: 1.5em;
-}
-.ts > li ul {
-  display: inline-block;
+  padding: 5px;
+  margin: 5px;
   background: white;
-  min-width: 3.5em;
-  min-height: 1.5em;
-  vertical-align: middle;
 }
-.ts .name { font-style: italic; text-align: center; }
+.ts div.function .header {
+  margin-bottom: 2px;
+}
+.ts ul li {
+  padding: 1px;
+}
+
+/* Give moveable things a 3d effect */
+.ts ul:not(.fixed) > li:not(.placeholder), .ts div.function {
+  border: 1px solid #ccc;
+  -webkit-box-shadow: rgba(0,0,0,0.75) 1px 1px 0;
+  -moz-box-shadow: rgba(0,0,0,0.75) 1px 1px 0;
+  box-shadow: rgba(0,0,0,0.75) 1px 2px 0;
+}
+
+/* Round top edge of vertical lists */
+.ts ul:not(.fixed):not(.arguments):not(.expr) > li:first-child,
+.ts ul li.ui-sortable-helper,
+.ts div.function {
+  -webkit-border-top-left-radius: 3px;
+  -webkit-border-top-right-radius: 3px;
+  -moz-border-radius-topleft: 3px;
+  -moz-border-radius-topright: 3px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+/* Round bottom edge of vertical lists */
+.ts ul:not(.fixed):not(.arguments):not(.expr) > li:last-child,
+.ts ul li.ui-sortable-helper,
+.ts div.function {
+  -webkit-border-bottom-right-radius: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  -moz-border-radius-bottomright: 3px;
+  -moz-border-radius-bottomleft: 3px;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+/* Round left edge of horizontal lists */
+.ts ul.arguments > li:first-child,
+.ts ul.expr > li:first-child {
+  -webkit-border-top-left-radius: 3px;
+  -moz-border-radius-topleft: 3px;
+  border-top-left-radius: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  -moz-border-radius-bottomleft: 3px;
+  border-bottom-left-radius: 3px;
+}
+/* Round right edge of horizontal lists */
+.ts ul.arguments > li:last-child,
+.ts ul.expr > li:last-child {
+  -webkit-border-top-right-radius: 3px;
+  -moz-border-radius-topright: 3px;
+  border-top-right-radius: 3px;
+  -webkit-border-bottom-right-radius: 3px;
+  -moz-border-radius-bottomright: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+/* Format horizontally-oriented lists */
+.ts ul.expr, .ts ul.expr li,
+.ts ul.arguments, .ts ul.arguments li {
+  display: inline-block;
+}
+/* Argument list is comma-separated */
+.ts ul.arguments li:after {
+  content: ", ";
+  font-family: Helvetica, Arial, Sans-Serif;
+  font-style: normal;
+}
+.ts ul.arguments li:last-child:after,
+.ts ul.arguments li.ui-sortable-helper:after { content: "" }
+
+.ts ul.arguments {
+  padding-left: 0.25em; /* make space to drop at start */
+  padding-right: 0.25em; /* make space to drop at end */
+}
+
+/* this section is a workaround for wonky sortable behavior for
+ * horizontally-aligned lists. */
+.ts ul.arguments { vertical-align: middle; }
+.ts ul.arguments li { float: left; }
+
+/* Give some content to the placeholder element. */
+.ts ul li.placeholder:before {
+  content: "..."; /* give it a baseline */
+  font-family: Helvetica, Arial, Sans-Serif;
+  font-style: normal;
+}
+
+/* Blocks should be indented in their parent */
+.ts ul.block { margin-left: 1em; }
+
+/* Names are serif italic */
+.ts .name {
+  font-family: Times, Serif;
+  font-style: italic;
+  text-align: center;
+}
+
+/* just make sure the footer is properly at the bottom */
 hr { clear: both; }
 </style>
 </head>
@@ -53,22 +168,42 @@ hr { clear: both; }
 <body>
 <h1>TurtleScript tile test</h1>
 
-<ul id="palette" class="ts">
+<div id="canvas" class="ts">
 
-<li class="if"><span>if</span> (<ul class="expr"><li class="name">b</li></ul>)
-                  {<ul class="block"></ul>}</li>
+  <div class="function">
+    <div class="header">function <span class="name">foo</span>
+      (<ul class="arguments"><li class="name">a</li><li class="name">b</li></ul>) {</div>
+    <ul class="block">
+      <li class="stmt">var <span class="name">c</span>;</li>
 
-<li class="stmt">return;</li>
-<li class="stmt">break;</li>
-<li class="name">b</li>
-</ul>
+      <li class="stmt">
+        <ul class="expr fixed"><!-- a expression statement -->
+	  <li class="binop">
+	    <ul class="expr"><li class="name">c</li></ul>
+	    <span class="op">=</span>
+	    <ul class="expr"><li class="name">b</li></ul>
+	  </li>
+	</ul>
+	;
+      </li>
 
-<ul id="canvas" class="ts">
-</ul>
+      <li class="stmt">return
+        <ul class="expr">
+	  <li class="binop">
+	    <ul class="expr"><li class="name">a</li></ul>
+	    <span class="op">+</span>
+	    <ul class="expr"><li class="name">b</li></ul>
+	  </li>
+	</ul>
+	;
+      </li>
+    </ul>
+    <div class="footer">}</div>
+  </div>
 
 </div>
 
 <hr>
 <address></address>
-<!-- hhmts start -->Last modified: Thu Jul  8 12:41:02 EDT 2010 <!-- hhmts end -->
+<!-- hhmts start -->Last modified: Thu Jul  8 16:39:19 EDT 2010 <!-- hhmts end -->
 </body> </html>
