@@ -1,0 +1,32 @@
+/* from http://css-tricks.com/examples/ButtonMaker/ */
+
+.ts {
+   display: inline-block; /* ensure top and bottom margins don't collapse */
+   border-top: 1px solid #96d1f8;
+   border-left: 1px solid #96d1f8;
+   background: #65a9d7;
+   background: -webkit-gradient(linear, left top, left bottom, from(#3e779d), to(#65a9d7));
+   background: -moz-linear-gradient(top, #3e779d, #65a9d7);
+   padding: 5.5px 11px;
+   -webkit-border-radius: 8px;
+   -moz-border-radius: 8px;
+   border-radius: 8px;
+   -webkit-box-shadow: rgba(0,0,0,0.75) 1px 1px 0;
+   -moz-box-shadow: rgba(0,0,0,0.75) 1px 1px 0;
+   box-shadow: rgba(0,0,0,0.75) 1px 1px 0;
+   text-shadow: rgba(0,0,0,.4) 0 1px 0;
+   color: white;
+   font-size: 12px;
+   font-family: Helvetica, Arial, Sans-Serif;
+   text-decoration: none;
+   }
+
+.ts:hover {
+   border-top-color: #28597a;
+   background: #28597a;
+   color: #ccc;
+   }
+.ts:active {
+   border-top-color: #1b435e;
+   background: #1b435e;
+   }
