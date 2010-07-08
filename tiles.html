@@ -41,9 +41,18 @@ $(function() {
   color: black;
 }
 
-/* Default background */
+/* Default background (borrowed from .ui-widget-content style */
 .ts > div, .ts li:not(.placeholder) {
-  background: white;
+  /* Borrowed from .ui-state-default */
+  background: #f8f7f6 url(jquery/pepper-grinder/images/ui-bg_fine-grain_10_f8f7f6_60x60.png) 50% 50% repeat;
+  font-weight: bold; color: #654b24;
+}
+.ts > div.ui-draggable-dragging,
+.ts li.ui-sortable-helper {
+  /* Borrowed from .ui-state-active */
+  border: 1px solid #d9d6c4;
+  background: #eceadf url(jquery/pepper-grinder/images/ui-bg_fine-grain_15_eceadf_60x60.png) 50% 50% repeat;
+  font-weight: bold; color: #140f06;
 }
 
 /* Don't style any lists as lists. */
@@ -59,9 +68,9 @@ $(function() {
   display: inline-block;
   padding: 5px;
   margin: 5px;
-  background: white;
 }
-.ts div.function .header {
+.ts div.function div.header,
+.ts div.function div.variables {
   margin-bottom: 2px;
 }
 .ts ul li {
@@ -77,7 +86,7 @@ $(function() {
 }
 
 /* Round top edge of vertical lists */
-.ts ul:not(.fixed):not(.arguments):not(.expr) > li:first-child,
+.ts ul:not(.fixed):not(.arguments):not(.variables):not(.expr) > li:first-child,
 .ts ul li.ui-sortable-helper,
 .ts div.function {
   -webkit-border-top-left-radius: 3px;
@@ -88,7 +97,7 @@ $(function() {
   border-top-right-radius: 3px;
 }
 /* Round bottom edge of vertical lists */
-.ts ul:not(.fixed):not(.arguments):not(.expr) > li:last-child,
+.ts ul:not(.fixed):not(.arguments):not(.variables):not(.expr) > li:last-child,
 .ts ul li.ui-sortable-helper,
 .ts div.function {
   -webkit-border-bottom-right-radius: 3px;
@@ -100,6 +109,7 @@ $(function() {
 }
 /* Round left edge of horizontal lists */
 .ts ul.arguments > li:first-child,
+.ts ul.variables > li:first-child,
 .ts ul.expr > li:first-child {
   -webkit-border-top-left-radius: 3px;
   -moz-border-radius-topleft: 3px;
@@ -110,6 +120,7 @@ $(function() {
 }
 /* Round right edge of horizontal lists */
 .ts ul.arguments > li:last-child,
+.ts ul.variables > li:last-child,
 .ts ul.expr > li:last-child {
   -webkit-border-top-right-radius: 3px;
   -moz-border-radius-topright: 3px;
@@ -121,27 +132,33 @@ $(function() {
 
 /* Format horizontally-oriented lists */
 .ts ul.expr, .ts ul.expr li,
-.ts ul.arguments, .ts ul.arguments li {
+.ts ul.arguments, .ts ul.arguments li,
+.ts ul.variables, .ts ul.variables li {
   display: inline-block;
 }
-/* Argument list is comma-separated */
-.ts ul.arguments li:after {
+/* Argument/variable lists are comma-separated */
+.ts ul.arguments li:after,
+.ts ul.variables li:after{
   content: ", ";
   font-family: Helvetica, Arial, Sans-Serif;
   font-style: normal;
 }
 .ts ul.arguments li:last-child:after,
-.ts ul.arguments li.ui-sortable-helper:after { content: "" }
+.ts ul.variables li:last-child:after,
+.ts ul.arguments li.ui-sortable-helper:after,
+.ts ul.variables li.ui-sortable-helper:after {
+  content: "";
+}
 
-.ts ul.arguments {
+.ts ul.arguments, .ts ul.variables {
   padding-left: 0.25em; /* make space to drop at start */
   padding-right: 0.25em; /* make space to drop at end */
 }
 
 /* this section is a workaround for wonky sortable behavior for
  * horizontally-aligned lists. */
-.ts ul.arguments { vertical-align: middle; }
-.ts ul.arguments li { float: left; }
+.ts ul.arguments, .ts ul.variables { vertical-align: middle; }
+.ts ul.arguments li, .ts ul.variables li { float: left; }
 
 /* Give some content to the placeholder element. */
 .ts ul li.placeholder:before {
@@ -150,8 +167,10 @@ $(function() {
   font-style: normal;
 }
 
-/* Blocks should be indented in their parent */
-.ts ul.block { margin-left: 1em; }
+/* Blocks and variable declarations should be indented in their parent */
+.ts ul.block, .ts div.variables {
+  margin-left: 1em;
+}
 
 /* Names are serif italic */
 .ts .name {
@@ -173,9 +192,8 @@ hr { clear: both; }
   <div class="function">
     <div class="header">function <span class="name">foo</span>
       (<ul class="arguments"><li class="name">a</li><li class="name">b</li></ul>) {</div>
+    <div class="variables">var <ul class="variables"><li class="name">c</li></ul>;</div>
     <ul class="block">
-      <li class="stmt">var <span class="name">c</span>;</li>
-
       <li class="stmt">
         <ul class="expr fixed"><!-- a expression statement -->
 	  <li class="binop">
@@ -205,5 +223,5 @@ hr { clear: both; }
 
 <hr>
 <address></address>
-<!-- hhmts start -->Last modified: Thu Jul  8 16:39:19 EDT 2010 <!-- hhmts end -->
+<!-- hhmts start -->Last modified: Thu Jul  8 16:57:34 EDT 2010 <!-- hhmts end -->
 </body> </html>
