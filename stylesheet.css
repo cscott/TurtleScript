@@ -157,9 +157,35 @@
 .ts ul.arguments:empty,
 .ts ul.variables:empty { border: 1px solid red; }
 
-/* Names are serif italic */
-.ts .name {
+/* Names and fields are serif italic */
+.ts .name, .ts .field {
   font-family: Times, Serif;
   font-style: italic;
   text-align: center;
 }
+.ts .binop > .op,
+.ts .ternary > .op {
+  color: #555;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+.ts li.literal {
+  font-family: Times, Serif;
+  font-style: normal;
+  font-weight: normal;
+  color: #555;
+}
+.ts span.semi {
+  font-family: Times, Serif;
+  font-style: normal;
+  font-weight: normal;
+  padding-left: 2px;
+  color: #777;
+}
+/* hide empty var declarations */
+.ts div.block > .variables.empty { display: none; }
+
+/* top align */
+.ts li.binop > *,
+.ts li.ternary > *,
+.ts li.stmt > * { vertical-align: top; }

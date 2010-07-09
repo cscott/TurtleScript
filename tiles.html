@@ -22,11 +22,11 @@ $(function() {
   // generate some stuff on the canvas
   var parse = make_parse();
   var compile = make_compile();
-  var source = make_tests(make_parse, make_compile)[12];
+  var source = make_tests(make_parse, make_compile, make_render)[2];
   //$("#debug").append(html_escape(source)+"\n");
   var tree = parse(source);
   //$("#debug").append(html_escape(compile(tree)));
-  var render = make_render();
+  var render = make_render($, html_escape);
   var elem = render(tree);
   //$("#debug").append(html_escape(elem.toSource()));
   $("#test").append(render(tree));
@@ -83,7 +83,7 @@ hr { clear: both; }
       (<ul class="arguments"></ul>) {</div>
     <div class="block" id="test">
      <div class="variables">
-      var <ul class="variables"><li class="placeholder"></li></ul>;
+      var <ul class="variables"><li class="placeholder"></li></ul><span class='semi'>;</span>
      </div>
     </div>
     <div class="footer">}</div>
@@ -140,5 +140,5 @@ hr { clear: both; }
 
 <hr>
 <address></address>
-<!-- hhmts start -->Last modified: Thu Jul  8 20:06:58 EDT 2010 <!-- hhmts end -->
+<!-- hhmts start -->Last modified: Fri Jul  9 10:20:20 EDT 2010 <!-- hhmts end -->
 </body> </html>

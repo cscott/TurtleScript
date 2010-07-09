@@ -1,10 +1,11 @@
 // a collection of interesting test cases.
 
-var make_tests = function(make_parse, make_compile) {
+var make_tests = function(make_parse, make_compile, make_render) {
     var test=[], i=-1;
     // first three tests are own our source code.
     test[i+=1] = make_parse;
     test[i+=1] = make_compile;
+    test[i+=1] = make_render;
     test[i+=1] = make_tests;
     // now some ad-hoc test cases.  Phrased as functions so they can be
     // syntax-checked, etc.

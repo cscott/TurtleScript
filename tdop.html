@@ -49,6 +49,7 @@ table {width: 90%; border: 0px; cellpadding: 0px;}
 <SCRIPT src="./parse.js"></SCRIPT>
 <SCRIPT src="./json2.js"></SCRIPT>
 <SCRIPT src="./compile.js"></SCRIPT>
+<SCRIPT src="./render.js"></SCRIPT>
 <SCRIPT src="./tests.js"></SCRIPT>
 <PRE><SCRIPT>
 /*jslint evil: true */
@@ -73,7 +74,7 @@ try {
 
 // We are going to make the parse function parse itself.
 
-    source = make_tests(make_parse, make_compile)[0];
+    source = make_tests(make_parse, make_compile, make_render)[2];
     tree = parse(source);
     if (tree) {
         document.write(html_escape(
