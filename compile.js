@@ -10,7 +10,7 @@ var make_compile = function() {
     var indentation, prec_stack = [ 0 ];
 
     var assert = function(b, obj) {
-        if (!b) Object.error("Assertion failure", obj);
+        if (!b) { Object.error("Assertion failure", obj); }
     };
 
     // helper function for delimiter-joined lists
@@ -48,36 +48,35 @@ var make_compile = function() {
         return function() {
             var prev_prec = prec_stack[prec_stack.length - 1];
             var result = with_prec(prec, f).apply(obj || this, arguments);
-            if (prev_prec > prec) result = "(" + result + ")";
+            if (prev_prec > prec) { result = "(" + result + ")"; }
             return result;
         };
     };
 
     var str_escape = function(s) {
-	if (s.toSource) {
-	    // abuse toSource() to properly quote a string value.
-	    return s.toSource().slice(12,-2);
-	}
-	// FIXME value isn't escaped on chrome/webkit
-	return '"' + s.toString() + '"';
+        if (s.toSource) {
+            // abuse toSource() to properly quote a string value.
+            return s.toSource().slice(12,-2);
+        }
+        // FIXME value isn't escaped on chrome/webkit
+        return '"' + s.toString() + '"';
     };
 
     var dispatch = {};
-    dispatch.name = function() { return this.value; }
+    dispatch.name = function() { return this.value; };
     dispatch.literal = function() {
-        if (this.value === null) return "null";
+        if (this.value === null) { return "null"; }
         if (typeof(this.value)==='object') {
-            if (this.value.length === 0) return "Array";
+            if (this.value.length === 0) { return "Array"; }
             return "Object";
         }
-        if (typeof(this.value)==='string') return str_escape(this.value);
+        if (typeof(this.value)==='string') { return str_escape(this.value); }
         return this.value.toString();
-    }
+    };
 
     // UNARY ASTs
     dispatch.unary = function() {
-        if (!dispatch.unary[this.value])
-            return "XXX UNKNOWN UNARY "+this.value+" XXX";
+        assert(dispatch.unary[this.value], this);
         return dispatch.unary[this.value].apply(this);
     };
     var unary = function(op, prec, f) {
@@ -116,9 +115,7 @@ var make_compile = function() {
 
     // Binary ASTs
     dispatch.binary = function() {
-        if (!dispatch.binary[this.value]) {
-            return "XXX UNKNOWN BINARY "+this.value+" XXX";
-        }
+        assert(dispatch.binary[this.value], this);
         return dispatch.binary[this.value].apply(this);
     };
     var binary = function(op, prec, f) {
@@ -146,7 +143,7 @@ var make_compile = function() {
     binary('*', 60);
     binary('/', 60);
     binary(".", 80, with_prec_paren(80, function() {
-            assert (this.second.arity==='literal', this.second);
+            assert(this.second.arity==='literal', this.second);
             return compile(this.first)+"."+this.second.value;
             }));
     binary('[', 80, with_prec_paren(80, function() {
@@ -161,9 +158,7 @@ var make_compile = function() {
 
     // Ternary ASTs
     dispatch.ternary = function() {
-        if (!dispatch.ternary[this.value]) {
-            return "**UNKNOWN TERNARY: "+this.value;
-        }
+        assert(dispatch.ternary[this.value], this);
         return dispatch.ternary[this.value].apply(this);
     };
     var ternary = function(op, prec, f) {
@@ -176,16 +171,14 @@ var make_compile = function() {
         });
     ternary("(", 80, function() {
             // precedence is 80, same as . and '(')
-            assert (this.second.arity==='literal', this.second);
+            assert(this.second.arity==='literal', this.second);
             return compile(this.first) + "." + this.second.value + "(" +
                 gather(this.third, ", ", with_prec(0, compile)) + ")";
         });
 
     // Statements
     dispatch.statement = function() {
-        if (!dispatch.statement[this.value]) {
-            return "**UNKNOWN STATEMENT: "+this.value;
-        }
+        assert(dispatch.statement[this.value], this);
         return dispatch.statement[this.value].apply(this);
     };
     var stmt = function(value, f) {
@@ -225,10 +218,10 @@ var make_compile = function() {
         });
 
     // Odd cases
-    dispatch['this'] = function() { return "this"; } // literal
+    dispatch['this'] = function() { return "this"; }; // literal
     dispatch['function'] = with_prec(0, function() {
             var result = "function";
-            if (this.name) result += " " + this.name;
+            if (this.name) { result += " " + this.name; }
             result += " (" + gather(this.first, ", ", compile) + ") {";
             if (this.second.length > 0) {
                 indentation += 1;
@@ -242,7 +235,7 @@ var make_compile = function() {
     // Helpers
     compile = function(tree) {
         // make 'this' the parse tree in the dispatched function.
-        if (!dispatch[tree.arity]) return "**UNKNOWN ARITY: "+tree.arity;
+        assert(dispatch[tree.arity], tree);
         return dispatch[tree.arity].apply(tree);
     };
     compile_stmt = function(tree) {
