@@ -133,10 +133,13 @@ var make_parse = function () {
         } else {
             v = expression(0);
             if ((!v.assignment) && v.id !== "(" &&
-                !(v.arity == 'function' && v.name)) {
+                !(v.arity === 'function' && v.name)) {
                 v.error("Bad expression statement.");
             }
-            advance(";");
+            if (!(v.arity === 'function' && v.name && token.id !== ';')) {
+                // trailing semicolon optional for named functions.
+                advance(";");
+            }
         }
         return v ? [ v ] : null;
     };
