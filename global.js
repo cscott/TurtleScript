@@ -10,15 +10,6 @@ if (typeof Object.create !== 'function') {
     };
 }
 
-// Transform a token object into an exception object and throw it.
-
-Object.prototype.error = function (message, t) {
-    t = t || this;
-    t.name = "SyntaxError";
-    t.message = message;
-    throw t;
-};
-
 // Properly escape < > & for html
 function html_escape(s) {
     var table = { "<":"&lt;", ">":"&gt;", "&":"&amp;" };

@@ -59,6 +59,15 @@ table {width: 90%; border: 0px; cellpadding: 0px;}
 
 /*global JSON, make_parse, parse, source, tree */
 
+// Transform a token object into an exception object and throw it.
+// (this conflicts with jQuery, so we're going to keep it out of global.js)
+Object.prototype.error = function (message, t) {
+    t = t || this;
+    t.name = "SyntaxError";
+    t.message = message;
+    throw t;
+};
+
 try {
     parse = make_parse();
 
