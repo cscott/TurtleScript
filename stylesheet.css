@@ -43,7 +43,7 @@
 .ts div.function div.variables {
   margin-bottom: 2px;
 }
-.ts ul li {
+.ts ul > li {
   padding: 1px;
 }
 
@@ -57,7 +57,7 @@
 
 /* Round top edge of vertical lists */
 .ts ul:not(.fixed):not(.arguments):not(.variables):not(.expr) > li:first-child,
-.ts ul li.ui-sortable-helper,
+.ts ul > li.ui-sortable-helper,
 .ts div.function {
   -webkit-border-top-left-radius: 3px;
   -webkit-border-top-right-radius: 3px;
@@ -68,7 +68,7 @@
 }
 /* Round bottom edge of vertical lists */
 .ts ul:not(.fixed):not(.arguments):not(.variables):not(.expr) > li:last-child,
-.ts ul li.ui-sortable-helper,
+.ts ul > li.ui-sortable-helper,
 .ts div.function {
   -webkit-border-bottom-right-radius: 3px;
   -webkit-border-bottom-left-radius: 3px;
@@ -101,22 +101,22 @@
 }
 
 /* Format horizontally-oriented lists */
-.ts ul.expr, .ts ul.expr li,
-.ts ul.arguments, .ts ul.arguments li,
-.ts ul.variables, .ts ul.variables li {
+.ts ul.expr, .ts ul.expr > li,
+.ts ul.arguments, .ts ul.arguments > li,
+.ts ul.variables, .ts ul.variables > li {
   display: inline-block;
 }
 /* Argument/variable lists are comma-separated */
-.ts ul.arguments li:after,
-.ts ul.variables li:after{
+.ts ul.arguments > li:after,
+.ts ul.variables > li:after {
   content: ", ";
   font-family: Helvetica, Arial, Sans-Serif;
   font-style: normal;
 }
-.ts ul.arguments li:last-child:after,
-.ts ul.variables li:last-child:after,
-.ts ul.arguments li.ui-sortable-helper:after,
-.ts ul.variables li.ui-sortable-helper:after {
+.ts ul.arguments > li:last-child:after,
+.ts ul.variables > li:last-child:after,
+.ts ul.arguments > li.ui-sortable-helper:after,
+.ts ul.variables > li.ui-sortable-helper:after {
   content: "";
 }
 
@@ -128,10 +128,10 @@
 /* this section is a workaround for wonky sortable behavior for
  * horizontally-aligned lists. */
 .ts ul.arguments, .ts ul.variables { vertical-align: middle; }
-.ts ul.arguments li, .ts ul.variables li { float: left; }
+.ts ul.arguments > li, .ts ul.variables > li { float: left; }
 
 /* Give some content to the placeholder element. */
-.ts ul li.placeholder:before {
+.ts ul > li.placeholder:before {
   content: "..."; /* give it a baseline */
   font-family: Helvetica, Arial, Sans-Serif;
   font-style: normal;
