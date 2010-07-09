@@ -240,6 +240,20 @@ String.prototype.tokens = function (prefix, suffix) {
                 i += 1;
             }
 
+// block comment.
+
+        } else if (c === '/' && this.charAt(i + 1) === '*') {
+            i += 3;
+            for (;;) {
+                c = this.charAt(i);
+                if (c === '' || (c === '/' && this.charAt(i - 1) === '*')) {
+                    i += 1;
+                    c = this.charAt(i);
+                    break;
+                }
+                i += 1;
+            }
+
 // combining
 
         } else if (prefix.indexOf(c) >= 0) {

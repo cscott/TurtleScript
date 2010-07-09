@@ -9,6 +9,7 @@ var make_tests = function(make_parse, make_compile) {
     // now some ad-hoc test cases.  Phrased as functions so they can be
     // syntax-checked, etc.
     test[i+=1] = function() {
+        /* comment test */
         var x = 1; x = x + 1;
     };
     test[i+=1] = function() {
