@@ -52,7 +52,7 @@ var make_tests = function(make_parse, make_compile) {
     };
     test[i+=1] = function() {
         function foo(a, b) {
-            var c;
+            var c, d = { key: "va\"'lue" };
             c = b;
             while (1) {
                 break;
