@@ -15,16 +15,21 @@
 <script src="./tokens.js" type="text/javascript"></script>
 <script src="./parse.js" type="text/javascript"></script>
 <script src="./compile.js" type="text/javascript"></script>
+<script src="./render.js" type="text/javascript"></script>
 <script src="./tests.js" type="text/javascript"></script>
 <script type="text/javascript">
 $(function() {
   // generate some stuff on the canvas
   var parse = make_parse();
   var compile = make_compile();
-  var source = make_tests(make_parse, make_compile)[11];
+  var source = make_tests(make_parse, make_compile)[12];
   //$("#debug").append(html_escape(source)+"\n");
   var tree = parse(source);
   //$("#debug").append(html_escape(compile(tree)));
+  var render = make_render();
+  var elem = render(tree);
+  //$("#debug").append(html_escape(elem.toSource()));
+  $("#test").append(render(tree));
 
   $(".ts ul").sortable({
     placeholder: 'placeholder active',
@@ -51,7 +56,7 @@ $(function() {
     i += 1;
   }
 
-  $(".ts div.function").draggable();
+  $(".ts > div.function").draggable();
   $(".ts, .ts ul, .ts li, .ts span, .ts *").disableSelection().
     css("WebkitUserSelect", "none");
 });
@@ -74,6 +79,17 @@ hr { clear: both; }
 <div id="canvas" class="ts">
 
   <div class="function">
+    <div class="header">function <span class="name">test</span>
+      (<ul class="arguments"></ul>) {</div>
+    <div class="block" id="test">
+     <div class="variables">
+      var <ul class="variables"><li class="placeholder"></li></ul>;
+     </div>
+    </div>
+    <div class="footer">}</div>
+  </div>
+
+  <div class="function">
     <div class="header">function <span class="name">foo</span>
       (<ul class="arguments"><li class="name">a</li><li class="name">b</li></ul>) {</div>
     <div class="block">
@@ -83,37 +99,37 @@ hr { clear: both; }
      <ul>
       <li class="stmt">
         <ul class="expr fixed"><!-- a expression statement -->
-	  <li class="binop">
-	    <ul class="expr"><li class="name">c</li></ul>
-	    <span class="op">=</span>
-	    <ul class="expr"><li class="name">b</li></ul>
-	  </li>
-	</ul>
-	;
+          <li class="binop">
+            <ul class="expr"><li class="name">c</li></ul>
+            <span class="op">=</span>
+            <ul class="expr"><li class="name">b</li></ul>
+          </li>
+        </ul>
+        ;
       </li>
 
       <li class="stmt">
         <div class="header">while
-	  (<ul class="expr"><li class="literal">1</li></ul>) {
-	</div>
-	<div class="block">
-	  <div class="variables">
-	    var <ul class="variables"><li class="placeholder"></li></ul>;
-	  </div>
-	  <ul><li class="stmt">break;</li></ul>
-	</div>
-	<div class="footer">}</div>
+          (<ul class="expr"><li class="literal">1</li></ul>) {
+        </div>
+        <div class="block">
+          <div class="variables">
+            var <ul class="variables"><li class="placeholder"></li></ul>;
+          </div>
+          <ul><li class="stmt">break;</li></ul>
+        </div>
+        <div class="footer">}</div>
       </li>
 
       <li class="stmt">return
         <ul class="expr">
-	  <li class="binop">
-	    <ul class="expr"><li class="name">a</li></ul>
-	    <span class="op">+</span>
-	    <ul class="expr"><li class="name">b</li></ul>
-	  </li>
-	</ul>
-	;
+          <li class="binop">
+            <ul class="expr"><li class="name">a</li></ul>
+            <span class="op">+</span>
+            <ul class="expr"><li class="name">b</li></ul>
+          </li>
+        </ul>
+        ;
       </li>
     </ul>
     </div>
@@ -124,5 +140,5 @@ hr { clear: both; }
 
 <hr>
 <address></address>
-<!-- hhmts start -->Last modified: Thu Jul  8 18:19:09 EDT 2010 <!-- hhmts end -->
+<!-- hhmts start -->Last modified: Thu Jul  8 20:06:58 EDT 2010 <!-- hhmts end -->
 </body> </html>

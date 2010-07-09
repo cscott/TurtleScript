@@ -46,14 +46,21 @@ var make_tests = function(make_parse, make_compile) {
     };
     /** Tile-generation tests */
     test[i+=1] = function() {
-	function foo(a, b) {
-	    var c;
-	    c = b;
-	    while (1) {
-		break;
-	    }
-	    return a+b;
-	};
+        var c = 1+2;
+        return c;
+    };
+    test[i+=1] = function() {
+        function foo(a, b) {
+            var c;
+            c = b;
+            while (1) {
+                break;
+            }
+            {
+                c+=1;
+            }
+            return a+b;
+        };
     };
     /** Block scoping tests (don't currently work) */
     /*
