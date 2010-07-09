@@ -34,7 +34,7 @@ var make_parse = function () {
         find: function (n) {
             var e = this, o;
             while (true) {
-                o = e.def[n];
+                o = e.def.hasOwnProperty(n) ? e.def[n] : null;
                 if (o) {
                     return o;
                 }
