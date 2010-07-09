@@ -54,8 +54,12 @@ var make_compile = function() {
     };
 
     var str_escape = function(s) {
-        // abuse toSource() to properly quote a string value.
-        return s.toSource().slice(12,-2);
+	if (s.toSource) {
+	    // abuse toSource() to properly quote a string value.
+	    return s.toSource().slice(12,-2);
+	}
+	// FIXME value isn't escaped on chrome/webkit
+	return '"' + s.toString() + '"';
     };
 
     var dispatch = {};
