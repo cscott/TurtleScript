@@ -75,13 +75,13 @@ String.prototype.tokens = function (prefix, suffix) {
 
 // name.
 
-        } else if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z') {
+        } else if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c === '$') {
             str = c;
             i += 1;
             for (;;) {
                 c = this.charAt(i);
                 if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
-                        (c >= '0' && c <= '9') || c === '_') {
+                        (c >= '0' && c <= '9') || c === '_' || c === '$') {
                     str += c;
                     i += 1;
                 } else {
