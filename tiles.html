@@ -22,7 +22,7 @@ $(function() {
   // generate some stuff on the canvas
   var parse = make_parse();
   var compile = make_compile();
-  var source = make_tests(make_parse, make_compile, make_render)[2];
+  var source = make_tests(make_parse, make_compile, make_render)[0];
   //$("#debug").append(html_escape(source)+"\n");
   var tree = parse(source);
   //$("#debug").append(html_escape(compile(tree)));
@@ -31,10 +31,11 @@ $(function() {
   //$("#debug").append(html_escape(elem.toSource()));
   $("#test").append(render(tree));
 
+  // this next statement is slooooow...
   $(".ts ul").sortable({
     placeholder: 'placeholder active',
     forcePlaceholderSize: true, // use dynamic size of draggable if height=0
-    revert: 100/*ms: fast revert*/,
+    revert: 100,//ms: fast revert
     tolerance: 'pointer',
     distance: 0,
     cancel: '.placeholder',
@@ -42,6 +43,7 @@ $(function() {
     cursor: 'default',
     //cursorAt: { bottom: 0, right: 0 }, // iphone only?
   });
+/*
   var interconnect = [
     // statements can be dropped on other statement lists
     ".ts .block > ul",
@@ -59,6 +61,7 @@ $(function() {
   $(".ts > div.function").draggable();
   $(".ts, .ts ul, .ts li, .ts span, .ts *").disableSelection().
     css("WebkitUserSelect", "none");
+*/
 });
 </script>
 <style type="text/css">
@@ -79,16 +82,17 @@ hr { clear: both; }
 <div id="canvas" class="ts">
 
   <div class="function">
-    <div class="header">function <span class="name">test</span>
+    <div class="header">function <span class="name">parse_test</span>
       (<ul class="arguments"></ul>) {</div>
     <div class="block" id="test">
-     <div class="variables">
+     <div class="variables empty">
       var <ul class="variables"><li class="placeholder"></li></ul><span class='semi'>;</span>
      </div>
     </div>
     <div class="footer">}</div>
   </div>
 
+<!-- Simple static example, for testing stylesheet.
   <div class="function">
     <div class="header">function <span class="name">foo</span>
       (<ul class="arguments"><li class="name">a</li><li class="name">b</li></ul>) {</div>
@@ -98,7 +102,7 @@ hr { clear: both; }
      </div>
      <ul>
       <li class="stmt">
-        <ul class="expr fixed"><!-- a expression statement -->
+        <ul class="expr fixed"><!- - a expression statement - ->
           <li class="binop">
             <ul class="expr"><li class="name">c</li></ul>
             <span class="op">=</span>
@@ -135,10 +139,10 @@ hr { clear: both; }
     </div>
     <div class="footer">}</div>
   </div>
-
+-->
 </div>
 
 <hr>
 <address></address>
-<!-- hhmts start -->Last modified: Fri Jul  9 10:20:20 EDT 2010 <!-- hhmts end -->
+<!-- hhmts start -->Last modified: Fri Jul  9 13:31:50 EDT 2010 <!-- hhmts end -->
 </body> </html>
