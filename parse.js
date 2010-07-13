@@ -52,7 +52,7 @@ var make_parse = function () {
             if (n.arity !== "name" || n.reserved) {
                 return;
             }
-            var t = this.def[n.value];
+            var t = this.def.hasOwnProperty(n.value) ? this.def[n.value] : null;
             if (t) {
                 if (t.reserved) {
                     return;
@@ -190,7 +190,7 @@ var make_parse = function () {
     };
 
     var symbol = function (id, bp) {
-        var s = symbol_table[id];
+        var s = symbol_table.hasOwnProperty(id) ? symbol_table[id] : null;
         bp = bp || 0;
         if (s) {
             if (bp >= s.lbp) {
