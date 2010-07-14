@@ -20,10 +20,11 @@ Project Goals
 TurtleScript is an experiment to provide a simple logo-like
 programming environment which is based on a "real" programming
 language.  It draws heavy inspiration from Etoys_, Scratch_, BYOB_,
-Elements_, TileScript_, and TurtleArt_.  As a browser-based
-programming environment, it builds on ideas from the `Lively Kernel`_ and
-`Lively Qt`_.  The `TileScript paper`_ describes our own motivations well,
-although we've chosen a slightly different path.
+Elements_, TileScript_, `Turtle Art`_, and `Open Blocks`_.  As a
+browser-based programming environment, it builds on ideas from the
+`Lively Kernel`_ and `Lively Qt`_.  The `TileScript paper`_ describes
+our own motivations well, although we've chosen a slightly different
+path.
 
 The ultimate goal is to construct a Sugar_-like activity environment with
 a pervasive and scalable `View Source`_ capability.  Any visible item
@@ -40,7 +41,8 @@ important to many vocationally-minded educators.
 .. _Elements: http://www.chirp.scratchr.org/blog/?p=24
 .. _TileScript: http://tinlizzie.org/jstile/
 .. _TileScript paper: http://tinlizzie.org/jstile/#TileScript
-.. _TurtleArt: http://wiki.laptop.org/go/Turtle_Art
+.. _Turtle Art: http://wiki.laptop.org/go/Turtle_Art
+.. _Open Blocks: http://education.mit.edu/drupal/openblocks
 .. _Lively Kernel: http://www.lively-kernel.org/index.html
 .. _Lively Qt: http://lively.cs.tut.fi/qt/
 .. _Sugar: http://wiki.laptop.org/go/Sugar
@@ -57,7 +59,7 @@ uniform fashion.  I've also hoisted all variable declarations to the
 top of a block, to more accurately reflect their scope.
 
 The compiler emits JavaScript from the parse tree; this can
-be eval'ed by the browser's standard JavaScript environment.  At the
+be ``eval``'ed by the browser's standard JavaScript environment.  At the
 moment, this isn't very interesting |---| but it allows us to modify the
 parsed language in various ways and still emit ECMA-standard
 JavaScript.  There are some `Interesting Parser Tasks`_ and
@@ -89,11 +91,11 @@ possible drop locations makes the display stutter unacceptably.
 `Interaction Ideas`_ suggests some fixes.
 
 It's my intention to drive towards an application similar to
-TurtleArt_, with an on-screen turtle controlled by the script tiles.
+`Turtle Art`_, with an on-screen turtle controlled by the script tiles.
 This will be a public demonstration of the ideas behind the
 TurtleScript project.  The on-screen palette will include a tab for
 each imported namespace, which displays tiles for each name
-(method or variable) defined in that namespace.  So the TurtleArt
+(method or variable) defined in that namespace.  So the Turtle Art
 clone would offer a ``run()`` method to be defined, starting with
 ``var turtle = imports.turtle`` (borrowing the `gjs module system`_,
 which is built on the single global ``imports`` definition).  This is
@@ -125,7 +127,7 @@ Interesting Parser Tasks
 ========================
 
 There are a few different things one could do to extend the "Simplified
-JavaScript" language.  The two that I think are interesting are:
+JavaScript" language.  The four that I think are interesting are:
 
 1. Transform variable names.
 
@@ -161,11 +163,20 @@ JavaScript" language.  The two that I think are interesting are:
 
    From Perl 6 we borrow the ``...`` operator, pronounced "yada yada yada".
    This is used to represent a "hole" in the program which hasn't yet been
-   filled in.  By introducing this into the formal syntax we simplify
+   filled in.  By adding this to the formal syntax we simplify
    serializing/compiling/viewing programs with holes.
 
    The yada yada yada operator can be compiled to
-   ``Object.yada_yada_yada()`` or some such placeholder method.
+   ``Object.yada_yada_yada()`` or some other placeholder or global method.
+
+3. Add an ``imports`` global.
+
+   This is a trivial change to the top-level scope of the parser, but it
+   is the hook on which the module mechanism will hang.
+
+4. Add explicit "new line" flags.
+
+   See `Rendering Ideas`_, below.
 
 In contrast, I don't believe these are pressing (or even
 desirable):
@@ -173,13 +184,15 @@ desirable):
 1. Add throw, try, catch, and finally.
 
    Exceptions add a lot to the expressivity of the language.  I expect
-   that this can be implemented in the library, though: ``Object.throw(msg)``
-   can implement ``throw``, and ``Function.try(catch_func, finally_func)``
-   can be used to execute a ``try/catch/finally sequence``, with the blocks
-   transformed into first-class functions sharing a lexical scope.
+   that their function can be implemented in the library, though:
+   ``Object.throw(msg)`` can implement ``throw``, and
+   ``Function.try(catch_func, finally_func)`` can be used to execute a
+   ``try/catch/finally`` sequence, with the blocks transformed into
+   first-class functions sharing a lexical scope.
 
-   The library implemention will use the low-level functionality of full
-   JavaScript, but we don't need to complicate our own syntax.
+   The library implementation will use the low-level functionality of
+   full JavaScript (and thus will not be introspectable), but we can
+   avoid further complicating our syntax.
 
 2. Add more/better looping constructs.
 
@@ -194,33 +207,111 @@ desirable):
 Interesting Compiler Tasks
 ==========================
 
-There are two interesting ways to extend the compiler:
+Extending the compiler in ways which change the semantics of the
+language must be done with care: we don't want to end up defining our
+own "JavaScript-like" language, or negatively impact portability (or
+editability) of existing JavaScript code.  Certain tweaks may be
+warranted, however, if they simplify the implementation of (and
+reflection into) the rest of the system.  Here are some interesting
+compiler extensions:
 
-1. Allow serialization of (running) program state.  JavaScript currently
-   provides "real" information hiding, in the form of a function's closure
-   object.  Variables defined in function scope can be accessed within
-   the function, but not from outside the scope.  This prevents proper
-   serialization of a created function, since the scope can not be
-   saved or reconstructed.  Transforming::
+1. Allow serialization of (running) program state.
+
+   JavaScript currently provides "real" information hiding, in the
+   form of a function's closure object.  Variables defined in function
+   scope can be accessed within the function, but not from outside the
+   scope.  This prevents proper serialization of a created function,
+   since the scope can not be saved or reconstructed.  Transforming::
 
       function () {
         var v = ...
       }
 
-   to::
+   to something like::
 
       function($scope) {
         $scope.v = ...
       }
 
    allows us to manually manage the scope chain, including serializing and
-   deserializing a function's closure [1]_.
+   deserializing a function's closure [1]_.  The ``$scope`` parameter can be
+   stored as a ``scope`` property of the ``Function`` object.
 
 2. Providing "real" block scope for variables in JavaScript, either by
    transforming ``var`` to ``let`` in Mozilla-based browsers, or by creating
    new anonymous functions at block level to implement the necessary scoping.
+
    This just simplifies the programming model to better match most
-   users' expectations.
+   users' expectations.  Very little existing code depends on the *lack*
+   of block scope, although naive code written for our Simplified JavaScript
+   environment might then fail to run in a native JavaScript environment.
+
+3. Bind ``this`` properly in inner functions.
+
+   This is a `proposal by Crockford`_.  Function expressions should
+   bind ``this`` from their scope at definition time; only method invocation
+   should change the ``this`` binding.  With an explicit scope parameter,
+   as described above, this can be implemented by defining ``$scope.this`` at
+   function creation time, compiling the ``this`` literal as
+   ``(this || $scope.this)``, as implement (non-this-binding) function
+   invocation as ``f.call(null, ...)``.
+
+   As with the previous tweak, most existing JavaScript code avoids
+   use of ``this`` in inner functions, or manually overrides the
+   default ``this`` via a ``bind`` utility function.  Existing code is
+   thus expected to work in our environment, but naive Simplified
+   JavaScript code will fail to run in a native JavaScript
+   environment.
+
+4. Extend properties of ``Function`` objects.
+
+   Every function object should have a ``scope`` property, as proposed
+   above, as well as ``name`` and ``arguments`` parameters, as in the
+   `proposal by Crockford`_.  A ``parsed`` property might link to the
+   Simplified JavaScript parse tree of the function's source.  It
+   would also be nice to add a means to access the function object
+   itself from within the function body.  This would allow a function
+   to access to its own ``name``, ``arguments``, ``scope``, and
+   ``parsed`` properties and any other properties explicitly added to
+   the ``Function``.  For example, a user framework might add an
+   ``owner`` property to each method defined in a prototype, pointing
+   at the prototype object itself, in order to allow the function to
+   access to the prototype chain involved in the function's dispatch.
+
+   Most existing code would be unaffected by the presence of additional
+   properties of Function objects, and most naive user code will not need
+   to access these properties.
+
+5. Support ``yield``.
+
+   `Generators/yield`_ are a powerful language extension, especially when
+   implementing asynchronous computation.  They are implemented in the
+   Mozilla JavaScript engines, but not in Webkit or V8.  It would be
+   helpful to be able to use ``yield``, even when running in these
+   other browsers.
+
+   The importance of this feature depends on the details of the event
+   model we adopt.  Adding ``yield`` introduces an incompatibility
+   with ECMAScript 5 browsers, but not with Mozilla JavaScript
+   engines.
+
+6. A hidden property mechanism for objects.
+
+   For serialization we'll probably want to add a hidden ``$$id`` field to
+   every serializable object; we may wish to add other hidden properties to
+   support the scope transformation and other needs.  For ``$$id``, it
+   probably makes the most sense to do this by overriding
+   ``Object.create()`` and ensuring that the new ``$$id`` property is
+   `not enumerable`_.
+
+   As an alternative, one might consider adding a "meta object" above
+   each "real" object in the object's prototype chain.  Properties can
+   be added to the "meta object" without being enumerable, assuming
+   that the developer is using the ``hasOwnProperty`` `prophylactic`_.
+
+   If a "meta object" mechanism is required, the goal would be to
+   avoid any changes to the semantics of the language.  This would purely
+   be an implementation aid for efficient hidden properties.
 
 .. [1] Note that there's a bug in ECMA-262 3rd edition which allows standard
    JavaScript to access the hidden scope object via::
@@ -239,6 +330,11 @@ There are two interesting ways to extend the compiler:
    slightly in order to avoid the bugs corrected by ECMA-262 5th edition:
    in particular, making properties of Object visible as identifiers in
    scope.
+
+.. _proposal by Crockford: http://www.crockford.com/javascript/recommend.html
+.. _Generators/yield: https://developer.mozilla.org/en/JavaScript/Guide/Iterators_and_Generators
+.. _not enumerable: https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Object/defineProperty
+.. _prophylactic: http://javascript.crockford.com/code.html
 
 Rendering Ideas
 ===============
@@ -266,14 +362,15 @@ I've got two conflicting ideas for improving it:
 
 2. Puzzle pieces.
 
-   Scratch and Turtle Art are successful with kids.  Try to learn from
-   these representations and copy the details which make them successful.
-   One key might be switching to more "open" layouts of block groupings,
-   using a "C" shape open at one side instead of a box enclosing all the
-   parts.  Similarly, the space for the test expression in a if or while,
-   or the argument list in a call, could be left open at the right hand
-   side to allow the expression/list to grow outside the tile without
-   forcing the tile itself to expand horizontally.
+   Scratch_, `Turtle Art`_, and `Open Blocks`_ are successful with
+   kids.  Try to learn from these representations and copy the details
+   which make them successful.  One key might be switching to more
+   "open" layouts of block groupings, using a "C" shape open at one
+   side instead of a box enclosing all the parts.  Similarly, the
+   space for the test expression in a if or while, or the argument
+   list in a call, could be left open at the right hand side to allow
+   the expression/list to grow outside the tile without forcing the
+   tile itself to expand horizontally.
 
 For both layouts, the current "stacking" 3-d model needs to be retired: it
 makes deeply nested expressions look too "tall".  There should be a single
@@ -286,19 +383,20 @@ details.  Explicit piece boundaries should only be shown where
 precedence levels vary, where they serve to visually indicate
 "parentheses" in the traditional text representation.
 
-It may be possible to aggressively use a "click to expand" representation,
-so that the rendering of a long function or namespace is not overwhelmingly
-complex.  Initially we might only see a list of top level symbols which are
-defined, with expander boxes.  Clicking on the expander would show the
-definition of that symbol.  (This could visually relate to the way the object
-browser represents non-primitive field values: in both cases an "expander"
-would be used to show/edit a complex value.)
+It may be possible to aggressively use a "click to expand"
+representation, so that the rendering of a long function or namespace
+is not overwhelmingly complex.  Initially we might only see a list of
+top level symbols, with expander boxes.  Clicking on the expander
+would show the definition of that symbol.  (This could visually relate
+to the way the object browser represents non-primitive field values:
+in both cases an "expander" would be used to show/edit a complex
+value.)
 
 I believe we will probably want to explicit represent "line breaks",
 in either representation, rather than allow constructs to extend
-horizontally indefinitely.  I propose to add a "new line" flag to
+indefinitely to the right.  I propose to add a "new line" flag to
 the ``binop`` node and to the function call nodes (both the "binary" and
-"ternary" forms).  Setting the newline flag on the binop would arrange
+"ternary" forms).  Setting the newline flag on the ``binop`` would arrange
 the "right" and "left" operands vertically.  Setting the newline flag
 on the function invocation would arrange the arguments vertically.
 You might also want to be able to toggle vertical/horizontal orientations
@@ -331,6 +429,8 @@ programming on touchscreen devices.  Here are some of my current ideas:
    to "tidy up" the display.  The benefit is entirely avoiding automatic
    resize (and thus flicker) during editing.
 
+   Some additional study of existing block-based systems is warranted.
+
 2. Clone by default.
 
    It's more common to copy (and then modify) a part than to reorder
@@ -356,20 +456,113 @@ programming on touchscreen devices.  Here are some of my current ideas:
    Each change to a program should be easily reversible.  Similarly,
    editing the state of a live object should also be reversible: it
    should be possible to go "back in time" before the execution of a
-   function or assignment of a field.  ("Clearing" the TurtleArt screen
-   might use this mechanism.)
+   function or assignment of a field.  (Clearing the turtle's
+   drawing canvas might even use this mechanism.)
 
-   In practice this is probably implemented by serializing various
-   program states and recording mutations and executions.  We can then
-   revert to the state at a previous time by deserializing an
-   appropriate state and then replaying all interactive
-   mutations/function executions which occurred between that state
-   and the desired point in time.  This is the approach used by
-   recent work, such as Jockey_, Flashback_, and libckpt_.
+   In practice this is probably implemented by serializing
+   logarithmically-spaced program states and recording mutations and
+   executions.  We can then revert to the state at a previous time by
+   deserializing an appropriate older state and then replaying all
+   interactive mutations/function executions which occurred between
+   that state and the desired point in time.  This is the approach
+   used by recent work, such as Jockey_, Flashback_, and libckpt_,
+   and results in time travel time complexity proportional to the
+   distance traveled.
 
 .. _Jockey: http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.88.2071
 .. _Flashback: http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.130.6878
 .. _libckpt: http://www.cs.utk.edu/~plank/plank/papers/USENIX-95W.html
+
+Environment
+===========
+
+This section contains more tentative thoughts about the overall
+application environment.
+
+1. Try to build on the shoulders of HTML/CSS/DOM/JavaScript.
+
+   Rather than try to invent our own GUI framework, try to leverage
+   the existing HTML elements and DOM.  Use DOM event model (with some
+   sugar).  Applications should serialize to an HTML/CSS tree with
+   JavaScript bindings; probably other bits like "the current contents
+   of a canvas" should be serialized as well.  Perhaps CSS and the DOM
+   can be unified with JavaScript/JSON using something like `CSS
+   JSON`_ and `JsonML`_ to mitigate the number of different syntaxes
+   involved.
+
+   On the other hand, maybe it's best to jettison most of the HTML/CSS
+   rendering infrastructure: it adds a lot of complexity to the
+   environment.  Perhaps some "Simplified HTML" subset can be
+   employed.  As a limit case, perhaps only <canvas> elements?
+
+2. Work on serialization format.
+
+   First step towards a serializable environment is to write a simple
+   module loader.  Assuming we've written a module (JavaScript plus
+   its visible DOM tree and event bindings) to disk, what does it look
+   like?  How do we re-load it?  For speed we want to leverage the
+   existing native HTML, JavaScript and JSON parsers in the browser.
+   Four possible solutions (perhaps there are others):
+
+   a. The module is an HTML file loaded via <iframe> injection.
+
+      I don't know if we can pull the JavaScript environment of an
+      iframe back out to the parent.  On the other hand, we would be using
+      the native HTML and JavaScript parsers.
+
+   b. The module is a JavaScript source file, loaded via <script> injection.
+
+      In this case all the HTML/DOM content needs to be
+      generated programmatically by JavaScript code or `JsonML`_.  This
+      might be slower than direct HTML parsing.
+
+   c. The module is a JSON object, loaded via AJAX or from browser-local
+      storage, and post-processed.
+
+      JSON (with an appropriate prefix, or `JSON-P`_) could be directly loaded
+      via <script> as well as parsed from a string using the (fast) native JSON
+      parser [2]_.  We'd need to post-process the JSON to handle cycles and
+      functions, and programmatically recreate the DOM as in the previous
+      option [4]_.
+
+   d. Direct implementation of `Crockford's <module> proposal`_.
+
+      Might be tricky to do without native browser support.
+
+   Picking a serialization format and building it should foreground
+   representation and project-scope issues.  At the end we'll have a
+   hand-built module as well as a lightweight module loader.
+
+   Once we have a serialized module, how do we save a module as a
+   complete application (presumably, including all of its
+   dependencies)?  This probably entails a somewhat heavier "app
+   loader" framework, which can take a given module as an argument.
+   The loader should be able to pull in the full compiler, object
+   browser, etc as needed (but maybe on-demand rather than up front).
+   It would be nice to be able to construct a module in an "IDE"
+   environment, or by modifying an existing sample or app, and then
+   "save as" to make the new module a first-class standalone app.
+
+.. [2] Note that ``JSON.stringify()`` has a ``replacer`` parameter we can
+   use to serialize functions and their scope objects [3]_, but the JSON
+   parser does not have an equivalent hook.  We'd have to grunge over
+   the object tree ourselves, looking for something like a ``$$function``
+   property on an object and then replacing the object with the compiled
+   parse tree hanging off it.  We'd also have to manually munge cycles,
+   identifying them via an ``$$id`` property we add to objects, and using
+   a ``$$replace`` property to represent the cycle in the object graph.
+
+.. [3] ...but beware the `Firefox JSON bug`_.
+
+.. [4] The JSPON_ proposal seems to be related to our JSON solution, but
+   JSPON doesn't seem to allow serialization of code.
+
+.. _CSS JSON: http://www.featureblend.com/css-json.html
+.. _JsonML: http://jsonml.org/DOM/
+.. _JSON-P: http://bob.pythonmac.org/archives/2005/12/05/remote-json-jsonp/
+.. _Crockford's <module> proposal: http://json.org/module.html
+.. _JSPON: http://www.jspon.org/
+.. _Firefox JSON bug: https://bugzilla.mozilla.org/show_bug.cgi?id=509184
 
 Helping out
 -----------
@@ -379,7 +572,12 @@ related) work are welcomed.  You can also hack away and contribute code
 using the standard github fork-and-pull-request mechanism.  Thanks
 for reading!
 
-  -- C. Scott Ananian, 09 July 2010
+  -- C. Scott Ananian, 9-14 July 2010
 
 .. |---| unicode:: U+2014  .. em dash, trimming surrounding whitespace
    :trim:
+
+..  LocalWords:  README TurtleScript Etoys TileScript JavaScript runtime jQuery
+..  LocalWords:  Crockford renderer namespace gjs yada introspectable Mozilla
+..  LocalWords:  Webkit ECMAScript hasOwnProperty serializable JSON iframe
+..  LocalWords:  Ananian
