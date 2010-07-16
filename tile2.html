@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>TurtleScript tile test (mk II)</title>
+<style type="text/css">
+/* default text styles/colors */
+.ts {
+  font-size: 14px;
+  font-family: Helvetica, Arial, Sans-Serif;
+  color: black;
+}
+/* Don't style any lists as lists. */
+.ts ul {
+  list-style-type: none; margin: 0; padding: 0;
+}
+/* Don't show text-selection cursor */
+.ts, .ts li, .ts span { cursor: default; }
+/* don't wrap lines */
+.ts li { white-space: nowrap; overflow: hidden; }
+.ts li { min-width: -moz-min-content; }
+
+/* code pretty-printing */
+.ts ul.indent { margin-left: 2em; /* 2 space tabs */ }
+.ts .comment { color: #a00; text-style: italic; }
+.ts .keyword { color: #0a0; }
+.ts .var { color: #bb0; }
+.ts .literal { }
+
+/* puzzle-piece styling, take 1 */
+.ts.take1 li {
+background: #ddd;
+margin:0 3px;
+padding:3px 6px;
+border:1px solid rgba(0, 0, 0, 0.6);
+-moz-border-radius:3px;
+-moz-box-shadow:0 1px rgba(255, 255, 255, 0.4), 0 20px 20px -10px white inset;
+-webkit-border-radius: 3px;
+-webkit-box-shadow:0 1px rgba(255, 255, 255, 0.8), 0 20px 20px -10px white inset;
+text-shadow: 0 1px rgba(255, 255, 255, 0.8);
+}
+
+.ts.take2 li {
+border-width: 7px 3px 7px 29px;
+border-style: solid;
+-webkit-border-image: url("BlockAI.png") 7 3 7 29 stretch stretch;
+-moz-border-image: url("BlockAI.png") 7 3 7 29 stretch stretch;
+background: transparent;
+margin-bottom: -5px;
+text-shadow: 0 1px rgba(255, 255, 255, 0.3);
+}
+
+.ts.take3 li {
+border-width: 9px 19px 12px 39px;
+border-style: solid;
+-webkit-border-image: url("BlockTA.png") 9 19 12 39 stretch stretch;
+-moz-border-image: url("BlockTA.png") 9 19 12 39 stretch stretch;
+background: transparent;
+margin-top: 1px;
+margin-bottom: -6px;
+text-shadow: 1px 1px rgba(255, 255, 255, 0.5);
+}
+.ts.take2 ul.indent, .ts.take3 ul.indent { margin-left: 0; }
+
+div.ts { margin-bottom: 1em; }
+
+</style>
+</head>
+
+<body>
+<h1>TurtleScript tile test 2</h1>
+
+<div class="ts take1">
+<ul>
+<li><span class="keyword">var</span> <span class="var">make_tests</span> = function(make_parse, make_compile, make_render) {
+  <ul class="indent">
+  <li><span class="keyword">var</span> <span class="var">test</span>=[], <span class="var">i</span>=-1;</li>
+  <li class="comment">// first three tests are our own source code.</li>
+  <li>test[i+=1] = make_parse;</li>
+  <li>test[i+=1] = make_compile;</li>
+  <li>test[i+=1] = make_render;</li>
+  <li>test[i+=1] = make_tests;</li>
+  <li class="comment">// now some ad-hoc test cases.  Phrased as functions so they can be</li>
+  <li class="comment">// syntax-checked, etc.</li>
+  <li>test[i+=1] = function() {
+    <ul class="indent">
+    <li><span class="comment">/* comment test */</span></li>
+    <li><span class="keyword">var</span> <span class="var">x</span> = 1;</li>
+    <li>x = x + 1;</li>
+    </ul>
+    };
+  </li>
+  <li>return test;</li>
+  </ul>
+};</li>
+</ul>
+</div>
+
+<div class="ts take2">
+<ul>
+<li><span class="keyword">var</span> <span class="var">make_tests</span> = function(make_parse, make_compile, make_render) {
+  <ul class="indent">
+  <li><span class="keyword">var</span> <span class="var">test</span>=[], <span class="var">i</span>=-1;</li>
+  <li class="comment">// first three tests are our own source code.</li>
+  <li>test[i+=1] = make_parse;</li>
+  <li>test[i+=1] = make_compile;</li>
+  <li>test[i+=1] = make_render;</li>
+  <li>test[i+=1] = make_tests;</li>
+  <li class="comment">// now some ad-hoc test cases.  Phrased as functions so they can be</li>
+  <li class="comment">// syntax-checked, etc.</li>
+  <li>test[i+=1] = function() {
+    <ul class="indent">
+    <li><span class="comment">/* comment test */</span></li>
+    <li><span class="keyword">var</span> <span class="var">x</span> = 1;</li>
+    <li>x = x + 1;</li>
+    </ul>
+    };
+  </li>
+  <li>return test;</li>
+  </ul>
+};</li>
+</ul>
+</div>
+
+<div class="ts take3">
+<ul>
+<li><span class="keyword">var</span> <span class="var">make_tests</span> = function(make_parse, make_compile, make_render) {
+  <ul class="indent">
+  <li><span class="keyword">var</span> <span class="var">test</span>=[], <span class="var">i</span>=-1;</li>
+  <li class="comment">// first three tests are our own source code.</li>
+  <li>test[i+=1] = make_parse;</li>
+  <li>test[i+=1] = make_compile;</li>
+  <li>test[i+=1] = make_render;</li>
+  <li>test[i+=1] = make_tests;</li>
+  <li class="comment">// now some ad-hoc test cases.  Phrased as functions so they can be</li>
+  <li class="comment">// syntax-checked, etc.</li>
+  <li>test[i+=1] = function() {
+    <ul class="indent">
+    <li><span class="comment">/* comment test */</span></li>
+    <li><span class="keyword">var</span> <span class="var">x</span> = 1;</li>
+    <li>x = x + 1;</li>
+    </ul>
+    };
+  </li>
+  <li>return test;</li>
+  </ul>
+};</li>
+</ul>
+</div>
+
+<hr>
+<!-- hhmts start -->Last modified: Fri Jul 16 16:05:25 EDT 2010 <!-- hhmts end -->
+</body> </html>

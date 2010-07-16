@@ -372,6 +372,8 @@ I've got two conflicting ideas for improving it:
    the expression/list to grow outside the tile without forcing the
    tile itself to expand horizontally.
 
+See `tile2.html`_ for some additional tile styling experiments.
+
 For both layouts, the current "stacking" 3-d model needs to be retired: it
 makes deeply nested expressions look too "tall".  There should be a single
 3-d level, with pieces fitting into indents so that the combination is
@@ -403,6 +405,8 @@ You might also want to be able to toggle vertical/horizontal orientations
 for the arguments of function definitions, and for the array and object
 constructor forms.  (An alternative is to make layout "smarter" so that
 the correct orientation is selected automatically.)
+
+.. _tile2.html: http://cscott.net/Projects/TurtleScript/tile2.html
 
 Interaction Ideas
 =================
