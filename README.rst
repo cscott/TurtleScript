@@ -506,9 +506,10 @@ application environment.
 
    a. The module is an HTML file loaded via <iframe> injection.
 
-      I don't know if we can pull the JavaScript environment of an
-      iframe back out to the parent.  On the other hand, we would be using
-      the native HTML and JavaScript parsers.
+      This is probably the preferred approach.  We use the native
+      HTML and JavaScript parsers, and can (`in some browsers`_) reparent
+      the iframe in order to pull pieces of the environment out into
+      their own windows.
 
    b. The module is a JavaScript source file, loaded via <script> injection.
 
@@ -559,6 +560,7 @@ application environment.
 
 .. _CSS JSON: http://www.featureblend.com/css-json.html
 .. _JsonML: http://jsonml.org/DOM/
+.. _in some browsers: http://cananian.livejournal.com/60624.html
 .. _JSON-P: http://bob.pythonmac.org/archives/2005/12/05/remote-json-jsonp/
 .. _Crockford's <module> proposal: http://json.org/module.html
 .. _JSPON: http://www.jspon.org/
