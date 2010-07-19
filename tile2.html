@@ -27,7 +27,12 @@
 .ts .var { color: #bb0; }
 .ts .literal { }
 
+/* space out examples */
+div.ts { margin-bottom: 1em; }
+
+/* ---------------------------- */
 /* puzzle-piece styling, take 1 */
+
 .ts.take1 li {
 background: #ddd;
 margin:0 3px;
@@ -39,6 +44,9 @@ border:1px solid rgba(0, 0, 0, 0.6);
 -webkit-box-shadow:0 1px rgba(255, 255, 255, 0.8), 0 20px 20px -10px white inset;
 text-shadow: 0 1px rgba(255, 255, 255, 0.8);
 }
+
+/* ---------------------------- */
+/* puzzle-piece styling, take 2 */
 
 .ts.take2 li {
   border-width: 7px 3px 7px 29px;
@@ -93,6 +101,9 @@ text-shadow: 0 1px rgba(255, 255, 255, 0.8);
 .ts.take2 .keyword { color: #060; }
 .ts.take2 .var { color: #f8f800; }
 
+/* ---------------------------- */
+/* puzzle-piece styling, take 3 */
+
 .ts.take3 li {
 border-width: 9px 19px 12px 39px;
 border-style: solid;
@@ -105,13 +116,179 @@ text-shadow: 1px 1px rgba(255, 255, 255, 0.5);
 }
 .ts.take3 ul.indent { margin-left: 0; }
 
-div.ts { margin-bottom: 1em; }
+/* ---------------------------- */
+/* puzzle-piece styling, take 4 */
+/* like take 2, but w/ our own puzzle piece image */
+
+.ts.take4 li {
+  border-width: 7px 7px 10px 28px;
+  border-style: solid;
+  -webkit-border-image: url("BlockAI3-2a.png") 7 7 10 28 stretch stretch;
+  -moz-border-image: url("BlockAI3-2a.png") 7 7 10 28 stretch stretch;
+  background: transparent;
+  margin-bottom: -9px;
+  text-shadow: 0 1px rgba(255, 255, 255, 0.3);
+}
+.ts.take4 li.indent {
+  border: none;
+  -moz-border-image: none;
+  -webkit-border-image: none;
+}
+.ts.take4 li.indent > .header {
+  border-width: 7px 7px 0 28px;
+  border-style: solid;
+  -webkit-border-image: url("BlockAI3-2a.png") 7 7 10 28 stretch stretch;
+  -moz-border-image: url("BlockAI3-2a.png") 7 7 10 28 stretch stretch;
+  background: transparent;
+}
+.ts.take4 ul.indent {
+  border-width: 10px 7px 5px 41px;
+  border-style: solid;
+  -webkit-border-image: url("BlockAI3-2b.png") 10 7 5 41 stretch stretch;
+  -moz-border-image: url("BlockAI3-2b.png") 10 7 5 41 stretch stretch;
+  background: transparent;
+  padding-bottom: 10px;
+}
+.ts.take4 ul.indent > li:first-child { margin-top: -8px; }
+.ts.take4 ul.indent > li { margin-left: -28px; }
+.ts.take4 li.indent > .footer {
+  border-width: 0 7px 10px 28px;
+  border-style: solid;
+  -webkit-border-image: url("BlockAI3-2a.png") 7 7 10 28 stretch stretch;
+  -moz-border-image: url("BlockAI3-2a.png") 7 7 10 28 stretch stretch;
+  background: transparent;
+}
+.ts.take4 ul.indent { margin-left: 0; }
+.ts.take4 li, .ts.take4 ul /*,
+.ts.take4 li.indent > .header,
+.ts.take4 li.indent > .footer */ {
+  width: intrinsic;         /* Safari/WebKit */
+  width: -moz-max-content;  /* Firefox/Gecko */
+  padding-right: 0.8em;
+}
+
+.ts.take4 ul.indent > li { padding-left: 5px; }
+.ts.take4 ul.indent > li.indent { margin-left: -33px; }
+.ts.take4 ul.indent > li.indent > .header { padding-left: 5px; }
+.ts.take4 .keyword { color: #060; }
+
+/* ---------------------------- */
+/* puzzle-piece styling, take 5 */
+/* like take 4 */
+
+.ts.take5 li {
+  border-width: 7px 5px 9px 27px;
+  border-style: solid;
+  -webkit-border-image: url("BlockAI3-1a.png") 7 5 9 27 stretch stretch;
+  -moz-border-image: url("BlockAI3-1a.png") 7 5 9 27 stretch stretch;
+  background: transparent;
+  margin-bottom: -6px;
+  text-shadow: 0 1px rgba(255, 255, 255, 0.3);
+}
+.ts.take5 li.indent {
+  border: none;
+  -moz-border-image: none;
+  -webkit-border-image: none;
+}
+.ts.take5 li.indent > .header {
+  border-width: 7px 5px 0 27px;
+  border-style: solid;
+  -webkit-border-image: url("BlockAI3-1a.png") 7 5 9 27 stretch stretch;
+  -moz-border-image: url("BlockAI3-1a.png") 7 5 9 27 stretch stretch;
+  background: transparent;
+}
+.ts.take5 ul.indent {
+  border-width: 9px 4px 5px 40px;
+  border-style: solid;
+  -webkit-border-image: url("BlockAI3-1b.png") 9 4 5 40 stretch stretch;
+  -moz-border-image: url("BlockAI3-1b.png") 9 4 5 40 stretch stretch;
+  background: transparent;
+  padding-bottom: 10px;
+}
+.ts.take5 ul.indent > li:first-child { margin-top: -7px; }
+.ts.take5 ul.indent > li { margin-left: -27px; }
+.ts.take5 li.indent > .footer {
+  border-width: 0 5px 9px 27px;
+  border-style: solid;
+  -webkit-border-image: url("BlockAI3-1a.png") 7 5 9 27 stretch stretch;
+  -moz-border-image: url("BlockAI3-1a.png") 7 5 9 27 stretch stretch;
+  background: transparent;
+}
+.ts.take5 ul.indent { margin-left: 0; }
+.ts.take5 li, .ts.take5 ul /*,
+.ts.take5 li.indent > .header,
+.ts.take5 li.indent > .footer */ {
+  width: intrinsic;         /* Safari/WebKit */
+  width: -moz-max-content;  /* Firefox/Gecko */
+  padding-right: 0.8em;
+}
+
+.ts.take5 ul.indent > li { padding-left: 5px; }
+.ts.take5 ul.indent > li.indent { margin-left: -32px; }
+.ts.take5 ul.indent > li.indent > .header { padding-left: 5px; }
+.ts.take5 .keyword { color: #060; }
 
 </style>
 </head>
 
 <body>
 <h1>TurtleScript tile test 2</h1>
+
+<div class="ts take4">
+<ul>
+<li class="indent"><div class="header"><span
+  class="keyword">var</span> <span class="var">make_tests</span> =
+  <span class="keyword">function</span>(<span class="var">make_parse</span>, <span class="var">make_compile</span>, <span class="var">make_render</span>) {
+  </div><ul class="indent">
+  <li><span class="keyword">var</span> <span class="var">test</span>=[], <span class="var">i</span>=-1;</li>
+  <li class="comment">// first three tests are our own source code.</li>
+  <li><span class="var">test</span>[<span class="var">i</span>+=1] = <span class="var">make_parse</span>;</li>
+  <li><span class="var">test</span>[<span class="var">i</span>+=1] = <span class="var">make_compile</span>;</li>
+  <li><span class="var">test</span>[<span class="var">i</span>+=1] = <span class="var">make_render</span>;</li>
+  <li><span class="var">test</span>[<span class="var">i</span>+=1] = <span class="var">make_tests</span>;</li>
+  <li class="comment">// now some ad-hoc test cases.  Phrased as functions so they can be</li>
+  <li class="comment">// syntax-checked, etc.</li>
+  <li class="indent"><div class="header"><span class="var">test</span>[<span class="var">i</span>+=1] = <span class="keyword">function</span>() {
+    </div><ul class="indent">
+    <li><span class="comment">/* comment test */</span></li>
+    <li><span class="keyword">var</span> <span class="var">x</span> = 1;</li>
+    <li><span class="var">x</span> = <span class="var">x</span> + 1;</li>
+    </ul><div class="footer">
+    };
+  </div></li>
+  <li><span class="keyword">return</span> <span class="var">test</span>;</li>
+  </ul><div class="footer">
+};</div></li>
+</ul>
+</div>
+
+<div class="ts take5">
+<ul>
+<li class="indent"><div class="header"><span
+  class="keyword">var</span> <span class="var">make_tests</span> =
+  <span class="keyword">function</span>(<span class="var">make_parse</span>, <span class="var">make_compile</span>, <span class="var">make_render</span>) {
+  </div><ul class="indent">
+  <li><span class="keyword">var</span> <span class="var">test</span>=[], <span class="var">i</span>=-1;</li>
+  <li class="comment">// first three tests are our own source code.</li>
+  <li><span class="var">test</span>[<span class="var">i</span>+=1] = <span class="var">make_parse</span>;</li>
+  <li><span class="var">test</span>[<span class="var">i</span>+=1] = <span class="var">make_compile</span>;</li>
+  <li><span class="var">test</span>[<span class="var">i</span>+=1] = <span class="var">make_render</span>;</li>
+  <li><span class="var">test</span>[<span class="var">i</span>+=1] = <span class="var">make_tests</span>;</li>
+  <li class="comment">// now some ad-hoc test cases.  Phrased as functions so they can be</li>
+  <li class="comment">// syntax-checked, etc.</li>
+  <li class="indent"><div class="header"><span class="var">test</span>[<span class="var">i</span>+=1] = <span class="keyword">function</span>() {
+    </div><ul class="indent">
+    <li><span class="comment">/* comment test */</span></li>
+    <li><span class="keyword">var</span> <span class="var">x</span> = 1;</li>
+    <li><span class="var">x</span> = <span class="var">x</span> + 1;</li>
+    </ul><div class="footer">
+    };
+  </div></li>
+  <li><span class="keyword">return</span> <span class="var">test</span>;</li>
+  </ul><div class="footer">
+};</div></li>
+</ul>
+</div>
 
 <div class="ts take2">
 <ul>
@@ -194,5 +371,5 @@ div.ts { margin-bottom: 1em; }
 </div>
 
 <hr>
-<!-- hhmts start -->Last modified: Sun Jul 18 12:18:50 EDT 2010 <!-- hhmts end -->
+<!-- hhmts start -->Last modified: Mon Jul 19 14:19:24 EDT 2010 <!-- hhmts end -->
 </body> </html>
