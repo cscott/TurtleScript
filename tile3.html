@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>TurtleScript tile test (mk II)</title>
+<style type="text/css">
+/* default text styles/colors */
+.ts {
+  font-size: 14px;
+  font-family: Helvetica, Arial, Sans-Serif;
+  color: black;
+  white-space: normal;
+}
+/* Don't style any lists as lists. */
+.ts ul {
+  list-style-type: none; margin: 0; padding: 0;
+}
+/* Don't show text-selection cursor */
+.ts, .ts li, .ts span { cursor: default; }
+/* don't wrap lines */
+.ts li { white-space: nowrap; overflow: hidden; }
+.ts li { min-width: -moz-min-content; }
+
+/* ----- basic structure ----- */
+.ts div.e {
+   display: block;
+}
+.ts div.e > span {
+   display: inline-block;
+   position: relative;
+}
+.ts div.e > span > span {
+   display: inline-table;
+}
+.ts div.e > span > span > span {
+   display: table-cell;
+}
+.ts div.stmt {
+   display: block;
+}
+.ts div.stmt > span {
+   display: inline-block;
+}
+
+/* ----- fake shapes ----- */
+.ts div.stmt > span { border: 2px solid green; }
+.ts .expr:before,
+.ts .exprleft:before { content: "<"; }
+.ts .expr:after,
+.ts .exprright:after { content: ">"; }
+
+.ts .binop:before { content: ">"; }
+.ts .binop:after  { content: "<"; }
+
+.ts .exprstart:after { content: "<"; }
+.ts .exprend:before { content: ">"; }
+
+/* strange code to do expression continuations */
+.ts .e .connect {
+  position: absolute; bottom: -5px; left: 0; height: 5px; width: 100%;
+}
+.ts .efirst + * { margin-top: 5px; }
+
+/* object nesting */
+.ts .newobj { border: 2px solid blue; }
+.ts .enest.objnest > span { border-left: 10px solid blue; }
+.ts .e .connect.objconn { background: blue; }
+
+/* function nesting */
+.ts .func { border: 2px solid red; }
+.ts .enest.funcnest > span { border-left: 10px solid red; }
+.ts .e .connect.funcconn { background: red; }
+
+/* code pretty-printing */
+.tsx ul.indent { margin-left: 2em; /* 2 space tabs */ }
+.tsx .comment { color: #a00; text-style: italic; }
+.tsx .keyword { color: #0a0; }
+.tsx .var { color: #bb0; }
+.tsx .literal { }
+.ts .lit { color: blue; }
+.ts .semi { color: #888; }
+.ts .binop { color: #bb0; }
+.ts .id { color: #0a0; }
+
+div.ts { margin-bottom: 1em; }
+
+</style>
+</head>
+
+<body>
+<h1>TurtleScript tile test 3</h1>
+
+<SCRIPT src="./global.js"></SCRIPT>
+<SCRIPT src="./tokens.js"></SCRIPT>
+<SCRIPT src="./parse.js"></SCRIPT>
+<SCRIPT src="./json2.js"></SCRIPT>
+<SCRIPT src="./compile.js"></SCRIPT>
+<SCRIPT src="./render2.js"></SCRIPT>
+<pre class="ts">
+<SCRIPT>
+parse = make_parse();
+source = "var original_symbol = { nud: function () { this.error('Undefined.'); }, led: function (left) { this.error('Missing operator.'); } };";
+//source = "var sym = { a: 1, b: 2 }.supercalifragilisticexp;";
+//source = "var sym = function(a) { return a; };";
+tree = parse(source);
+render = make_render(html_escape);
+document.write(render(tree));
+</SCRIPT>
+</pre>
+
+<hr>
+<!-- hhmts start -->Last modified: Wed Jul 21 17:55:48 EDT 2010 <!-- hhmts end -->
+</body> </html>
