@@ -20,13 +20,11 @@
 // will match any of these:
 //      <=  >>  >>>  <>  >=  +: -: &: &&: &&
 
-
-
-String.prototype.tokens = function (prefix, suffix) {
+var tokenize = function (_this_, prefix, suffix) {
     var c;                      // The current character.
     var from;                   // The index of the start of the token.
     var i = 0;                  // The index of the current character.
-    var length = this.length;
+    var length = _this_.length;
     var n;                      // The number value.
     var q;                      // The quote character.
     var str;                    // The string value.
@@ -47,7 +45,7 @@ String.prototype.tokens = function (prefix, suffix) {
 
 // Begin tokenization. If the source string is empty, return nothing.
 
-    if (!this) {
+    if (!_this_) {
         return;
     }
 
@@ -63,7 +61,7 @@ String.prototype.tokens = function (prefix, suffix) {
 
 // Loop through this text, one character at a time.
 
-    c = this.charAt(i);
+    c = _this_.charAt(i);
     while (c) {
         from = i;
 
@@ -71,15 +69,15 @@ String.prototype.tokens = function (prefix, suffix) {
 
         if (c <= ' ') {
             i += 1;
-            c = this.charAt(i);
+            c = _this_.charAt(i);
 
 // name.
 
-        } else if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c === '$') {
+        } else if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c === '$' || c === '_') {
             str = c;
             i += 1;
-            for (;;) {
-                c = this.charAt(i);
+            while (true) {
+                c = _this_.charAt(i);
                 if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
                         (c >= '0' && c <= '9') || c === '_' || c === '$') {
                     str += c;
@@ -101,8 +99,8 @@ String.prototype.tokens = function (prefix, suffix) {
 
 // Look for more digits.
 
-            for (;;) {
-                c = this.charAt(i);
+            while (true) {
+                c = _this_.charAt(i);
                 if (c < '0' || c > '9') {
                     break;
                 }
@@ -115,8 +113,8 @@ String.prototype.tokens = function (prefix, suffix) {
             if (c === '.') {
                 i += 1;
                 str += c;
-                for (;;) {
-                    c = this.charAt(i);
+                while (true) {
+                    c = _this_.charAt(i);
                     if (c < '0' || c > '9') {
                         break;
                     }
@@ -130,20 +128,23 @@ String.prototype.tokens = function (prefix, suffix) {
             if (c === 'e' || c === 'E') {
                 i += 1;
                 str += c;
-                c = this.charAt(i);
+                c = _this_.charAt(i);
                 if (c === '-' || c === '+') {
                     i += 1;
                     str += c;
-                    c = this.charAt(i);
+                    c = _this_.charAt(i);
                 }
                 if (c < '0' || c > '9') {
                     make('number', str).error("Bad exponent");
                 }
-                do {
+                while (true) {
                     i += 1;
                     str += c;
-                    c = this.charAt(i);
-                } while (c >= '0' && c <= '9');
+                    c = _this_.charAt(i);
+                    if (! (c >= '0' && c <= '9')) {
+                        break;
+                    }
+                }
             }
 
 // Make sure the next character is not a letter.
@@ -157,7 +158,7 @@ String.prototype.tokens = function (prefix, suffix) {
 // Convert the string value to a number. If it is finite, then it is a good
 // token.
 
-            n = +str;
+            n = 1 * str;
             if (isFinite(n)) {
                 result.push(make('number', n));
             } else {
@@ -170,8 +171,8 @@ String.prototype.tokens = function (prefix, suffix) {
             str = '';
             q = c;
             i += 1;
-            for (;;) {
-                c = this.charAt(i);
+            while (true) {
+                c = _this_.charAt(i);
                 if (c < ' ') {
                     make('string', str).error(c === '\n' || c === '\r' || c === '' ?
                         "Unterminated string." :
@@ -191,34 +192,27 @@ String.prototype.tokens = function (prefix, suffix) {
                     if (i >= length) {
                         make('string', str).error("Unterminated string");
                     }
-                    c = this.charAt(i);
-                    switch (c) {
-                    case 'b':
+                    c = _this_.charAt(i);
+                    if (c === 'b') {
                         c = '\b';
-                        break;
-                    case 'f':
+                    } else if (c === 'f') {
                         c = '\f';
-                        break;
-                    case 'n':
+                    } else if (c === 'n') {
                         c = '\n';
-                        break;
-                    case 'r':
+                    } else if (c === 'r') {
                         c = '\r';
-                        break;
-                    case 't':
+                    } else if (c === 't') {
                         c = '\t';
-                        break;
-                    case 'u':
+                    } else if (c === 'u') {
                         if (i >= length) {
                             make('string', str).error("Unterminated string");
                         }
-                        c = parseInt(this.substr(i + 1, 4), 16);
+                        c = parseInt(_this_.substr(i + 1, 4), 16);
                         if (!isFinite(c) || c < 0) {
                             make('string', str).error("Unterminated string");
                         }
                         c = String.fromCharCode(c);
                         i += 4;
-                        break;
                     }
                 }
                 str += c;
@@ -226,14 +220,14 @@ String.prototype.tokens = function (prefix, suffix) {
             }
             i += 1;
             result.push(make('string', str));
-            c = this.charAt(i);
+            c = _this_.charAt(i);
 
 // comment.
 
-        } else if (c === '/' && this.charAt(i + 1) === '/') {
+        } else if (c === '/' && _this_.charAt(i + 1) === '/') {
             i += 1;
-            for (;;) {
-                c = this.charAt(i);
+            while (true) {
+                c = _this_.charAt(i);
                 if (c === '\n' || c === '\r' || c === '') {
                     break;
                 }
@@ -242,13 +236,13 @@ String.prototype.tokens = function (prefix, suffix) {
 
 // block comment.
 
-        } else if (c === '/' && this.charAt(i + 1) === '*') {
+        } else if (c === '/' && _this_.charAt(i + 1) === '*') {
             i += 3;
-            for (;;) {
-                c = this.charAt(i);
-                if (c === '' || (c === '/' && this.charAt(i - 1) === '*')) {
+            while (true) {
+                c = _this_.charAt(i);
+                if (c === '' || (c === '/' && _this_.charAt(i - 1) === '*')) {
                     i += 1;
-                    c = this.charAt(i);
+                    c = _this_.charAt(i);
                     break;
                 }
                 i += 1;
@@ -260,7 +254,7 @@ String.prototype.tokens = function (prefix, suffix) {
             str = c;
             i += 1;
             while (i < length) {
-                c = this.charAt(i);
+                c = _this_.charAt(i);
                 if (suffix.indexOf(c) < 0) {
                     break;
                 }
@@ -274,9 +268,8 @@ String.prototype.tokens = function (prefix, suffix) {
         } else {
             i += 1;
             result.push(make('operator', c));
-            c = this.charAt(i);
+            c = _this_.charAt(i);
         }
     }
     return result;
 };
-

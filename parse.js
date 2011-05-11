@@ -5,7 +5,7 @@
 // Douglas Crockford
 // 2008-07-07
 
-var make_parse = function () {
+var make_parse = function (tokenize) {
     var scope;
     var symbol_table = {};
     var token;
@@ -282,7 +282,8 @@ var make_parse = function () {
     constant("true", true);
     constant("false", false);
     constant("null", null);
-    constant("pi", 3.141592653589793);
+    constant("NaN", NaN);
+    constant("Infinity", Infinity);
     constant("Object", {});
     constant("Array", []);
 
@@ -551,10 +552,18 @@ var make_parse = function () {
         return [ this ];
     });
 
-    return function (source) {
-        tokens = source.tokens('=<>!+-*&|/%^', '=<>&|');
+    return function (source, top_level) {
+        tokens = tokenize(source, '=<>!+-*&|/%^', '=<>&|');
         token_nr = 0;
         new_scope();
+        if (top_level) {
+            top_level = tokenize(top_level);
+            var i = 0;
+            while (i < top_level.length) {
+                scope.define(top_level[i]);
+                i+=1;
+            }
+        }
         advance();
         var s = statements();
         advance("(end)");

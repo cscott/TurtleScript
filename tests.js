@@ -31,7 +31,7 @@ var make_tests = function(make_parse, make_compile, make_render) {
         var x = { a: 1, b: 'two', c: x+2 }; var y = [ 1, 'two', 3, x ];
     };
     test[i+=1] = function() {
-        var a = true, b=false, c=null, d=pi, e=Object, f=Array, g=this;
+        var a = true, b=false, c=null, d=NaN, e=Object, f=Array, g=this;
     };
     test[i+=1] = function() {
         var x = 1+2*3, y = (1+2)*3, z=null; z(x, y); z[x] = y;
@@ -104,10 +104,7 @@ var make_tests = function(make_parse, make_compile, make_render) {
 
     var test_source = [], j=0;
     while (j <= i) {
-        var name = (j===0) ? "make_parse" :
-                   (j===1) ? "make_compile" :
-                   (j===2 || j===3) ? "make_tests" : "f";
-        test_source[j] = "var "+name+" = ";
+        test_source[j] = "var module = ";
         test_source[j] += test[j].toSource ?
             test[j].toSource() : test[j].toString();
         test_source[j] += ";";

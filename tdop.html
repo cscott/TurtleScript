@@ -45,7 +45,7 @@ table {width: 90%; border: 0px; cellpadding: 0px;}
   parsing itself. </P>
 <NOSCRIPT></NOSCRIPT>
 <SCRIPT src="./global.js"></SCRIPT>
-<SCRIPT src="./tokens.js"></SCRIPT>
+<SCRIPT src="./tokenize.js"></SCRIPT>
 <SCRIPT src="./parse.js"></SCRIPT>
 <SCRIPT src="./json2.js"></SCRIPT>
 <SCRIPT src="./compile.js"></SCRIPT>
@@ -74,12 +74,13 @@ var CATCH_SYNTAX_ERRORS = false;
 var SHOW_SOURCE = true;
 
 function do_it() {
-    parse = make_parse();
+    parse = make_parse(tokenize);
 
 // We are going to make the parse function parse itself.
 
-    source = make_tests(make_parse, make_compile, make_render)[2];
-    tree = parse(source);
+    source = make_tests(tokenize, make_parse, make_compile, make_render,
+                        make_bcompile)[0];
+    tree = parse(source, "isFinite parseInt String make_tests");
     if (tree) {
         /* Raw compiled tree */
         document.write(html_escape(
