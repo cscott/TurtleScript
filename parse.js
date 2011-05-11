@@ -393,6 +393,8 @@ var make_parse = function () {
             scope.define(token);
             this.name = token.value;
             advance();
+        } else {
+            this.name = null;
         }
         advance("(");
         if (token.id !== ")") {
@@ -520,6 +522,8 @@ var make_parse = function () {
     stmt("return", function () {
         if (token.id !== ";") {
             this.first = expression(0);
+        } else {
+            this.first = null;
         }
         advance(";");
         if (token.id !== "}") {

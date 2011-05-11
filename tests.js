@@ -10,6 +10,20 @@ var make_tests = function(make_parse, make_compile, make_render) {
     // now some ad-hoc test cases.  Phrased as functions so they can be
     // syntax-checked, etc.
     test[i+=1] = function() {
+	// find bug sharing no-arg and arg return tokens
+	// (when you do token.reserve() it makes the current syntree
+	// node the prototype for future return statements.  This can
+	// result in circular structures unless you always define this.first.
+	// Otherwise it gets inherited from the parent, and thus might
+	// contain itself! (as in the following example)
+	var assignment = function() {
+	    return function() {
+		return;
+	    };
+	};
+	return assignment;
+    };
+    test[i+=1] = function() {
         /* comment test */
         var x = 1; x = x + 1;
     };
@@ -92,7 +106,7 @@ var make_tests = function(make_parse, make_compile, make_render) {
     while (j <= i) {
         var name = (j===0) ? "make_parse" :
                    (j===1) ? "make_compile" :
-                   (j===2) ? "make_tests" : "f";
+                   (j===2 || j===3) ? "make_tests" : "f";
         test_source[j] = "var "+name+" = ";
         test_source[j] += test[j].toSource ?
             test[j].toSource() : test[j].toString();
