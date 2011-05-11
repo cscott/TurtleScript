@@ -49,6 +49,7 @@ table {width: 90%; border: 0px; cellpadding: 0px;}
 <SCRIPT src="./parse.js"></SCRIPT>
 <SCRIPT src="./json2.js"></SCRIPT>
 <SCRIPT src="./compile.js"></SCRIPT>
+<SCRIPT src="./bytecode.js"></SCRIPT>
 <SCRIPT src="./render.js"></SCRIPT>
 <SCRIPT src="./tests.js"></SCRIPT>
 <PRE><SCRIPT>
@@ -77,14 +78,31 @@ try {
     source = make_tests(make_parse, make_compile, make_render)[2];
     tree = parse(source);
     if (tree) {
+        /* Raw compiled tree */
         document.write(html_escape(
             JSON.stringify(tree, ['key', 'name', 'message',
             'value', 'arity', 'first', 'second', 'third', 'fourth'], 4)));
         document.write("\n\n");
-        // recompile!
+
+        /* Pretty-printed to eval'able javascript */
         compile = make_compile();
         document.write(html_escape(compile(tree)));
-    }
+
+        /* Bytecode compiled (raw) */
+        bcompile = make_bcompile();
+        bc = bcompile(tree);
+        document.write(html_escape(
+            JSON.stringify(bc, ['functions', 'strings', 'id', 'nargs',
+                                  'bytecode'], 4)));
+        document.write("\n\n");
+
+        /* Pretty-printed bytecode */
+        for (i=0; i<bc.functions.length; i++) {
+          var f = bc.functions[i];
+          document.write("<h2>Function #"+f.id+" ("+f.nargs+" args)</h2>");
+          document.write(html_escape(bc.decompile(f.id)));
+        }
+   }
 
 } catch (e) {
     document.write(JSON.stringify(e, ['name', 'message', 'from', 'to', 'key',
