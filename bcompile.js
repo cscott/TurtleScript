@@ -1,4 +1,4 @@
-// bytecode.js
+// bcompile.js
 // Bytecode compiler for parsed Simplified JavaScript written in
 // Simplified JavaScript.
 // Implements lexical scope using object operations.  Eg.

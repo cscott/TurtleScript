@@ -48,9 +48,9 @@ table {width: 90%; border: 0px; cellpadding: 0px;}
 <SCRIPT src="./tokenize.js"></SCRIPT>
 <SCRIPT src="./parse.js"></SCRIPT>
 <SCRIPT src="./json2.js"></SCRIPT>
-<SCRIPT src="./compile.js"></SCRIPT>
+<SCRIPT src="./pprint.js"></SCRIPT>
 <SCRIPT src="./bytecode_table.js"></SCRIPT>
-<SCRIPT src="./bytecode.js"></SCRIPT>
+<SCRIPT src="./bcompile.js"></SCRIPT>
 <SCRIPT src="./render.js"></SCRIPT>
 <SCRIPT src="./tests.js"></SCRIPT>
 <PRE><SCRIPT>
@@ -79,7 +79,7 @@ function do_it() {
 
 // We are going to make the parse function parse itself.
 
-    source = make_tests(tokenize, make_parse, make_compile, make_render,
+    source = make_tests(tokenize, make_parse, make_pprint, make_render,
                         make_bcompile)[0];
     tree = parse(source, "isFinite parseInt String make_tests");
     if (tree) {
@@ -90,8 +90,8 @@ function do_it() {
         document.write("\n\n");
 
         /* Pretty-printed to eval'able javascript */
-        compile = make_compile();
-        document.write(html_escape(compile(tree)));
+        pprint = make_pprint();
+        document.write(html_escape(pprint(tree)));
 
         /* Bytecode compiled (raw) */
         bc_table = make_bytecode_table();
