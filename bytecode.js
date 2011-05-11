@@ -149,8 +149,8 @@ var make_bcompile = function() {
     bc("pop", 0, 1, 0);  // ab -> b
     bc("dup", 0, 1, 2);  // a -> aa
     bc("2dup", 0, 2, 4); // ab -> abab
-    bc("over", 0, 2, 4); // ab -> aba
-    bc("over2", 0, 2, 4); // abc -> abca
+    bc("over", 0, 2, 3); // ab -> aba
+    bc("over2", 0, 3, 4); // abc -> abca
     bc("swap", 0, 2, 2);  // ab -> ba
 
     // Unary operators.
@@ -269,7 +269,7 @@ var make_bcompile = function() {
                  tree.value === "-=" )) {
                 // special case: optimize by not keeping final value on stack
                 dispatch[tree.arity].call(tree, this, 1/*is stmt*/);
-                assert(state.current_func.stack_depth === 0, this);
+                assert(state.current_func.stack_depth === 0, tree);
                 return;
             }
             this.bcompile_expr(tree);
