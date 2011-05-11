@@ -132,7 +132,7 @@ var make_bcompile = function() {
     // stack is: <top> argN .. arg3 arg2 arg1 arg0 this function
     // on return, pops args, this, and function, and pushes ret value
     // (possibly undefined)
-    bc("invoke", 1, function(arg0) { return arg0+2; }, 1);
+    bc("invoke", 1, function(opname, arg0) { return arg0+2; }, 1);
 
     // Method return
     bc("return", 0, 1, 0);
@@ -194,7 +194,10 @@ var make_bcompile = function() {
             var newf = {
                 id: this.functions.length,
                 nargs: nargs,
+                max_stack: 0,
                 bytecode: [],
+                // internal
+                stack_depth: 0,
                 loop_label_stack: []
             };
             this.functions[newf.id] = newf;
@@ -202,14 +205,22 @@ var make_bcompile = function() {
         };
         // add bytecode to current function
         state.emit = function(bytecode_op) {
+            var op = bytecodes_by_name[bytecode_op];
+            var cf = this.current_func;
             var i=1;
-            assert(bytecodes_by_name[bytecode_op], bytecode_op);
-            this.current_func.bytecode.push(bytecodes_by_name[bytecode_op].id);
+            assert(op, bytecode_op);
+            assert(cf.stack_depth >= op.stackpop.apply(op, arguments));
+            cf.bytecode.push(op.id);
             while (i < arguments.length) {
-                this.current_func.bytecode.push(arguments[i]);
+                cf.bytecode.push(arguments[i]);
                 i += 1;
             }
-            this.current_func.can_fall_off = true;
+            cf.stack_depth -= op.stackpop.apply(op, arguments);
+            cf.stack_depth += op.stackpush.apply(op, arguments);
+            if (cf.stack_depth > cf.max_stack) {
+                cf.max_stack = cf.stack_depth;
+            }
+            cf.can_fall_off = true;
         };
         // decompile bytecode
         state.decompile = function(func_id) {
@@ -252,17 +263,21 @@ var make_bcompile = function() {
                                });
         };
         state.bcompile_stmt = function(tree) {
+            assert(state.current_func.stack_depth === 0, tree);
             if (tree.arity === "binary" &&
                 (tree.value === "=" || tree.value === "+=" ||
                  tree.value === "-=" )) {
                 // special case: optimize by not keeping final value on stack
                 dispatch[tree.arity].call(tree, this, 1/*is stmt*/);
+                assert(state.current_func.stack_depth === 0, this);
                 return;
             }
             this.bcompile_expr(tree);
             if (tree.arity !== "statement") {
+                assert(state.current_func.stack_depth === 1, tree);
                 this.emit("pop"); // discard value from expr evaluation
             }
+            assert(state.current_func.stack_depth === 0, tree);
         };
         state.bcompile_expr = function(tree) {
             // make 'this' the parse tree in the dispatched function.
@@ -507,16 +522,24 @@ var make_bcompile = function() {
         dispatch.ternary[op] = f;
     };
     ternary("?", function(state) {
-        // XXX labels are a bit weird
+        var sd_before, sd_after;
         var falseLabel = state.new_label();
         var mergeLabel = state.new_label();
         state.bcompile_expr(this.first);
         state.emit("jmp_unless", falseLabel);
+
+        // "true" case
+        sd_before = state.current_func.stack_depth;
         state.bcompile_expr(this.second);
         state.emit("jmp", mergeLabel);
+        sd_after = state.current_func.stack_depth;
+
+        // "false" case
+        state.current_func.stack_depth = sd_before;
         state.set_label(falseLabel);
         state.bcompile_expr(this.third);
         state.set_label(mergeLabel);
+        assert(state.current_func.stack_depth === sd_after, this);
     });
     ternary("(", function(state) {
         // version of method call which sets 'this'
@@ -553,7 +576,6 @@ var make_bcompile = function() {
         // surrounding contexts.
     });
     stmt("if", function(state) {
-        // XXX labels are a bit weird
         var falseLabel = state.new_label();
         state.bcompile_expr(this.first);
         state.emit("jmp_unless", falseLabel);
@@ -640,6 +662,8 @@ var make_bcompile = function() {
             state.emit("swap");
             state.emit("set_slot_direct", state.intern(e.value));
         });
+        // done using the arguments array
+        state.emit("pop");
         // handle the body
         state.bcompile_stmts(this.second);
         // finish w/ no-arg return
