@@ -79,6 +79,9 @@ var make_bcompile = function() {
     bc("push_frame", 0, 0, 1);
     // Push a null on the stack
     bc("push_null", 0, 0, 1);
+    // Push a boolean literal on the stack.
+    bc("push_true", 0, 0, 1);
+    bc("push_false", 0, 0, 1);
     // Push a numeric literal on the stack.
     bc("push_number", 1, 0, 1);
     // Push a string literal on the stack.
@@ -286,6 +289,10 @@ var make_bcompile = function() {
         }
         if (typeof(this.value)==='string') {
 	    state.emit("push_string", state.intern(this.value));
+	    return;
+	}
+	if (typeof(this.value)==='boolean') {
+	    state.emit(this.value ? "push_true" : "push_false");
 	    return;
 	}
 	assert(typeof(this.value) === 'number');
