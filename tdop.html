@@ -9,7 +9,7 @@ td {background-color: white; border: black solid 1pt; padding-left: 10px;
     padding-right: 10px; vertical-align: top;}
 table {width: 90%; border: 0px; cellpadding: 0px;}
     </STYLE>
-<STYLE type="text/css" style="display: none !important;">object:not([type]),object[classid$=":D27CDB6E-AE6D-11cf-96B8-444553540000"],object[classid$=":d27cdb6e-ae6d-11cf-96b8-444553540000"],object[codebase*="swflash.cab"],object[data*=".swf"],embed[type="application/x-shockwave-flash"],embed[src*=".swf"],object[type="application/x-shockwave-flash"],object[src*=".swf"],object[codetype="application/x-shockwave-flash"],iframe[type="application/x-shockwave-flash"],object[classid$=":166B1BCA-3F9C-11CF-8075-444553540000"],object[codebase*="sw.cab"],object[data*=".dcr"],embed[type="application/x-director"],embed[src*=".dcr"],object[type="application/x-director"],object[src*=".dcr"],object[classid$=":15B782AF-55D8-11D1-B477-006097098764"],object[codebase*="awswaxf.cab"],object[data*=".aam"],embed[type="application/x-authorware-map"],embed[src*=".aam"],object[type="application/x-authorware-map"],object[src*=".aam"],object[classid*="32C73088-76AE-40F7-AC40-81F62CB2C1DA"],object[type="application/ag-plugin"],object[type="application/x-silverlight"],object[type="application/x-silverlight-2"],object[source*=".xaml"],object[sourceelement*="xaml"],embed[type="application/ag-plugin"],embed[source*=".xaml"]{display: none !important;}</STYLE></HEAD><BODY bgcolor="linen">
+</HEAD><BODY bgcolor="linen">
 <H1>Top Down Operator Precedence</H1>
 
 <P><A href="http://www.crockford.com/">Douglas Crockford</A></P>
@@ -70,7 +70,10 @@ Object.prototype.error = function (message, t) {
     throw t;
 };
 
-try {
+var CATCH_SYNTAX_ERRORS = false;
+var SHOW_SOURCE = true;
+
+function do_it() {
     parse = make_parse();
 
 // We are going to make the parse function parse itself.
@@ -99,14 +102,32 @@ try {
         /* Pretty-printed bytecode */
         for (i=0; i<bc.functions.length; i++) {
           var f = bc.functions[i];
-          document.write("<h2>Function #"+f.id+" ("+f.nargs+" args)</h2>");
+          document.write("<h2>Function #"+f.id+" ("+f.nargs+" args; max stack depth="+f.max_stack+")</h2>");
           document.write(html_escape(bc.decompile(f.id)));
         }
    }
+}
 
-} catch (e) {
-    document.write(JSON.stringify(e, ['name', 'message', 'from', 'to', 'key',
-            'value', 'arity', 'first', 'second', 'third', 'fourth'], 4));
+if (!CATCH_SYNTAX_ERRORS) {
+    do_it();
+} else {
+    try {
+        do_it();
+    } catch (e) {
+        document.write(JSON.stringify(e, ['name', 'message', 'from', 'to',
+                                          'key', 'value', 'arity', 'first',
+                                          'second', 'third', 'fourth'], 4));
+        document.write("\n");
+    }
+}
+
+if (SHOW_SOURCE) {
+    sl = source.split(/\n/);
+    ci = 0;
+    for (j=0; j < sl.length; j++) {
+       document.write(ci+": "+sl[j]+"\n");
+       ci += sl[j].length + 1;
+    }
 }
 
 </SCRIPT>
