@@ -29,6 +29,20 @@
 // 2011-05-10
 
 var make_bcompile = function() {
+    // helper function for debugging
+    var assert = function(b, obj) {
+        if (!b) { Object.error("Assertion failure", obj); }
+    };
+    // helper function for lists
+    var foreach = function(lst, f) {
+	var i = 0;
+	while ( i < lst.length ) {
+	    f(i, lst[i]);
+	    i += 1;
+	}
+    };
+
+    // Table of bytecodes
     var bytecodes_by_num = [];
     var bytecodes_by_name = {};
     var bc = function(name, args, stackpop, stackpush, printargs) {
@@ -40,11 +54,11 @@ var make_bcompile = function() {
 	    stackpush: stackpush,
 	    printargs: printargs
 	};
-	if (typeof(nbc.stackpop) != "function") {
-	    nbc.stackpop = function() { return stackpop; }
+	if (typeof(nbc.stackpop) !== "function") {
+	    nbc.stackpop = function() { return stackpop; };
 	}
-	if (typeof(nbc.stackpush) != "function") {
-	    nbc.stackpush = function() { return stackpush; }
+	if (typeof(nbc.stackpush) !== "function") {
+	    nbc.stackpush = function() { return stackpush; };
 	}
 	if (!nbc.printargs) {
 	    nbc.printargs = function(state, bytecode, pc) {
@@ -71,7 +85,7 @@ var make_bcompile = function() {
 	    lbl = lbl.label;
 	}
 	return " "+lbl;
-    }
+    };
     // define the bytecodes for the js virtual machine
     // name, args, stackpop, stackpush
 
@@ -155,7 +169,8 @@ var make_bcompile = function() {
     bc("bi_mul", 0, 2, 1);
     bc("bi_div", 0, 2, 1);
 
-
+    var dispatch = {};
+    // compilation state
     var mkstate = function() {
 	// The result of a compilation: a function list, and a string list.
 	var state = {
@@ -180,7 +195,7 @@ var make_bcompile = function() {
 		id: this.functions.length,
 		nargs: nargs,
 		bytecode: [],
-		loop_label_stack: [],
+		loop_label_stack: []
 	    };
 	    this.functions[newf.id] = newf;
 	    return newf;
@@ -255,21 +270,8 @@ var make_bcompile = function() {
             return dispatch[tree.arity].call(tree, this);
 	};
 	return state;
-    }
-
-    var assert = function(b, obj) {
-        if (!b) { Object.error("Assertion failure", obj); }
-    };
-    // helper function for lists
-    var foreach = function(lst, f) {
-	var i = 0;
-	while ( i < lst.length ) {
-	    f(i, lst[i]);
-	    i += 1;
-	}
     };
 
-    var dispatch = {};
     dispatch.name = function(state) {
 	// lookup the name in the frame table
 	state.emit("push_frame");
@@ -363,7 +365,7 @@ var make_bcompile = function() {
     var assignment = function(mode) {
 	return function(state, is_stmt) {
 	    // lhs should either be a name or a dot expression
-	    if (this.first.arity == "name") {
+	    if (this.first.arity === "name") {
 		state.emit("push_frame");
 		if (mode) {
 		    state.emit("dup");
@@ -488,7 +490,7 @@ var make_bcompile = function() {
 	// function object
 	state.bcompile_expr(this.first);
 	// first arg is 'this'
-	state.bcompile_expr({ value: "this", arity: "this" })
+	state.bcompile_expr({ value: "this", arity: "this" });
 	// arguments
 	foreach(this.second, function(i, e) {
 	    state.bcompile_expr(e);
