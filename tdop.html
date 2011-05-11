@@ -49,6 +49,7 @@ table {width: 90%; border: 0px; cellpadding: 0px;}
 <SCRIPT src="./parse.js"></SCRIPT>
 <SCRIPT src="./json2.js"></SCRIPT>
 <SCRIPT src="./compile.js"></SCRIPT>
+<SCRIPT src="./bytecode_table.js"></SCRIPT>
 <SCRIPT src="./bytecode.js"></SCRIPT>
 <SCRIPT src="./render.js"></SCRIPT>
 <SCRIPT src="./tests.js"></SCRIPT>
@@ -93,7 +94,8 @@ function do_it() {
         document.write(html_escape(compile(tree)));
 
         /* Bytecode compiled (raw) */
-        bcompile = make_bcompile();
+        bc_table = make_bytecode_table();
+        bcompile = make_bcompile(bc_table);
         bc = bcompile(tree);
         document.write(html_escape(
             JSON.stringify(bc, ['functions', 'strings', 'id', 'nargs',
