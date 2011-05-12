@@ -355,7 +355,7 @@ var make_parse = function (tokenize) {
             this.arity = "binary";
             this.first = left;
             this.second = a;
-            if ((left.arity !== "unary" || left.id !== "function") &&
+            if (left.arity !== "function" &&
                     left.arity !== "name" && left.id !== "(" &&
                     left.id !== "&&" && left.id !== "||" && left.id !== "?") {
                 left.error("Expected a variable name.");
