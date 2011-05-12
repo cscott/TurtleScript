@@ -387,9 +387,6 @@ var make_parse = function (tokenize) {
 
     prefix("function", function () {
         var a = [];
-        new_scope();
-        // 'arguments' is defined inside every function.
-        scope.define({ value: "arguments", arity: "name" });
         if (token.arity === "name") {
             scope.define(token);
             this.name = token.value;
@@ -397,6 +394,10 @@ var make_parse = function (tokenize) {
         } else {
             this.name = null;
         }
+        new_scope();
+        // 'arguments' is defined inside every function.
+        scope.define({ value: "arguments", arity: "name" });
+
         advance("(");
         if (token.id !== ")") {
             while (true) {
