@@ -48,7 +48,7 @@ table {width: 90%; border: 0px; cellpadding: 0px;}
 <SCRIPT src="./tokenize.js"></SCRIPT>
 <SCRIPT src="./parse.js"></SCRIPT>
 <SCRIPT src="./json2.js"></SCRIPT>
-<SCRIPT src="./pprint.js"></SCRIPT>
+<SCRIPT src="./jcompile.js"></SCRIPT>
 <SCRIPT src="./render.js"></SCRIPT>
 <SCRIPT src="./bytecode_table.js"></SCRIPT>
 <SCRIPT src="./bcompile.js"></SCRIPT>
@@ -75,7 +75,7 @@ Object.prototype.error = function (message, t) {
 var CATCH_SYNTAX_ERRORS = false;
 var SHOW_SOURCE = true;
 var PRINT_TREE = false;
-var PRINT_PPRINT = false;
+var PRINT_JCOMPILE = false;
 var PRINT_RAW_BYTECODE = false;
 
 function do_it() {
@@ -97,7 +97,7 @@ function do_it() {
     }
     //document.write("<h1>TEST: "+self_test('{return 1+2;}')+"</h1>");
 
-    sources = make_tests(tokenize, make_parse, make_pprint, make_render,
+    sources = make_tests(tokenize, make_parse, make_jcompile, make_render,
                         make_bytecode_table, make_bcompile, make_binterp,
                         make_binterp().library_init,
                         self_test);
@@ -129,9 +129,9 @@ function do_it() {
         }
 
         /* Pretty-printed to eval'able javascript */
-        pprint = make_pprint();
-        if (PRINT_PPRINT) {
-        document.write(html_escape(pprint(tree)));
+        jcompile = make_jcompile();
+        if (PRINT_JCOMPILE) {
+        document.write(html_escape(jcompile(tree)));
         }
 
         /* Bytecode compiled (raw) */

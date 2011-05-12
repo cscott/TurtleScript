@@ -1,12 +1,16 @@
-// pprint.js
+// jcompile.js
 // Pretty-printer for parsed Simplified JavaScript,
 // written in Simplified JavaScript.
+// This is also a "compiler" for our parse tree to a form which can be
+// 'eval'ed and run natively in the browser JavaScript engine.  At the
+// moment we're not doing any transforms, so it's not a very interesting
+// compiler.
 //
 // C. Scott Ananian
 // 2010-07-02ish
 
-var make_pprint = function() {
-    var pprint, pprint_stmt, pprint_stmts;
+var make_jcompile = function() {
+    var jcompile, jcompile_stmt, jcompile_stmts;
     var indentation, prec_stack = [ 0 ];
 
     var assert = function(b, obj) {
@@ -81,17 +85,17 @@ var make_pprint = function() {
     };
     var unary = function(op, prec, f) {
         dispatch.unary[op] = f || with_prec_paren(prec, function() {
-                return this.value + pprint(this.first);
+                return this.value + jcompile(this.first);
             });
     };
     unary('!', 70);
     unary('-', 70);
     unary('typeof', 70, with_prec_paren(70, function() {
-                return "typeof("+with_prec(0, pprint)(this.first)+")";
+                return "typeof("+with_prec(0, jcompile)(this.first)+")";
             }));
     unary('[', 90/*???*/, with_prec_paren(90, function() {
                 // new array creation
-                return "[" + gather(this.first, ", ", with_prec(0, pprint)) +
+                return "[" + gather(this.first, ", ", with_prec(0, jcompile)) +
                     "]";
             }));
     unary('{', 90/*???*/, with_prec_paren(90, function() {
@@ -104,7 +108,7 @@ var make_pprint = function() {
                             // XXX suppress quotes around item.key when
                             //     unnecessary
                             return str_escape(item.key) + ": " +
-                                with_prec(0, pprint)(item);
+                                with_prec(0, jcompile)(item);
                         });
                     indentation -= 1;
                     result += nl();
@@ -121,9 +125,9 @@ var make_pprint = function() {
     var binary = function(op, prec, f) {
         // with_prec_paren will add parentheses if necessary
         dispatch.binary[op] = f || with_prec_paren(prec, function() {
-                var result = pprint(this.first)+' '+this.value+' ';
+                var result = jcompile(this.first)+' '+this.value+' ';
                 // handle left associativity
-                result += with_prec(prec+1, pprint)(this.second);
+                result += with_prec(prec+1, jcompile)(this.second);
                 return result;
             });
     };
@@ -144,16 +148,16 @@ var make_pprint = function() {
     binary('/', 60);
     binary(".", 80, with_prec_paren(80, function() {
             assert(this.second.arity==='literal', this.second);
-            return pprint(this.first)+"."+this.second.value;
+            return jcompile(this.first)+"."+this.second.value;
             }));
     binary('[', 80, with_prec_paren(80, function() {
-                return pprint(this.first) + "[" +
-                    with_prec(0, pprint)(this.second) + "]";
+                return jcompile(this.first) + "[" +
+                    with_prec(0, jcompile)(this.second) + "]";
             }));
     binary('(', 80, with_prec_paren(80, function() {
             // simple method invocation (doesn't set 'this')
-                return pprint(this.first) + "(" +
-                gather(this.second, ", ", with_prec(0, pprint)) + ")";
+                return jcompile(this.first) + "(" +
+                gather(this.second, ", ", with_prec(0, jcompile)) + ")";
             }));
 
     // Ternary ASTs
@@ -165,15 +169,15 @@ var make_pprint = function() {
         dispatch.ternary[op] = with_prec_paren(prec, f);
     };
     ternary("?", 20, function() {
-            return pprint(this.first) + " ? " +
-                pprint(this.second) + " : " +
-                pprint(this.third);
+            return jcompile(this.first) + " ? " +
+                jcompile(this.second) + " : " +
+                jcompile(this.third);
         });
     ternary("(", 80, function() {
             // precedence is 80, same as . and '(')
             assert(this.second.arity==='literal', this.second);
-            return pprint(this.first) + "." + this.second.value + "(" +
-                gather(this.third, ", ", with_prec(0, pprint)) + ")";
+            return jcompile(this.first) + "." + this.second.value + "(" +
+                gather(this.third, ", ", with_prec(0, jcompile)) + ")";
         });
 
     // Statements
@@ -188,33 +192,33 @@ var make_pprint = function() {
             var result = "{";
             if (this.first.length > 0) {
                 indentation += 1;
-                result += nl() + pprint_stmts(this.first);
+                result += nl() + jcompile_stmts(this.first);
                 indentation -= 1;
             }
             result += nl() + "}";
             return result;
             });
     stmt("var", function() {
-            return "var "+pprint(this.first)+";";
+            return "var "+jcompile(this.first)+";";
         });
     stmt("if", function() {
-            var result = "if ("+pprint(this.first)+") ";
+            var result = "if ("+jcompile(this.first)+") ";
             // this.second.value === block
-            result += pprint(this.second);
+            result += jcompile(this.second);
             if (this.third) {
                 result += " else ";
-                result += pprint(this.third);
+                result += jcompile(this.third);
             }
             return result;
         });
     stmt("return", function() {
-            return "return"+(this.first ? (" "+pprint(this.first)) : "")+";";
+            return "return"+(this.first ? (" "+jcompile(this.first)) : "")+";";
         });
     stmt("break", function() {
             return "break;";
         });
     stmt("while", function() {
-            return "while ("+pprint(this.first)+") "+pprint(this.second);
+            return "while ("+jcompile(this.first)+") "+jcompile(this.second);
         });
 
     // Odd cases
@@ -222,10 +226,10 @@ var make_pprint = function() {
     dispatch['function'] = with_prec(0, function() {
             var result = "function";
             if (this.name) { result += " " + this.name; }
-            result += " (" + gather(this.first, ", ", pprint) + ") {";
+            result += " (" + gather(this.first, ", ", jcompile) + ") {";
             if (this.second.length > 0) {
                 indentation += 1;
-                result += nl() + pprint_stmts(this.second); // function body
+                result += nl() + jcompile_stmts(this.second); // function body
                 indentation -= 1;
             }
             result += nl() + "}";
@@ -233,22 +237,22 @@ var make_pprint = function() {
         });
 
     // Helpers
-    pprint = function(tree) {
+    jcompile = function(tree) {
         // make 'this' the parse tree in the dispatched function.
         assert(dispatch[tree.arity], tree);
         return dispatch[tree.arity].apply(tree);
     };
-    pprint_stmt = function(tree) {
-        return pprint(tree)+(tree.arity==='statement' ? "" : ";");
+    jcompile_stmt = function(tree) {
+        return jcompile(tree)+(tree.arity==='statement' ? "" : ";");
     };
-    pprint_stmts = function(tree_list) {
-        return gather(tree_list, nl(), pprint_stmt);
+    jcompile_stmts = function(tree_list) {
+        return gather(tree_list, nl(), jcompile_stmt);
     };
 
     return function (parse_tree) {
         // parse_tree should be an array of statements.
         indentation = 0;
         prec_stack = [ 0 ];
-        return pprint_stmts(parse_tree);
+        return jcompile_stmts(parse_tree);
     };
 };
