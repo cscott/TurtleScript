@@ -17,7 +17,7 @@ var make_binterp = function(bytecode_table) {
 	    bytecode: module.functions[func_id].bytecode,
 	    strings: module.strings
 	};
-    }
+    };
 
     var dispatch = {};
     var SLOT_PREFIX = "!bi!"; // prevent leaking slots from metacontext
@@ -257,7 +257,7 @@ var make_binterp = function(bytecode_table) {
 	}
 
 	var state = mkstate(TOP, FRAME, module, func_id);
-	while (state != TOP) {
+	while (state !== TOP) {
 	    state = interpret(state);
 	}
 	return TOP.stack.pop();
