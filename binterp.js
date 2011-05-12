@@ -161,6 +161,10 @@ var make_binterp = function(bytecode_table) {
                 native_args.push(my_arguments[SLOT_PREFIX+i]);
                 i += 1;
             }
+            if (func.is_apply) {
+                // returns a new state, just like invoke does.
+                return func.native_code.apply(this, native_args);
+            }
             this.stack.push(func.native_code.apply(this, native_args));
             return;
         }
@@ -311,11 +315,14 @@ var make_binterp = function(bytecode_table) {
         fset("console", my_console);
 
         // Functions
-        var native_func = function(obj, name, f) {
+        var native_func = function(obj, name, f, is_apply/*optional*/) {
             var my_func = Object.create(MyFunction);
             my_func.parent_frame = frame;
             my_func.native_code = f;
             oset(obj, name, my_func);
+            if (is_apply) {
+                my_func.is_apply = is_apply;
+            }
         };
         native_func(my_console, "log", function() {
             arguments[0] = "INTERP:";
@@ -332,6 +339,41 @@ var make_binterp = function(bytecode_table) {
         native_func(frame, "isFinite", function(_this_, number) {
             return isFinite(number);
         });
+
+        // XXX: We're not quite handling the "this" argument correctly.
+        // According to:
+        // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function/call
+        // "If thisArg is null or undefined, this will be the global
+        // object. Otherwise, this will be equal to Object(thisArg)
+        // (which is thisArg if thisArg is already an object, or a
+        // String, Boolean, or Number if thisArg is a primitive value
+        // of the corresponding type)."
+        native_func(MyFunction, "call", function() {
+            // push arguments on stack and use 'invoke' bytecode op.
+            // arg #0 is the function itself.
+            // arg #1 is 'this'
+            // arg #2-#n are rest of arguments
+            var i = 0;
+            while ( i < arguments.length ) {
+                this.stack.push(arguments[i]);
+                i += 1;
+            }
+            return dispatch.invoke.call(this, arguments.length-2);
+        }, 1/*is apply*/);
+        native_func(MyFunction, "apply", function() {
+            // push arguments on stack and use 'invoke' bytecode op.
+            // arg #0 is the function itself.
+            // arg #1 is 'this'
+            // arg #2 is rest of arguments, as array.
+            this.stack.push(arguments[0]);
+            this.stack.push(arguments[1]);
+            var i = 0, nargs = arguments[2][SLOT_PREFIX+"length"];
+            while ( i < nargs ) {
+                this.stack.push(arguments[2][SLOT_PREFIX+i]);
+                i += 1;
+            }
+            return dispatch.invoke.call(this, nargs);
+        }, 1/*is apply*/);
 
         return frame;
     };
