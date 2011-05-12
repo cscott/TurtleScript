@@ -140,7 +140,7 @@ function do_it() {
         bc = bcompile(tree);
         if (PRINT_RAW_BYTECODE) {
         document.write(html_escape(
-            JSON.stringify(bc, ['functions', 'strings', 'id', 'nargs',
+            JSON.stringify(bc, ['functions', 'literals', 'id', 'nargs',
                                   'bytecode'], 4)));
         document.write("\n\n");
         }

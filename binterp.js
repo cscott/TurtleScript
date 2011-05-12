@@ -16,7 +16,7 @@ var make_binterp = function(bytecode_table) {
             module: module,
             func_id: func_id,
             bytecode: module.functions[func_id].bytecode,
-            strings: module.strings
+            literals: module.literals
         };
     };
 
@@ -57,22 +57,11 @@ var make_binterp = function(bytecode_table) {
         return ns ? ns : state;
     };
 
-    var push_op = function(x) {
-        return function() {
-            this.stack.push(x);
-        };
-    };
     dispatch.push_frame = function() {
         this.stack.push(this.frame);
     };
-    dispatch.push_null = push_op(null);
-    dispatch.push_true = push_op(true);
-    dispatch.push_false =push_op(false);
-    dispatch.push_number = function(num) {
-        this.stack.push(num);
-    };
-    dispatch.push_string = function(idx) {
-        this.stack.push(this.strings[idx]);
+    dispatch.push_literal = function(idx) {
+        this.stack.push(this.literals[idx]);
     };
     dispatch.new_object = function() {
         this.stack.push(Object.create(MyObject));
@@ -103,17 +92,17 @@ var make_binterp = function(bytecode_table) {
     };
     dispatch.get_slot_direct = function(slot_name_idx) {
         var obj = this.stack.pop();
-        var name = this.strings[slot_name_idx];
+        var name = this.literals[slot_name_idx];
         this.stack.push(get_slot(obj, name));
     };
     dispatch.get_slot_direct_check = function(slot_name_idx) {
         var obj = this.stack.pop();
-        var name = this.strings[slot_name_idx];
+        var name = this.literals[slot_name_idx];
         var result = get_slot(obj, name);
         if (!result) {
             // warn about unimplemented (probably library) functions.
             console.log("Failing lookup of method",
-                        this.strings[slot_name_idx]);
+                        this.literals[slot_name_idx]);
         }
         this.stack.push(result);
     }
@@ -122,16 +111,7 @@ var make_binterp = function(bytecode_table) {
         var obj = this.stack.pop();
         this.stack.push(get_slot(obj, name));
     };
-    dispatch.set_slot_direct = function(slot_name_idx) {
-        var nval = this.stack.pop();
-        var name = this.strings[slot_name_idx]; // not a number
-        var obj = this.stack.pop();
-        obj[SLOT_PREFIX+name] = nval;
-    };
-    dispatch.set_slot_indirect = function() {
-        var nval = this.stack.pop();
-        var name = this.stack.pop();
-        var obj = this.stack.pop();
+    var set_slot = function(obj, name, nval) {
         // handle array sets specially: they update the length field.
         if (obj.type === "array" && isFinite(1 * name)) {
             name = 1 * name; // convert to int
@@ -140,6 +120,18 @@ var make_binterp = function(bytecode_table) {
             }
         }
         obj[SLOT_PREFIX+name] = nval;
+    };
+    dispatch.set_slot_direct = function(slot_name_idx) {
+        var nval = this.stack.pop();
+        var name = this.literals[slot_name_idx];
+        var obj = this.stack.pop();
+        set_slot(obj, name, nval);
+    };
+    dispatch.set_slot_indirect = function() {
+        var nval = this.stack.pop();
+        var name = this.stack.pop();
+        var obj = this.stack.pop();
+        set_slot(obj, name, nval);
     };
     dispatch.invoke = function(nargs) {
         // collect arguments.

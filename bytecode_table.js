@@ -41,9 +41,9 @@ var make_bytecode_table = function() {
         bytecodes_by_num[nbc.id] = nbc;
         bytecodes_by_name[nbc.name] = nbc;
     };
-    var print_string = function(state, bytecode, pc) {
+    var print_literal = function(state, bytecode, pc) {
         var idx = bytecode[pc+1];
-        return " "+idx+" /* "+state.strings[idx]+" */";
+        return " "+idx+" /* "+state.literals[idx]+" */";
     };
     var print_label = function(state, bytecode, pc) {
         var lbl = bytecode[pc+1];
@@ -57,16 +57,9 @@ var make_bytecode_table = function() {
 
     // Push the address of the function activation record on the stack
     bc("push_frame", 0, 0, 1);
-    // Push a null on the stack
-    bc("push_null", 0, 0, 1);
-    // Push a boolean literal on the stack.
-    bc("push_true", 0, 0, 1);
-    bc("push_false", 0, 0, 1);
-    // Push a numeric literal on the stack.
-    bc("push_number", 1, 0, 1);
-    // Push a string literal on the stack.
-    // argument #0 is string literal (as string table index)
-    bc("push_string", 1, 0, 1, print_string);
+    // Push a (numeric or string) literal on the stack.
+    // Argument #0 is the index into the literal table.
+    bc("push_literal", 1, 0, 1, print_literal);
 
     // New Object
     bc("new_object", 0, 0, 1);
@@ -78,20 +71,20 @@ var make_bytecode_table = function() {
     bc("new_function", 1, 0, 1);
 
     // Fetch a slot (direct)
-    // argument #0 is name of the slot (as string table index)
+    // argument #0 is name of the slot (as literal table index)
     // pops object address.  pushes slot value.
-    bc("get_slot_direct", 1, 1, 1, print_string);
+    bc("get_slot_direct", 1, 1, 1, print_literal);
     // Fetch a slot (indirect)
     // pops slot name object, then pops object address.  pushes slot value.
     bc("get_slot_indirect", 0, 2, 1);
     // Fetch slot (direct) and verify that it's a function (debugging)
     // this is identical to get_slot_direct when debugging's turned off
-    bc("get_slot_direct_check", 1, 1, 1, print_string);
+    bc("get_slot_direct_check", 1, 1, 1, print_literal);
 
     // Store to a slot (direct)
-    // argument #0 is name of the slot (as string table index)
+    // argument #0 is name of the slot (as literal table index)
     // pops value, then pops object address.
-    bc("set_slot_direct", 1, 2, 0, print_string);
+    bc("set_slot_direct", 1, 2, 0, print_literal);
     // Fetch a slot (indirect)
     // pops value, the pops slot name object, then pops object address.
     bc("set_slot_indirect", 0, 3, 0);

@@ -45,21 +45,23 @@ var make_bcompile = function(bytecode_table) {
     var dispatch = {};
     // compilation state
     var mkstate = function() {
-        // The result of a compilation: a function list, and a string list.
+        // The result of a compilation: a function list and a literal list.
         var state = {
             functions: [],
-            strings: []
+            literals: []
         };
-        // very simple string intern'ing function.
-        state.intern = function(str) {
+        // literal symbol table.  Does string intern'ing too.  Very simple.
+        state.literal = function(val) {
             var i = 0;
-            while (i < this.strings.length) {
-                if (this.strings[i] === str) {
+            var nn = !(val === val); // true iff val is NaN
+            while (i < this.literals.length) {
+                var l = this.literals[i];
+                if (nn ? !(l === l) : (l === val)) {
                     return i;
                 }
                 i += 1;
             }
-            this.strings[i] = str;
+            this.literals[i] = val;
             return i;
         };
         // create a function representation
@@ -163,30 +165,30 @@ var make_bcompile = function(bytecode_table) {
     dispatch.name = function(state) {
         // lookup the name in the frame table
         state.emit("push_frame");
-        state.emit("get_slot_direct", state.intern(this.value));
+        state.emit("get_slot_direct", state.literal(this.value));
     };
     dispatch.literal = function(state) {
         if (this.value === null) {
-            state.emit("push_null");
+            state.emit("push_literal", state.literal(null));
             return;
         }
         if (typeof(this.value)==='object') {
             var which = "Object";
             if (this.value.length === 0) { which = "Array"; }
             state.emit("push_frame");
-            state.emit("get_slot_direct", state.intern(which));
+            state.emit("get_slot_direct", state.literal(which));
             return;
         }
         if (typeof(this.value)==='string') {
-            state.emit("push_string", state.intern(this.value));
+            state.emit("push_literal", state.literal(this.value));
             return;
         }
         if (typeof(this.value)==='boolean') {
-            state.emit(this.value ? "push_true" : "push_false");
+            state.emit("push_literal", state.literal(this.value));
             return;
         }
         assert(typeof(this.value) === 'number');
-        state.emit("push_number", this.value);
+        state.emit("push_literal", state.literal(this.value));
         return;
     };
 
@@ -216,9 +218,8 @@ var make_bcompile = function(bytecode_table) {
         // now initialize the array.
         foreach(this.first, function(i, e) {
             state.emit("dup");
-            state.emit("push_number", i);
             state.bcompile_expr(e);
-            state.emit("set_slot_indirect");
+            state.emit("set_slot_direct", state.literal(i));
         });
     });
     unary('{', function(state) {
@@ -229,7 +230,7 @@ var make_bcompile = function(bytecode_table) {
         foreach(this.first, function(i, e) {
             state.emit("dup");
             state.bcompile_expr(e);
-            state.emit("set_slot_direct", state.intern(e.key));
+            state.emit("set_slot_direct", state.literal(e.key));
         });
     });
 
@@ -258,7 +259,7 @@ var make_bcompile = function(bytecode_table) {
                 if (mode) {
                     state.emit("dup");
                     state.emit("get_slot_direct",
-                               state.intern(this.first.value));
+                               state.literal(this.first.value));
                 }
                 state.bcompile_expr(this.second);
                 if (mode) {
@@ -268,7 +269,7 @@ var make_bcompile = function(bytecode_table) {
                     // keep value we're setting as the value of the expression
                     state.emit("over");
                 }
-                state.emit("set_slot_direct", state.intern(this.first.value));
+                state.emit("set_slot_direct", state.literal(this.first.value));
                 return;
             }
             assert(this.first.arity === "binary", this.first);
@@ -278,7 +279,7 @@ var make_bcompile = function(bytecode_table) {
                 if (mode) {
                     state.emit("dup");
                     state.emit("get_slot_direct",
-                               state.intern(this.first.second.value));
+                               state.literal(this.first.second.value));
                 }
                 state.bcompile_expr(this.second);
                 if (mode) {
@@ -289,7 +290,7 @@ var make_bcompile = function(bytecode_table) {
                     state.emit("over");
                 }
                 state.emit("set_slot_direct",
-                           state.intern(this.first.second.value));
+                           state.literal(this.first.second.value));
                 return;
             }
             if (this.first.value === "[") {
@@ -366,7 +367,7 @@ var make_bcompile = function(bytecode_table) {
     binary(".", function(state) {
         state.bcompile_expr(this.first);
         assert(this.second.arity === "literal", this.second);
-        state.emit("get_slot_direct", state.intern(this.second.value));
+        state.emit("get_slot_direct", state.literal(this.second.value));
     });
     binary('[', function(state) {
         state.bcompile_expr(this.first);
@@ -419,7 +420,7 @@ var make_bcompile = function(bytecode_table) {
         assert(this.second.arity==='literal', this.second);
         state.bcompile_expr(this.first); // this will be 'this'
         state.emit("dup");
-        state.emit("get_slot_direct_check", state.intern(this.second.value));
+        state.emit("get_slot_direct_check", state.literal(this.second.value));
         state.emit("swap");
         // now order is "<top> this function".  Push arguments.
         foreach(this.third, function(i, e) {
@@ -468,7 +469,7 @@ var make_bcompile = function(bytecode_table) {
             state.bcompile_expr(this.first);
         } else {
             // XXX really "undefined"
-            state.emit("push_null");
+            state.emit("push_literal", state.literal(null));
         }
         state.emit("return");
         state.current_func.can_fall_off = false;
@@ -497,7 +498,7 @@ var make_bcompile = function(bytecode_table) {
     // Odd cases
     dispatch['this'] = function(state) {
         state.emit("push_frame");
-        state.emit("get_slot_direct", state.intern("this"));
+        state.emit("get_slot_direct", state.literal("this"));
     };
     dispatch['function'] = function(state) {
         if (this.name) {
@@ -526,14 +527,13 @@ var make_bcompile = function(bytecode_table) {
         // field, "arguments" and "this".  Name the arguments in the local
         // context.
         state.emit("push_frame");
-        state.emit("get_slot_direct", state.intern("arguments"));
+        state.emit("get_slot_direct", state.literal("arguments"));
         foreach(this.first, function(i, e) {
             state.emit("dup");
-            state.emit("push_number", i);
-            state.emit("get_slot_indirect");
+            state.emit("get_slot_direct", state.literal(i));
             state.emit("push_frame");
             state.emit("swap");
-            state.emit("set_slot_direct", state.intern(e.value));
+            state.emit("set_slot_direct", state.literal(e.value));
         });
         // done using the arguments array
         state.emit("pop");
