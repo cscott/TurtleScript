@@ -49,9 +49,10 @@ table {width: 90%; border: 0px; cellpadding: 0px;}
 <SCRIPT src="./parse.js"></SCRIPT>
 <SCRIPT src="./json2.js"></SCRIPT>
 <SCRIPT src="./pprint.js"></SCRIPT>
+<SCRIPT src="./render.js"></SCRIPT>
 <SCRIPT src="./bytecode_table.js"></SCRIPT>
 <SCRIPT src="./bcompile.js"></SCRIPT>
-<SCRIPT src="./render.js"></SCRIPT>
+<SCRIPT src="./binterp.js"></SCRIPT>
 <SCRIPT src="./tests.js"></SCRIPT>
 <PRE><SCRIPT>
 /*jslint evil: true */
@@ -80,7 +81,7 @@ function do_it() {
 // We are going to make the parse function parse itself.
 
     source = make_tests(tokenize, make_parse, make_pprint, make_render,
-                        make_bcompile)[0];
+                        make_bcompile)[7];
     tree = parse(source, "isFinite parseInt String make_tests");
     if (tree) {
         /* Raw compiled tree */
@@ -108,6 +109,11 @@ function do_it() {
           document.write("<h2>Function #"+f.id+" ("+f.nargs+" args; max stack depth="+f.max_stack+")</h2>");
           document.write(html_escape(bc.decompile(f.id)));
         }
+
+        /* Interpreter test! */
+        binterp = make_binterp(bc_table);
+        result = binterp(bc, 1, null/*this*/, [1, 2]/*args*/);
+        document.write("<h2>Evaluating function #1 yields: "+result+"</h2>");
    }
 }
 

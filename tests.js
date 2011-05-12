@@ -4,36 +4,39 @@ var make_tests = function() {
     var test=[], i=0;
     // first tests are our own source code, from the arguments.
     while (i < arguments.length) {
-	test[i] = arguments[i];
-	i += 1;
+        test[i] = arguments[i];
+        i += 1;
     }
     // next test case is this function itself.
     test[i] = make_tests;
     // now some ad-hoc test cases.  Phrased as functions so they can be
     // syntax-checked, etc.
     test[i+=1] = function() {
-	// find bug sharing no-arg and arg return tokens
-	// (when you do token.reserve() it makes the current syntree
-	// node the prototype for future return statements.  This can
-	// result in circular structures unless you always define this.first.
-	// Otherwise it gets inherited from the parent, and thus might
-	// contain itself! (as in the following example)
-	var assignment = function() {
-	    return function() {
-		return;
-	    };
-	};
-	return assignment;
+        // find bug sharing no-arg and arg return tokens
+        // (when you do token.reserve() it makes the current syntree
+        // node the prototype for future return statements.  This can
+        // result in circular structures unless you always define this.first.
+        // Otherwise it gets inherited from the parent, and thus might
+        // contain itself! (as in the following example)
+        var assignment = function() {
+            return function() {
+                return;
+            };
+        };
+        return assignment;
     };
     test[i+=1] = function() {
         /* comment test */
         var x = 1; x = x + 1;
+        return x;
     };
     test[i+=1] = function() {
         var x = { a: 1, b: 'two', c: x+2 }; var y = [ 1, 'two', 3, x ];
+        return y.length;
     };
     test[i+=1] = function() {
         var a = true, b=false, c=null, d=NaN, e=Object, f=Array, g=this;
+        return e;
     };
     test[i+=1] = function() {
         var x = 1+2*3, y = (1+2)*3, z=null; z(x, y); z[x] = y;
@@ -58,9 +61,11 @@ var make_tests = function() {
     };
     test[i+=1] = function(x) {
         if (x) { x += 1; } else { x += 2; }
+        return x;
     };
     test[i+=1] = function(x) {
         if (x) { x += 1; } else if (!x) { x += 2; } else { x+= 3; }
+        return x;
     };
     /** Tile-generation tests */
     test[i+=1] = function() {
@@ -79,6 +84,7 @@ var make_tests = function() {
             }
             return a+b;
         };
+        return foo(1,2);
     };
     /** Block scoping tests (don't currently work) */
     /*
