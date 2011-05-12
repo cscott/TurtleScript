@@ -74,18 +74,26 @@ Object.prototype.error = function (message, t) {
 
 var CATCH_SYNTAX_ERRORS = false;
 var SHOW_SOURCE = true;
+var PRINT_TREE = false;
+var PRINT_PPRINT = false;
+var PRINT_RAW_BYTECODE = false;
 
 function do_it() {
     parse = make_parse(tokenize);
 
 // We are going to make the parse function parse itself.
     var self_test = function (source) {
+       var result;
        var parse = make_parse(tokenize);
        var bc_table = make_bytecode_table();
        var bcompile = make_bcompile(bc_table);
+       //result = tokenize('{return 1+2;}', '=<>!+-*&|/%^', '=<>&|');
        var tree = parse(source, "isFinite parseInt String");
+       //result = tree;
        var bc = bcompile(tree);
-       return bc.decompile(0);
+       result = bc.decompile(0);
+       console.log(result);
+       return result;
     }
     //document.write("<h1>TEST: "+self_test('{return 1+2;}')+"</h1>");
 
@@ -103,25 +111,32 @@ function do_it() {
     tree = parse(source, "isFinite parseInt String make_tests");
     if (tree) {
         /* Raw compiled tree */
+        if (PRINT_TREE) {
         document.write(html_escape(
             JSON.stringify(tree, ['key', 'name', 'message',
             'value', 'arity', 'first', 'second', 'third', 'fourth'], 4)));
         document.write("\n\n");
+        }
 
         /* Pretty-printed to eval'able javascript */
         pprint = make_pprint();
+        if (PRINT_PPRINT) {
         document.write(html_escape(pprint(tree)));
+        }
 
         /* Bytecode compiled (raw) */
         bc_table = make_bytecode_table();
         bcompile = make_bcompile(bc_table);
         bc = bcompile(tree);
+        if (PRINT_RAW_BYTECODE) {
         document.write(html_escape(
             JSON.stringify(bc, ['functions', 'strings', 'id', 'nargs',
                                   'bytecode'], 4)));
         document.write("\n\n");
+        }
 
         /* Pretty-printed bytecode */
+        document.write("<h1><a id='bytecode'>Bytecode</a></h1>");
         for (i=0; i<bc.functions.length; i++) {
           var f = bc.functions[i];
           document.write("<h2>Function #"+f.id+" ("+f.nargs+" args; max stack depth="+f.max_stack+")</h2>");
@@ -131,7 +146,8 @@ function do_it() {
         /* Interpreter test! */
         binterp = make_binterp(bc_table);
         result = binterp(bc, 0, null/*this*/, [1, 2]/*args*/);
-        document.write("<h2>Evaluating function #1 yields: "+result+"</h2>");
+        document.write("<h2>Evaluating function #1 yields: ");
+        document.write("<a id='result'>" + result + "</a></h2>\n");
    }
 }
 
@@ -149,6 +165,7 @@ if (!CATCH_SYNTAX_ERRORS) {
 }
 
 if (SHOW_SOURCE) {
+    document.write("<h1><a id='source'>Source</a></h1>");
     sl = source.split(/\n/);
     ci = 0;
     for (j=0; j < sl.length; j++) {
