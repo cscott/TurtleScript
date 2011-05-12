@@ -79,9 +79,27 @@ function do_it() {
     parse = make_parse(tokenize);
 
 // We are going to make the parse function parse itself.
+    var self_test = function (source) {
+       var parse = make_parse(tokenize);
+       var bc_table = make_bytecode_table();
+       var bcompile = make_bcompile(bc_table);
+       var tree = parse(source, "isFinite parseInt String");
+       var bc = bcompile(tree);
+       return bc.decompile(0);
+    }
+    //document.write("<h1>TEST: "+self_test('{return 1+2;}')+"</h1>");
 
     source = make_tests(tokenize, make_parse, make_pprint, make_render,
-                        make_bcompile)[7];
+                        make_bytecode_table, make_bcompile, make_binterp,
+                        self_test);
+
+    // combine sources
+    source = source[0].replace(/module/, "tokenize") + "\n" +
+             source[1].replace(/module/, "make_parse") + "\n" +
+             source[4].replace(/module/, "make_bytecode_table") + "\n" +
+             source[5].replace(/module/, "make_bcompile") + "\n" +
+             source[7].replace(/module/, "self_test") + "\n" +
+             "{ return self_test('{return 1+2;}'); }\n";
     tree = parse(source, "isFinite parseInt String make_tests");
     if (tree) {
         /* Raw compiled tree */
@@ -112,7 +130,7 @@ function do_it() {
 
         /* Interpreter test! */
         binterp = make_binterp(bc_table);
-        result = binterp(bc, 1, null/*this*/, [1, 2]/*args*/);
+        result = binterp(bc, 0, null/*this*/, [1, 2]/*args*/);
         document.write("<h2>Evaluating function #1 yields: "+result+"</h2>");
    }
 }
