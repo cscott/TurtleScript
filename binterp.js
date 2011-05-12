@@ -32,6 +32,12 @@ var make_binterp = function(bytecode_table) {
     MyFunction.type = "function";
     var MyString = Object.create(MyObject);
     MyString.type = "string";
+    var MyBoolean = Object.create(MyObject);
+    MyBoolean.type = "boolean";
+    var MyTrue = Object.create(MyBoolean);
+    MyTrue.value = true;
+    var MyFalse = Object.create(MyBoolean);
+    MyFalse.value = false;
 
     var interpret = function(state) {
         var op = bytecode_table.for_num(state.bytecode[state.pc]);
@@ -88,6 +94,13 @@ var make_binterp = function(bytecode_table) {
             }
             return MyString[SLOT_PREFIX+name];
         }
+        if (typeof(obj)==="boolean") {
+            // special case fields of Boolean
+            if (name === "__proto__") {
+                return MyBoolean;
+            }
+            return (obj ? MyTrue : MyFalse)[SLOT_PREFIX+name];
+        }
         return obj[SLOT_PREFIX+name];
     };
     dispatch.get_slot_direct = function(slot_name_idx) {
@@ -118,6 +131,10 @@ var make_binterp = function(bytecode_table) {
             if (name >= obj[SLOT_PREFIX+"length"]) {
                 obj[SLOT_PREFIX+"length"] = name + 1;
             }
+        }
+        // handle writes to booleans (not supported in standard javascript)
+        if (typeof(obj)==="boolean") {
+            obj = obj ? MyTrue : MyFalse;
         }
         obj[SLOT_PREFIX+name] = nval;
     };
@@ -306,6 +323,10 @@ var make_binterp = function(bytecode_table) {
         oset(my_ArrayCons, "prototype", MyArray);
         fset("Array", my_ArrayCons);
 
+        var my_BooleanCons = Object.create(MyFunction);
+        oset(my_BooleanCons, "prototype", MyBoolean);
+        fset("Boolean", my_BooleanCons);
+
         var my_StringCons = Object.create(MyFunction);
         oset(my_StringCons, "prototype", MyString);
         fset("String", my_StringCons);
@@ -407,6 +428,20 @@ var make_binterp = function(bytecode_table) {
                 j += 1;
             }
             return j;
+        };
+        // Support for branchless bytecode (see Chambers et al, OOPSLA '89)
+        true["while"] = function(_this_, cond, body) {
+            body.call(_this_);
+            cond.call(_this_)["while"](_this_, cond, body);
+        };
+        false["while"] = function(_this_, cond, body) {
+            // no op
+        };
+        true["ifElse"] = function(_this_, ifTrue, ifFalse) {
+            ifTrue.call(_this_);
+        };
+        false["ifElse"] = function(_this_, ifTrue, ifFalse) {
+            ifFalse.call(_this_);
         };
     };
 

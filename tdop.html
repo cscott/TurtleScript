@@ -118,7 +118,7 @@ function do_it() {
              "{ library_init(); return test(); }\n";
     // END HACK
 
-    tree = parse(source, "isFinite parseInt String make_tests console");
+    tree = parse(source, "isFinite parseInt Boolean String make_tests console");
     if (tree) {
         /* Raw compiled tree */
         if (PRINT_TREE) {
