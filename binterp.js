@@ -81,6 +81,7 @@ var make_binterp = function(bytecode_table) {
         f.parent_frame = this.frame;
         f.module = this.module;
         f.func_id = idx;
+        f[SLOT_PREFIX+"length"] = this.module.functions[idx].nargs;
         this.stack.push(f);
     };
     var get_slot = function(obj, name) {

@@ -153,6 +153,11 @@ var make_tests = function() {
         c()["while"](this, c, b);
         c().ifElse(this, a1, a2);
     };
+    test[i+=1] = function() {
+        /* Functions should have a 'length' field. */
+        function foo(a, b, c) { return a+b+c; }
+        return foo.length;
+    };
     /** Tile-generation tests */
     test[i+=1] = function() {
         var c = 1+2;
