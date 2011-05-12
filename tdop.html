@@ -155,7 +155,8 @@ function do_it() {
 
         /* Interpreter test! */
         m = make_binterp(bc_table);
-        frame = m.make_top_level_frame.call(/*this: */null , /* args:*/1, 2);
+        frame = m.make_top_level_frame.call(/*this: */{/*this*/} ,
+                                            /* args:*/ 1, 2);
         result = m.binterp(bc, 0, frame);
         document.write("<h2>Evaluating function #1 yields: ");
         document.write("<a id='result'>" + result + "</a></h2>\n");

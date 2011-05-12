@@ -370,7 +370,7 @@ var make_binterp = function(bytecode_table) {
 
     var binterp = function(module, func_id, frame) {
         var TOP = { stack: [] };
-        var FRAME = frame ? frame : make_top_level_frame.call(null);
+        var FRAME = frame ? frame : make_top_level_frame.call({/*this*/});
 
         var state = mkstate(TOP, FRAME, module, func_id);
         while (state !== TOP) {
