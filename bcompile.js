@@ -419,7 +419,7 @@ var make_bcompile = function(bytecode_table) {
         assert(this.second.arity==='literal', this.second);
         state.bcompile_expr(this.first); // this will be 'this'
         state.emit("dup");
-        state.emit("get_slot_direct", state.intern(this.second.value));
+        state.emit("get_slot_direct_check", state.intern(this.second.value));
         state.emit("swap");
         // now order is "<top> this function".  Push arguments.
         foreach(this.third, function(i, e) {

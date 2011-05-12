@@ -84,15 +84,39 @@ var make_binterp = function(bytecode_table) {
 	f.func_id = idx;
 	this.stack.push(f);
     };
-    dispatch.get_slot_direct = function(slot_name_idx) {
-	var obj = this.stack.pop();
-	var name = this.strings[slot_name_idx];
-	this.stack.push(obj[SLOT_PREFIX+name]);
+    var get_slot = function(obj, name) {
+        if (typeof(obj)==="string") {
+            // special case fields of String
+            if (name === "__proto__") {
+                return MyString;
+            }
+            if (name === "length" || isFinite(1 * name)) {
+                return obj[name];
+            }
+            return MyString[SLOT_PREFIX+name];
+        }
+        return obj[SLOT_PREFIX+name];
     };
+    dispatch.get_slot_direct = function(slot_name_idx) {
+        var obj = this.stack.pop();
+        var name = this.strings[slot_name_idx];
+        this.stack.push(get_slot(obj, name));
+    };
+    dispatch.get_slot_direct_check = function(slot_name_idx) {
+        var obj = this.stack.pop();
+        var name = this.strings[slot_name_idx];
+        var result = get_slot(obj, name);
+        if (!result) {
+            // warn about unimplemented (probably library) functions.
+            console.log("Failing lookup of method",
+                        this.strings[slot_name_idx]);
+        }
+        this.stack.push(result);
+    }
     dispatch.get_slot_indirect = function() {
-	var name = this.stack.pop();
-	var obj = this.stack.pop();
-	this.stack.push(obj[SLOT_PREFIX+name]);
+        var name = this.stack.pop();
+        var obj = this.stack.pop();
+        this.stack.push(get_slot(obj, name));
     };
     dispatch.set_slot_direct = function(slot_name_idx) {
 	var nval = this.stack.pop();

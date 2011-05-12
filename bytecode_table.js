@@ -84,6 +84,9 @@ var make_bytecode_table = function() {
     // Fetch a slot (indirect)
     // pops slot name object, then pops object address.  pushes slot value.
     bc("get_slot_indirect", 0, 2, 1);
+    // Fetch slot (direct) and verify that it's a function (debugging)
+    // this is identical to get_slot_direct when debugging's turned off
+    bc("get_slot_direct_check", 1, 1, 1, print_string);
 
     // Store to a slot (direct)
     // argument #0 is name of the slot (as string table index)
