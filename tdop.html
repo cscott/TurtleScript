@@ -97,18 +97,28 @@ function do_it() {
     }
     //document.write("<h1>TEST: "+self_test('{return 1+2;}')+"</h1>");
 
-    source = make_tests(tokenize, make_parse, make_pprint, make_render,
+    sources = make_tests(tokenize, make_parse, make_pprint, make_render,
                         make_bytecode_table, make_bcompile, make_binterp,
+                        make_binterp().library_init,
                         self_test);
 
     // combine sources
-    source = source[0].replace(/module/, "tokenize") + "\n" +
-             source[1].replace(/module/, "make_parse") + "\n" +
-             source[4].replace(/module/, "make_bytecode_table") + "\n" +
-             source[5].replace(/module/, "make_bcompile") + "\n" +
-             source[7].replace(/module/, "self_test") + "\n" +
-             "{ return self_test('{return 1+2;}'); }\n";
-    tree = parse(source, "isFinite parseInt String make_tests");
+    source = sources[0].replace(/module/, "tokenize") + "\n" +
+             sources[1].replace(/module/, "make_parse") + "\n" +
+             sources[4].replace(/module/, "make_bytecode_table") + "\n" +
+             sources[5].replace(/module/, "make_bcompile") + "\n" +
+             sources[7].replace(/module/, "library_init") + "\n" +
+             sources[8].replace(/module/, "self_test") + "\n" +
+             "{ library_init(); return self_test('{return 1+2;}'); }\n";
+
+    // HACK to show scoping bug.
+    eval(sources[22].replace(/module/, "my_test")); my_test();
+    source = sources[7].replace(/module/, "library_init") + "\n" +
+             sources[22].replace(/module/, "test") + "\n" +
+             "{ library_init(); return test(); }\n";
+    // END HACK
+
+    tree = parse(source, "isFinite parseInt String make_tests console");
     if (tree) {
         /* Raw compiled tree */
         if (PRINT_TREE) {
@@ -144,8 +154,9 @@ function do_it() {
         }
 
         /* Interpreter test! */
-        binterp = make_binterp(bc_table);
-        result = binterp(bc, 0, null/*this*/, [1, 2]/*args*/);
+        m = make_binterp(bc_table);
+        frame = m.make_top_level_frame.call(/*this: */null , /* args:*/1, 2);
+        result = m.binterp(bc, 0, frame);
         document.write("<h2>Evaluating function #1 yields: ");
         document.write("<a id='result'>" + result + "</a></h2>\n");
    }

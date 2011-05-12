@@ -67,6 +67,42 @@ var make_tests = function() {
         if (x) { x += 1; } else if (!x) { x += 2; } else { x+= 3; }
         return x;
     };
+    /** Interpreter tests */
+    test[i+=1] = function() {
+        var a = [];
+        var b = a.push('a', [1, 2]);
+	console.log(a, b);
+    };
+    test[i+=1] = function() {
+       var x = { g: 1 };
+       var y = Object.create(x);
+       console.log(x.g, y.g);
+       console.log(x.hasOwnProperty('g'), y.hasOwnProperty('g'));
+       x.g = 2;
+       console.log(x.g, y.g);
+       y.g = 3;
+       console.log(x.g, y.g);
+    };
+    test[i+=1] = function(x) {
+	/* parsing 'expression statements' */
+	(function() {})();
+    };
+    test[i+=1] = function() {
+	/* scoping */
+	var a = 1;
+	(function() {
+	    console.log(a);
+	    a = 2;
+	    console.log(a);
+	    (function () {
+		console.log(a);
+		var a = 3;
+		console.log(a);
+	    })();
+	    console.log(a);
+	})();
+	console.log(a);
+    };
     /** Tile-generation tests */
     test[i+=1] = function() {
         var c = 1+2;
