@@ -348,8 +348,37 @@ var make_bcompile = function(bytecode_table) {
     binary('=', assignment(null));
     binary('+=', assignment("bi_add"));
     binary('-=', assignment("bi_sub"));
-    binary('||', "bi_or");
-    binary('&&', "bi_and");
+    binary('||', function(state) {
+        var sd_before, sd_after;
+        var falseLabel = state.new_label();
+        var mergeLabel = state.new_label();
+        // short circuit operator
+        state.bcompile_expr(this.first);
+        state.emit("jmp_unless", falseLabel);
+        sd_before = state.current_func.stack_depth;
+        state.emit("push_literal", state.literal(true));
+        state.emit("jmp", mergeLabel);
+        sd_after = state.current_func.stack_depth;
+        state.set_label(falseLabel);
+        state.current_func.stack_depth = sd_before;
+        state.bcompile_expr(this.second);
+        state.set_label(mergeLabel);
+        assert(state.current_func.stack_depth === sd_after, this);
+    });
+    binary('&&', function(state) {
+        var sd_before, sd_after;
+        var mergeLabel = state.new_label();
+        // short circuit operator
+        state.bcompile_expr(this.first);
+        state.emit("dup");
+        state.emit("jmp_unless", mergeLabel);
+        sd_before = state.current_func.stack_depth;
+        state.emit("pop");
+        state.bcompile_expr(this.second);
+        state.set_label(mergeLabel);
+        sd_after = state.current_func.stack_depth;
+        assert(sd_before === sd_after, this);
+    });
     binary('===', "bi_eq");
     binary('!==', function(state) {
         state.bcompile_expr({

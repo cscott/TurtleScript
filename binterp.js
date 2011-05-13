@@ -288,8 +288,6 @@ var make_binterp = function(bytecode_table) {
             this.stack.push(f(left, right));
         };
     };
-    dispatch.bi_or = binary(function(l, r) { return l || r; });
-    dispatch.bi_and = binary(function(l, r) { return l && r; });
     dispatch.bi_eq = binary(function(l, r) { return l === r; });
     dispatch.bi_gt = binary(function(l, r) { return l > r; });
     dispatch.bi_gte = binary(function(l, r) { return l >= r; });

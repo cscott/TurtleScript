@@ -121,8 +121,6 @@ var make_bytecode_table = function() {
     bc("un_typeof", 0, 1, 1);
 
     // Binary operators
-    bc("bi_or", 0, 2, 1);
-    bc("bi_and", 0, 2, 1);
     bc("bi_eq", 0, 2, 1);
     bc("bi_gt", 0, 2, 1);
     bc("bi_gte", 0, 2, 1);
