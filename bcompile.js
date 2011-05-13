@@ -239,12 +239,15 @@ var make_bcompile = function(bytecode_table) {
         assert(dispatch.binary[this.value], this);
         dispatch.binary[this.value].call(this, state, is_stmt);
     };
-    var binary = function(op, f) {
+    var binary = function(op, f, swap) {
         if (typeof(f) === "string") {
             // f is a bytecode operator string.
             dispatch.binary[op] = function(state) {
                 state.bcompile_expr(this.first);
                 state.bcompile_expr(this.second);
+                if (swap) {
+                    state.emit("swap");
+                }
                 state.emit(f);
             };
         } else {
@@ -332,32 +335,8 @@ var make_bcompile = function(bytecode_table) {
             }
         });
     });
-    // this shortcut's not quite right in the face of NaN
-    binary('<', function(state) {
-        state.bcompile_expr({
-            value: '!',
-            arity: 'unary',
-            first: {
-                value: '>=',
-                arity: 'binary',
-                first: this.first,
-                second: this.second
-            }
-        });
-    });
-    // this shortcut's not quite right in the face of NaN
-    binary('<=', function(state) {
-        state.bcompile_expr({
-            value: '!',
-            arity: 'unary',
-            first: {
-                value: '>',
-                arity: 'binary',
-                first: this.first,
-                second: this.second
-            }
-        });
-    });
+    binary('<', 'bi_gt', 1/*swap*/);
+    binary('<=', 'bi_gte', 1/*swap*/);
     binary('>', 'bi_gt');
     binary('>=','bi_gte');
     binary('+', 'bi_add');
