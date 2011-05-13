@@ -240,6 +240,10 @@ var make_bcompile = function(bytecode_table) {
         // now initialize the object.
         foreach(this.first, function(i, e) {
             state.emit("dup");
+            // preserve function names
+            if (e.arity === "function") {
+                e.extra_name = e.key;
+            }
             state.bcompile_expr(e);
             state.emit("set_slot_direct", state.literal(e.key));
         });
@@ -280,6 +284,10 @@ var make_bcompile = function(bytecode_table) {
                     state.emit("get_slot_direct",
                                state.literal(this.first.value));
                 }
+                // hack to preserve function names
+                if (this.second.arity === "function") {
+                    this.second.extra_name = this.first.value;
+                }
                 state.bcompile_expr(this.second);
                 if (mode) {
                     state.emit(mode);
@@ -299,6 +307,10 @@ var make_bcompile = function(bytecode_table) {
                     state.emit("dup");
                     state.emit("get_slot_direct",
                                state.literal(this.first.second.value));
+                }
+                // hack to preserve function names
+                if (this.second.arity === "function") {
+                    this.second.extra_name = this.first.second.value;
                 }
                 state.bcompile_expr(this.second);
                 if (mode) {
@@ -509,7 +521,9 @@ var make_bcompile = function(bytecode_table) {
                                       value: "function",
                                       arity: "function",
                                       first: this.first,
-                                      second: this.second
+                                      second: this.second,
+                                      // keep name around to associate later.
+                                      extra_name: this.name
                                   }
                                 });
             return;
@@ -517,6 +531,9 @@ var make_bcompile = function(bytecode_table) {
         // create and compile a new function object.
         var this_func = state.current_func;
         var new_func = state.new_function(this.first.length);
+        if (this.extra_name) {
+            new_func.name = this.extra_name;
+        }
         state.current_func = new_func;
         state.scope += 1;
         // compile the new function.

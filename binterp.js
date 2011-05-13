@@ -81,6 +81,7 @@ var make_binterp = function(bytecode_table) {
         f.parent_frame = this.frame;
         f.module = this.module;
         f.func_id = idx;
+        f[SLOT_PREFIX+"name"] = this.module.functions[idx].name;
         f[SLOT_PREFIX+"length"] = this.module.functions[idx].nargs;
         this.stack.push(f);
     };
@@ -193,7 +194,7 @@ var make_binterp = function(bytecode_table) {
         nframe[SLOT_PREFIX+"this"] = my_this;
         // construct new child state.
         var ns = mkstate(this, nframe, func.module, func.func_id);
-        //document.write("----- ENTERING FUNCTION #"+func.func_id+" -----\n");
+        //document.write("----- ENTERING FUNCTION #"+func.func_id+" ("+func.module.functions[func.func_id].name+") -----\n");
         // ok, continue executing in child state!
         return ns;
     };
@@ -203,7 +204,7 @@ var make_binterp = function(bytecode_table) {
         var ns = this.parent;
         ns.stack.push(retval);
         // continue in parent state
-        //document.write("----- RETURNING TO FUNCTION #"+ns.func_id+" -----\n");
+        //if (ns.module) { document.write("----- RETURNING TO FUNCTION #"+ns.func_id+" ("+ns.module.functions[ns.func_id].name+") -----\n"); }
         return ns;
     };
 
