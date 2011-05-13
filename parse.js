@@ -4,6 +4,7 @@
 // http://javascript.crockford.com/tdop/index.html
 // Douglas Crockford
 // 2008-07-07
+// Modified by C. Scott Ananian
 
 var make_parse = function (tokenize) {
     var DEBUG;

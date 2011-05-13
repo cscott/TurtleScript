@@ -2,6 +2,7 @@
 // 2009-05-17
 
 // (c) 2006 Douglas Crockford
+// Very lightly modified by C. Scott Ananian
 
 // Produce an array of simple token objects from a string.
 // A simple token object contains these members:

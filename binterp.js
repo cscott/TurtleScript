@@ -1,6 +1,8 @@
 // binterp.js
 // Bytecode interpreter, written in Simplified JavaScript.
-// XXX: string coercions aren't quite right yet
+
+// TODO: string coercions aren't quite right yet, we don't call the
+//       proper toString() method, etc.
 
 // C. Scott Ananian
 // 2011-05-11
@@ -8,13 +10,15 @@
 var make_binterp = function(bytecode_table) {
     var mkstate = function(parent, frame, module, func_id) {
         return {
-            parent: parent,
+            // Main interpreter state.
+            parent: parent, // calling context (another state)
             frame: frame,
             stack: [],
             pc: 0,
             // from bytecode file
             module: module,
             func_id: func_id,
+            // cached
             bytecode: module.functions[func_id].bytecode,
             literals: module.literals
         };
