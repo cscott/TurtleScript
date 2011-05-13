@@ -191,6 +191,26 @@ var make_tests = function() {
         if ("    \t ".trim().length !== 0) { return false; }
         return true;
     };
+    /* NOT YET IMPLEMENTED.
+    test[i+=1] = function() {
+        // Typed Array support.
+        // see http://www.khronos.org/registry/typedarray/specs/latest/
+        var f32s = new Float32Array(128);
+        var i = 0;
+        while (i < 128) {
+            var sub_f32s = f32s.subarray(i, i+8);
+            var j = 0;
+            while (j < 8) {
+                sub_f32s[j] = j;
+                j += 1;
+            }
+            i += 8;
+        }
+        // Now look at the backing storage as a Uint8Array
+        var u8s = new Uint8Array(f32s.buffer);
+        return u8s.length===512 && u8s[510]===224 && u8s[511]===64;
+    };
+    */
     /** Tile-generation tests */
     test[i+=1] = function() {
         var c = 1+2;
