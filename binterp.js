@@ -81,7 +81,9 @@ var make_binterp = function(bytecode_table) {
         this.stack.push(Object.create(MyObject));
     };
     dispatch.new_array = function() {
-        this.stack.push(Object.create(MyArray));
+        var na = Object.create(MyArray);
+        na[SLOT_PREFIX+"length"] = 0;
+        this.stack.push(na);
     };
     dispatch.new_function = function(idx) {
         var f = Object.create(MyFunction);
@@ -319,7 +321,7 @@ var make_binterp = function(bytecode_table) {
     dispatch.un_minus = unary(function(arg) { return -arg; });
     dispatch.un_typeof = unary(function(arg) {
         var t = typeof(arg);
-        if (t === "object") {
+        if (t === "object" && arg !== null) {
             t = arg.type;
             if (t === "array") {
                 // weird javascript misfeature
@@ -560,7 +562,9 @@ var make_binterp = function(bytecode_table) {
             i = 0;
             while (i < arguments.length) {
                 var e = arguments[i];
-                if (typeof(e)==="object" && e.hasOwnProperty('length')) {
+                // awkward test for "is e an array"
+                if (typeof(e)==="object" && e !== null &&
+                    e.hasOwnProperty('length')) {
                     j = 0;
                     while (j < e.length) {
                         result[result.length] = e[j];
