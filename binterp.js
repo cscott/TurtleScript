@@ -355,8 +355,10 @@ var make_binterp = function(bytecode_table) {
             }
         };
         native_func(my_console, "log", function() {
-            arguments[0] = "INTERP:";
-            console.log.apply(console, arguments);
+            // ES-5 strict mode won't let us directly modify 'arguments'
+            var nargs = Array.prototype.concat.apply([], arguments);
+            nargs[0] = "INTERP:";
+            console.log.apply(console, nargs);
         });
         native_func(MyObject, "hasOwnProperty", function(_this_, propname) {
             return _this_.hasOwnProperty(SLOT_PREFIX+propname);
@@ -378,6 +380,8 @@ var make_binterp = function(bytecode_table) {
         // (which is thisArg if thisArg is already an object, or a
         // String, Boolean, or Number if thisArg is a primitive value
         // of the corresponding type)."
+        // this is disallowed in ES-5 strict mode; throws an exception instead
+        //  http://ejohn.org/blog/ecmascript-5-strict-mode-json-and-more/
         native_func(MyFunction, "call", function() {
             // push arguments on stack and use 'invoke' bytecode op.
             // arg #0 is the function itself.
@@ -462,6 +466,33 @@ var make_binterp = function(bytecode_table) {
                 i += 1;
             }
             return result;
+        };
+        Function.prototype.bind = function() {
+            var method = this;
+            // avoid making a function wrapper if we don't have to
+            if (arguments.length === 0) {
+                return method;
+            }
+            var nthis = arguments[0];
+            // avoid copying the arguments array if we don't have to
+            if (arguments.length === 1) {
+                return function bind0 () {
+                    return method.apply(nthis, arguments);
+                };
+            }
+            // ok, we need to copy the bound arguments
+            var nargs = [];
+            var i = 1;
+            while (i < arguments.length) {
+                nargs.push(arguments[i]);
+                i += 1;
+            }
+            return function bindN () {
+                // use concat.apply to finesse the fact that arguments isn't
+                // necessarily a 'real' array.
+                return method.apply(nthis, Array.prototype.concat.apply(
+                                    nargs, arguments));
+            };
         };
         Function.prototype.toString = function () {
             var result = "function ";

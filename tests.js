@@ -167,6 +167,24 @@ var make_tests = function() {
         function foo(a, b, c) { return a+b+c; }
         return foo.length;
     };
+    test[i+=1] = function() {
+        /* Test Function.bind */
+        function f() {
+            return Array.prototype.concat.apply([ this ], arguments);
+        }
+        function check(_this_, r) {
+            console.log(r);
+            return ((r.length === 4) && (r[0] === _this_) &&
+                    (r[1] === 0) && (r[2] === 1) && (r[3] === 2));
+        }
+        if (!check(this, f.bind()(0, 1, 2))) { return false; }
+        var nthis = { _this_: true };
+        if (!check(nthis, f.bind(nthis)(0, 1, 2))) { return false; }
+        if (!check(nthis, f.bind(nthis, 0)(1, 2))) { return false; }
+        if (!check(nthis, f.bind(nthis, 0, 1)(2))) { return false; }
+        if (!check(nthis, f.bind(nthis, 0, 1, 2)())) { return false; }
+        return true;
+    };
     /** Tile-generation tests */
     test[i+=1] = function() {
         var c = 1+2;
