@@ -192,6 +192,19 @@ var make_tests = function() {
         return true;
     };
     test[i+=1] = function() {
+        var a = [ 1, 2 ];
+        a.push(3, 4);
+        a.pop();
+        console.log(a);
+        if (!(a.length === 3 && !a[3])) { return false; }
+        if (a.join() !== "1,2,3") { return false; }
+        if (a.join(' ') !== "1 2 3") { return false; }
+        a.pop(); a.pop(); a.pop(); a.pop();
+        if (!(a.length === 0 && !a[0])) { return false; }
+        if (a.join() !== "") { return false; }
+        return true;
+    };
+    test[i+=1] = function() {
         // very basic Uint8Array support.
         var uarr = Object.newUint8Array(256);
         uarr[0] = 255;

@@ -14,6 +14,11 @@ if (typeof Object.newUint8Array !== 'function') {
 	return new Uint8Array(size);
     };
 }
+if (typeof Object.delete !== 'function') {
+    Object.delete = function(o, f) {
+	delete o[f];
+    };
+}
 
 // Properly escape < > & for html
 function html_escape(s) {

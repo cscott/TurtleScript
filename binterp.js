@@ -152,10 +152,26 @@ var make_binterp = function(bytecode_table) {
     };
     var set_slot = function(obj, name, nval) {
         // handle array sets specially: they update the length field.
-        if (obj.type === "array" && isFinite(1 * name)) {
-            name = 1 * name; // convert to int
-            if (name >= obj[SLOT_PREFIX+"length"]) {
-                obj[SLOT_PREFIX+"length"] = name + 1;
+        if (obj.type === "array") {
+            if (name === "length") {
+                // sanity-check new length. XXX should throw RangeError
+                nval = (1*nval) || 0;
+                if (nval < 0) { nval = 0; }
+                // truncate the array.
+                var i = obj[SLOT_PREFIX+"length"];
+                while (i > nval) {
+                    // Object.delete defines in global.js; uses 'delete'
+                    Object.delete(obj, SLOT_PREFIX+(i-1));
+                    i -= 1;
+                }
+                // fall through to set length
+            }
+            if (isFinite(1 * name)) {
+                name = 1 * name; // convert to int
+                if (name >= obj[SLOT_PREFIX+"length"]) {
+                    obj[SLOT_PREFIX+"length"] = name + 1;
+                }
+                // fall through to set element
             }
         }
         // handle writes to booleans (not supported in standard javascript)
@@ -526,6 +542,12 @@ var make_binterp = function(bytecode_table) {
             }
             return j;
         };
+        Array.prototype.pop = function() {
+            if (this.length === 0) { return; }
+            var last = this[this.length-1];
+            this.length -= 1;
+            return last;
+        };
         Array.prototype.concat = function() {
             var result = [], i, j;
             // start by cloning 'this'
@@ -548,6 +570,18 @@ var make_binterp = function(bytecode_table) {
                     result[result.length] = e;
                 }
                 i += 1;
+            }
+            return result;
+        };
+        Array.prototype.join = function(sep) {
+            var result = "", i = 0;
+            sep = sep || ',';
+            while (i < this.length) {
+                result += this[i];
+                i += 1;
+                if (i < this.length) {
+                    result += sep;
+                }
             }
             return result;
         };
