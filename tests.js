@@ -7,8 +7,9 @@ var make_tests = function() {
         test[i] = arguments[i];
         i += 1;
     }
+    i -= 1;
     // next test case is this function itself.
-    test[i] = make_tests;
+    if (make_tests) { test[i+=1] = make_tests; }
     // now some ad-hoc test cases.  Phrased as functions so they can be
     // syntax-checked, etc.
     test[i+=1] = function() {
@@ -36,7 +37,7 @@ var make_tests = function() {
     };
     test[i+=1] = function() {
         var a = true, b=false, c=null, d=NaN, e=Object, f=Array, g=this;
-        return e;
+        return d.toString();
     };
     test[i+=1] = function() {
         var x = 1+2*3, y = (1+2)*3, z=null; z(x, y); z[x] = y;
@@ -72,8 +73,9 @@ var make_tests = function() {
         var a = [];
         var b = a.push('a', [1, 2]);
         console.log(a, b);
-        var c = a.concat([3, 4], 5, 6);
+        var c = a.concat(b+1, [4, 5], 6, [[7,8]]);
         console.log(c);
+        return c;
     };
     test[i+=1] = function() {
        var x = { g: 1 };
@@ -84,6 +86,7 @@ var make_tests = function() {
        console.log(x.g, y.g);
        y.g = 3;
        console.log(x.g, y.g);
+       return (x.g===2 && y.g===3) ? "success" : "FAILURE";
     };
     test[i+=1] = function(x) {
         /* parsing 'expression statements' */
@@ -104,6 +107,7 @@ var make_tests = function() {
             console.log(a);
         })();
         console.log(a);
+        return (a===2) ? "success" : "FAILURE";
     };
     test[i+=1] = function() {
         /* Doing w/o branches */
@@ -148,12 +152,15 @@ var make_tests = function() {
         var a1 = function() { console.log("a1"); };
         var a2 = function() { console.log("a2"); };
 
+        /*
         console.log("true.while", true.while, "false.while", false.while,
                     "true.ifElse", true.ifElse, "false.ifElse", false.ifElse);
         console.log("this", this, "a1", a1, "a2", a2);
+        */
         c().ifElse(this, a1, a2);
         c()["while"](this, c, b);
         c().ifElse(this, a1, a2);
+        return (i === 3) ? "success" : "FAILURE";
     };
     test[i+=1] = function() {
         /* Functions should have a 'length' field. */

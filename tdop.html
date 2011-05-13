@@ -105,7 +105,7 @@ Object.prototype.error = function (message, t) {
     throw t;
 };
 
-var CATCH_SYNTAX_ERRORS = true;
+var CATCH_ERRORS = true;
 var SHOW_SOURCE = true;
 var PRINT_TREE = false;
 var PRINT_JCOMPILE = false;
@@ -153,17 +153,20 @@ function do_it() {
 
     if (0) {
     // HACK to run specific test cases
-    eval(sources[22].replace(/module/, "my_test")); my_test();
+    test_case = sources[22].replace(/module/, "self_test");
+    eval(test_case); // defines the 'self_test' method
     source = sources[7].replace(/module/, "library_init") + "\n" +
-             sources[22].replace(/module/, "test") + "\n" +
-             "{ library_init(); return test(); }\n";
+             test_case + "\n" +
+             "{ library_init(); return self_test(); }\n";
     // END HACK
     }
 
     if (1) {
        // for use comparing the output of the interpreter with the
        // output of the javascript code run directly.
-       fill('expected-result', 'Expected result', self_test(isource));
+       eresult = self_test(isource);
+       if (typeof(eresult) != "string") eresult = ""+JSON.stringify(eresult);
+       fill('expected-result', 'Expected result', eresult);
     }
 
     if (SHOW_SOURCE) {
@@ -230,11 +233,12 @@ function do_it() {
                                             /* args:*/ isource);
         result = m.binterp(bc, 0, frame);
         fill('isource', 'Input to interpreted compiler', isource);
+        if (typeof(result) != "string") result = ""+JSON.stringify(result);
         fill('result', 'Result from interpreter', result);
    }
 }
 
-if (!CATCH_SYNTAX_ERRORS) {
+if (!CATCH_ERRORS) {
     do_it();
 } else {
     try {
