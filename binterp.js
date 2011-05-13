@@ -100,6 +100,9 @@ var make_binterp = function(bytecode_table) {
                 return MyString;
             }
             if (name === "length" || isFinite(1 * name)) {
+                if (name!=="length") {
+                    console.log("WARNING: accessing string char by index");
+                }
                 return obj[name];
             }
             return MyString[SLOT_PREFIX+name];
@@ -405,8 +408,19 @@ var make_binterp = function(bytecode_table) {
         native_func(frame, "parseInt", function(_this_, number, radix) {
             return parseInt(number, radix);
         });
+        native_func(MyString, "charAt", function(_this_, idx) {
+            // note that accessing a string by index (w/o using charAt)
+            // isn't actually part of EcmaScript 3 & might not work in IE
+            return _this_.charAt(idx);
+        });
+        native_func(MyString, "charCodeAt", function(_this_, idx) {
+            return _this_.charCodeAt(idx);
+        });
         native_func(MyString, "substring", function(_this_, from, to) {
             return _this_.substring(from, to);
+        });
+        native_func(my_StringCons, "fromCharCode", function(_this_, arg) {
+            return String.fromCharCode(arg);
         });
         native_func(MyNumber, "toString", function(_this_) {
             return _this_.toString();
@@ -460,11 +474,6 @@ var make_binterp = function(bytecode_table) {
         return frame;
     };
     var library_init = function() {
-        String.prototype.charAt = function(idx) {
-            // note that accessing a string by index (w/o using charAt)
-            // isn't actually part of EcmaScript 3 & might not work in IE
-            return this[idx];
-        };
         String.prototype.indexOf = function(searchValue, from) {
             var i = from || 0;
             var j = 0;
@@ -473,7 +482,8 @@ var make_binterp = function(bytecode_table) {
             }
             while ( i < this.length ) {
                 j = 0;
-                while (j < searchValue.length && this[i+j] === searchValue[j]) {
+                while (j < searchValue.length &&
+                       this.charAt(i+j) === searchValue.charAt(j)) {
                     j += 1;
                 }
                 if (j === searchValue.length) {

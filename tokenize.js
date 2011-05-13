@@ -208,7 +208,7 @@ var tokenize = function (_this_, prefix, suffix, DEBUG) {
                         if (i >= length) {
                             make('string', str).error("Unterminated string");
                         }
-                        c = parseInt(_this_.substr(i + 1, 4), 16);
+                        c = parseInt(_this_.substring(i + 1, i + 1 + 4), 16);
                         if (!isFinite(c) || c < 0) {
                             make('string', str).error("Unterminated string");
                         }
