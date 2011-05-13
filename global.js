@@ -9,6 +9,11 @@ if (typeof Object.create !== 'function') {
         return new F();
     };
 }
+if (typeof Object.newUint8Array !== 'function') {
+    Object.newUint8Array = function(size) {
+	return new Uint8Array(size);
+    };
+}
 
 // Properly escape < > & for html
 function html_escape(s) {

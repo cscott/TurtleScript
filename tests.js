@@ -191,6 +191,13 @@ var make_tests = function() {
         if ("    \t ".trim().length !== 0) { return false; }
         return true;
     };
+    test[i+=1] = function() {
+        // very basic Uint8Array support.
+        var uarr = Object.newUint8Array(256);
+        uarr[0] = 255;
+        uarr[0] += 1;
+        return (uarr.length===256) && (uarr[0] === 0);
+    };
     /* NOT YET IMPLEMENTED.
     test[i+=1] = function() {
         // Typed Array support.

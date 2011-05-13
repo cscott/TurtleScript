@@ -107,6 +107,12 @@ var make_binterp = function(bytecode_table) {
             }
             return (obj ? MyTrue : MyFalse)[SLOT_PREFIX+name];
         }
+        if (typeof(obj)==="object" && obj.buffer) {
+            // very basic TypedArray support
+            if (name === "length" || isFinite(1 * name)) {
+                return obj[name];
+            }
+        }
         return obj[SLOT_PREFIX+name];
     };
     dispatch.get_slot_direct = function(slot_name_idx) {
@@ -124,7 +130,7 @@ var make_binterp = function(bytecode_table) {
                         this.literals[slot_name_idx]);
         }
         this.stack.push(result);
-    }
+    };
     dispatch.get_slot_indirect = function() {
         var name = this.stack.pop();
         var obj = this.stack.pop();
@@ -141,6 +147,13 @@ var make_binterp = function(bytecode_table) {
         // handle writes to booleans (not supported in standard javascript)
         if (typeof(obj)==="boolean") {
             obj = obj ? MyTrue : MyFalse;
+        }
+        if (typeof(obj)==="object" && obj.buffer) {
+            // very basic TypedArray support
+            if (isFinite(1 * name)) {
+                obj[1*name] = nval;
+                return;
+            }
         }
         obj[SLOT_PREFIX+name] = nval;
     };
@@ -364,6 +377,7 @@ var make_binterp = function(bytecode_table) {
             return _this_.hasOwnProperty(SLOT_PREFIX+propname);
         });
         native_func(MyObject, "create", function(_this_, prototype) {
+            // Object.create defined in global.js; uses 'new'
             var result = Object.create(prototype);
             oset(result, "__proto__", prototype);
             return result;
@@ -373,6 +387,11 @@ var make_binterp = function(bytecode_table) {
         });
         native_func(MyString, "substring", function(_this_, from, to) {
             return _this_.substring(from, to);
+        });
+        // *Very* basic TypedArray support
+        native_func(MyObject, "newUint8Array", function(_this_, size) {
+            // newUint8Array defined in global.js; uses 'new'
+            return Object.newUint8Array(size);
         });
 
         // XXX: We're not quite handling the "this" argument correctly.
