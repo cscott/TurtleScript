@@ -112,9 +112,9 @@ function do_it() {
              "{ library_init(); return self_test('{return 1+2;}'); }\n";
 
     // HACK to show scoping bug.
-    eval(sources[24].replace(/module/, "my_test")); my_test();
+    eval(sources[22].replace(/module/, "my_test")); my_test();
     source = sources[7].replace(/module/, "library_init") + "\n" +
-             sources[24].replace(/module/, "test") + "\n" +
+             sources[22].replace(/module/, "test") + "\n" +
              "{ library_init(); return test(); }\n";
     // END HACK
 

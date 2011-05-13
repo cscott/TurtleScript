@@ -188,6 +188,7 @@ var make_binterp = function(bytecode_table) {
         }
         // create new frame
         var nframe = Object.create(func.parent_frame);
+        nframe[SLOT_PREFIX+"__proto__"] = func.parent_frame;
         nframe[SLOT_PREFIX+"arguments"] = my_arguments;
         nframe[SLOT_PREFIX+"this"] = my_this;
         // construct new child state.

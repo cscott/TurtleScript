@@ -71,6 +71,7 @@ var make_parse = function (tokenize) {
         scope = Object.create(original_scope);
         scope.def = {};
         scope.parent = s;
+        scope.level = s ? (s.level+1) : 0;
         return scope;
     };
 
@@ -390,6 +391,7 @@ var make_parse = function (tokenize) {
         if (token.arity === "name") {
             scope.define(token);
             this.name = token.value;
+            this.scope = scope;
             advance();
         } else {
             this.name = null;
@@ -467,10 +469,12 @@ var make_parse = function (tokenize) {
 
 
     stmt("{", function () {
-        new_scope();
+        // XXX: implement proper block scope by creating a new function
+        //      here: { var x; ... } -> (function() { var x; ... })();
+        //new_scope();//XXX
         var a = statements();
         advance("}");
-        scope.pop();
+        //scope.pop();//XXX
         // CSA: make block structure (scope) explicit in the parse tree
         return [ { value: "block", arity: "statement", first: a } ];
     });

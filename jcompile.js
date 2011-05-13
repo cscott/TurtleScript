@@ -67,7 +67,9 @@ var make_jcompile = function() {
     };
 
     var dispatch = {};
-    dispatch.name = function() { return this.value; };
+    dispatch.name = function() {
+	return this.value+"/*"+this.scope.level+"*/";
+    };
     dispatch.literal = function() {
         if (this.value === null) { return "null"; }
         if (typeof(this.value)==='object') {

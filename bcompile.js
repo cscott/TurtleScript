@@ -46,9 +46,12 @@ var make_bcompile = function(bytecode_table) {
     // compilation state
     var mkstate = function() {
         // The result of a compilation: a function list and a literal list.
+        // We also need to count lexical scope nesting depth during compilation
         var state = {
             functions: [],
-            literals: []
+            literals: [],
+            // internal
+            scope: 0
         };
         // literal symbol table.  Does string intern'ing too.  Very simple.
         state.literal = function(val) {
@@ -163,8 +166,16 @@ var make_bcompile = function(bytecode_table) {
     };
 
     dispatch.name = function(state) {
+        var i = 0, depth = state.scope - this.scope.level;
         // lookup the name in the frame table
         state.emit("push_frame");
+        // This loop is actually optional; the parent chain will do
+        // the lookup correctly even if you don't take care to look
+        // in the exact right frame (like we do here)
+        while ( i < depth ) {
+            state.emit("get_slot_direct", state.literal("__proto__"));
+            i += 1;
+        }
         state.emit("get_slot_direct", state.literal(this.value));
     };
     dispatch.literal = function(state) {
@@ -258,7 +269,12 @@ var make_bcompile = function(bytecode_table) {
         return function(state, is_stmt) {
             // lhs should either be a name or a dot expression
             if (this.first.arity === "name") {
+                var i = 0, depth = state.scope - this.first.scope.level;
                 state.emit("push_frame");
+                while ( i < depth ) {
+                    state.emit("get_slot_direct", state.literal("__proto__"));
+                    i += 1;
+                }
                 if (mode) {
                     state.emit("dup");
                     state.emit("get_slot_direct",
@@ -485,7 +501,8 @@ var make_bcompile = function(bytecode_table) {
                                   arity: "binary",
                                   first: {
                                       value: this.name,
-                                      arity: "name"
+                                      arity: "name",
+                                      scope: this.scope
                                   },
                                   second: {
                                       // clone of this, except w/o 'name'
@@ -501,6 +518,7 @@ var make_bcompile = function(bytecode_table) {
         var this_func = state.current_func;
         var new_func = state.new_function(this.first.length);
         state.current_func = new_func;
+        state.scope += 1;
         // compile the new function.
         // at start, we have an empty stack and a (properly-linked) frame w/ 2
         // field, "arguments" and "this".  Name the arguments in the local
@@ -524,6 +542,7 @@ var make_bcompile = function(bytecode_table) {
         }
         // restore original function.
         state.current_func = this_func;
+        state.scope -= 1;
         state.emit("new_function", new_func.id);
         return;
     };
