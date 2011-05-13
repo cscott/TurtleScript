@@ -178,8 +178,8 @@ function do_it() {
        fill('source', 'Interpreted source', o, 1/*no escape*/);
    }
 
-   top_level_defs = "isFinite parseInt Boolean String make_tests " +
-                     "console arguments";
+   top_level_defs = "isFinite parseInt Boolean String Function " +
+                     "make_tests console arguments";
     tree = parse(source, top_level_defs);
     if (tree) {
         /* Raw compiled tree */

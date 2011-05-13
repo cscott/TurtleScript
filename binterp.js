@@ -328,6 +328,10 @@ var make_binterp = function(bytecode_table) {
         oset(my_ArrayCons, "prototype", MyArray);
         fset("Array", my_ArrayCons);
 
+        var my_FunctionCons = Object.create(MyFunction);
+        oset(my_FunctionCons, "prototype", MyFunction);
+        fset("Function", my_FunctionCons);
+
         var my_BooleanCons = Object.create(MyFunction);
         oset(my_BooleanCons, "prototype", MyBoolean);
         fset("Boolean", my_BooleanCons);
@@ -457,6 +461,12 @@ var make_binterp = function(bytecode_table) {
                 }
                 i += 1;
             }
+            return result;
+        };
+        Function.prototype.toString = function () {
+            var result = "function ";
+            if (this.name) { result += this.name; }
+            result += "() { [native code] }";
             return result;
         };
         // Support for branchless bytecode (see Chambers et al, OOPSLA '89)
