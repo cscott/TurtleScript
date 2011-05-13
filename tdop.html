@@ -87,7 +87,8 @@ function do_it() {
        var parse = make_parse(tokenize);
        var bc_table = make_bytecode_table();
        var bcompile = make_bcompile(bc_table);
-       //result = tokenize('{return 1+2;}', '=<>!+-*&|/%^', '=<>&|');
+       source = source || '{ return 1+2; }';
+       //result = tokenize(source, '=<>!+-*&|/%^', '=<>&|');
        var tree = parse(source, "isFinite parseInt String");
        //result = tree;
        var bc = bcompile(tree);
@@ -109,16 +110,18 @@ function do_it() {
              sources[5].replace(/module/, "make_bcompile") + "\n" +
              sources[7].replace(/module/, "library_init") + "\n" +
              sources[8].replace(/module/, "self_test") + "\n" +
-             "{ library_init(); return self_test('{return 1+2;}'); }\n";
+             "{ library_init(); return self_test(arguments[0]); }\n";
 
+    if (0) {
     // HACK to show scoping bug.
     eval(sources[22].replace(/module/, "my_test")); my_test();
     source = sources[7].replace(/module/, "library_init") + "\n" +
              sources[22].replace(/module/, "test") + "\n" +
              "{ library_init(); return test(); }\n";
+    }
     // END HACK
 
-    tree = parse(source, "isFinite parseInt Boolean String make_tests console");
+    tree = parse(source, "isFinite parseInt Boolean String make_tests console arguments");
     if (tree) {
         /* Raw compiled tree */
         if (PRINT_TREE) {
@@ -149,14 +152,18 @@ function do_it() {
         document.write("<h1><a id='bytecode'>Bytecode</a></h1>");
         for (i=0; i<bc.functions.length; i++) {
           var f = bc.functions[i];
-          document.write("<h2>Function #"+f.id+" ("+f.nargs+" args; max stack depth="+f.max_stack+")</h2>");
+          document.write("<h2>Function #"+f.id);
+          if (f.name) {
+            document.write(" "+f.name);
+          }
+          document.write(" ("+f.nargs+" args; max stack depth="+f.max_stack+")</h2>");
           document.write(html_escape(bc.decompile(f.id)));
         }
 
         /* Interpreter test! */
         m = make_binterp(bc_table);
         frame = m.make_top_level_frame.call(/*this: */{/*this*/} ,
-                                            /* args:*/ 1, 2);
+                                            /* args:*/ '{ return 2+3; }');
         result = m.binterp(bc, 0, frame);
         document.write("<h2>Evaluating function #1 yields: ");
         document.write("<a id='result'>" + result + "</a></h2>\n");

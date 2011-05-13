@@ -6,6 +6,7 @@
 // 2008-07-07
 
 var make_parse = function (tokenize) {
+    var DEBUG;
     var scope;
     var symbol_table = {};
     var token;
@@ -557,7 +558,8 @@ var make_parse = function (tokenize) {
         return [ this ];
     });
 
-    return function (source, top_level) {
+    return function parse (source, top_level, debug) {
+        DEBUG = debug;
         tokens = tokenize(source, '=<>!+-*&|/%^', '=<>&|');
         token_nr = 0;
         new_scope();

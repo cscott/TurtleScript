@@ -20,7 +20,7 @@
 // will match any of these:
 //      <=  >>  >>>  <>  >=  +: -: &: &&: &&
 
-var tokenize = function (_this_, prefix, suffix) {
+var tokenize = function (_this_, prefix, suffix, DEBUG) {
     var c;                      // The current character.
     var from;                   // The index of the start of the token.
     var i = 0;                  // The index of the current character.
