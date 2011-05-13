@@ -147,6 +147,7 @@ function do_it() {
              sources[1].replace(/module/, "make_parse") + "\n" +
              sources[4].replace(/module/, "make_bytecode_table") + "\n" +
              sources[5].replace(/module/, "make_bcompile") + "\n" +
+             sources[6].replace(/module/, "make_binterp") + "\n" +
              sources[7].replace(/module/, "library_init") + "\n" +
              sources[8].replace(/module/, "self_test") + "\n" +
              "{ library_init(); return self_test(arguments[0]); }\n";
