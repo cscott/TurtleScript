@@ -371,6 +371,9 @@ var make_binterp = function(bytecode_table) {
         native_func(frame, "isFinite", function(_this_, number) {
             return isFinite(number);
         });
+        native_func(MyString, "substring", function(_this_, from, to) {
+            return _this_.substring(from, to);
+        });
 
         // XXX: We're not quite handling the "this" argument correctly.
         // According to:
@@ -413,6 +416,8 @@ var make_binterp = function(bytecode_table) {
     };
     var library_init = function() {
         String.prototype.charAt = function(idx) {
+            // note that accessing a string by index (w/o using charAt)
+            // isn't actually part of EcmaScript 3 & might not work in IE
             return this[idx];
         };
         String.prototype.indexOf = function(searchValue, from) {
@@ -432,6 +437,30 @@ var make_binterp = function(bytecode_table) {
                 i += 1;
             }
             return (j === searchValue.length) ? i : -1;
+        };
+        String.prototype.trim = function() {
+            // non-regex version based on
+            // http://blog.stevenlevithan.com/archives/faster-trim-javascript
+            var str = this;
+            if (str.length === 0) { return str; }
+	    var whitespace = ' \n\r\t\f\u000b\u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000';
+            var i = 0;
+            while (i < str.length) {
+		if (whitespace.indexOf(str.charAt(i)) === -1) {
+		    str = str.substring(i);
+		    break;
+		}
+                i += 1;
+	    }
+            i = str.length - 1;
+            while ( i >= 0 ) {
+		if (whitespace.indexOf(str.charAt(i)) === -1) {
+		    str = str.substring(0, i + 1);
+		    break;
+		}
+                i -= 1;
+            }
+	    return whitespace.indexOf(str.charAt(0)) === -1 ? str : '';
         };
         Array.prototype.push = function() {
             var i = 0, j = (1*this.length) || 0;

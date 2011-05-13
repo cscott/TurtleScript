@@ -185,6 +185,12 @@ var make_tests = function() {
         if (!check(nthis, f.bind(nthis, 0, 1, 2)())) { return false; }
         return true;
     };
+    test[i+=1] = function() {
+        if ("  xy z  ".trim() !== "xy z") { return false; }
+        if ("".trim().length !== 0) { return false; }
+        if ("    \t ".trim().length !== 0) { return false; }
+        return true;
+    };
     /** Tile-generation tests */
     test[i+=1] = function() {
         var c = 1+2;
