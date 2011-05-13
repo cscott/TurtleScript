@@ -273,7 +273,7 @@ var make_binterp = function(bytecode_table) {
     dispatch.un_typeof = unary(function(arg) {
         var t = typeof(arg);
         if (t === "object") {
-            t = t.type;
+            t = arg.type;
             if (t === "array") {
                 // weird javascript misfeature
                 t = "object";
@@ -442,7 +442,7 @@ var make_binterp = function(bytecode_table) {
             i = 0;
             while (i < arguments.length) {
                 var e = arguments[i];
-                if (e.hasOwnProperty('length')) {
+                if (typeof(e)==="object" && e.hasOwnProperty('length')) {
                     j = 0;
                     while (j < e.length) {
                         result[result.length] = e[j];

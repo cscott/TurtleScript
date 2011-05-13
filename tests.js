@@ -72,6 +72,8 @@ var make_tests = function() {
         var a = [];
         var b = a.push('a', [1, 2]);
         console.log(a, b);
+        var c = a.concat([3, 4], 5, 6);
+        console.log(c);
     };
     test[i+=1] = function() {
        var x = { g: 1 };
