@@ -309,15 +309,15 @@ var make_parse = function (tokenize) {
         return this;
     });
 
-    infixr("&&", 30);
     infixr("||", 30);
+    infixr("&&", 35);
 
     infixr("===", 40);
     infixr("!==", 40);
-    infixr("<", 40);
-    infixr("<=", 40);
-    infixr(">", 40);
-    infixr(">=", 40);
+    infixr("<", 45);
+    infixr("<=", 45);
+    infixr(">", 45);
+    infixr(">=", 45);
 
     infix("+", 50);
     infix("-", 50);
@@ -345,7 +345,7 @@ var make_parse = function (tokenize) {
         return this;
     });
 
-    infix("(", 80, function (left) {
+    infix("(", 75, function (left) {
         var a = [];
         if (left.id === "." || left.id === "[") {
             this.arity = "ternary";

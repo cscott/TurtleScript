@@ -124,26 +124,28 @@ var make_jcompile = function() {
         assert(dispatch.binary[this.value], this);
         return dispatch.binary[this.value].apply(this);
     };
-    var binary = function(op, prec, f) {
+    var binary = function(op, prec, f, is_right) {
         // with_prec_paren will add parentheses if necessary
         dispatch.binary[op] = f || with_prec_paren(prec, function() {
                 var result = jcompile(this.first)+' '+this.value+' ';
                 // handle left associativity
-                result += with_prec(prec+1, jcompile)(this.second);
+                result += with_prec(is_right ? (prec-1) : (prec+1),
+				    jcompile)(this.second);
                 return result;
             });
     };
-    binary('=', 10);
-    binary('+=', 10);
-    binary('-=', 10);
-    binary('||', 30);
-    binary('&&', 35);
-    binary('===',40);
-    binary('!==',40);
-    binary('<', 45);
-    binary('<=',45);
-    binary('>', 45);
-    binary('>=',45);
+    var binaryr = function(op, prec) { binary(op, prec, null, 1/*is right*/); };
+    binaryr('=', 10);
+    binaryr('+=', 10);
+    binaryr('-=', 10);
+    binaryr('||', 30);
+    binaryr('&&', 35);
+    binaryr('===',40);
+    binaryr('!==',40);
+    binaryr('<', 45);
+    binaryr('<=',45);
+    binaryr('>', 45);
+    binaryr('>=',45);
     binary('+', 50);
     binary('-', 50);
     binary('*', 60);
@@ -156,7 +158,7 @@ var make_jcompile = function() {
                 return jcompile(this.first) + "[" +
                     with_prec(0, jcompile)(this.second) + "]";
             }));
-    binary('(', 80, with_prec_paren(80, function() {
+    binary('(', 75, with_prec_paren(75, function() {
             // simple method invocation (doesn't set 'this')
                 return jcompile(this.first) + "(" +
                 gather(this.second, ", ", with_prec(0, jcompile)) + ")";
