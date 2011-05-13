@@ -430,6 +430,31 @@ var make_binterp = function(bytecode_table) {
             }
             return j;
         };
+        Array.prototype.concat = function() {
+            var result = [], i, j;
+            // start by cloning 'this'
+            i = 0;
+            while (i < this.length) {
+                result[i] = this[i];
+                i += 1;
+            }
+            // now add elements from arguments
+            i = 0;
+            while (i < arguments.length) {
+                var e = arguments[i];
+                if (e.hasOwnProperty('length')) {
+                    j = 0;
+                    while (j < e.length) {
+                        result[result.length] = e[j];
+                        j += 1;
+                    }
+                } else {
+                    result[result.length] = e;
+                }
+                i += 1;
+            }
+            return result;
+        };
         // Support for branchless bytecode (see Chambers et al, OOPSLA '89)
         true["while"] = function(_this_, cond, body) {
             body.call(_this_);
