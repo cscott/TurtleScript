@@ -349,23 +349,25 @@ var make_bcompile = function(bytecode_table) {
     binary('+=', assignment("bi_add"));
     binary('-=', assignment("bi_sub"));
     binary('||', function(state) {
+        // expr1 || expr2 returns expr1 if it can be converted to true;
+        //                else returns expr2
         var sd_before, sd_after;
-        var falseLabel = state.new_label();
         var mergeLabel = state.new_label();
         // short circuit operator
         state.bcompile_expr(this.first);
-        state.emit("jmp_unless", falseLabel);
+        state.emit("dup");
+        state.emit("un_not");
+        state.emit("jmp_unless", mergeLabel);
         sd_before = state.current_func.stack_depth;
-        state.emit("push_literal", state.literal(true));
-        state.emit("jmp", mergeLabel);
-        sd_after = state.current_func.stack_depth;
-        state.set_label(falseLabel);
-        state.current_func.stack_depth = sd_before;
+        state.emit("pop");
         state.bcompile_expr(this.second);
         state.set_label(mergeLabel);
-        assert(state.current_func.stack_depth === sd_after, this);
+        sd_after = state.current_func.stack_depth;
+        assert(sd_before === sd_after, this);
     });
     binary('&&', function(state) {
+        // expr1 && expr2 returns expr1 if it can be converted to false;
+        //                else returns expr2
         var sd_before, sd_after;
         var mergeLabel = state.new_label();
         // short circuit operator
@@ -593,7 +595,7 @@ var make_bcompile = function(bytecode_table) {
         return;
     };
 
-    return function (parse_tree) {
+    return function bcompile (parse_tree) {
         var state = mkstate();
         state.current_func = state.new_function(0);
         state.bcompile_stmts(parse_tree);
