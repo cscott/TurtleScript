@@ -128,7 +128,7 @@ function do_it() {
        var bcompile = make_bcompile(bc_table);
        source = source || '{ return 1+2; }';
        //result = tokenize(source, '=<>!+-*&|/%^', '=<>&|');
-       var tree = parse(source, "isFinite parseInt String");
+       var tree = parse(source, "isFinite parseInt Boolean String Function Math console arguments");
        //result = tree;
        var bc = bcompile(tree);
        result = bc.decompile(0);
@@ -182,8 +182,8 @@ function do_it() {
        fill('source', 'Interpreted source', o, 1/*no escape*/);
    }
 
-   top_level_defs = "isFinite parseInt Boolean String Function " +
-                     "make_tests console arguments";
+   top_level_defs = "isFinite parseInt Boolean String Function Math " +
+                     "make_tests console arguments document html_escape";
     tree = parse(source, top_level_defs);
     if (tree) {
         /* Raw compiled tree */

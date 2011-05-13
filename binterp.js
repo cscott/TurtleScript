@@ -36,12 +36,16 @@ var make_binterp = function(bytecode_table) {
     MyFunction.type = "function";
     var MyString = Object.create(MyObject);
     MyString.type = "string";
+    var MyNumber = Object.create(MyObject);
+    MyNumber.type = "number";
     var MyBoolean = Object.create(MyObject);
     MyBoolean.type = "boolean";
     var MyTrue = Object.create(MyBoolean);
     MyTrue.value = true;
     var MyFalse = Object.create(MyBoolean);
     MyFalse.value = false;
+
+    var MyMath = Object.create(MyObject);
 
     var interpret = function(state) {
         var op = bytecode_table.for_num(state.bytecode[state.pc]);
@@ -106,6 +110,13 @@ var make_binterp = function(bytecode_table) {
                 return MyBoolean;
             }
             return (obj ? MyTrue : MyFalse)[SLOT_PREFIX+name];
+        }
+        if (typeof(obj)==="number") {
+            // special case fields of Number
+            if (name === "__proto__") {
+                return MyNumber;
+            }
+            return MyNumber[SLOT_PREFIX+name];
         }
         if (typeof(obj)==="object" && obj.buffer) {
             // very basic TypedArray support
@@ -353,6 +364,12 @@ var make_binterp = function(bytecode_table) {
         oset(my_StringCons, "prototype", MyString);
         fset("String", my_StringCons);
 
+        var my_NumberCons = Object.create(MyFunction);
+        oset(my_NumberCons, "prototype", MyNumber);
+        fset("Number", my_NumberCons);
+
+        fset("Math", MyMath);
+
         // support for console.log
         var my_console = Object.create(MyObject);
         fset("console", my_console);
@@ -385,8 +402,17 @@ var make_binterp = function(bytecode_table) {
         native_func(frame, "isFinite", function(_this_, number) {
             return isFinite(number);
         });
+        native_func(frame, "parseInt", function(_this_, number, radix) {
+            return parseInt(number, radix);
+        });
         native_func(MyString, "substring", function(_this_, from, to) {
             return _this_.substring(from, to);
+        });
+        native_func(MyNumber, "toString", function(_this_) {
+            return _this_.toString();
+        });
+        native_func(MyMath, "floor", function(_this_, val) {
+            return Math.floor(val);
         });
         // *Very* basic TypedArray support
         native_func(MyObject, "newUint8Array", function(_this_, size) {
