@@ -116,6 +116,73 @@ var make_bcompile = function(bytecode_table) {
             }
             return result;
         };
+        // compact encoding
+        var encode_uint = function(out, val) {
+            assert(val >= 0, val);
+	    if (val < 128) {
+	        out.push(val);
+	        return;
+	    }
+	    var msb = Math.floor(val / 128);
+	    var lsb = (val - 128*msb);
+            assert(lsb >= 0 && lsb < 128, val);
+            assert(msb > 0, val);
+	    // little-endian
+	    out.push(lsb + 128);
+	    encode_uint(out, msb);
+        };
+        var encode_str = function(out, str) {
+            var i = 0;
+            encode_uint(out, str.length);
+            while (i < str.length) {
+                encode_uint(out, str.charCodeAt(i));
+                i += 1;
+            }
+        };
+        state.encode = function() {
+            var out = [];
+            // the number of functions
+            encode_uint(out, this.functions.length);
+            // each function.
+            var i = 0;
+            while (i < this.functions.length) {
+                var f = this.functions[i];
+                encode_uint(out, f.nargs);
+                encode_uint(out, f.max_stack);
+                encode_str(out, f.name || '');
+                encode_uint(out, f.bytecode.length);
+                var j = 0;
+                while (j < f.bytecode.length) {
+                    var v = f.bytecode[j];
+		    v = (typeof(v) === "number") ? v : v.label;
+                    encode_uint(out, v);
+                    j += 1;
+                }
+                i += 1;
+            }
+            // the literal table.
+            encode_uint(out, this.literals.length);
+            i = 0;
+            while (i < this.literals.length) {
+                var lv = this.literals[i];
+                if (typeof(lv) === "number") {
+                    encode_uint(out, 0 /* number tag */);
+                    encode_str(out, lv.toString()); /* not ideal! */
+                } else if (typeof(lv) === "string") {
+                    encode_uint(out, 1 /* string tag */);
+                    encode_str(out, lv);
+                } else if (typeof(lv) === "boolean") {
+                    encode_uint(out, lv ? 2 : 3); /* boolean tags */
+                } else if (lv === null) {
+                    encode_uint(out, 4 /* null tag */);
+                } else {
+                    console.log("UNKNOWN LITERAL TYPE", lv);
+                    encode_uint(out, 5 /* unknown */);
+                }
+                i += 1;
+            }
+            return out;
+        };
         // simple label mechanism
         state.new_label = function() {
             return { label: "<undefined>" };

@@ -81,11 +81,12 @@ to compile.</p>
 <pre id="isource"></pre>
 <pre id="expected-result"></pre>
 <pre id="result"></pre>
-<div id="source"></div>
 <pre id="parse-tree"></pre>
 <pre id="jcompile"></pre>
 <pre id="raw-bytecode"></pre>
+<pre id="encoded-bytecode"></pre>
 <div id="bytecode"></div>
+<div id="source"></div>
 
 <PRE id="output"><SCRIPT>
 /*jslint evil: true */
@@ -110,6 +111,7 @@ var SHOW_SOURCE = true;
 var PRINT_TREE = false;
 var PRINT_JCOMPILE = false;
 var PRINT_RAW_BYTECODE = false;
+var PRINT_ENCODED_BYTECODE = true;
 
 function fill(elem_id, h1, contents, no_escape) {
   if (!no_escape) contents = html_escape(contents);
@@ -132,6 +134,7 @@ function do_it() {
        //result = tree;
        var bc = bcompile(tree);
        result = bc.decompile(0);
+       //result = bc.encode().join();
        //console.log(result);
        return result;
     }
@@ -143,6 +146,8 @@ function do_it() {
 
     // combine sources
     isource = '{ return 2+3; }'; // input to interpreted version of compiler
+    //isource = 'var f = function() { };';
+    //isource = sources[7].replace(/module/, 'library_init');
     source = sources[0].replace(/module/, "tokenize") + "\n" +
              sources[1].replace(/module/, "make_parse") + "\n" +
              sources[4].replace(/module/, "make_bytecode_table") + "\n" +
@@ -207,6 +212,11 @@ function do_it() {
             fill('raw-bytecode', 'Raw Bytecode File Contents',
                  JSON.stringify(bc, ['functions', 'literals', 'id', 'nargs',
                                      'bytecode', 'label'], 4));
+        }
+        if (PRINT_ENCODED_BYTECODE) {
+            var out_file = bc.encode();
+            fill('encoded-bytecode', 'Encoded Bytecode', out_file.length+" "+
+             JSON.stringify(out_file));
         }
 
         /* Pretty-printed bytecode */
