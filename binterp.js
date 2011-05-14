@@ -70,7 +70,23 @@ var make_binterp = function(bytecode_table) {
         */
         return ns ? ns : state;
     };
+    // helpers for debugging
+    var fname = function(state) {
+        var result, name;
+        var func_id = state.func_id;
+        result = "#"+func_id;
+        name = state.module ? state.module.functions[func_id].name : null;
+        if (name) {
+            result += " ("+name+")";
+        }
+        return result;
+    };
+    var stack_trace = function(state) {
+        if (!state.parent) { return ""; }
+        return stack_trace(state.parent) + "->" + fname(state);
+    };
 
+    // Implementations of bytecode instructions.
     dispatch.push_frame = function() {
         this.stack.push(this.frame);
     };
@@ -243,7 +259,8 @@ var make_binterp = function(bytecode_table) {
         nframe[SLOT_PREFIX+"this"] = my_this;
         // construct new child state.
         var ns = mkstate(this, nframe, func.module, func.func_id);
-        //document.write("----- ENTERING FUNCTION #"+func.func_id+" ("+func.module.functions[func.func_id].name+") -----\n");
+        //document.write(html_escape("--- "+stack_trace(this)+" --calling-> "+fname(ns)+" ---\n"));
+
         // ok, continue executing in child state!
         return ns;
     };
@@ -252,8 +269,9 @@ var make_binterp = function(bytecode_table) {
         // go up to the parent state.
         var ns = this.parent;
         ns.stack.push(retval);
+        //document.write(html_escape("--- "+stack_trace(ns)+" <-returning-- "+fname(this)+" ---\n"));
+
         // continue in parent state
-        //if (ns.module) { document.write("----- RETURNING TO FUNCTION #"+ns.func_id+" ("+ns.module.functions[ns.func_id].name+") -----\n"); }
         return ns;
     };
 

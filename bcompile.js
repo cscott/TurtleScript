@@ -31,7 +31,10 @@
 var make_bcompile = function(bytecode_table) {
     // helper function for debugging
     var assert = function(b, obj) {
-        if (!b) { Object.error("Assertion failure", obj); }
+        if (!b) {
+            console.log("ASSERTION FAILURE", obj);
+            Object.error("Assertion failure", obj);
+        }
     };
     // helper function for lists
     var foreach = function(lst, f) {
