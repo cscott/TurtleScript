@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html><head><title>JavaScript Tile Demo</title></head>
+
+<body>
+<h1>JavaScript Tile Demo</h1>
+<canvas id="canvas" width="600" height="600"></canvas>
+<!-- now include all our javascript -->
+<script src="./global.js"></script>
+<script src="./tokenize.js"></script>
+<script src="./parse.js"></script>
+<script src="./ccanvas.js"></script>
+<script src="./crender.js"></script>
+<script src="./tests.js"></script>
+<pre id="output"><script>
+Object.prototype.error = function (message, t) {
+    t = t || this;
+    t.name = "SyntaxError";
+    t.message = message;
+    throw t;
+};
+var tests = make_tests();
+var isource = tests[tests.length-2];
+isource='{console=2+3;return this;}';
+isource='console=3;while(2&&3||4) {console=2*3/4;break;} console=5;';
+
+// parse the example source
+var top_level = "isFinite parseInt Boolean String Function Math "+
+                "console arguments";
+var parse = make_parse(tokenize);
+var tree = parse(isource, top_level);
+console.log(tree);
+
+// make widgets from parse tree
+var crender = make_crender();
+var widget = crender(tree);
+
+// draw the widgets!
+var canvas = make_canvas('canvas');
+var styles = {
+   textHeight: 20,
+   tilePadding: { left: 4, top: 1, right: 2, bottom: 5},
+   textColor: canvas.makeColor(0, 0, 0),
+   nameColor: canvas.makeColor(160, 82, 45), // variable names
+   commentColor: canvas.makeColor(178, 34, 34), // comments
+   keywordColor: canvas.makeColor(160, 32, 240),// keywords
+   constColor: canvas.makeColor(0, 139, 139), // constants,this,arguments
+   slotColor: canvas.makeColor(0, 0, 255), // slots in objects
+   literalColor: canvas.makeColor(139, 34, 82), // string literals
+   semiColor: canvas.makeColor(0, 0, 0, 76),// semicolon
+   tileColor: canvas.makeColor(249, 250, 215),
+   tileOutlineColor: canvas.makeColor(255, 204, 106),
+   tileCornerRadius: 4,
+   puzzleIndent: 5,
+   puzzleRadius: 5,
+   expHeight: 24,
+   expWidth: 6,
+   expUnderHeight: 3,
+   blockIndent: 26,
+};
+widget.init(canvas, styles);
+canvas.translate(10,10);
+widget.draw(0);
+
+/*
+var red = canvas.makeColor(255, 0, 0, 255); // red
+canvas.setFontHeight(20);
+var txt = "This is a test";
+var rect = canvas.measureText(txt);
+console.log(rect);
+canvas.setFill(red);
+canvas.beginPath();
+canvas.rect(0,0,rect.width,rect.height);
+canvas.fill();
+canvas.setFill(textColor);
+canvas.drawText("This is a test", 0, rect.height);
+*/
+
+</script></pre>
+</body> </html>
