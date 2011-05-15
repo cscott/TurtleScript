@@ -234,8 +234,12 @@ var make_crender = function() {
     };
     ExpWidget.leftHandDir = -1;
     ExpWidget.rightHandDir = 1;
+    ExpWidget.isName = false;
     ExpWidget.leftHandPath = function() {
         if (this.leftHandDir === 0) { return; }
+        if (this.isName) {
+            this.canvas.lineTo(0, this.styles.expHeight/2);
+        }
         this.canvas.lineTo(this.leftHandDir * this.styles.expWidth,
                            this.styles.expHeight/2);
         this.canvas.lineTo(0, this.styles.expHeight);
@@ -244,6 +248,9 @@ var make_crender = function() {
         var sz = this.size();
         this.canvas.lineTo(sz.width, sz.height);
         this.canvas.lineTo(sz.width, this.styles.expHeight);
+        if (this.isName) {
+            this.canvas.lineTo(sz.width, this.styles.expHeight/2);
+        }
         this.canvas.lineTo(sz.width + this.rightHandDir * this.styles.expWidth,
                            this.styles.expHeight/2);
         this.canvas.lineTo(sz.width, 0);
@@ -272,7 +279,7 @@ var make_crender = function() {
     var InfixWidget = Object.create(ExpWidget);
     InfixWidget.operator = '?'; // override
     InfixWidget.leftHandDir = 1;
-    InfixWidget.rightHandDir = 1;
+    InfixWidget.rightHandDir =-1;
     InfixWidget.ensureChildren = function() {
         if (!this.children) {
             this.children = [Object.create(YadaWidget),
@@ -362,8 +369,9 @@ var make_crender = function() {
     // A name.  Fits in an expression spot.
     var NameWidget = Object.create(LabelledExpWidget);
     NameWidget.name = '???'; // override
-    NameWidget.leftHandDir = 0;
-    NameWidget.rightHandDir = 0;
+    NameWidget.leftHandDir = -1;
+    NameWidget.rightHandDir = 1;
+    NameWidget.isName = true;
     NameWidget.getLabel = function() {
         return this.name;
     };
