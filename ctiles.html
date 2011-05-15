@@ -20,8 +20,8 @@ Object.prototype.error = function (message, t) {
 };
 var tests = make_tests();
 var isource = tests[tests.length-2];
-isource='{console=2+3;return this;}';
-isource='console=3;while(2&&3||4) {console=2*3/4;break;} console=5;';
+//isource='{console=2+3;return this;}';
+isource='var a,b="test\\n";console=typeof !3;while(!2&&3||4) {console=2*3/4;var c;break;} console=console;';
 
 // parse the example source
 var top_level = "isFinite parseInt Boolean String Function Math "+
