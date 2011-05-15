@@ -28,7 +28,6 @@ var top_level = "isFinite parseInt Boolean String Function Math "+
                 "console arguments";
 var parse = make_parse(tokenize);
 var tree = parse(isource, top_level);
-console.log(tree);
 
 // make widgets from parse tree
 var crender = make_crender();
@@ -59,7 +58,7 @@ var styles = {
    expUnderHeight: 3,
    blockIndent: 26,
 };
-widget.init(canvas, styles);
+widget.setCanvasStyles(canvas, styles);
 canvas.translate(10,10);
 widget.draw(0);
 
