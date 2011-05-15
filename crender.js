@@ -403,12 +403,12 @@ var make_crender = function() {
         var sz = this.size(), bb = this.bbox();
         var lsz = this.leftOperand.bbox();
         var rsz = this.rightOperand.bbox();
-        this.canvas.lineTo(0, sz.height);
-        this.canvas.lineTo(-lsz.width, sz.height);
+        this.canvas.lineTo(0, lsz.height);
+        this.canvas.lineTo(-lsz.width, lsz.height);
         this.canvas.lineTo(-lsz.width, bb.height);
         this.canvas.lineTo(sz.width + rsz.width, bb.height);
-        this.canvas.lineTo(sz.width + rsz.width, sz.height);
-        this.canvas.lineTo(sz.width, sz.height);
+        this.canvas.lineTo(sz.width + rsz.width, rsz.height);
+        this.canvas.lineTo(sz.width, rsz.height);
     };
     InfixWidget.draw = context_saved(function() {
         var bb = this.leftOperand.bbox();
