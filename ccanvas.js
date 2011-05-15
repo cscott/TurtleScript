@@ -10,6 +10,9 @@ var make_canvas = function(canvas_id) {
     var canvas_ = document.getElementById(canvas_id).getContext('2d');
     return {
         fontHeight: 10, // font is 10px when canvas is created.
+        fontBold: false,
+        fontItalic: false,
+
         withContext: function(_this_, f) {
             var h, b, i;
             h = this.fontHeight;
