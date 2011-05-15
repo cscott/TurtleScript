@@ -122,6 +122,18 @@ var make_crender = function() {
         });
         return rect(w, h);
     };
+    var VertWidget = Object.create(Widget);
+    VertWidget.computeBBox = function() {
+        var sz = this.size();
+        var w = sz.width, h = sz.height;
+        // sum heights of children
+        this.children().forEach(function(c) {
+            var bb = c.bbox();
+            w = Math.max(w, bb.width);
+            h += bb.height;
+        });
+        return rect(w, h);
+    };
 
     // Invisible vertical stacking container
     var BlockWidget = Object.create(Widget);
@@ -145,14 +157,9 @@ var make_crender = function() {
         return rect(0, 0); // no size of our own
     };
     BlockWidget.computeBBox = function() {
-        // sum heights of children
-        var w = 0, h = 0;
-        this.children().forEach(function(c) {
-            var bb = c.bbox();
-            w = Math.max(w, bb.width);
-            h += bb.height;
-        });
-        return rect(w, h);
+        // add a little padding below last block
+        return this.pad(VertWidget.computeBBox.call(this),
+                        { bottom: this.styles.blockBottomPadding });
     };
     BlockWidget.draw = context_saved(function() {
         var canvas = this.canvas;
@@ -312,8 +319,7 @@ var make_crender = function() {
     }
     PrefixWidget.computeSize = function() {
         var r = this.pad(this.canvas.measureText(this.operator));
-        r.width += this.styles.expWidth; // for socket
-        return r;
+        return this.pad(r, { right: this.styles.expWidth /* for socket */});
     };
     PrefixWidget.bottomPath = function() {
         var sz = this.size(), bb = this.bbox();
@@ -350,8 +356,7 @@ var make_crender = function() {
     };
     InfixWidget.computeSize = function() {
         var r = this.pad(this.canvas.measureText(" "+this.operator+" "));
-        r.width += this.styles.expWidth; // for socket
-        return r;
+        return this.pad(r, { right: this.styles.expWidth /* for sockets */});
     };
     InfixWidget.bottomPath = function() {
         var sz = this.size(), bb = this.bbox();
@@ -444,8 +449,7 @@ var make_crender = function() {
     var EndCapWidget = Object.create(ExpWidget);
     EndCapWidget.computeSize = context_saved(function() {
         var r = this.pad(this.canvas.measureText(this.label));
-        r.width += 2*this.extraPadding;
-        return r;
+        return this.pad(r, {left: this.extraPadding, right: this.extraPadding});
     });
     EndCapWidget.drawInterior = function() {
         var sz = this.size();
@@ -518,8 +522,7 @@ var make_crender = function() {
     BreakWidget.computeSize = context_saved(function() {
         var r = this.pad(this.canvas.measureText(BREAK_TEXT+SEMI_TEXT));
         // indent the text to match expression statements
-        r.width += ExpStmtWidget.interiorSize.call(this).width;
-        return r;
+        return this.pad(r, {left: ExpStmtWidget.interiorSize.call(this).width});
     });
     BreakWidget.drawInterior = function() {
         var sz = this.size();
@@ -540,10 +543,9 @@ var make_crender = function() {
     ReturnWidget.interiorSize = context_saved(function() {
         var r = this.pad(this.canvas.measureText(RETURN_TEXT));
         // indent the text to match expression statements
-        r.width += ExpStmtWidget.interiorSize.call(this).width;
         // make room for rhs socket
-        r.width += this.styles.expWidth;
-        return r;
+        return this.pad(r, { left: ExpStmtWidget.interiorSize.call(this).width,
+                             right: this.styles.expWidth });
     });
     ReturnWidget.drawInterior = function() {
         var sz = this.size();
