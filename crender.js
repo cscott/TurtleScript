@@ -102,12 +102,18 @@ var make_crender = function() {
             this.canvas.rect(0, 0, sz.width, sz.height);
             this.canvas.fill();
             this.canvas.stroke();
-            this.canvas.setFill(this.styles.textColor);
-            this.canvas.drawText(DEFAULT_TEXT, this.styles.tilePadding.left,
-                                 sz.height - this.styles.tilePadding.bottom);
+            this.drawPaddedText(DEFAULT_TEXT, pt(0, 0), this.styles.textColor);
         }),
         bgColor: function() {
             return this.styles.tileColor;
+        },
+        // drawing aids
+        drawPaddedText: function(text, pt, color) {
+            if (color) { this.canvas.setFill(color); }
+            this.canvas.drawText(text,
+                                 pt.x + this.styles.tilePadding.left,
+                                 pt.y + this.styles.tilePadding.top +
+                                 this.styles.textHeight);
         },
     };
     // helpers
@@ -304,11 +310,7 @@ var make_crender = function() {
         return this.pad(this.canvas.measureText(YADA_TEXT));
     });
     YadaWidget.drawInterior = function() {
-        var sz = this.size();
-        var x = this.styles.tilePadding.left;
-        var y = this.styles.tilePadding.top + this.styles.textHeight;
-        this.canvas.setFill(this.styles.semiColor);
-        this.canvas.drawText(YADA_TEXT, x, y);
+        this.drawPaddedText(YADA_TEXT, pt(0, 0), this.styles.semiColor);
     };
 
     // Horizonal combinations of widgets
@@ -348,10 +350,7 @@ var make_crender = function() {
         this.operand.draw();
     });
     PrefixWidget.drawInterior = function() {
-        var sz = this.size();
-        var x = this.styles.tilePadding.left;
-        var y = sz.height - this.styles.tilePadding.bottom;
-        this.canvas.drawText(this.operator, x, y);
+        this.drawPaddedText(this.operator, pt(0, 0));
     };
 
     // Infix operator
@@ -392,11 +391,8 @@ var make_crender = function() {
         this.rightOperand.draw();
     });
     InfixWidget.drawInterior = function() {
-        var sz = this.size();
-        var x = this.styles.tilePadding.left;
-        var y = sz.height - this.styles.tilePadding.bottom;
-        x += Math.floor(this.styles.expWidth / 2) - 1;
-        this.canvas.drawText(" "+this.operator+" ", x, y);
+        this.drawPaddedText(" "+this.operator+" ",
+                            pt(Math.floor(this.styles.expWidth / 2) - 1, 0));
     };
 
     var LabelledExpWidget = Object.create(ExpWidget);
@@ -405,11 +401,8 @@ var make_crender = function() {
         return this.pad(this.canvas.measureText(this.getLabel()));
     });
     LabelledExpWidget.drawInterior = function() {
-        var sz = this.size();
-        var x = this.styles.tilePadding.left;
-        var y = sz.height - this.styles.tilePadding.bottom;
         this.setFont();
-        this.canvas.drawText(this.getLabel(), x, y);
+        this.drawPaddedText(this.getLabel(), pt(0, 0));
         return;
     };
     LabelledExpWidget.getLabel = function() {
@@ -465,11 +458,8 @@ var make_crender = function() {
         return this.pad(r, this.extraPadding);
     });
     EndCapWidget.drawInterior = function() {
-        var sz = this.size();
-        var x = this.styles.tilePadding.left;
-        var y = this.styles.tilePadding.top + this.styles.textHeight;
-        this.canvas.setFill(this.styles.semiColor);
-        this.canvas.drawText(this.label, x+(this.extraPadding.left||0), y);
+        this.drawPaddedText(this.label, pt(this.extraPadding.left||0, 0),
+                            this.styles.semiColor);
     };
     EndCapWidget.extraPadding = { left: 0, right: 0 };
     EndCapWidget.leftHandDir = 1;
@@ -540,13 +530,9 @@ var make_crender = function() {
                              right: this.styles.expWidth });
     });
     LabelledExpStmtWidget.drawInterior = function() {
-        var sz = this.size();
-        var x = this.styles.tilePadding.left;
-        var y = this.styles.tilePadding.top + this.styles.textHeight;
         // indent the text to match expression statements
-        x += ExpStmtWidget.interiorSize.call(this).width;
-        this.canvas.setFill(this.styles.keywordColor);
-        this.canvas.drawText(this.label, x, y);
+        var x = ExpStmtWidget.interiorSize.call(this).width;
+        this.drawPaddedText(this.label, pt(x, 0), this.styles.keywordColor);
     };
 
     // simple break statement tile.
@@ -559,16 +545,11 @@ var make_crender = function() {
         return this.pad(r, {left: ExpStmtWidget.interiorSize.call(this).width});
     });
     BreakWidget.drawInterior = function() {
-        var sz = this.size();
-        var s1 = this.canvas.measureText(BREAK_TEXT);
-        var x = this.styles.tilePadding.left;
-        var y = sz.height - this.styles.tilePadding.bottom;
         // indent the text to match expression statements
-        x += ExpStmtWidget.interiorSize.call(this).width;
-        this.canvas.setFill(this.styles.keywordColor);
-        this.canvas.drawText(BREAK_TEXT, x, y);
-        this.canvas.setFill(this.styles.semiColor);
-        this.canvas.drawText(SEMI_TEXT, x + s1.width, y);
+        var x = ExpStmtWidget.interiorSize.call(this).width;
+        this.drawPaddedText(BREAK_TEXT, pt(x, 0), this.styles.keywordColor);
+        x += this.canvas.measureText(BREAK_TEXT).width;
+        this.drawPaddedText(SEMI_TEXT, pt(x, 0), this.styles.semiColor);
     };
 
     // return statement tile; takes an expression on the right
@@ -660,16 +641,14 @@ var make_crender = function() {
     });
     CommaListWidget.drawInterior = context_saved(function(sz) {
         this.canvas.setFill(this.styles.semiColor);
-        var x = this.styles.tilePadding.left + this.styles.expWidth;
-        var y = this.styles.tilePadding.top + this.styles.textHeight;
-        x += this.extraPadding.left;
+        var x = this.styles.expWidth + this.extraPadding.left;
         var first = true;
         this.children().forEach(function(c) {
             if (!first) {
-                this.canvas.drawText(this.label, x, y);
-                canvas.translate(sz.width, 0);
+                this.drawPaddedText(this.label, pt(x, 0));
+                x += sz.width;
             }
-            canvas.translate(c.bbox().width, 0);
+            x += c.bbox().width;
             first = false;
         }.bind(this));
     });
@@ -800,20 +779,13 @@ var make_crender = function() {
     };
     WhileWidget.drawInterior = function() {
         var sz = this.size();
-        var x = this.styles.tilePadding.left;
-        var y = this.styles.tilePadding.top + this.styles.textHeight;
         // indent the text to match expression statements
-        x += ExpStmtWidget.interiorSize.call(this).width;
-
-        this.canvas.setFill(this.styles.keywordColor);
-        this.canvas.drawText(WHILE_TEXT, x, y);
+        var x = ExpStmtWidget.interiorSize.call(this).width;
+        this.drawPaddedText(WHILE_TEXT, pt(x, 0), this.styles.keywordColor);
         var wsz = this.canvas.measureText(WHILE_TEXT);
-        this.canvas.setFill(this.styles.semiColor);
-        this.canvas.drawText(" (", x+wsz.width, y);
-
-        this.canvas.setFill(this.styles.semiColor);
-        y = sz.height - this.styles.tilePadding.bottom - 2;
-        this.canvas.drawText("}", x, y);
+        this.drawPaddedText(" (", pt(x+wsz.width, 0), this.styles.semiColor);
+        var y = this.topSize.height + this.block.bbox().height - 2;
+        this.drawPaddedText("}", pt(x, y), this.styles.semiColor);
 
         // now draw children
         this.canvas.withContext(this, function() {
