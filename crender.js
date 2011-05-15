@@ -455,6 +455,9 @@ var make_crender = function() {
     var StringWidget = Object.create(LabelledExpWidget);
     StringWidget.fontStyle = 'literalColor';
 
+    var BooleanWidget = Object.create(LabelledExpWidget);
+    BooleanWidget.fontStyle = 'constColor';
+
     // end caps for statements, while expressions, etc
     var EndCapWidget = Object.create(ExpWidget);
     EndCapWidget.computeSize = context_saved(function() {
@@ -912,6 +915,11 @@ var make_crender = function() {
         if (typeof(this.value)==='string') {
             w = Object.create(StringWidget);
             w.label = str_escape(this.value);
+            return w;
+        }
+        if (typeof(this.value)==='boolean') {
+            w = Object.create(BooleanWidget);
+            w.label = this.value.toString();
             return w;
         }
         w = Object.create(NumericWidget);
