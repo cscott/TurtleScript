@@ -22,8 +22,46 @@ var make_crender = function() {
         p.y = y;
         return p;
     };
+    // simple bounding box, maybe offset from origin.
+    var BoundingBox = Object.create({ width: 0, height: 0});
+    BoundingBox.x = 0;
+    BoundingBox.y = 0;
+    BoundingBox.contains = function(x, y) {
+        // allow passing a pt object as first arg
+        if (typeof(x)==="object") { y=x.y; x=x.x; }
+        // support duck typing, w/ optional fields (width/height not optional)
+        var thisx = this.x || 0;
+        var thisy = this.y || 0;
+        // ok, do the actual test
+        return (x >= thisx) && (x < (thisx + this.width)) &&
+            (y >= thisy) && (y < (thisy + this.height));
+    };
+    BoundingBox.left = function() { return this.x; }
+    BoundingBox.top = function() { return this.y; }
+    BoundingBox.right = function() { return this.x + this.width; }
+    BoundingBox.bottom = function() { return this.y + this.height; }
+    BoundingBox.tl = function() { return pt(this.left(), this.top()); }
+    BoundingBox.tr = function() { return pt(this.right(), this.top()); }
+    BoundingBox.bl = function() { return pt(this.left(), this.bottom()); }
+    BoundingBox.br = function() { return pt(this.right(), this.bottom()); }
+    BoundingBox.translate = function(pt) {
+        var bb = Object.create(BoundingBox);
+        bb.x = this.x + pt.x;
+        bb.y = this.y + pt.y;
+        bb.width = this.width;
+        bb.height = this.height;
+        return bb;
+    };
+
     var rect = function(w, h) {
-        return { width: w, height: h };
+        var r = Object.create(BoundingBox);
+        r.width = w; r.height = h;
+        return r;
+    };
+    var bbox = function (x, y, w, h) {
+        var bb = Object.create(BoundingBox);
+        bb.x = x; bb.y = y; bb.width = w; bb.height = h;
+        return bb;
     };
     // helper to save/restore contexts
     // also reset fill/stroke color and font height.
@@ -101,7 +139,7 @@ var make_crender = function() {
         }),
         computeBBox: function() {
             // by default the bounding box is the same as the size
-            return this.computeSize();
+            return this.size();
         },
         // by convention, given a canvas translated so that our top-left
         // corner is 0, 0
@@ -591,6 +629,9 @@ var make_crender = function() {
 
     // lists (of exprs/names).
     // XXX should eventually provide means for line wrapping.
+    // XXX each comma should have a 'line break after' property,
+    //     but toggling between "each arg on its own line" and "all on one line"
+    //     is probably ok initially.
     var CommaListWidget = Object.create(ContainerWidget);
     CommaListWidget.label = ",";
     CommaListWidget.children = function() {
@@ -702,7 +743,180 @@ var make_crender = function() {
     };
 
     // XXX function expression, contains a name list and a block
-    var FunctionWidget = Object.create(YadaWidget);
+    // XXX render functions w/ no body inline?
+    var FUNCTION_TEXT = _("function");
+    var FunctionWidget = Object.create(Widget);
+    FunctionWidget.label = FUNCTION_TEXT;
+    FunctionWidget.children = function() {
+        var r = [];
+        if (!this.args) {
+            this.args = Object.create(CommaListWidget);
+            this.args.isName = true;
+            this.args.disallowEmptyList = true;
+        }
+        if (!this.block) {
+            this.block = Object.create(BlockWidget);
+        }
+        if (this.name) { r.push(this.name); }
+        return r.concat(this.args, this.block);
+        //return [ this.name, this.args, this.block ];
+    };
+    FunctionWidget.computeSize = context_saved(function() {
+        this.children(); // initialize fields as side effect
+
+        this.functionBB = this.pad(this.canvas.measureText(FUNCTION_TEXT+" "));
+
+        if (this.name) {
+            this.nameBB = this.name.bbox(); // simple bounding box
+        } else {
+            this.nameBB = rect(this.styles.functionNameSpace,
+                               this.functionBB.height);
+        }
+        this.nameBB = this.nameBB.translate(this.functionBB.tr());
+
+        this.leftParenBB = this.pad(this.canvas.measureText(" ("));
+        this.leftParenBB = this.leftParenBB.translate(this.nameBB.tr());
+
+        // args could be multiline, but aligns at the open paren
+        this.argsBB = this.args.bbox({margin: 0});
+        // adjust args to have a minimum width (even w/ no args)
+        if (this.argsBB.width < this.styles.functionNameSpace) {
+            this.argsBB = rect(this.styles.functionNameSpace,
+                               this.argsBB.height);
+        }
+        this.argsBB = this.argsBB.translate(this.leftParenBB.tr());
+
+        // XXX should fix this if args is multiline
+        this.rightParenBB = this.pad(this.canvas.measureText(") {"));
+        this.rightParenBB = this.rightParenBB.translate(this.argsBB.tr());
+        // ensure this is tall enough to cover args
+        this.rightParenBB.height = Math.max(this.rightParenBB.height,
+                                            this.argsBB.height);
+        // ensure rightParenBB is tall enough for everything else on the
+        // first line XXX multiline fixme
+        this.rightParenBB.height = Math.max(this.rightParenBB.height,
+                                            this.leftParenBB.height,
+                                            this.nameBB.height,
+                                            this.functionBB.height);
+
+        // add enough for an underline.
+        this.rightParenBB.height += this.styles.expUnderHeight;
+
+        // now we lay out the block XXX need to pass in margin
+        this.blockBB = this.block.bbox();
+        this.blockBB = this.blockBB.translate(pt(this.styles.functionIndent,
+                                                 this.rightParenBB.bottom()));
+
+        // and the final close bracket
+        var margin = 0; // XXX future functionality
+        this.rightBraceBB = this.pad(this.canvas.measureText("}"));
+        this.rightBraceBB = this.rightBraceBB.
+            translate(pt(margin, this.blockBB.bottom()));
+
+        // ok, add it all up!
+        var firstLineWidth = this.rightParenBB.right(); // XXX multiline
+        var blockWidth = this.blockBB.right();
+        // XXX account for margin in blockWidth
+        var lastLineWidth = this.rightBraceBB.right();
+
+        var w = Math.max(firstLineWidth, blockWidth, lastLineWidth);
+        var h = this.rightBraceBB.bottom();
+
+        this.widowPt = this.rightBraceBB.tr();
+
+        r = rect(w, h);
+        // stub for future functionality
+        r.x = 0;
+        r.y = 0;
+        r.ix = 0;
+        r.iy = this.rightParenBB.bottom() - this.styles.expUnderHeight;
+        return r;
+    });
+    FunctionWidget.draw = function() {
+        var sz = this.size();
+        this.drawOutline(sz);
+        this.drawInterior(sz);
+        this.drawChildren(sz);
+    };
+    FunctionWidget.drawOutline = context_saved(function(sz) {
+        var bb = this.bbox();
+
+        this.canvas.setFill(this.bgColor());
+        this.canvas.beginPath();
+        // expression plug on left
+        this.drawCapDown(pt(0,0), true/*plug*/, false/*left*/, false/*exp*/);
+        // first line indent
+        this.canvas.lineTo(bb.ix, bb.iy);
+        this.canvas.lineTo(bb.x, bb.iy);
+        // all the way down to the bottom
+        this.canvas.lineTo(0, bb.height);
+        // to the end of rightBrace
+        this.canvas.lineTo(this.rightBraceBB.br());
+        // expression plug on right
+        this.drawCapUp(this.rightBraceBB.tr(),
+                       true/*plug*/, true/*right*/, false/*exp*/);
+        // back up past block to bottom of right paren
+        this.canvas.lineTo(this.styles.functionIndent,
+                           this.rightBraceBB.top());
+        this.canvas.lineTo(this.styles.functionIndent,
+                           this.rightParenBB.bottom());
+        // circle right paren
+        this.drawRoundCorner(this.rightParenBB.br(), 1, false);
+        this.drawRoundCorner(this.rightParenBB.tr(), 0, false);
+        // arg list name socket (right side of arg list; left side socket)
+        this.drawCapDown(this.rightParenBB.tl(),
+                         false/*socket*/, false/*left*/, true/*name*/);
+        // underline the arg list
+        this.canvas.lineTo(this.argsBB.br());
+        this.canvas.lineTo(this.argsBB.bl());
+        // arg list name socket (left side of arg list; right side socket)
+        this.drawCapUp(this.argsBB.tl(),
+                         false/*socket*/, true/*right*/, true/*name*/);
+        // function name socket (right side of name; left side socket)
+        this.drawCapDown(this.leftParenBB.tl(),
+                         false/*socket*/, false/*left*/, true/*name*/);
+        // underline the function name
+        this.canvas.lineTo(this.nameBB.br());
+        this.canvas.lineTo(this.nameBB.bl());
+        // function name socket (left side of name; right side socket)
+        this.drawCapUp(this.nameBB.tl(),
+                       false/*socket*/, true/*right*/, true/*name*/);
+        // we're done!
+
+        this.canvas.closePath();
+        this.canvas.fill();
+        this.canvas.stroke();
+    });
+    FunctionWidget.drawInterior = context_saved(function(sz) {
+        // draw function label
+        this.drawPaddedText(FUNCTION_TEXT, this.functionBB.tl(),
+                            this.styles.keywordColor);
+        // draw open paren
+        this.drawPaddedText(" (", this.leftParenBB.tl(), this.styles.semiColor);
+        // draw close paren
+        this.drawPaddedText(") {",this.rightParenBB.tl(),this.styles.semiColor);
+        // draw close brace
+        this.drawPaddedText("}", this.rightBraceBB.tl(), this.styles.semiColor);
+    });
+    FunctionWidget.drawChildren = context_saved(function(sz) {
+        // draw function name
+        this.canvas.withContext(this, function() {
+            this.canvas.translate(this.nameBB.tl());
+            if (this.name) {
+                this.name.draw();
+            }
+        });
+        // draw args list
+        this.canvas.withContext(this, function() {
+            this.canvas.translate(this.argsBB.tl());
+            this.args.draw();
+        });
+        // draw block
+        this.canvas.withContext(this, function() {
+            this.canvas.translate(this.blockBB.tl());
+            this.block.draw();
+        });
+    });
 
     // XXX function invocation, contains a name list
     var InvokeWidget = Object.create(YadaWidget);
@@ -1108,24 +1322,20 @@ var make_crender = function() {
     dispatch['this'] = function() {
         return Object.create(ThisWidget); // literal
     };
-    // XXX STUB
     dispatch['function'] = with_prec(0, function() {
-        return Object.create(YadaWidget);
-    });
-/*
-    dispatch['function'] = with_prec(0, function() {
-            var result = "function";
-            if (this.name) { result += " " + this.name; }
-            result += " (" + gather(this.first, ", ", crender) + ") {";
-            if (this.second.length > 0) {
-                indentation += 1;
-                result += nl() + crender_stmts(this.second); // function body
-                indentation -= 1;
-            }
-            result += nl() + "}";
-            return result;
+        var fw = Object.create(FunctionWidget);
+        if (this.name) {
+            fw.name = Object.create(NameWidget);
+            fw.name.name = this.name;
+        }
+        fw.args = Object.create(CommaListWidget);
+        fw.args.isName = true;
+        this.first.forEach(function(c) {
+            fw.args.addChild(crender(c));
         });
-*/
+        fw.block = crender_stmts(this.second);
+        return fw;
+    });
 
     // Helpers
     crender = function(tree) {

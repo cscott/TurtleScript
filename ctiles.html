@@ -21,7 +21,7 @@ Object.prototype.error = function (message, t) {
 var tests = make_tests();
 var isource = tests[tests.length-2];
 //isource='{console=2+3;return this;}';
-isource='var a,b="test\\n";console=typeof !3;while(!2&&3||4) {console=2*3/4;var c;break;} console=console; while(true){return false;}';
+isource='var a,b="test\\n",c,d,e;console=typeof !3;while(!2&&3||4) {console=2*3/4;var z;break;} console=console; function foo (y) {return false;}';
 
 // parse the example source
 var top_level = "isFinite parseInt Boolean String Function Math "+
@@ -58,6 +58,8 @@ var styles = {
    expUnderHeight: 3,
    blockIndent: 26,
    blockBottomPadding: 8, /* below last tile in a block */
+   functionIndent: 3, /* thin line on left side of function */
+   functionNameSpace: 3, /* space to leave for a missing function name */
    listEndPadding: 0, /* empty space on right side of lists */
 };
 widget.setCanvasStyles(canvas, styles);
