@@ -275,6 +275,63 @@ var make_crender = function() {
         this.canvas.drawText(YADA_TEXT, x, y);
     };
 
+    // Prefix operator
+    var PrefixWidget = Object.create(ExpWidget);
+    PrefixWidget.operator = '?'; // override
+    PrefixWidget.leftHandDir = -1;
+    PrefixWidget.rightHandDir =-1;
+    PrefixWidget.ensureChildren = function() {
+        if (!this.children) {
+            this.children = [Object.create(YadaWidget)];
+            this.init(this.canvas, this.styles);
+        }
+    };
+    PrefixWidget.setChild = function(child) {
+        this.ensureChildren();
+        this.children[0] = child;
+    };
+    PrefixWidget.computeSize = function() {
+        var r = this.pad(this.canvas.measureText(this.operator));
+        r.width += this.styles.expWidth; // for socket
+        return r;
+    };
+    PrefixWidget.computeBBox = function() {
+        this.ensureChildren();
+        // sum widths of children; use max height
+        var sz = this.size();
+        var w = sz.width, h = sz.height;
+        this.children.forEach(function(c) {
+            var bb = c.bbox();
+            w += bb.width;
+            h = Math.max(h, bb.height);
+        });
+        return rect(w, h + this.styles.expUnderHeight);
+    };
+    PrefixWidget.bottomPath = function() {
+        this.ensureChildren();
+        var sz = this.size(), bb = this.bbox();
+        var rsz = this.children[0].bbox();
+        this.canvas.lineTo(0, sz.height);
+        this.canvas.lineTo(0, bb.height);
+        this.canvas.lineTo(sz.width + rsz.width, bb.height);
+        this.canvas.lineTo(sz.width + rsz.width, sz.height);
+        this.canvas.lineTo(sz.width, sz.height);
+    };
+    PrefixWidget.draw = context_saved(function() {
+        this.ensureChildren();
+        // draw me
+        PrefixWidget.__proto__.draw.call(this);
+        // draw child
+        this.canvas.translate(this.size().width, 0);
+        this.children[0].draw();
+    });
+    PrefixWidget.drawInterior = function() {
+        var sz = this.size();
+        var x = this.styles.tilePadding.left;
+        var y = sz.height - this.styles.tilePadding.bottom;
+        this.canvas.drawText(this.operator, x, y);
+    };
+
     // Infix operator
     var InfixWidget = Object.create(ExpWidget);
     InfixWidget.operator = '?'; // override
@@ -296,7 +353,7 @@ var make_crender = function() {
         this.children[1] = rightChild;
     };
     InfixWidget.computeSize = function() {
-        var r = this.pad(this.canvas.measureText(this.operator));
+        var r = this.pad(this.canvas.measureText(" "+this.operator+" "));
         r.width += this.styles.expWidth;
         return r;
     };
@@ -342,7 +399,7 @@ var make_crender = function() {
         var x = this.styles.tilePadding.left;
         var y = sz.height - this.styles.tilePadding.bottom;
         x += Math.floor(this.styles.expWidth / 2) - 1;
-        this.canvas.drawText(this.operator, x, y);
+        this.canvas.drawText(" "+this.operator+" ", x, y);
     };
 
     var LabelledExpWidget = Object.create(ExpWidget);
@@ -427,7 +484,7 @@ var make_crender = function() {
 
     // while end cap
     WhileBraceWidget = Object.create(EndCapWidget);
-    WhileBraceWidget.label = "{";
+    WhileBraceWidget.label = ") {";
     WhileBraceWidget.extraPadding = 5;
 
     // simple break statement tile.
@@ -556,7 +613,7 @@ var make_crender = function() {
     WhileWidget.computeSize = context_saved(function() {
         var w, h, indent;
         this.ensureChildren();
-        this.topSize = this.pad(this.canvas.measureText(WHILE_TEXT));
+        this.topSize = this.pad(this.canvas.measureText(WHILE_TEXT+" ("));
         // make room for rhs socket
         this.topSize.width += this.styles.expWidth;
         // grow vertically to match test expression
@@ -566,7 +623,7 @@ var make_crender = function() {
         h = this.topSize.height;
         h += this.children[2].bbox().height;
         // now accomodate the close brace below
-        this.bottomSize = this.pad(this.canvas.measureText("}"));
+        this.bottomSize = this.pad(this.canvas.measureText("} "));
         h += this.bottomSize.height;
         // indent the text to match expression statements
         indent = ExpStmtWidget.interiorSize.call(this).width;
@@ -643,9 +700,12 @@ var make_crender = function() {
 
         this.canvas.setFill(this.styles.keywordColor);
         this.canvas.drawText(WHILE_TEXT, x, y);
+        var wsz = this.canvas.measureText(WHILE_TEXT);
+        this.canvas.setFill(this.styles.semiColor);
+        this.canvas.drawText(" (", x+wsz.width, y);
 
         this.canvas.setFill(this.styles.semiColor);
-        y = sz.height - this.styles.tilePadding.bottom;
+        y = sz.height - this.styles.tilePadding.bottom - 2;
         this.canvas.drawText("}", x, y);
 
         // now draw children
@@ -785,15 +845,16 @@ var make_crender = function() {
     };
     var unary = function(op, prec, f) {
         dispatch.unary[op] = f || with_prec_paren(prec, function() {
-                return this.value + crender(this.first);
-            });
+            var pw = Object.create(PrefixWidget);
+            pw.operator = this.value;
+            pw.setChild(crender(this.first));
+            return pw;
+        });
     };
-/*
     unary('!', 70);
     unary('-', 70);
-    unary('typeof', 70, with_prec_paren(70, function() {
-                return "typeof("+with_prec(0, crender)(this.first)+")";
-            }));
+    unary('typeof', 70);
+/*
     unary('[', 90, with_prec_paren(90, function() {
                 // new array creation
                 return "[" + gather(this.first, ", ", with_prec(0, crender)) +
