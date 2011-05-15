@@ -602,7 +602,7 @@ var make_crender = function() {
     CommaListWidget.computeSize = function() {
         var sz = this.interiorSize();
         var first = true;
-        var w = 0, h = 0;
+        var w = 0, h = sz.height;
         this.children().forEach(function(c) {
             // add separator (if not the first element)
             if (!first) {
@@ -615,6 +615,8 @@ var make_crender = function() {
             h = Math.max(h, bb.height);
             first = false;
         });
+        // add some extra width to encourage folks to add new stuff
+        w += this.styles.listEndPadding;
         // add some extra height for the underline.
         return rect(w, h + this.styles.expUnderHeight);
     };
