@@ -116,6 +116,13 @@ var make_crender = function() {
     BlockWidget.ensureChildren = function() {
         if (!this.children) { this.children = []; }
     };
+    BlockWidget.addVar = function(nameWidget) {
+        this.ensureChildren();
+        if (this.children.length === 0) {
+            this.addChild(Object.create(VarWidget));
+        }
+        this.children[0].addChild(nameWidget);
+    };
     BlockWidget.addChild = function(child) {
         this.ensureChildren();
         this.children.push(child);
@@ -541,7 +548,7 @@ var make_crender = function() {
             this.init(this.canvas, this.styles);
         }
     };
-    ExpStmtWidget.addChild = function(child) {
+    ExpStmtWidget.setChild = function(child) {
         this.ensureChildren();
         this.children[0] = child;
     };
@@ -589,6 +596,21 @@ var make_crender = function() {
         this.canvas.setFill(this.styles.keywordColor);
         this.canvas.drawText(RETURN_TEXT, x, y);
     };
+
+    // var statement, holds a name list.
+    var VAR_TEXT = _("var");
+    var VarWidget = Object.create(ExpStmtWidget);
+    VarWidget.addChild = function() {
+        // XXX
+    };
+    // XXX function expression, contains a name list and a block
+    var FunctionWidget = Object.create(YadaWidget);
+
+    // XXX function invocation, contains a name list
+    var InvokeWidget = Object.create(YadaWidget);
+
+    // XXX array creation, contains a expression list (vertical?)
+    // XXX object creation, contains a funny sort of expression list (vertical?)
 
     // while statement tile. c-shaped, also takes a right hand expression.
     var WHILE_TEXT = _("while");
@@ -749,7 +771,10 @@ var make_crender = function() {
     var indentation, prec_stack = [ 0 ];
 
     var assert = function(b, obj) {
-        if (!b) { Object.error("Assertion failure", obj); }
+        if (!b) {
+            console.log('ASSERTION FAILURE', obj);
+            Object.error("Assertion failure", obj);
+        }
     };
 
     // set the precedence to 'prec' when evaluating f
@@ -854,6 +879,14 @@ var make_crender = function() {
     unary('!', 70);
     unary('-', 70);
     unary('typeof', 70);
+
+    // STUBS
+    unary('[', 90,  with_prec_paren(90, function() {
+        return Object.create(YadaWidget); // XXX
+    }));
+    unary('{', 90,  with_prec_paren(90, function() {
+        return Object.create(YadaWidget); // XXX
+    }));
 /*
     unary('[', 90, with_prec_paren(90, function() {
                 // new array creation
@@ -914,6 +947,17 @@ var make_crender = function() {
     binary('-', 50);
     binary('*', 60);
     binary('/', 60);
+
+    // XXX STUBS
+    binary(".", 80, with_prec_paren(80, function() {
+        return Object.create(YadaWidget);
+    }));
+    binary("[", 80, with_prec_paren(80, function() {
+        return Object.create(YadaWidget);
+    }));
+    binary("(", 75, with_prec_paren(80, function() {
+        return Object.create(YadaWidget);
+    }));
     /*
     binary(".", 80, with_prec_paren(80, function() {
             assert(this.second.arity==='literal', this.second);
@@ -938,6 +982,13 @@ var make_crender = function() {
     var ternary = function(op, prec, f) {
         dispatch.ternary[op] = with_prec_paren(prec, f);
     };
+    // XXX STUBS
+    ternary("?", 20, function() {
+        return Object.create(YadaWidget);
+    });
+    ternary("(", 80, function() {
+        return Object.create(YadaWidget);
+    });
     /*
     ternary("?", 20, function() {
             return crender(this.first) + " ? " +
@@ -963,10 +1014,18 @@ var make_crender = function() {
     stmt("block", function() {
         return crender_stmts(this.first);
     });
-/*
     stmt("var", function() {
-            return "var "+crender(this.first)+";";
-        });
+        var vw = Object.create(VarWidget);
+        console.log("VAR", this);
+        // XXX set variable list
+        return vw;
+    });
+    // XXX STUB
+    stmt("if", function() {
+        var esw = Object.create(ExpStmtWidget);
+        return esw;
+    });
+/*
     stmt("if", function() {
             var result = "if ("+crender(this.first)+") ";
             // this.second.value === block
@@ -987,7 +1046,7 @@ var make_crender = function() {
             w = Object.create(UndefinedWidget);
         }
         rw = Object.create(ReturnWidget);
-        rw.addChild(w);
+        rw.setChild(w);
         return rw;
     });
     stmt("break", function() { return Object.create(BreakWidget); });
@@ -1002,6 +1061,10 @@ var make_crender = function() {
     dispatch['this'] = function() {
         return Object.create(ThisWidget); // literal
     };
+    // XXX STUB
+    dispatch['function'] = with_prec(0, function() {
+        return Object.create(YadaWidget);
+    });
 /*
     dispatch['function'] = with_prec(0, function() {
             var result = "function";
@@ -1027,16 +1090,28 @@ var make_crender = function() {
         var w = crender(tree);
         if (tree.arity !== "statement") {
             var esw = Object.create(ExpStmtWidget);
-            esw.addChild(w);
+            esw.setChild(w);
             return esw;
         }
         return w;
     };
     crender_stmts = function(tree_list) {
+        // collect leading 'var' statements
         var bw = Object.create(BlockWidget);
-        tree_list.forEach(function(t) {
-            bw.addChild(crender_stmt(t));
-        });
+        var i = 0;
+        // collect variables (if any)
+        while (i < tree_list.length) {
+            if (!(tree_list[i].arity === 'statement' &&
+                  tree_list[i].value === 'var')) {
+                break;
+            }
+            bw.addVar(crender(tree_list[i].first));
+            i += 1;
+        }
+        while (i < tree_list.length) {
+            bw.addChild(crender_stmt(tree_list[i]));
+            i += 1;
+        }
         return bw;
     };
 
