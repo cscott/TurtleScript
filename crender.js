@@ -97,7 +97,7 @@ var make_crender = function() {
         draw: context_saved(function() {
             // very simple box.
             var sz = this.size();
-            this.canvas.setFill(this.styles.tileColor);
+            this.canvas.setFill(this.bgColor());
             this.canvas.beginPath();
             this.canvas.rect(0, 0, sz.width, sz.height);
             this.canvas.fill();
@@ -106,6 +106,9 @@ var make_crender = function() {
             this.canvas.drawText(DEFAULT_TEXT, this.styles.tilePadding.left,
                                  sz.height - this.styles.tilePadding.bottom);
         }),
+        bgColor: function() {
+            return this.styles.tileColor;
+        },
     };
 
     // Invisible vertical stacking container
@@ -151,7 +154,7 @@ var make_crender = function() {
     };
     CeeWidget.draw = context_saved(function() {
         var sz = this.size();
-        this.canvas.setFill(this.styles.tileColor);
+        this.canvas.setFill(this.bgColor());
         // start path at ceeStartPoint
         this.canvas.beginPath();
         this.canvas.moveTo(this.ceeStartPt());
@@ -201,9 +204,11 @@ var make_crender = function() {
 
     // Expression tiles
     var ExpWidget = Object.create(Widget);
+    ExpWidget.outlineColor = function() { return this.styles.tileOutlineColor; }
     ExpWidget.draw = context_saved(function() {
         var sz = this.size();
-        this.canvas.setFill(this.styles.tileColor);
+        this.canvas.setFill(this.bgColor());
+        this.canvas.setStroke(this.outlineColor());
         // start path at 0,0
         this.canvas.beginPath();
         this.canvas.moveTo(0,0);
@@ -250,6 +255,8 @@ var make_crender = function() {
     // yada yada yada expression
     var YADA_TEXT = "...";
     var YadaWidget = Object.create(ExpWidget);
+    YadaWidget.bgColor = function() { return this.styles.yadaColor; }
+    YadaWidget.outlineColor = function() { return this.styles.yadaColor; }
     YadaWidget.computeSize = context_saved(function() {
         return this.pad(this.canvas.measureText(YADA_TEXT));
     });
@@ -257,6 +264,7 @@ var make_crender = function() {
         var sz = this.size();
         var x = this.styles.tilePadding.left;
         var y = this.styles.tilePadding.top + this.styles.textHeight;
+        this.canvas.setFill(this.styles.semiColor);
         this.canvas.drawText(YADA_TEXT, x, y);
     };
 
@@ -417,6 +425,7 @@ var make_crender = function() {
     // simple break statement tile.
     var BREAK_TEXT = _("break");
     var BreakWidget = Object.create(CeeWidget);
+    BreakWidget.bgColor = function() { return this.styles.stmtColor; };
     BreakWidget.computeSize = context_saved(function() {
         var r = this.pad(this.canvas.measureText(BREAK_TEXT+SEMI_TEXT));
         // indent the text to match expression statements
@@ -438,6 +447,7 @@ var make_crender = function() {
 
     // expression statement tile; takes an expression on the right.
     var ExpStmtWidget = Object.create(CeeWidget);
+    ExpStmtWidget.bgColor = function() { return this.styles.stmtColor; };
     ExpStmtWidget.interiorSize = function() {
         return this.pad(rect(this.styles.puzzleIndent +
                              this.styles.puzzleRadius +
@@ -518,6 +528,7 @@ var make_crender = function() {
     // while statement tile. c-shaped, also takes a right hand expression.
     var WHILE_TEXT = _("while");
     var WhileWidget = Object.create(CeeWidget);
+    WhileWidget.bgColor = function() { return this.styles.stmtColor; };
     WhileWidget.ensureChildren = function() {
         if (!this.children) {
             this.children = [Object.create(YadaWidget),
