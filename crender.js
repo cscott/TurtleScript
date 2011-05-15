@@ -111,6 +111,15 @@ var make_crender = function() {
         },
     };
     // helpers
+    var ContainerWidget = Object.create(Widget);
+    ContainerWidget.length = 0; // an array-like object
+    ContainerWidget.addChild = function(child) {
+        Array.prototype.push.call(this, child);
+    };
+    ContainerWidget.children = function() {
+        return Array.prototype.slice.call(this);
+    };
+
     var HorizWidget = Object.create(Widget);
     HorizWidget.computeBBox = function() {
         var sz = this.size();
@@ -138,20 +147,15 @@ var make_crender = function() {
     // Invisible vertical stacking container
     var BlockWidget = Object.create(Widget);
     BlockWidget.length = 0; // this is an array-like object.
+    BlockWidget.addChild = ContainerWidget.addChild;
     BlockWidget.children = function() {
         var r = [];
         if (this.vars) { r.push(this.vars); }
-        Array.prototype.forEach.call(this, function(c) {
-            r.push(c);
-        });
-        return r;
-    }
+        return r.concat(ContainerWidget.children.call(this));
+    };
     BlockWidget.addVar = function(nameWidget) {
         if (!this.vars) { this.vars = Object.create(VarWidget); }
         this.vars.addName(nameWidget);
-    };
-    BlockWidget.addChild = function(child) {
-        Array.prototype.push.call(this, child);
     };
     BlockWidget.computeSize = function() {
         return rect(0, 0); // no size of our own
@@ -263,22 +267,28 @@ var make_crender = function() {
     ExpWidget.isName = false;
     ExpWidget.leftHandPath = function() {
         if (this.leftHandDir === 0) { return; }
-        if (this.isName) {
+        if (this.isName && this.leftHandDir < 0) {
             this.canvas.lineTo(0, this.styles.expHeight/2);
         }
         this.canvas.lineTo(this.leftHandDir * this.styles.expWidth,
                            this.styles.expHeight/2);
+        if (this.isName && this.leftHandDir > 0) {
+            this.canvas.lineTo(0, this.styles.expHeight/2);
+        }
         this.canvas.lineTo(0, this.styles.expHeight);
     };
     ExpWidget.rightHandPath = function() {
         var sz = this.size();
         this.canvas.lineTo(sz.width, sz.height);
         this.canvas.lineTo(sz.width, this.styles.expHeight);
-        if (this.isName) {
+        if (this.isName && this.rightHandDir > 0) {
             this.canvas.lineTo(sz.width, this.styles.expHeight/2);
         }
         this.canvas.lineTo(sz.width + this.rightHandDir * this.styles.expWidth,
                            this.styles.expHeight/2);
+        if (this.isName && this.rightHandDir < 0) {
+            this.canvas.lineTo(sz.width, this.styles.expHeight/2);
+        }
         this.canvas.lineTo(sz.width, 0);
     };
     ExpWidget.topSidePath = function() {
@@ -449,16 +459,16 @@ var make_crender = function() {
     var EndCapWidget = Object.create(ExpWidget);
     EndCapWidget.computeSize = context_saved(function() {
         var r = this.pad(this.canvas.measureText(this.label));
-        return this.pad(r, {left: this.extraPadding, right: this.extraPadding});
+        return this.pad(r, this.extraPadding);
     });
     EndCapWidget.drawInterior = function() {
         var sz = this.size();
         var x = this.styles.tilePadding.left;
         var y = this.styles.tilePadding.top + this.styles.textHeight;
         this.canvas.setFill(this.styles.semiColor);
-        this.canvas.drawText(this.label, x+1+this.extraPadding, y);
+        this.canvas.drawText(this.label, x+(this.extraPadding.left||0), y);
     };
-    EndCapWidget.extraPadding = 0;
+    EndCapWidget.extraPadding = { left: 0, right: 0 };
     EndCapWidget.leftHandDir = 1;
     // round right-hand side
     EndCapWidget.rightHandPath = CeeWidget.rightHandPath;
@@ -467,11 +477,12 @@ var make_crender = function() {
     var SEMI_TEXT = ";";
     var SemiWidget = Object.create(EndCapWidget);
     SemiWidget.label = SEMI_TEXT;
+    SemiWidget.extraPadding = { left: 4 };
 
     // while end cap
     WhileBraceWidget = Object.create(EndCapWidget);
     WhileBraceWidget.label = ") {";
-    WhileBraceWidget.extraPadding = 5;
+    WhileBraceWidget.extraPadding = { left: 5, right: 4 };
 
     // expression statement tile; takes an expression on the right.
     var ExpStmtWidget = Object.create(CeeWidget);
@@ -485,9 +496,10 @@ var make_crender = function() {
     ExpStmtWidget.rightHandDir = -1;
     ExpStmtWidget.rightHandPath = ExpWidget.rightHandPath;
     ExpStmtWidget.expression = YadaWidget; // default
+    ExpStmtWidget.semiProto = SemiWidget; // allow subclass to customize
     ExpStmtWidget.children = function() {
         // create this in the instance because we tweak its size directly
-        if (!this.semi) { this.semi = Object.create(SemiWidget); }
+        if (!this.semi) { this.semi = Object.create(this.semiProto); }
         return [ this.expression, this.semi ];
     };
     ExpStmtWidget.computeSize = function() {
@@ -515,6 +527,25 @@ var make_crender = function() {
         });
     });
 
+    var LabelledExpStmtWidget = Object.create(ExpStmtWidget);
+    LabelledExpStmtWidget.label = "<override me>";
+    LabelledExpStmtWidget.interiorSize = context_saved(function() {
+        var r = this.pad(this.canvas.measureText(this.label+" "));
+        // indent the text to match expression statements
+        // make room for rhs socket
+        return this.pad(r, { left: ExpStmtWidget.interiorSize.call(this).width,
+                             right: this.styles.expWidth });
+    });
+    LabelledExpStmtWidget.drawInterior = function() {
+        var sz = this.size();
+        var x = this.styles.tilePadding.left;
+        var y = this.styles.tilePadding.top + this.styles.textHeight;
+        // indent the text to match expression statements
+        x += ExpStmtWidget.interiorSize.call(this).width;
+        this.canvas.setFill(this.styles.keywordColor);
+        this.canvas.drawText(this.label, x, y);
+    };
+
     // simple break statement tile.
     var BREAK_TEXT = _("break");
     var BreakWidget = Object.create(CeeWidget);
@@ -539,34 +570,132 @@ var make_crender = function() {
 
     // return statement tile; takes an expression on the right
     var RETURN_TEXT = _("return");
-    var ReturnWidget = Object.create(ExpStmtWidget);
-    ReturnWidget.interiorSize = context_saved(function() {
-        var r = this.pad(this.canvas.measureText(RETURN_TEXT));
-        // indent the text to match expression statements
-        // make room for rhs socket
-        return this.pad(r, { left: ExpStmtWidget.interiorSize.call(this).width,
-                             right: this.styles.expWidth });
-    });
-    ReturnWidget.drawInterior = function() {
-        var sz = this.size();
-        var x = this.styles.tilePadding.left;
-        var y = this.styles.tilePadding.top + this.styles.textHeight;
-        // indent the text to match expression statements
-        x += ExpStmtWidget.interiorSize.call(this).width;
-        this.canvas.setFill(this.styles.keywordColor);
-        this.canvas.drawText(RETURN_TEXT, x, y);
-    };
+    var ReturnWidget = Object.create(LabelledExpStmtWidget);
+    ReturnWidget.label = RETURN_TEXT;
 
     // lists (of exprs/names).
-    var CommaListWidget = Object.create(Widget);
-    //CommaListWidget.computeSize//XXX
+    // XXX should eventually provide means for line wrapping.
+    var CommaListWidget = Object.create(ContainerWidget);
+    CommaListWidget.label = ",";
+    CommaListWidget.children = function() {
+        if (this.length == 0 && this.disallowEmptyList) {
+            return [ YadaWidget ];
+        }
+        return CommaListWidget.__proto__.children.call(this);
+    };
+    CommaListWidget.computeSize = function() {
+        var sz = this.interiorSize();
+        var first = true;
+        var w = 0, h = 0;
+        this.children().forEach(function(c) {
+            // add separator (if not the first element)
+            if (!first) {
+                w += sz.width;
+                h = Math.max(h, sz.height);
+            }
+            // add the child.
+            var bb = c.bbox();
+            w += bb.width;
+            h = Math.max(h, bb.height);
+            first = false;
+        });
+        // add some extra height for the underline.
+        return rect(w, h + this.styles.expUnderHeight);
+    };
+    CommaListWidget.extraPadding = { left: -3, right: -3 }; // tighten up
+    CommaListWidget.interiorSize = context_saved(function() {
+        var r = this.pad(this.canvas.measureText(this.label));
+        // pad to account for expression sockets on both sides.
+        r = this.pad(r, { left: this.styles.expWidth,
+                          right: this.styles.expWidth });
+        return this.pad(r, this.extraPadding);
+    });
+    CommaListWidget.draw = function() {
+        var sz = this.interiorSize();
+        this.drawOutline(sz);
+        this.drawInterior(sz);
+        this.drawChildren(sz);
+    };
+    CommaListWidget.drawOutline = context_saved(function(sz) {
+        var ttlsz = this.size();
+        var x = 0;
+        this.canvas.setFill(this.bgColor());
+        this.canvas.beginPath();
+        this.canvas.moveTo(x, ttlsz.height);
+        this.canvas.lineTo(x, sz.height);
+        var first = true;
+        this.children().forEach(function(c) {
+            if (!first) {
+                // draw the separator
+                // left side.
+                this.canvas.lineTo(x, this.styles.expHeight);
+                if (this.isName) {
+                    this.canvas.lineTo(x, this.styles.expHeight/2);
+                }
+                this.canvas.lineTo(x + this.styles.expWidth,
+                                   this.styles.expHeight/2);
+                this.canvas.lineTo(x, 0);
+                // right side.
+                x += sz.width;
+                this.canvas.lineTo(x, 0);
+                if (this.isName) {
+                    this.canvas.lineTo(x, this.styles.expHeight/2);
+                }
+                this.canvas.lineTo(x - this.styles.expWidth,
+                                   this.styles.expHeight/2);
+                this.canvas.lineTo(x, this.styles.expHeight);
+                this.canvas.lineTo(x, sz.height);
+            }
+            x += c.bbox().width;
+            this.canvas.lineTo(x, sz.height);
+            first = false;
+        }.bind(this));
+        this.canvas.lineTo(x, ttlsz.height);
+        this.canvas.closePath();
+        this.canvas.fill();
+        this.canvas.stroke();
+    });
+    CommaListWidget.drawInterior = context_saved(function(sz) {
+        this.canvas.setFill(this.styles.semiColor);
+        var x = this.styles.tilePadding.left + this.styles.expWidth;
+        var y = this.styles.tilePadding.top + this.styles.textHeight;
+        x += this.extraPadding.left;
+        var first = true;
+        this.children().forEach(function(c) {
+            if (!first) {
+                this.canvas.drawText(this.label, x, y);
+                canvas.translate(sz.width, 0);
+            }
+            canvas.translate(c.bbox().width, 0);
+            first = false;
+        }.bind(this));
+    });
+    CommaListWidget.drawChildren = context_saved(function(sz) {
+        this.children().forEach(function(c) {
+            c.draw();
+            canvas.translate(c.bbox().width, 0);
+            // skip past separator
+            canvas.translate(sz.width, 0);
+        });
+    });
 
     // var statement, holds a name list.
     var VAR_TEXT = _("var");
-    var VarWidget = Object.create(ExpStmtWidget);
-    VarWidget.addName = function() {
-        // XXX
+    var VarWidget = Object.create(LabelledExpStmtWidget);
+    VarWidget.label = VAR_TEXT;
+    VarWidget.isName = true;
+    VarWidget.semiProto = Object.create(SemiWidget);
+    VarWidget.semiProto.isName = true;
+    VarWidget.expression = Object.create(YadaWidget);
+    VarWidget.expression.isName = true;
+    VarWidget.addName = function(nameWidget) {
+        if (!this.hasOwnProperty("expression")) {
+            this.expression = Object.create(CommaListWidget);
+            this.expression.isName = true;
+        }
+        this.expression.addChild(nameWidget);
     };
+
     // XXX function expression, contains a name list and a block
     var FunctionWidget = Object.create(YadaWidget);
 
@@ -940,10 +1069,8 @@ var make_crender = function() {
         return crender_stmts(this.first);
     });
     stmt("var", function() {
-        var vw = Object.create(VarWidget);
-        console.log("VAR", this);
-        // XXX set variable list
-        return vw;
+        assert(false, "Should be handled by block context");
+        return Object.create(YadaWidget);
     });
     // XXX STUB
     stmt("if", function() {
@@ -971,7 +1098,7 @@ var make_crender = function() {
             w = Object.create(UndefinedWidget);
         }
         rw = Object.create(ReturnWidget);
-        rw.setChild(w);
+        rw.expression = w;
         return rw;
     });
     stmt("break", function() { return Object.create(BreakWidget); });

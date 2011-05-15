@@ -21,7 +21,7 @@ Object.prototype.error = function (message, t) {
 var tests = make_tests();
 var isource = tests[tests.length-2];
 //isource='{console=2+3;return this;}';
-isource='var a,b="test\\n";console=typeof !3;while(!2&&3||4) {console=2*3/4;var c;break;} console=console;';
+isource='var a,b="test\\n";console=typeof !3;while(!2&&3||4) {console=2*3/4;var c;break;} console=console; while(true){return false;}';
 
 // parse the example source
 var top_level = "isFinite parseInt Boolean String Function Math "+
@@ -37,7 +37,7 @@ var widget = crender(tree);
 var canvas = make_canvas('canvas');
 var styles = {
    textHeight: 20,
-   tilePadding: { left: 4, top: 1, right: 2, bottom: 5},
+   tilePadding: { left: 4, top: 1, right: 3, bottom: 5},
    textColor: canvas.makeColor(0, 0, 0),
    nameColor: canvas.makeColor(160, 82, 45), // variable names
    commentColor: canvas.makeColor(178, 34, 34), // comments
@@ -48,7 +48,7 @@ var styles = {
    semiColor: canvas.makeColor(0, 0, 0, 76),// semicolon
    tileColor: canvas.makeColor(253, 250, 235),
    tileOutlineColor: canvas.makeColor(255, 204, 106),
-   yadaColor: canvas.makeColor(249, 250, 215, 20), // background of ... expr
+   yadaColor: canvas.makeColor(249, 250, 215, 0), // background of ... expr
    stmtColor: canvas.makeColor(253, 250, 215),
    tileCornerRadius: 4,
    puzzleIndent: 5,
