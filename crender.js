@@ -8,8 +8,19 @@ var make_crender = function() {
     // stub for i18n
     var _ = function(txt) { return txt; }
     // basic graphics datatypes
+    var pt;
+    var Point = {
+        add: function(x, y) {
+            if (typeof(x)==="object") { y=x.y; x=x.x; }
+            return pt((this.x||0) + (x||0), (this.y||0) + (y||0));
+        }
+    };
     var pt = function(x, y) {
-        return { x: x, y: y };
+        if (typeof(x)==="object") { y=x.y; x=x.x; }
+        var p = Object.create(Point);
+        p.x = x;
+        p.y = y;
+        return p;
     };
     var rect = function(w, h) {
         return { width: w, height: h };
@@ -125,6 +136,40 @@ var make_crender = function() {
             var cy = pt.y + ((f===0 || f===1) ? -rad : rad);
             var to = isCW ? (from+1) : (from - 1);
             this.canvas.arc(cx, cy, rad, from*Math.PI/2, to*Math.PI/2, !isCW);
+        },
+
+        // make name and expression plugs/sockets
+        drawCapUp: function(pt, isPlug, isRight, isName) {
+            var ew = this.styles.expWidth, eh2 = this.styles.expHeight;
+            var eh = this.styles.expHeight/2;
+            if (isPlug) { isRight = !isRight; }
+            if (isRight) { ew = -ew; }
+
+            this.canvas.lineTo(pt.add(0, eh2));
+            if (isName && !isRight) {
+                this.canvas.lineTo(pt.add(0, eh));
+            }
+            this.canvas.lineTo(pt.add(ew, eh));
+            if (isName && isRight) {
+                this.canvas.lineTo(pt.add(0, eh));
+            }
+            this.canvas.lineTo(pt);
+        },
+        drawCapDown: function(pt, isPlug, isRight, isName) {
+            var ew = this.styles.expWidth, eh2 = this.styles.expHeight;
+            var eh = this.styles.expHeight/2;
+            if (isPlug) { isRight = !isRight; }
+            if (isRight) { ew = -ew; }
+
+            this.canvas.lineTo(pt);
+            if (isName && isRight) {
+                this.canvas.lineTo(pt.add(0, eh));
+            }
+            this.canvas.lineTo(pt.add(ew, eh));
+            if (isName && !isRight) {
+                this.canvas.lineTo(pt.add(0, eh));
+            }
+            this.canvas.lineTo(pt.add(0, eh2));
         },
     };
     // helpers
@@ -272,29 +317,17 @@ var make_crender = function() {
     ExpWidget.isName = false;
     ExpWidget.leftHandPath = function() {
         if (this.leftHandDir === 0) { return; }
-        if (this.isName && this.leftHandDir < 0) {
-            this.canvas.lineTo(0, this.styles.expHeight/2);
-        }
-        this.canvas.lineTo(this.leftHandDir * this.styles.expWidth,
-                           this.styles.expHeight/2);
-        if (this.isName && this.leftHandDir > 0) {
-            this.canvas.lineTo(0, this.styles.expHeight/2);
-        }
-        this.canvas.lineTo(0, this.styles.expHeight);
+        this.drawCapDown(pt(0,0), (this.leftHandDir < 0), false, this.isName);
     };
     ExpWidget.rightHandPath = function() {
         var sz = this.size();
         this.canvas.lineTo(sz.width, sz.height);
-        this.canvas.lineTo(sz.width, this.styles.expHeight);
-        if (this.isName && this.rightHandDir > 0) {
-            this.canvas.lineTo(sz.width, this.styles.expHeight/2);
+        if (this.rightHandDir === 0) {
+            this.canvas.lineTo(sz.width, 0);
+            return;
         }
-        this.canvas.lineTo(sz.width + this.rightHandDir * this.styles.expWidth,
-                           this.styles.expHeight/2);
-        if (this.isName && this.rightHandDir < 0) {
-            this.canvas.lineTo(sz.width, this.styles.expHeight/2);
-        }
-        this.canvas.lineTo(sz.width, 0);
+        this.drawCapUp(pt(sz.width, 0), (this.rightHandDir > 0), true,
+                       this.isName);
     };
     ExpWidget.topSidePath = function() {
         // straight line by default.
@@ -610,23 +643,12 @@ var make_crender = function() {
         this.children().forEach(function(c) {
             if (!first) {
                 // draw the separator
-                // left side.
-                this.canvas.lineTo(x, this.styles.expHeight);
-                if (this.isName) {
-                    this.canvas.lineTo(x, this.styles.expHeight/2);
-                }
-                this.canvas.lineTo(x + this.styles.expWidth,
-                                   this.styles.expHeight/2);
-                this.canvas.lineTo(x, 0);
+                this.drawCapUp(pt(x, 0),
+                               false/*socket*/, false/*left*/, this.isName);
                 // right side.
                 x += sz.width;
-                this.canvas.lineTo(x, 0);
-                if (this.isName) {
-                    this.canvas.lineTo(x, this.styles.expHeight/2);
-                }
-                this.canvas.lineTo(x - this.styles.expWidth,
-                                   this.styles.expHeight/2);
-                this.canvas.lineTo(x, this.styles.expHeight);
+                this.drawCapDown(pt(x, 0),
+                                 false/*socket*/, true/*right*/, this.isName);
                 this.canvas.lineTo(x, sz.height);
             }
             x += c.bbox().width;
@@ -764,11 +786,9 @@ var make_crender = function() {
                         this.styles.tileCornerRadius,
                         Math.PI, 0, true);
         this.canvas.lineTo(this.topSize.width, this.topSize.height);
-        // now the expression plug (see ExpWidget.rightHandPath)
-        this.canvas.lineTo(this.topSize.width, this.styles.expHeight);
-        this.canvas.lineTo(this.topSize.width - this.styles.expWidth,
-                           this.styles.expHeight/2);
-        this.canvas.lineTo(this.topSize.width, 0);
+        // now the expression socket
+        this.drawCapUp(pt(this.topSize.width, 0),
+                       false/*socket*/, true/*right*/, false/*exp*/);
     };
     WhileWidget.drawInterior = function() {
         var sz = this.size();
