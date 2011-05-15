@@ -115,6 +115,17 @@ var make_crender = function() {
                                  pt.y + this.styles.tilePadding.top +
                                  this.styles.textHeight);
         },
+        // make a rounded corner.
+        // from and to are [0-3] and represent angles in units of 90 degrees
+        // "0" is in the positive x direction and angles increase CW
+        drawRoundCorner: function(pt, from, isCW, radius) {
+            var f = isCW ? from : (from===0) ? 3 : (from - 1);
+            var rad = radius || this.styles.tileCornerRadius;
+            var cx = pt.x + ((f===0 || f===3) ? -rad : rad);
+            var cy = pt.y + ((f===0 || f===1) ? -rad : rad);
+            var to = isCW ? (from+1) : (from - 1);
+            this.canvas.arc(cx, cy, rad, from*Math.PI/2, to*Math.PI/2, !isCW);
+        },
     };
     // helpers
     var ContainerWidget = Object.create(Widget);
@@ -199,14 +210,8 @@ var make_crender = function() {
                         0, this.styles.puzzleRadius,
                         0, Math.PI, false);
         // make the corner arcs
-        this.canvas.arc(this.styles.tileCornerRadius,
-                        this.styles.tileCornerRadius,
-                        this.styles.tileCornerRadius,
-                        Math.PI*3/2, Math.PI, true);
-        this.canvas.arc(this.styles.tileCornerRadius,
-                        sz.height - this.styles.tileCornerRadius,
-                        this.styles.tileCornerRadius,
-                        Math.PI, Math.PI/2, true);
+        this.drawRoundCorner(pt(0, 0), 3, false);
+        this.drawRoundCorner(pt(0, sz.height), 2, false);
         // puzzle piece 'plug' arg
         this.canvas.arc(this.styles.puzzleIndent + this.styles.puzzleRadius,
                         sz.height, this.styles.puzzleRadius,
@@ -228,14 +233,8 @@ var make_crender = function() {
         // basic rounded right-hand-side
         this.canvas.lineTo(sz.width - this.styles.tileCornerRadius,
                            sz.height);
-        this.canvas.arc(sz.width - this.styles.tileCornerRadius,
-                        sz.height - this.styles.tileCornerRadius,
-                        this.styles.tileCornerRadius,
-                        Math.PI/2, 0, true);
-        this.canvas.arc(sz.width - this.styles.tileCornerRadius,
-                        this.styles.tileCornerRadius,
-                        this.styles.tileCornerRadius,
-                        0, -Math.PI/2, true);
+        this.drawRoundCorner(pt(sz.width, sz.height), 1, false);
+        this.drawRoundCorner(pt(sz.width, 0), 0, false);
     };
 
     // Expression tiles
@@ -742,15 +741,9 @@ var make_crender = function() {
         this.canvas.lineTo(this.bottomSize.width - this.styles.tileCornerRadius,
                            sz.height);
         // bottom leg
-        this.canvas.arc(this.bottomSize.width - this.styles.tileCornerRadius,
-                        sz.height - this.styles.tileCornerRadius,
-                        this.styles.tileCornerRadius,
-                        Math.PI/2, 0, true);
-        this.canvas.arc(this.bottomSize.width - this.styles.tileCornerRadius,
-                        sz.height - this.bottomSize.height +
-                        this.styles.tileCornerRadius,
-                        this.styles.tileCornerRadius,
-                        0, -Math.PI/2, true);
+        this.drawRoundCorner(pt(this.bottomSize.width, sz.height), 1, false);
+        this.drawRoundCorner(pt(this.bottomSize.width,
+                                sz.height - this.bottomSize.height), 0, false);
         // bottom puzzle piece socket
         if (this.styles.blockIndent + this.styles.puzzleIndent +
             2 * this.styles.puzzleRadius <=
