@@ -560,6 +560,7 @@ var make_binterp = function(bytecode_table) {
                 i += 1;
                 j += 1;
             }
+            this.length = j;
             return j;
         };
         Array.prototype.pop = function() {
