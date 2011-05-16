@@ -23,6 +23,10 @@ var make_crender = function() {
         return p;
     };
     // simple bounding box, maybe offset from origin.
+    // XXX rather than create a hierarchy, make all bboxes instances of
+    // multiline bbox?
+    // XXX clone and mutate, rather than mutating in place.  then we won't
+    // have to clone for safety.
     var BoundingBox = Object.create({ width: 0, height: 0});
     BoundingBox.x = 0;
     BoundingBox.y = 0;
@@ -45,27 +49,14 @@ var make_crender = function() {
     BoundingBox.bl = function() { return pt(this.left(), this.bottom()); }
     BoundingBox.br = function() { return pt(this.right(), this.bottom()); }
     BoundingBox.translate = function(pt) {
-        var bb = Object.create(BoundingBox);
-        bb.x = this.x + pt.x;
-        bb.y = this.y + pt.y;
-        bb.width = this.width;
-        bb.height = this.height;
+        var bb = Object.create(this);
+        bb.x += pt.x;
+        bb.y += pt.y;
         return bb;
     };
     // forward compatibility w/ multiline bbox
     BoundingBox.indent = function() { return this.bl(); }
     BoundingBox.widow = function() { return this.tr(); }
-
-    var rect = function(w, h) {
-        var r = Object.create(BoundingBox);
-        r.width = w; r.height = h;
-        return r;
-    };
-    var bbox = function (x, y, w, h) {
-        var bb = Object.create(BoundingBox);
-        bb.x = x; bb.y = y; bb.width = w; bb.height = h;
-        return bb;
-    };
 
     // fancy multiline rect: also contains a starting indent and a
     // trailing widow, like so:
@@ -105,6 +96,16 @@ var make_crender = function() {
         if (x >= this.wx && y >= this.wy) { return false; }
         return true;
     };
+    MultiLineBBox.translate = function(pt) {
+        var bb = Object.create(this);
+        bb.x += pt.x;
+        bb.y += pt.y;
+        bb.ix += pt.x;
+        bb.iy += pt.y;
+        bb.wx += pt.x;
+        bb.wy += pt.y;
+        return bb;
+    };
     var mlbbox = function(x, y, w, h, indent, widow) {
         var mlbb = Object.create(MultiLineBBox);
         mlbb.x = x; mlbb.y = y; mlbb.width = w; mlbb.height = h;
@@ -112,6 +113,15 @@ var make_crender = function() {
         mlbb.wx = widow.x; mlbb.wy = widow.y;
         return mlbb;
     };
+    var bbox = function (x, y, w, h) {
+        var bb = Object.create(MultiLineBBox);
+        bb.x = x; bb.y = y; bb.width = w; bb.height = h;
+        bb.ix = x; bb.iy = y + h;
+        bb.wx = x + w; bb.wy = y;
+        bb.multiline = false;
+        return bb;
+    };
+    var rect = function(w, h) { return bbox(0, 0, w, h); }
     // chain two bounding boxes together, top-aligning them.
     BoundingBox.chainHoriz = function(bbox) {
         var bb2 = bbox.translate(this.widow());
@@ -141,6 +151,19 @@ var make_crender = function() {
             }
         }
         return bb;
+    };
+    // FOR DEBUGGING
+    BoundingBox.drawPath = function(canvas) {
+        canvas.beginPath();
+        canvas.moveTo(this.indent());
+        canvas.lineTo(this.indent().x, this.y);
+        canvas.lineTo(this.tr());
+        canvas.lineTo(this.right(), this.widow().y);
+        canvas.lineTo(this.widow());
+        canvas.lineTo(this.widow().x, this.bottom());
+        canvas.lineTo(this.bl());
+        canvas.lineTo(this.x, this.indent().y);
+        canvas.closePath();
     };
 
     // helper to save/restore contexts
@@ -208,8 +231,7 @@ var make_crender = function() {
         draw: context_saved(function() {
             // very simple box.
             this.canvas.setFill(this.bgColor());
-            this.canvas.beginPath();
-            this.canvas.rect(0, 0, bbox.width, bbox.height);
+            this.bbox.drawPath(this.canvas);
             this.canvas.fill();
             this.canvas.stroke();
             this.drawPaddedText(DEFAULT_TEXT, pt(0, 0), this.styles.textColor);
@@ -267,6 +289,11 @@ var make_crender = function() {
             }
             this.canvas.lineTo(pt.add(0, eh2));
         },
+        // bounding box debugging
+        debugBBox: context_saved(function() {
+            this.canvas.setStroke(canvas.makeColor(255,0,0));
+            this.bbox.drawPath(this.canvas);
+        }),
     };
     // helpers
     var ContainerWidget = Object.create(Widget);
@@ -650,6 +677,7 @@ var make_crender = function() {
         // height of the RHS expression (including indent and widow)
         this.size.height = this.expression.bbox.bottom();
         var lastLineHeight = this.size.height - this.expression.bbox.widow().y;
+        this.semi.bbox = Object.create(this.semi.bbox); // clone
         this.semi.bbox.height = lastLineHeight - this.semi.bbox.y;
         return bb;
     };
@@ -1059,6 +1087,7 @@ var make_crender = function() {
                      this.bottomSize.width);
 
         // force trailing brace to match expression height
+        this.whileBrace.bbox = Object.create(this.whileBrace.bbox);
         this.whileBrace.bbox.height = this.topSize.height;
 
         return rect(w, this.size.height);
