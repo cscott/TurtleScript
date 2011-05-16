@@ -136,8 +136,8 @@ var make_crender = function() {
                 bb.wx = bb2.wx;
                 bb.wy = bb2.wy;
             } else {
-                bb.wx = bb2.top();
-                bb.wy = bb2.right();
+                bb.wx = bb2.right();
+                bb.wy = bb2.top();
             }
         }
         return bb;
