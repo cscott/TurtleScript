@@ -16,12 +16,16 @@ Object.prototype.error = function (message, t) {
     t = t || this;
     t.name = "SyntaxError";
     t.message = message;
+    console.log(t);
     throw t;
 };
 var tests = make_tests();
 var isource = tests[tests.length-2];
 //isource='{console=2+3;return this;}';
-isource='var a,b="test\\n",c,d,e;console=typeof !3;while(!2&&3||4) {console=2*3/4;var z;break;} console=console; function foo (y) {return false;}';
+//isource='var a,b="test\\n",c,d,e;console=typeof !3;while(!2&&3||4) {console=2*3/4;var z;break;} console=console; function foo (y) {return false;}';
+//isource = tests[0].replace(/module/,'make_tests');
+//isource = 'var a = 1 + 2;';
+isource = "function foo() { return 3; }";
 
 // parse the example source
 var top_level = "isFinite parseInt Boolean String Function Math "+

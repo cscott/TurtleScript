@@ -53,7 +53,7 @@ var make_crender = function() {
         return bb;
     };
     // forward compatibility w/ multiline bbox
-    BoundingBox.indent = function() { return this.tl(); }
+    BoundingBox.indent = function() { return this.bl(); }
     BoundingBox.widow = function() { return this.tr(); }
 
     var rect = function(w, h) {
@@ -101,14 +101,16 @@ var make_crender = function() {
         // allow passing a pt object as first arg
         if (typeof(x)==="object") { y=x.y; x=x.x; }
         if (!BoundingBox.contains.call(this, x, y)) { return false; }
-        // duck typing
-        //var ix = this.ix || 0; // should default to this.x
-        //var iy = this.iy || 0; // should default to this.y
-        //var wx = this.wx || 0; // should be this.x + this.width
-        //var wy = this.wy || 0; // should default to this.y
         if (x < this.ix && y < this.iy) { return false; }
         if (x >= this.wx && y >= this.wy) { return false; }
         return true;
+    };
+    var mlbbox = function(x, y, w, h, indent, widow) {
+        var mlbb = Object.create(MultiLineBBox);
+        mlbb.x = x; mlbb.y = y; mlbb.width = w; mlbb.height = h;
+        mlbb.ix = indent.x; mlbb.iy = indent.y;
+        mlbb.wx = widow.x; mlbb.wy = widow.y;
+        return mlbb;
     };
     // chain two bounding boxes together, top-aligning them.
     BoundingBox.chainHoriz = function(bbox) {
@@ -281,8 +283,8 @@ var make_crender = function() {
         this.size = this.computeSize(properties);
         var r = this.size;
         var child_properties = Object.create(properties);
-        // leave space to connector on left
-        var margin = (properties.margin||0) + this.styles.expUnderWidth;
+        // optionally leave space for connector on left
+        var margin = (properties.margin || 0) + (this.extraMargin || 0);
 
         this.children().forEach(function(c) {
             var chainPt = r.widow();
@@ -637,15 +639,18 @@ var make_crender = function() {
                              this.styles.textHeight));
     };
     ExpStmtWidget.computeBBox = function(properties) {
+        // adjust margin to move expression continuations past our
+        // left-hand side.
+        var indent = this.computeSize(properties);
+        var nprop = Object.create(properties);
+        nprop.margin += indent.width;
         // compute 'natural' size
-        var bb = HorizWidget.computeBBox.call(this, properties);
+        var bb = HorizWidget.computeBBox.call(this, nprop);
         // now adjust so that our height and semicolon height match the
-        // height of the RHS expression
-        // XXX match left to top and right to bottom if multiline.
-        // XXX provide appropriate margin
-        var expr_bottom = this.expression.bbox.bottom();
-        this.size.height = expr_bottom - this.size.y;
-        this.semi.bbox.height = expr_bottom - this.semi.bbox.y;
+        // height of the RHS expression (including indent and widow)
+        this.size.height = this.expression.bbox.bottom();
+        var lastLineHeight = this.size.height - this.expression.bbox.widow().y;
+        this.semi.bbox.height = lastLineHeight - this.semi.bbox.y;
         return bb;
     };
     ExpStmtWidget.draw = context_saved(function() {
@@ -653,10 +658,10 @@ var make_crender = function() {
         ExpStmtWidget.__proto__.draw.call(this);
         // draw my children
         var canvas = this.canvas;
-        canvas.translate(this.size.right(), 0);
+        canvas.translate(this.size.widow());
         this.children().forEach(function(c) {
             c.draw();
-            canvas.translate(c.bbox.right(), 0);
+            canvas.translate(c.bbox.widow());
         });
     });
 
@@ -875,36 +880,33 @@ var make_crender = function() {
         // add enough for an underline.
         this.rightParenBB.height += this.styles.expUnderHeight;
 
-        // now we lay out the block XXX need to pass in margin
+        // now we lay out the block
+        var block_prop = Object.create(properties);
+        block_prop.margin = 0; // already at the start of the line.
         this.block.layout(this.canvas, this.styles, properties);
         this.blockBB = this.block.bbox;
-        this.blockBB = this.blockBB.translate(pt(this.styles.functionIndent,
-                                                 this.rightParenBB.bottom()));
+        var blkpt = pt(properties.margin + this.styles.functionIndent,
+                       this.rightParenBB.bottom())
+        this.blockBB = this.blockBB.translate(blkpt);
 
         // and the final close bracket
-        var margin = 0; // XXX future functionality
         this.rightBraceBB = this.pad(this.canvas.measureText("}"));
         this.rightBraceBB = this.rightBraceBB.
-            translate(pt(margin, this.blockBB.bottom()));
+            translate(pt(properties.margin, this.blockBB.bottom()));
 
         // ok, add it all up!
         var firstLineWidth = this.rightParenBB.right(); // XXX multiline
         var blockWidth = this.blockBB.right();
-        // XXX account for margin in blockWidth
         var lastLineWidth = this.rightBraceBB.right();
 
         var w = Math.max(firstLineWidth, blockWidth, lastLineWidth);
         var h = this.rightBraceBB.bottom();
 
-        this.widowPt = this.rightBraceBB.tr();
-
-        r = rect(w, h);
-        // stub for future functionality
-        r.x = 0;
-        r.y = 0;
-        r.ix = 0;
-        r.iy = this.rightParenBB.bottom() - this.styles.expUnderHeight;
-        return r;
+        var indent =
+            pt(0, this.rightParenBB.bottom() - this.styles.expUnderHeight);
+        var widow = this.rightBraceBB.tr();
+        return mlbbox(properties.margin, 0, w-properties.margin, h,
+                      indent, widow);
     });
     FunctionWidget.draw = function() {
         this.drawOutline();
@@ -928,10 +930,15 @@ var make_crender = function() {
         this.drawCapUp(this.rightBraceBB.tr(),
                        true/*plug*/, true/*right*/, false/*exp*/);
         // back up past block to bottom of right paren
-        this.canvas.lineTo(this.styles.functionIndent,
+        this.canvas.lineTo(this.bbox.x + this.styles.functionIndent,
                            this.rightBraceBB.top());
-        this.canvas.lineTo(this.styles.functionIndent,
+        this.canvas.lineTo(this.bbox.x + this.styles.functionIndent,
                            this.rightParenBB.bottom());
+        // puzzle plug
+        this.canvas.arc(this.bbox.x + this.styles.functionIndent +
+                        this.styles.puzzleIndent + this.styles.puzzleRadius,
+                        this.rightParenBB.bottom(), this.styles.puzzleRadius,
+                        Math.PI, 0, true);
         // circle right paren
         this.drawRoundCorner(this.rightParenBB.br(), 1, false);
         this.drawRoundCorner(this.rightParenBB.tr(), 0, false);
