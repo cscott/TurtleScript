@@ -56,15 +56,16 @@ var styles = {
    expHeight: 24,
    expWidth: 6,
    expUnderHeight: 3,
+   expUnderWidth: 3, /* underline when it's running along the sides */
    blockIndent: 26,
    blockBottomPadding: 8, /* below last tile in a block */
    functionIndent: 3, /* thin line on left side of function */
    functionNameSpace: 3, /* space to leave for a missing function name */
    listEndPadding: 0, /* empty space on right side of lists */
 };
-widget.setCanvasStyles(canvas, styles);
 canvas.translate(10,10);
-widget.draw(0);
+widget.layout(canvas, styles, {margin: 0});
+widget.draw();
 
 /*
 var red = canvas.makeColor(255, 0, 0, 255); // red

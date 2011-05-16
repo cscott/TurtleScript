@@ -52,6 +52,9 @@ var make_crender = function() {
         bb.height = this.height;
         return bb;
     };
+    // forward compatibility w/ multiline bbox
+    BoundingBox.indent = function() { return this.tl(); }
+    BoundingBox.widow = function() { return this.tr(); }
 
     var rect = function(w, h) {
         var r = Object.create(BoundingBox);
@@ -63,6 +66,81 @@ var make_crender = function() {
         bb.x = x; bb.y = y; bb.width = w; bb.height = h;
         return bb;
     };
+
+    // fancy multiline rect: also contains a starting indent and a
+    // trailing widow, like so:
+    //
+    //    INDENTxxxx
+    //  xxxxxxxxxxxx
+    //  xxxxxxxxxxxx
+    //  xxWIDOW
+    //
+    // We try to make this easy to parse as a simple bounding box:
+    // the width and height as the overall w/h, and the indent is
+    // specified as a negative x offset.
+    // By convention, we place the origin at the top-left of the I in INDENT.
+    // The multiline rect is specified as follows:
+    //    x: top left coordinate of the overall bounding box
+    //    y: top left coordinate of the overall bounding box
+    //    ix: x coordinate of the bottom left of the I in INDENT
+    //    iy: y coordinate of the bottom left of the I in INDENT
+    //    wx: x coordinate of the top right of the W in WIDOW
+    //    wy: y coordinate of the top right of the W in WIDOW
+    // By convention, widgets return a bounding box with the origin placed
+    // at the top-left of the I in INDENT.  This means that 'y' and 'ix' are
+    // always zero, and 'x' is a negative number.
+    var MultiLineBBox = Object.create(BoundingBox);
+    MultiLineBBox.multiline = true;
+    MultiLineBBox.ix = 0;
+    MultiLineBBox.iy = 0;
+    MultiLineBBox.wx = 0;
+    MultiLineBBox.wy = 0;
+    MultiLineBBox.indent = function() { return pt(this.ix, this.iy); }
+    MultiLineBBox.widow = function() { return pt(this.wx, this.wy); }
+    MultiLineBBox.contains = function(x, y) {
+        // allow passing a pt object as first arg
+        if (typeof(x)==="object") { y=x.y; x=x.x; }
+        if (!BoundingBox.contains.call(this, x, y)) { return false; }
+        // duck typing
+        //var ix = this.ix || 0; // should default to this.x
+        //var iy = this.iy || 0; // should default to this.y
+        //var wx = this.wx || 0; // should be this.x + this.width
+        //var wy = this.wy || 0; // should default to this.y
+        if (x < this.ix && y < this.iy) { return false; }
+        if (x >= this.wx && y >= this.wy) { return false; }
+        return true;
+    };
+    // chain two bounding boxes together, top-aligning them.
+    BoundingBox.chainHoriz = function(bbox) {
+        var bb2 = bbox.translate(this.widow());
+        var bb = Object.create((bb2.multiline || this.multiline) ?
+                               MultiLineBBox : BoundingBox);
+        bb.x = Math.min(this.x, bb2.x);
+        bb.y = Math.min(this.y, bb2.x);
+        bb.width = Math.max(this.right(), bb2.right()) - bb.x;
+        bb.height = Math.max(this.bottom(), bb2.bottom()) - bb.y;
+        if (this.multiline || bb2.multiline) {
+            if (this.multiline) {
+                bb.ix = this.ix;
+                bb.iy = this.iy;
+            } else {
+                bb.ix = this.x;
+                bb.iy = this.bottom();
+                if (bb2.multiline) {
+                    bb.iy = Math.max(bb.iy, bb2.iy);
+                }
+            }
+            if (bb2.multiline) {
+                bb.wx = bb2.wx;
+                bb.wy = bb2.wy;
+            } else {
+                bb.wx = bb2.top();
+                bb.wy = bb2.right();
+            }
+        }
+        return bb;
+    };
+
     // helper to save/restore contexts
     // also reset fill/stroke color and font height.
     var context_saved = function(f) {
@@ -81,45 +159,28 @@ var make_crender = function() {
     };
 
     // first, let's make some widgets
-    var DEFAULT_TEXT="...";
+    var DEFAULT_WIDGET_TEXT="...???...";
     var Widget = {
-        // can be called again to update canvas/styles
-        setCanvasStyles: function(canvas, styles) {
+        // layout the widget, compute sizes and bounding boxes.
+        // cache the values, we use them a lot.
+        // can be recalled to update canvas/styles or drawing properties.
+        layout: function(canvas, styles, properties) {
             this.canvas = canvas;
             this.styles = styles;
-            this.invalidate(true/*don't recurse*/);
-            // init children (if any)
-            if (this.children) {
-                this.children().forEach(function(c) {
-                    c.setCanvasStyles(canvas, styles);
-                });
-            }
-        },
-        // cache the computed size, we use it a lot.
-        size: function() {
-            // basic size caching.
-            if (!this._size) {
-                this._size = this.computeSize();
-            }
-            return this._size;
+            this.bbox = this.computeBBox(properties);
         },
         // bounding box includes child widgets (which may extend)
         // but doesn't include puzzle sockets/plugs (which also hang over)
-        bbox: function() {
-            if (!this._bbox) {
-                this._bbox = this.computeBBox();
-            }
-            return this._bbox;
+        // bbox may be a MultiLineBBox
+        computeBBox: function(properties) {
+            // in default implementation, the bounding box is the same
+            // as the size (see below)
+            this.size = this.computeSize(properties);
+            return this.size;
         },
-        // invalidate all size/etc caches.
-        invalidate: function(skipChildren/*optional*/) {
-            this._size = null;
-            this._bbox = null;
-            if (this.children && !skipChildren) {
-                this.children().forEach(function(c) {
-                    c.invalidate();
-                });
-            }
+        // allow child widgets to override default tile background color.
+        bgColor: function() {
+            return this.styles.tileColor;
         },
         // helper to offset basic sizes
         pad: function(r, padding) {
@@ -133,29 +194,24 @@ var make_crender = function() {
             return rect(r.width + (padding.left || 0) + (padding.right || 0),
                         r.height + (padding.top || 0) + (padding.bottom || 0));
         },
+        // by convention we compute a 'size' property which is the size of
+        // the widget itself, ignoring children.  This isn't a standard
+        // method, though;
         // default widget rendering
-        computeSize: context_saved(function() {
-            return this.pad(this.canvas.measureText(DEFAULT_TEXT));
+        computeSize: context_saved(function(properties) {
+            return this.pad(this.canvas.measureText(DEFAULT_WIDGET_TEXT));
         }),
-        computeBBox: function() {
-            // by default the bounding box is the same as the size
-            return this.size();
-        },
         // by convention, given a canvas translated so that our top-left
         // corner is 0, 0
         draw: context_saved(function() {
             // very simple box.
-            var sz = this.size();
             this.canvas.setFill(this.bgColor());
             this.canvas.beginPath();
-            this.canvas.rect(0, 0, sz.width, sz.height);
+            this.canvas.rect(0, 0, bbox.width, bbox.height);
             this.canvas.fill();
             this.canvas.stroke();
             this.drawPaddedText(DEFAULT_TEXT, pt(0, 0), this.styles.textColor);
         }),
-        bgColor: function() {
-            return this.styles.tileColor;
-        },
         // drawing aids
         drawPaddedText: function(text, pt, color) {
             if (color) { this.canvas.setFill(color); }
@@ -221,27 +277,43 @@ var make_crender = function() {
     };
 
     var HorizWidget = Object.create(Widget);
-    HorizWidget.computeBBox = function() {
-        var sz = this.size();
-        var w = sz.width, h = sz.height;
+    HorizWidget.computeBBox = function(properties) {
+        this.size = this.computeSize(properties);
+        var r = this.size;
+        var child_properties = Object.create(properties);
+        // leave space to connector on left
+        var margin = (properties.margin||0) + this.styles.expUnderWidth;
+
         this.children().forEach(function(c) {
-            var bb = c.bbox();
-            w += bb.width;
-            h = Math.max(h, bb.height);
-        });
-        return rect(w, h);
+            var chainPt = r.widow();
+            child_properties.margin = margin - chainPt.x;
+
+            c.layout(this.canvas, this.styles, child_properties);
+
+            r = r.chainHoriz(c.bbox);
+        }.bind(this));
+        return r;
     };
+
     var VertWidget = Object.create(Widget);
-    VertWidget.computeBBox = function() {
-        var sz = this.size();
-        var w = sz.width, h = sz.height;
+    VertWidget.computeBBox = function(properties) {
+        this.size = this.computeSize(properties);
+        var r = this.size;
+        this.childOrigin = [];
         // sum heights of children
         this.children().forEach(function(c) {
-            var bb = c.bbox();
-            w = Math.max(w, bb.width);
-            h += bb.height;
-        });
-        return rect(w, h);
+            c.layout(this.canvas, this.styles, properties);
+
+            var p = pt(0, r.bottom());
+            this.childOrigin.push(p);
+            var bb = c.bbox.translate(p);
+
+            var nx = Math.min(r.x, bb.x), ny = Math.min(r.y, bb.y);
+            r = bbox(nx, ny,
+                     Math.max(bb.right(), r.right()) - nx,
+                     Math.max(bb.bottom(), r.bottom()) - ny);
+        }.bind(this));
+        return r;
     };
 
     // Invisible vertical stacking container
@@ -257,20 +329,22 @@ var make_crender = function() {
         if (!this.vars) { this.vars = Object.create(VarWidget); }
         this.vars.addName(nameWidget);
     };
-    BlockWidget.computeSize = function() {
+    BlockWidget.computeSize = function(properties) {
         return rect(0, 0); // no size of our own
     };
-    BlockWidget.computeBBox = function() {
+    BlockWidget.computeBBox = function(properties) {
         // add a little padding below last block
-        return this.pad(VertWidget.computeBBox.call(this),
+        return this.pad(VertWidget.computeBBox.call(this, properties),
                         { bottom: this.styles.blockBottomPadding });
     };
     BlockWidget.draw = context_saved(function() {
-        var canvas = this.canvas;
-        this.children().forEach(function(c) {
+        var children = this.children();
+        var drawChild = context_saved(function(c, idx) {
+            this.canvas.translate(this.childOrigin[idx]);
             c.draw();
-            canvas.translate(0, c.bbox().height);
-        });
+        }).bind(this);
+
+        children.forEach(drawChild);
     });
 
     // simple c-shaped statement.
@@ -280,10 +354,9 @@ var make_crender = function() {
     };
     CeeWidget.ceeEndPt = function() {
         return pt(this.styles.puzzleIndent + 2*this.styles.puzzleRadius,
-                  this.size().height);
+                  this.size.bottom());
     };
     CeeWidget.draw = context_saved(function() {
-        var sz = this.size();
         this.canvas.setFill(this.bgColor());
         // start path at ceeStartPoint
         this.canvas.beginPath();
@@ -294,10 +367,10 @@ var make_crender = function() {
                         0, Math.PI, false);
         // make the corner arcs
         this.drawRoundCorner(pt(0, 0), 3, false);
-        this.drawRoundCorner(pt(0, sz.height), 2, false);
+        this.drawRoundCorner(pt(0, this.size.bottom()), 2, false);
         // puzzle piece 'plug' arg
         this.canvas.arc(this.styles.puzzleIndent + this.styles.puzzleRadius,
-                        sz.height, this.styles.puzzleRadius,
+                        this.size.bottom(), this.styles.puzzleRadius,
                         Math.PI, 0, true);
         this.canvas.lineTo(this.ceeEndPt());
         // allow subclass to alter the right-hand side.
@@ -312,19 +385,17 @@ var make_crender = function() {
     });
     CeeWidget.drawInterior = function() { /* no op */ };
     CeeWidget.rightHandPath = function() {
-        var sz = this.size();
         // basic rounded right-hand-side
-        this.canvas.lineTo(sz.width - this.styles.tileCornerRadius,
-                           sz.height);
-        this.drawRoundCorner(pt(sz.width, sz.height), 1, false);
-        this.drawRoundCorner(pt(sz.width, 0), 0, false);
+        this.canvas.lineTo(this.size.right() - this.styles.tileCornerRadius,
+                           this.size.bottom());
+        this.drawRoundCorner(this.size.br(), 1, false);
+        this.drawRoundCorner(this.size.tr(), 0, false);
     };
 
     // Expression tiles
     var ExpWidget = Object.create(Widget);
     ExpWidget.outlineColor = function() { return this.styles.tileOutlineColor; }
     ExpWidget.draw = context_saved(function() {
-        var sz = this.size();
         this.canvas.setFill(this.bgColor());
         this.canvas.setStroke(this.outlineColor());
         // start path at 0,0
@@ -346,9 +417,8 @@ var make_crender = function() {
         this.drawInterior();
     });
     ExpWidget.bottomPath = function() {
-        var sz = this.size();
-        this.canvas.lineTo(0, sz.height);
-        this.canvas.lineTo(sz.width, sz.height);
+        this.canvas.lineTo(0, this.size.bottom());
+        this.canvas.lineTo(this.size.br());
     };
     ExpWidget.leftHandDir = -1;
     ExpWidget.rightHandDir = 1;
@@ -358,13 +428,12 @@ var make_crender = function() {
         this.drawCapDown(pt(0,0), (this.leftHandDir < 0), false, this.isName);
     };
     ExpWidget.rightHandPath = function() {
-        var sz = this.size();
-        this.canvas.lineTo(sz.width, sz.height);
+        this.canvas.lineTo(this.size.br());
         if (this.rightHandDir === 0) {
-            this.canvas.lineTo(sz.width, 0);
+            this.canvas.lineTo(this.size.right(), 0);
             return;
         }
-        this.drawCapUp(pt(sz.width, 0), (this.rightHandDir > 0), true,
+        this.drawCapUp(pt(this.size.right(), 0), (this.rightHandDir > 0), true,
                        this.isName);
     };
     ExpWidget.topSidePath = function() {
@@ -376,7 +445,7 @@ var make_crender = function() {
     var YadaWidget = Object.create(ExpWidget);
     YadaWidget.bgColor = function() { return this.styles.yadaColor; }
     YadaWidget.outlineColor = function() { return this.styles.yadaColor; }
-    YadaWidget.computeSize = context_saved(function() {
+    YadaWidget.computeSize = context_saved(function(properties) {
         return this.pad(this.canvas.measureText(YADA_TEXT));
     });
     YadaWidget.drawInterior = function() {
@@ -385,8 +454,8 @@ var make_crender = function() {
 
     // Horizonal combinations of widgets
     var HorizExpWidget = Object.create(ExpWidget);
-    HorizExpWidget.computeBBox = function() {
-        return this.pad(HorizWidget.computeBBox.call(this),
+    HorizExpWidget.computeBBox = function(properties) {
+        return this.pad(HorizWidget.computeBBox.call(this, properties),
                         { bottom: this.styles.expUnderHeight });
     }
 
@@ -399,13 +468,13 @@ var make_crender = function() {
     PrefixWidget.children = function() {
         return [ this.operand ];
     }
-    PrefixWidget.computeSize = function() {
+    PrefixWidget.computeSize = context_saved(function(properties) {
         var r = this.pad(this.canvas.measureText(this.operator));
         return this.pad(r, { right: this.styles.expWidth /* for socket */});
-    };
+    });
     PrefixWidget.bottomPath = function() {
-        var sz = this.size(), bb = this.bbox();
-        var rsz = this.operand.bbox();
+        var sz = this.size, bb = this.bbox;
+        var rsz = this.operand.bbox;
         this.canvas.lineTo(0, sz.height);
         this.canvas.lineTo(0, bb.height);
         this.canvas.lineTo(sz.width + rsz.width, bb.height);
@@ -416,7 +485,7 @@ var make_crender = function() {
         // draw me
         PrefixWidget.__proto__.draw.call(this);
         // draw child
-        this.canvas.translate(this.size().width, 0);
+        this.canvas.translate(this.size.right(), 0);
         this.operand.draw();
     });
     PrefixWidget.drawInterior = function() {
@@ -433,23 +502,25 @@ var make_crender = function() {
     InfixWidget.children = function() {
         return [ this.leftOperand, this.rightOperand ];
     };
-    InfixWidget.computeSize = function() {
+    InfixWidget.computeSize = context_saved(function(properties) {
         var r = this.pad(this.canvas.measureText(" "+this.operator+" "));
         return this.pad(r, { right: this.styles.expWidth /* for sockets */});
-    };
+    });
     InfixWidget.bottomPath = function() {
-        var sz = this.size(), bb = this.bbox();
-        var lsz = this.leftOperand.bbox();
-        var rsz = this.rightOperand.bbox();
-        this.canvas.lineTo(0, lsz.height);
-        this.canvas.lineTo(-lsz.width, lsz.height);
-        this.canvas.lineTo(-lsz.width, bb.height);
-        this.canvas.lineTo(sz.width + rsz.width, bb.height);
-        this.canvas.lineTo(sz.width + rsz.width, rsz.height);
-        this.canvas.lineTo(sz.width, rsz.height);
+        var sz = this.size, bb = this.bbox;
+        var lsz = this.leftOperand.bbox;
+        var rsz = this.rightOperand.bbox;
+        // XXX how should this work w/ multiline widgets?
+        this.canvas.lineTo(0, lsz.bottom());
+        this.canvas.lineTo(-lsz.width, lsz.bottom());
+        this.canvas.lineTo(-lsz.width, bb.bottom());
+        this.canvas.lineTo(sz.width + rsz.width, bb.bottom());
+        this.canvas.lineTo(sz.width + rsz.width, rsz.bottom());
+        this.canvas.lineTo(sz.width, rsz.bottom());
     };
     InfixWidget.draw = context_saved(function() {
-        var bb = this.leftOperand.bbox();
+        var bb = this.leftOperand.bbox;
+        // XXX how should this work w/ multiline widgets?
         // draw me
         this.canvas.translate(bb.width, 0);
         InfixWidget.__proto__.draw.call(this);
@@ -457,7 +528,7 @@ var make_crender = function() {
         this.canvas.translate(-bb.width, 0);
         this.leftOperand.draw();
         // draw right child.
-        this.canvas.translate(bb.width + this.size().width, 0);
+        this.canvas.translate(bb.width + this.size.width, 0);
         this.rightOperand.draw();
     });
     InfixWidget.drawInterior = function() {
@@ -466,7 +537,7 @@ var make_crender = function() {
     };
 
     var LabelledExpWidget = Object.create(ExpWidget);
-    LabelledExpWidget.computeSize = context_saved(function() {
+    LabelledExpWidget.computeSize = context_saved(function(properties) {
         this.setFont();
         return this.pad(this.canvas.measureText(this.getLabel()));
     });
@@ -523,7 +594,7 @@ var make_crender = function() {
 
     // end caps for statements, while expressions, etc
     var EndCapWidget = Object.create(ExpWidget);
-    EndCapWidget.computeSize = context_saved(function() {
+    EndCapWidget.computeSize = context_saved(function(properties) {
         var r = this.pad(this.canvas.measureText(this.label));
         return this.pad(r, this.extraPadding);
     });
@@ -550,12 +621,6 @@ var make_crender = function() {
     // expression statement tile; takes an expression on the right.
     var ExpStmtWidget = Object.create(CeeWidget);
     ExpStmtWidget.bgColor = function() { return this.styles.stmtColor; };
-    ExpStmtWidget.interiorSize = function() {
-        return this.pad(rect(this.styles.puzzleIndent +
-                             this.styles.puzzleRadius +
-                             this.styles.expWidth,
-                             this.styles.textHeight));
-    };
     ExpStmtWidget.rightHandDir = -1;
     ExpStmtWidget.rightHandPath = ExpWidget.rightHandPath;
     ExpStmtWidget.expression = YadaWidget; // default
@@ -565,58 +630,65 @@ var make_crender = function() {
         if (!this.semi) { this.semi = Object.create(this.semiProto); }
         return [ this.expression, this.semi ];
     };
-    ExpStmtWidget.computeSize = function() {
-        var r = this.interiorSize();
-        // grow vertically to match rhs expression
-        this.children().forEach(function(c) {
-            var bb = c.bbox();
-            r.height = Math.max(r.height, bb.height);
-        });
-        // force trailing semicolon to be the same size
-        this.semi.size();
-        this.semi._size.height = r.height;
-        return r;
+    ExpStmtWidget.computeSize = function(properties) {
+        return this.pad(rect(this.styles.puzzleIndent +
+                             this.styles.puzzleRadius +
+                             this.styles.expWidth,
+                             this.styles.textHeight));
     };
-    ExpStmtWidget.computeBBox = HorizWidget.computeBBox;
+    ExpStmtWidget.computeBBox = function(properties) {
+        // compute 'natural' size
+        var bb = HorizWidget.computeBBox.call(this, properties);
+        // now adjust so that our height and semicolon height match the
+        // height of the RHS expression
+        // XXX match left to top and right to bottom if multiline.
+        // XXX provide appropriate margin
+        var expr_bottom = this.expression.bbox.bottom();
+        this.size.height = expr_bottom - this.size.y;
+        this.semi.bbox.height = expr_bottom - this.semi.bbox.y;
+        return bb;
+    };
     ExpStmtWidget.draw = context_saved(function() {
         // draw me
         ExpStmtWidget.__proto__.draw.call(this);
         // draw my children
         var canvas = this.canvas;
-        canvas.translate(this.size().width, 0);
+        canvas.translate(this.size.right(), 0);
         this.children().forEach(function(c) {
             c.draw();
-            canvas.translate(c.bbox().width, 0);
+            canvas.translate(c.bbox.right(), 0);
         });
     });
 
     var LabelledExpStmtWidget = Object.create(ExpStmtWidget);
     LabelledExpStmtWidget.label = "<override me>";
-    LabelledExpStmtWidget.interiorSize = context_saved(function() {
+    LabelledExpStmtWidget.computeSize = context_saved(function(properties) {
         var r = this.pad(this.canvas.measureText(this.label+" "));
         // indent the text to match expression statements
+        this.indent =  ExpStmtWidget.computeSize.call(this, properties).right();
         // make room for rhs socket
-        return this.pad(r, { left: ExpStmtWidget.interiorSize.call(this).width,
+        return this.pad(r, { left: this.indent,
                              right: this.styles.expWidth });
     });
     LabelledExpStmtWidget.drawInterior = function() {
         // indent the text to match expression statements
-        var x = ExpStmtWidget.interiorSize.call(this).width;
-        this.drawPaddedText(this.label, pt(x, 0), this.styles.keywordColor);
+        this.drawPaddedText(this.label, pt(this.indent, 0),
+                            this.styles.keywordColor);
     };
 
     // simple break statement tile.
     var BREAK_TEXT = _("break");
     var BreakWidget = Object.create(CeeWidget);
     BreakWidget.bgColor = function() { return this.styles.stmtColor; };
-    BreakWidget.computeSize = context_saved(function() {
+    BreakWidget.computeSize = context_saved(function(properties) {
         var r = this.pad(this.canvas.measureText(BREAK_TEXT+SEMI_TEXT));
         // indent the text to match expression statements
-        return this.pad(r, {left: ExpStmtWidget.interiorSize.call(this).width});
+        this.indent =  ExpStmtWidget.computeSize.call(this, properties).right();
+        return this.pad(r, {left: this.indent });
     });
     BreakWidget.drawInterior = function() {
         // indent the text to match expression statements
-        var x = ExpStmtWidget.interiorSize.call(this).width;
+        var x = this.indent;
         this.drawPaddedText(BREAK_TEXT, pt(x, 0), this.styles.keywordColor);
         x += this.canvas.measureText(BREAK_TEXT).width;
         this.drawPaddedText(SEMI_TEXT, pt(x, 0), this.styles.semiColor);
@@ -631,7 +703,7 @@ var make_crender = function() {
     // XXX should eventually provide means for line wrapping.
     // XXX each comma should have a 'line break after' property,
     //     but toggling between "each arg on its own line" and "all on one line"
-    //     is probably ok initially.
+    //     is probably fine for now.
     var CommaListWidget = Object.create(ContainerWidget);
     CommaListWidget.label = ",";
     CommaListWidget.children = function() {
@@ -640,29 +712,30 @@ var make_crender = function() {
         }
         return CommaListWidget.__proto__.children.call(this);
     };
-    CommaListWidget.computeSize = function() {
-        var sz = this.interiorSize();
+    CommaListWidget.computeBBox = function(properties) {
+        this.size = this.computeSize(properties);
         var first = true;
-        var w = 0, h = sz.height;
+        var w = 0, h = this.size.height;
         this.children().forEach(function(c) {
             // add separator (if not the first element)
             if (!first) {
-                w += sz.width;
-                h = Math.max(h, sz.height);
+                w += this.size.right();
+                h = Math.max(h, this.size.bottom());
             }
             // add the child.
-            var bb = c.bbox();
-            w += bb.width;
-            h = Math.max(h, bb.height);
+            // XXX PROVIDE PROPER MARGIN, ACCOUNT FOR MULTILINE LAYOUT
+            c.layout(this.canvas, this.styles, properties);
+            w += c.bbox.right();
+            h = Math.max(h, c.bbox.bottom());
             first = false;
-        });
+        }.bind(this));
         // add some extra width to encourage folks to add new stuff
         w += this.styles.listEndPadding;
         // add some extra height for the underline.
         return rect(w, h + this.styles.expUnderHeight);
     };
     CommaListWidget.extraPadding = { left: -3, right: -3 }; // tighten up
-    CommaListWidget.interiorSize = context_saved(function() {
+    CommaListWidget.computeSize = context_saved(function(properties) {
         var r = this.pad(this.canvas.measureText(this.label));
         // pad to account for expression sockets on both sides.
         r = this.pad(r, { left: this.styles.expWidth,
@@ -670,18 +743,15 @@ var make_crender = function() {
         return this.pad(r, this.extraPadding);
     });
     CommaListWidget.draw = function() {
-        var sz = this.interiorSize();
-        this.drawOutline(sz);
-        this.drawInterior(sz);
-        this.drawChildren(sz);
+        this.drawOutline();
+        this.drawInterior();
+        this.drawChildren();
     };
-    CommaListWidget.drawOutline = context_saved(function(sz) {
-        var ttlsz = this.size();
+    CommaListWidget.drawOutline = context_saved(function() {
         var x = 0;
         this.canvas.setFill(this.bgColor());
         this.canvas.beginPath();
-        this.canvas.moveTo(x, ttlsz.height);
-        this.canvas.lineTo(x, sz.height);
+        this.canvas.moveTo(x, this.bbox.bottom());
         var first = true;
         this.children().forEach(function(c) {
             if (!first) {
@@ -689,40 +759,40 @@ var make_crender = function() {
                 this.drawCapUp(pt(x, 0),
                                false/*socket*/, false/*left*/, this.isName);
                 // right side.
-                x += sz.width;
+                x += this.size.right();
                 this.drawCapDown(pt(x, 0),
                                  false/*socket*/, true/*right*/, this.isName);
-                this.canvas.lineTo(x, sz.height);
             }
-            x += c.bbox().width;
-            this.canvas.lineTo(x, sz.height);
+            this.canvas.lineTo(x, c.bbox.bottom());
+            x += c.bbox.right();
+            this.canvas.lineTo(x, c.bbox.bottom());
             first = false;
         }.bind(this));
-        this.canvas.lineTo(x, ttlsz.height);
+        this.canvas.lineTo(x, this.bbox.bottom());
         this.canvas.closePath();
         this.canvas.fill();
         this.canvas.stroke();
     });
-    CommaListWidget.drawInterior = context_saved(function(sz) {
+    CommaListWidget.drawInterior = context_saved(function() {
         this.canvas.setFill(this.styles.semiColor);
         var x = this.styles.expWidth + this.extraPadding.left;
         var first = true;
         this.children().forEach(function(c) {
             if (!first) {
                 this.drawPaddedText(this.label, pt(x, 0));
-                x += sz.width;
+                x += this.size.right();
             }
-            x += c.bbox().width;
+            x += c.bbox.right();
             first = false;
         }.bind(this));
     });
-    CommaListWidget.drawChildren = context_saved(function(sz) {
+    CommaListWidget.drawChildren = context_saved(function() {
         this.children().forEach(function(c) {
             c.draw();
-            canvas.translate(c.bbox().width, 0);
+            canvas.translate(c.bbox.right(), 0);
             // skip past separator
-            canvas.translate(sz.width, 0);
-        });
+            canvas.translate(this.size.right(), 0);
+        }.bind(this));
     });
 
     // var statement, holds a name list.
@@ -759,15 +829,15 @@ var make_crender = function() {
         }
         if (this.name) { r.push(this.name); }
         return r.concat(this.args, this.block);
-        //return [ this.name, this.args, this.block ];
     };
-    FunctionWidget.computeSize = context_saved(function() {
+    FunctionWidget.computeBBox = context_saved(function(properties) {
         this.children(); // initialize fields as side effect
 
         this.functionBB = this.pad(this.canvas.measureText(FUNCTION_TEXT+" "));
 
         if (this.name) {
-            this.nameBB = this.name.bbox(); // simple bounding box
+            this.name.layout(this.canvas, this.styles, properties);
+            this.nameBB = this.name.bbox; // simple bounding box
         } else {
             this.nameBB = rect(this.styles.functionNameSpace,
                                this.functionBB.height);
@@ -778,8 +848,11 @@ var make_crender = function() {
         this.leftParenBB = this.leftParenBB.translate(this.nameBB.tr());
 
         // args could be multiline, but aligns at the open paren
-        this.argsBB = this.args.bbox({margin: 0});
+        // XXX HANDLE MULTILINE CASE; ADJUST PASSED-IN MARGIN
+        this.args.layout(this.canvas, this.styles, properties);
+        this.argsBB = this.args.bbox;
         // adjust args to have a minimum width (even w/ no args)
+        // XXX CAREFUL WHEN THERE'S A NEGATIVE OFFSET
         if (this.argsBB.width < this.styles.functionNameSpace) {
             this.argsBB = rect(this.styles.functionNameSpace,
                                this.argsBB.height);
@@ -803,7 +876,8 @@ var make_crender = function() {
         this.rightParenBB.height += this.styles.expUnderHeight;
 
         // now we lay out the block XXX need to pass in margin
-        this.blockBB = this.block.bbox();
+        this.block.layout(this.canvas, this.styles, properties);
+        this.blockBB = this.block.bbox;
         this.blockBB = this.blockBB.translate(pt(this.styles.functionIndent,
                                                  this.rightParenBB.bottom()));
 
@@ -833,23 +907,21 @@ var make_crender = function() {
         return r;
     });
     FunctionWidget.draw = function() {
-        var sz = this.size();
-        this.drawOutline(sz);
-        this.drawInterior(sz);
-        this.drawChildren(sz);
+        this.drawOutline();
+        this.drawInterior();
+        this.drawChildren();
     };
-    FunctionWidget.drawOutline = context_saved(function(sz) {
-        var bb = this.bbox();
+    FunctionWidget.drawOutline = context_saved(function() {
 
         this.canvas.setFill(this.bgColor());
         this.canvas.beginPath();
         // expression plug on left
         this.drawCapDown(pt(0,0), true/*plug*/, false/*left*/, false/*exp*/);
         // first line indent
-        this.canvas.lineTo(bb.ix, bb.iy);
-        this.canvas.lineTo(bb.x, bb.iy);
+        this.canvas.lineTo(this.bbox.ix, this.bbox.iy);
+        this.canvas.lineTo(this.bbox.x, this.bbox.iy);
         // all the way down to the bottom
-        this.canvas.lineTo(0, bb.height);
+        this.canvas.lineTo(this.bbox.bl());
         // to the end of rightBrace
         this.canvas.lineTo(this.rightBraceBB.br());
         // expression plug on right
@@ -887,7 +959,7 @@ var make_crender = function() {
         this.canvas.fill();
         this.canvas.stroke();
     });
-    FunctionWidget.drawInterior = context_saved(function(sz) {
+    FunctionWidget.drawInterior = context_saved(function() {
         // draw function label
         this.drawPaddedText(FUNCTION_TEXT, this.functionBB.tl(),
                             this.styles.keywordColor);
@@ -898,7 +970,7 @@ var make_crender = function() {
         // draw close brace
         this.drawPaddedText("}", this.rightBraceBB.tl(), this.styles.semiColor);
     });
-    FunctionWidget.drawChildren = context_saved(function(sz) {
+    FunctionWidget.drawChildren = context_saved(function() {
         // draw function name
         this.canvas.withContext(this, function() {
             this.canvas.translate(this.nameBB.tl());
@@ -938,63 +1010,72 @@ var make_crender = function() {
         }
         return [ this.testExpr, this.whileBrace, this.block ];
     };
-    WhileWidget.computeSize = context_saved(function() {
+    WhileWidget.computeSize = context_saved(function(properties) {
         var w, h, indent;
+        this.children(); // ensure children are defined/initialized
+
         this.topSize = this.pad(this.canvas.measureText(WHILE_TEXT+" ("));
         // make room for rhs socket
         this.topSize.width += this.styles.expWidth;
         // grow vertically to match test testExpr
+        // XXX ADJUST MARGIN HERE?
+        this.testExpr.layout(this.canvas, this.styles, properties);
         this.topSize.height = Math.max(this.topSize.height,
-                                       this.testExpr.bbox().height);
+                                       this.testExpr.bbox.bottom());
         // increase the height to accomodate the block child.
+        // XXX ADJUST MARGIN HERE?
+        this.block.layout(this.canvas, this.styles, properties);
         h = this.topSize.height;
-        h += this.block.bbox().height;
+        h += this.block.bbox.bottom();
         // now accomodate the close brace below
         this.bottomSize = this.pad(this.canvas.measureText("} "));
         h += this.bottomSize.height;
         // indent the text to match expression statements
-        indent = ExpStmtWidget.interiorSize.call(this).width;
-        this.topSize.width += indent;
-        this.bottomSize.width += indent;
+        this.indent = ExpStmtWidget.computeSize.call(this, properties).width;
+        this.topSize.width += this.indent;
+        this.bottomSize.width += this.indent;
         w = Math.max(this.topSize.width, this.bottomSize.width);
-        // force trailing branch to match test expression height
-        this.whileBrace.size();
-        this.whileBrace._size.height = this.topSize.height;
+
+        this.whileBrace.layout(this.canvas, this.styles, properties);
+
         return rect(w, h);
     });
-    WhileWidget.computeBBox = function() {
+    WhileWidget.computeBBox = function(properties) {
         var w, h;
-        var sz = this.size();
-        var sz0 = this.testExpr.bbox();
-        var sz1 = this.whileBrace.bbox();
-        var sz2 = this.block.bbox();
-        w = Math.max(sz.width,
+        this.size = this.computeSize(properties);
+        var sz0 = this.testExpr.bbox;
+        var sz1 = this.whileBrace.bbox;
+        var sz2 = this.block.bbox;
+        w = Math.max(this.size.width,
                      sz1.width + sz0.width + this.topSize.width,
                      sz2.width + this.styles.blockIndent,
                      this.bottomSize.width);
-        return rect(w, sz.height);
+
+        // force trailing brace to match expression height
+        this.whileBrace.bbox.height = this.topSize.height;
+
+        return rect(w, this.size.height);
     };
     WhileWidget.rightHandPath = function() {
-        var sz = this.size();
         this.canvas.lineTo(this.bottomSize.width - this.styles.tileCornerRadius,
-                           sz.height);
+                           this.size.height);
         // bottom leg
-        this.drawRoundCorner(pt(this.bottomSize.width, sz.height), 1, false);
+        this.drawRoundCorner(pt(this.bottomSize.width, this.size.height), 1, false);
         this.drawRoundCorner(pt(this.bottomSize.width,
-                                sz.height - this.bottomSize.height), 0, false);
+                                this.size.height - this.bottomSize.height), 0, false);
         // bottom puzzle piece socket
         if (this.styles.blockIndent + this.styles.puzzleIndent +
             2 * this.styles.puzzleRadius <=
             this.bottomSize.width - this.styles.tileCornerRadius) {
         this.canvas.arc(this.styles.blockIndent + this.styles.puzzleIndent +
                         this.styles.puzzleRadius,
-                        sz.height - this.bottomSize.height,
+                        this.size.height - this.bottomSize.height,
                         this.styles.tileCornerRadius,
                         0, Math.PI, false);
         }
         // inside of the C
         this.canvas.lineTo(this.styles.blockIndent,
-                           sz.height - this.bottomSize.height);
+                           this.size.height - this.bottomSize.height);
         this.canvas.lineTo(this.styles.blockIndent, this.topSize.height);
         // top puzzle piece plug
         this.canvas.arc(this.styles.blockIndent + this.styles.puzzleIndent +
@@ -1007,20 +1088,19 @@ var make_crender = function() {
                        false/*socket*/, true/*right*/, false/*exp*/);
     };
     WhileWidget.drawInterior = function() {
-        var sz = this.size();
         // indent the text to match expression statements
-        var x = ExpStmtWidget.interiorSize.call(this).width;
+        var x = this.indent;
         this.drawPaddedText(WHILE_TEXT, pt(x, 0), this.styles.keywordColor);
         var wsz = this.canvas.measureText(WHILE_TEXT);
         this.drawPaddedText(" (", pt(x+wsz.width, 0), this.styles.semiColor);
-        var y = this.topSize.height + this.block.bbox().height - 2;
+        var y = this.topSize.height + this.block.bbox.height - 2;
         this.drawPaddedText("}", pt(x, y), this.styles.semiColor);
 
         // now draw children
         this.canvas.withContext(this, function() {
             this.canvas.translate(this.topSize.width, 0);
             this.testExpr.draw();
-            this.canvas.translate(this.testExpr.bbox().width, 0);
+            this.canvas.translate(this.testExpr.bbox.width, 0);
             this.whileBrace.draw();
         });
         this.canvas.translate(this.styles.blockIndent, this.topSize.height);
