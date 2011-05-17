@@ -26,10 +26,13 @@ var isource = tests[tests.length-2];
 //isource = tests[0].replace(/module/,'make_tests');
 //isource = 'var a = 1 + 2;';
 //isource = "function foo() { while(true) { return 3; } };";
-isource = "console = 3 + function(x) { return x; };";
+isource = "console = 1 + 2 + 3 + 4 + 5;";
+isource += "console = !3 + !function(x) { return function(){}; };";
+isource += "console = 3 - 4 + 5 - function(x) { return function(){}; };";
+isource += "console = (3 + function (x) { return x; }) + function(){};";
 isource += "console = function(x) { /*return x;*/ };";
-isource += "console = 1 + 2 * 3;";
-isource += "console = function (x) { return x; } + function(){};";
+isource += "console = !1 + 2 * 3;";
+isource += "console = !function (x) { return x; } + function(){};";
 
 // parse the example source
 var top_level = "isFinite parseInt Boolean String Function Math "+

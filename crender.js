@@ -131,7 +131,10 @@ var make_crender = function() {
             return bbox(tl, br);
         }
         // handle multiline case
-        var indent = this.indent(); // falls back to bl()
+        var indent = this.indent();
+        if (!this.multiline()) {
+            indent = pt(indent.x, Math.max(indent.y, bb2.indent().y));
+        }
         var widow = bb2.widow(); // falls back to tr()
         return this.create(tl, br, indent, widow, ml);
     };
@@ -141,9 +144,13 @@ var make_crender = function() {
                     this.top() - (padding.top || 0));
         var br = pt(this.right() + (padding.right || 0),
                     this.bottom() + (padding.bottom || 0));
-        // indent and widow stay where they are (if present)
-        var result = this.create(tl, br,
-                                 this._indent, this._widow, this._multiline);
+        var indent = this._indent &&
+            (pt(this.indent().x - (padding.indentx || 0),
+                this.indent().y - (padding.indenty || 0)));
+        var widow = this._widow &&
+            (pt(this.widow().x + (padding.widowx || 0),
+                this.widow().y + (padding.widowy || 0)));
+        var result = this.create(tl, br, indent, widow, this._multiline);
         if (shift_origin) {
             result = result.translate(result.tl().negate());
         }
@@ -337,6 +344,9 @@ var make_crender = function() {
         this.childOrigin = [];
         // sum heights of children
         this.children().forEach(function(c) {
+            var child_props = Object.create(properties);
+            child_props.margin = 0;
+            child_props.lineHeight = 0;
             c.layout(this.canvas, this.styles, properties);
 
             var p = pt(0, r.bottom());
@@ -545,28 +555,30 @@ var make_crender = function() {
         // first, layout the left operand.
         this.leftOperand.layout(this.canvas, this.styles, properties);
         this.lbb = this.leftOperand.bbox;
-        // leave space for the underline
-        var combined = this.lbb.pad({bottom: this.styles.expUnderHeight});
 
-        // now layout our self.
+        // now layout our own self.
         // ensure that we're at least as big as the left operand
-        // (can't include underline or superclass drawing method will
-        //  scribble over underline)
-        this.size = this.computeSize(properties).
-            ensureHeight(this.lbb.widowHeight());
-        combined = combined.chainHoriz(
-            this.size.ensureHeight(combined.widowHeight()));
+        // (can't include underline in size or superclass drawing method will
+        //  scribble over the underline)
+        var my_props = Object.create(properties);
+        my_props.lineHeight = Math.max((my_props.lineHeight || 0),
+                                       this.lbb.widowHeight());
+        my_props.margin = (my_props.margin||0) - this.lbb.widow().x;
+        this.size = this.computeSize(my_props);
 
-        // layout the right operand, adjusting the margin to allow for a
-        // descender. (if you line wrap, you're going to have to fit under
-        // my descender.)
+        var combined = this.lbb.chainHoriz(this.size);
+        // top of the underline
+        var topUnder = combined.bottom();
+
+        // layout the right operand, adjusting the margin and line height
+        // to allow for a descender.
         var right_prop = Object.create(properties);
         // only inherit lineHeight if we didn't already wrap on the left
         right_prop.lineHeight = (combined.multiline() ? 0 :
                                  (properties.lineHeight || 0));
-        right_prop.lineHeight = Math.max(right_prop.lineHeight +
-                                         this.styles.expUnderHeight,
-                                         combined.widowHeight());
+        right_prop.lineHeight = this.styles.expUnderHeight +
+            Math.max(right_prop.lineHeight, topUnder - this.lbb.widow().y);
+
         right_prop.margin = (properties.margin || 0);
         // adjust for the new start position of the child.
         right_prop.margin -= combined.widow().x;
@@ -574,13 +586,28 @@ var make_crender = function() {
         right_prop.margin += this.styles.expUnderWidth;
 
         this.rightOperand.layout(this.canvas, this.styles, right_prop);
-        // again, leave space for an underline.
         this.rbb = this.rightOperand.bbox;
-        var pad_rbb = this.rbb.
-            pad({ bottom: this.styles.expUnderHeight,
-                  left: (this.rightOperand.bbox.multiline() ?
-                         this.styles.expUnderWidth : 0) });
-        combined = combined.chainHoriz(pad_rbb);
+
+        var pad_lbb, pad_rbb;
+        // account for underline on left
+        if (this.rbb.multiline()) {
+            // if right is multiline, then its adjustment of the indent
+            // depth already accounts for the left underline.
+            pad_lbb = this.lbb;
+        } else {
+            pad_lbb = this.lbb.pad({bottom: this.styles.expUnderHeight});
+        }
+        // account for underline
+        if (this.rbb.multiline()) {
+            pad_rbb = this.rbb.pad({left:this.styles.expUnderWidth,
+                                    bottom:this.styles.expUnderHeight,
+                                    indenty:this.styles.expUnderHeight});
+        } else {
+            pad_rbb = this.rbb.pad({bottom:this.styles.expUnderHeight});
+        }
+
+        // ok, make total bbox
+        combined = pad_lbb.chainHoriz(this.size).chainHoriz(pad_rbb);
 
         // for ease of drawing, translate lbb and rbb to a self-centric
         // coordinate system.
@@ -597,15 +624,15 @@ var make_crender = function() {
         // over as the widow.
         this.canvas.lineTo(0, this.lbb.bottom());
         this.canvas.lineTo(this.lbb.bl());
-        this.canvas.lineTo(this.lbb.left(),
-                           this.size.bottom() + this.styles.expUnderHeight);
-
         // now we're either going to go down, if the right operand is multiline,
         // or go back to the right if it's not.
         if (this.rbb.multiline()) {
-            this.canvas.lineTo(this.bb.left(), this.bb.indent().y);
+            this.canvas.lineTo(this.lbb.left(),
+                               this.rbb.indent().y-this.styles.expUnderHeight);
+            this.canvas.lineTo(this.bb.left(),
+                               this.rbb.indent().y-this.styles.expUnderHeight);
             this.canvas.lineTo(this.bb.bl());
-            this.canvas.lineTo(this.bb.widow().x, this.bb.bottom());
+            this.canvas.lineTo(this.rbb.widow().x, this.bb.bottom());
             this.canvas.lineTo(this.rbb.widow().x, this.rbb.bottom());
             this.canvas.lineTo(this.rbb.bl());
             this.canvas.lineTo(this.rbb.left(), this.rbb.indent().y);
