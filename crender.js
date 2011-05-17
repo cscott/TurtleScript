@@ -320,7 +320,8 @@ var make_crender = function() {
         var r = this.size;
         // optionally leave space for connector on left
         var margin = (properties.margin || 0) + (this.extraMargin || 0);
-        var lineHeight = (properties.lineHeight || 0);
+        var lineHeight = (properties.lineHeight || 0) +
+            (this.extraLineHeight || 0);
 
         this.children().forEach(function(c) {
 
@@ -504,39 +505,6 @@ var make_crender = function() {
                         { bottom: this.styles.expUnderHeight });
     }
 
-    // Prefix operator
-    var PrefixWidget = Object.create(HorizExpWidget);
-    PrefixWidget.operator = '?'; // override
-    PrefixWidget.leftHandDir = -1;
-    PrefixWidget.rightHandDir =-1;
-    PrefixWidget.operand = YadaWidget; // default
-    PrefixWidget.children = function() {
-        return [ this.operand ];
-    }
-    PrefixWidget.computeSize = context_saved(function(properties) {
-        var r = this.pad(this.canvas.measureText(this.operator));
-        return this.pad(r, { right: this.styles.expWidth /* for socket */});
-    });
-    PrefixWidget.bottomPath = function() {
-        var sz = this.size, bb = this.bbox;
-        var rsz = this.operand.bbox;
-        this.canvas.lineTo(0, sz.height());
-        this.canvas.lineTo(0, bb.height());
-        this.canvas.lineTo(sz.width() + rsz.width(), bb.height());
-        this.canvas.lineTo(sz.width() + rsz.width(), sz.height());
-        this.canvas.lineTo(sz.width(), sz.height());
-    };
-    PrefixWidget.draw = context_saved(function() {
-        // draw me
-        PrefixWidget.__proto__.draw.call(this);
-        // draw child
-        this.canvas.translate(this.size.right(), 0);
-        this.operand.draw();
-    });
-    PrefixWidget.drawInterior = function() {
-        this.drawPaddedText(this.operator, pt(0, 0));
-    };
-
     // Infix operator
     var InfixWidget = Object.create(HorizExpWidget);
     InfixWidget.operator = '?'; // override
@@ -553,8 +521,12 @@ var make_crender = function() {
     });
     InfixWidget.computeBBox = function(properties) {
         // first, layout the left operand.
-        this.leftOperand.layout(this.canvas, this.styles, properties);
-        this.lbb = this.leftOperand.bbox;
+        if (this.isPrefix) {
+            this.lbb = rect(0,0);
+        } else {
+            this.leftOperand.layout(this.canvas, this.styles, properties);
+            this.lbb = this.leftOperand.bbox;
+        }
 
         // now layout our own self.
         // ensure that we're at least as big as the left operand
@@ -622,8 +594,10 @@ var make_crender = function() {
     InfixWidget.bottomPath = function() {
         // if left hand side is multiline, then we can only go as far
         // over as the widow.
-        this.canvas.lineTo(0, this.lbb.bottom());
-        this.canvas.lineTo(this.lbb.bl());
+        if (!this.isPrefix) {
+            this.canvas.lineTo(0, this.lbb.bottom());
+            this.canvas.lineTo(this.lbb.bl());
+        }
         // now we're either going to go down, if the right operand is multiline,
         // or go back to the right if it's not.
         if (this.rbb.multiline()) {
@@ -645,21 +619,33 @@ var make_crender = function() {
        }
     };
     InfixWidget.draw = context_saved(function() {
+        var lbb = (this.isPrefix) ? rect(0,0) : this.leftOperand.bbox;
         // draw me
         this.canvas.withContext(this, function() {
-            this.canvas.translate(this.leftOperand.bbox.widow());
+            this.canvas.translate(lbb.widow());
             InfixWidget.__proto__.draw.call(this);
         });
         // draw left child
-        this.leftOperand.draw();
+        if (!this.isPrefix) {
+            this.leftOperand.draw();
+        }
         // draw right child.
-        this.canvas.translate(this.leftOperand.bbox.widow());
+        this.canvas.translate(lbb.widow());
         this.canvas.translate(this.size.widow());
         this.rightOperand.draw();
     });
     InfixWidget.drawInterior = function() {
         this.drawPaddedText(" "+this.operator+" ",
                             pt(Math.floor(this.styles.expWidth / 2) - 1, 0));
+    };
+
+    // make a prefix operator widget out of the infix widget
+    var PrefixWidget = Object.create(InfixWidget);
+    PrefixWidget.isPrefix = true;
+    PrefixWidget.leftHandDir = -1;
+    PrefixWidget.leftOperand = ({}).undefined;
+    PrefixWidget.children = function() {
+        return [ this.rightOperand ];
     };
 
     var LabelledExpWidget = Object.create(ExpWidget);
@@ -1361,7 +1347,7 @@ var make_crender = function() {
         dispatch.unary[op] = f || with_prec_paren(prec, function() {
             var pw = Object.create(PrefixWidget);
             pw.operator = this.value;
-            pw.operand = crender(this.first);
+            pw.rightOperand = crender(this.first);
             return pw;
         });
     };
