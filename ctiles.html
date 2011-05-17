@@ -39,10 +39,10 @@ var isource = "";
 isource += "var a = console.log(function() { },3);";
 isource += "console(1, 2, 3+4);console(1,function(a,b){},3,function(c,d){});console[function(e,f){}]=1;";
 //isource = "function foo(a) { return a(a,function(){}); }; function bar(b){}";
-//isource = tests[0];
+isource = tests[0];
 //isource = "console.a = console.b(2, function() { }, 3);";
-isource += "console.log(1, console.log(2, function(){}), 3);";
-isource += "console.log(1, console.log(2, function(){}), function(){});";
+//isource += "console.log(1, console.log(2, function(){}), 3);";
+//isource += "console.log(1, console.log(2, function(){}), function(){});";
 
 // parse the example source
 var top_level = "isFinite parseInt Boolean String Function Math "+
