@@ -693,6 +693,13 @@ var make_crender = function() {
         this.drawCapDown(this.bb.widow(),
                          false/*socket*/,false/*left*/, false/*exp*/);
     };
+    var ParenWidget = Object.create(WithSuffixWidget);
+    ParenWidget.operator = '(';
+    ParenWidget.closeOperator = ')';
+    ParenWidget.isPrefix = PrefixWidget.isPrefix;
+    ParenWidget.leftHandDir = PrefixWidget.leftHandDir;
+    ParenWidget.leftOperand = PrefixWidget.leftOperand;
+    ParenWidget.children = PrefixWidget.children;
 
     var LabelledExpWidget = Object.create(ExpWidget);
     LabelledExpWidget.computeSize = context_saved(function(properties) {
@@ -1409,8 +1416,14 @@ var make_crender = function() {
         return function() {
             var prev_prec = prec_stack[prec_stack.length - 1];
             var result = with_prec(prec, f).apply(obj || this, arguments);
-            // XXX add a ParenthesesWidget
-            //if (prev_prec > prec) { result = "(" + result + ")"; }
+            // XXX this might be better done dynamically based on the
+            // precedences of the widgets?  that would handle the drag & drop
+            // case better (where we need to dynamically add parens)
+            if (prev_prec > prec) {
+                var p = Object.create(ParenWidget);
+                p.rightOperand = result;
+                result = p;
+            }
             return result;
         };
     };
