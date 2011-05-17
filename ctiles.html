@@ -33,8 +33,10 @@ isource = tests[0].replace(/module/,'make_tests');
 //isource += "console = function(x) { /*return x;*/ };";
 //isource += "console = !1 + 2 * 3;";
 //isource += "console = !function (x) { return x; } + function(){};";
-isource = "while (function(x) { return x; }+(true)) { return false; }";
-isource += "if (function(x) { return x; }+(true)) { return false; } else { return true; }";
+//isource = "while (function(x) { return x; }+(true)) { return false; }";
+//isource += "if (function(x) { return x; }+(true)) { return false; } else { return true; }";
+//isource = "console(1, 2, 3+4);console(1,function(a,b){},3,function(c,d){});console[function(e,f){}]=1;";
+//isource = "function foo(a) { return a(a,function(){}); }; function bar(b){}";
 
 // parse the example source
 var top_level = "isFinite parseInt Boolean String Function Math "+
