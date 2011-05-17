@@ -25,7 +25,11 @@ var isource = tests[tests.length-2];
 //isource='var a,b="test\\n",c,d,e;console=typeof !3;while(!2&&3||4) {console=2*3/4;var z;break;} console=console; function foo (y) {return false;}';
 //isource = tests[0].replace(/module/,'make_tests');
 //isource = 'var a = 1 + 2;';
-isource = "function foo() { return 3; }";
+//isource = "function foo() { while(true) { return 3; } };";
+isource = "console = 3 + function(x) { return x; };";
+isource += "console = function(x) { /*return x;*/ };";
+isource += "console = 1 + 2 * 3;";
+isource += "console = function (x) { return x; } + function(){};";
 
 // parse the example source
 var top_level = "isFinite parseInt Boolean String Function Math "+
@@ -59,16 +63,16 @@ var styles = {
    puzzleRadius: 5,
    expHalfHeight: 12,
    expWidth: 6,
-   expUnderHeight: 3,
-   expUnderWidth: 3, /* underline when it's running along the sides */
+   expUnderHeight: 5,
+   expUnderWidth: 5, /* underline when it's running along the sides */
    blockIndent: 26,
    blockBottomPadding: 8, /* below last tile in a block */
-   functionIndent: 3, /* thin line on left side of function */
+   functionIndent: 5, /* thin line on left side of function */
    functionNameSpace: 3, /* space to leave for a missing function name */
    listEndPadding: 0, /* empty space on right side of lists */
 };
 canvas.translate(10,10);
-widget.layout(canvas, styles, {margin: 0});
+widget.layout(canvas, styles, {margin: 0, lineHeight: 0});
 widget.draw();
 
 /*

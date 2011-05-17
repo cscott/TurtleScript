@@ -19,6 +19,12 @@ var make_crender = function() {
         add: function(x, y) {
             if (typeof(x)==="object") { y=x.y; x=x.x; }
             return pt((this.x||0) + (x||0), (this.y||0) + (y||0));
+        },
+        negate: function() {
+            return pt(-(this.x||0), -(this.y||0));
+        },
+        toString: function() {
+            return "("+this.x+","+this.y+")";
         }
     };
     var pt = function(x, y) { return Point.create(x, y); }
@@ -97,7 +103,11 @@ var make_crender = function() {
                     // check indent
                     (x >= this.indent().x || y >= this.indent().y) &&
                     (x <  this.widow().x  || y <  this.widow().y) );
-        }
+        },
+        toString: function() {
+            return "["+this.tl()+"-"+this.br()+" i:"+this.indent()+", "+
+                "w:"+this.widow()+", m:"+this.multiline()+"]";
+        },
     };
     var bbox = function (tl, br) {
         return MultiLineBBox.create(tl, br);
@@ -122,11 +132,22 @@ var make_crender = function() {
         }
         // handle multiline case
         var indent = this.indent(); // falls back to bl()
-        if (this.multiline() && bb2.multiline()) {
-            indent = pt(indent.x, Math.max(indent.y, bb2.indent().y));
-        }
         var widow = bb2.widow(); // falls back to tr()
         return this.create(tl, br, indent, widow, ml);
+    };
+    // pad a box
+    MultiLineBBox.pad = function(padding, shift_origin) {
+        var tl = pt(this.left() - (padding.left || 0),
+                    this.top() - (padding.top || 0));
+        var br = pt(this.right() + (padding.right || 0),
+                    this.bottom() + (padding.bottom || 0));
+        // indent and widow stay where they are (if present)
+        var result = this.create(tl, br,
+                                 this._indent, this._widow, this._multiline);
+        if (shift_origin) {
+            result = result.translate(result.tl().negate());
+        }
+        return result;
     };
     // FOR DEBUGGING
     MultiLineBBox.drawPath = function(canvas) {
@@ -184,7 +205,12 @@ var make_crender = function() {
             return this.styles.tileColor;
         },
         // helper to offset basic sizes
-        pad: function(r, padding) {
+        pad: function(r, padding, shift_origin) {
+            if (typeof(r.width) !== "function") {
+                // handle output from measureText, which is not a real rect()
+                r = rect(r.width, r.height);
+                shift_origin = true;
+            }
             if (typeof(padding) === "number") {
                 padding = { left: padding, top: padding,
                             right: padding, bottom: padding };
@@ -192,12 +218,7 @@ var make_crender = function() {
             if (typeof(padding) !== "object") {
                 padding = this.styles.tilePadding;
             }
-            if (typeof(r.width) !== "function") {
-                // handing output from measureText, which is not a real rect()
-                r = rect(r.width, r.height);
-            }
-            return rect(r.width() + (padding.left || 0) + (padding.right || 0),
-                        r.height()+ (padding.top || 0) + (padding.bottom || 0));
+            return r.pad(padding, shift_origin);
         },
         // by convention we compute a 'size' property which is the size of
         // the widget itself, ignoring children.  This isn't a standard
@@ -270,9 +291,10 @@ var make_crender = function() {
             this.canvas.lineTo(pt.add(0, eh*2));
         },
         // bounding box debugging
-        debugBBox: context_saved(function() {
+        debugBBox: context_saved(function(bbox) {
             this.canvas.setStroke(canvas.makeColor(255,0,0));
-            this.bbox.drawPath(this.canvas);
+            (bbox || this.bbox).drawPath(this.canvas);
+            this.canvas.stroke();
         }),
     };
     // helpers
@@ -289,13 +311,17 @@ var make_crender = function() {
     HorizWidget.computeBBox = function(properties) {
         this.size = this.computeSize(properties);
         var r = this.size;
-        var child_properties = Object.create(properties);
         // optionally leave space for connector on left
         var margin = (properties.margin || 0) + (this.extraMargin || 0);
+        var lineHeight = (properties.lineHeight || 0);
 
         this.children().forEach(function(c) {
-            var chainPt = r.widow();
-            child_properties.margin = margin - chainPt.x;
+
+            var child_properties = Object.create(properties);
+            child_properties.margin = margin - r.widow().x;
+
+            lineHeight = Math.max(lineHeight, r.widowHeight());
+            child_properties.lineHeight = lineHeight;
 
             c.layout(this.canvas, this.styles, child_properties);
 
@@ -515,29 +541,93 @@ var make_crender = function() {
         var r = this.pad(this.canvas.measureText(" "+this.operator+" "));
         return this.pad(r, { right: this.styles.expWidth /* for sockets */});
     });
+    InfixWidget.computeBBox = function(properties) {
+        // first, layout the left operand.
+        this.leftOperand.layout(this.canvas, this.styles, properties);
+        this.lbb = this.leftOperand.bbox;
+        // leave space for the underline
+        var combined = this.lbb.pad({bottom: this.styles.expUnderHeight});
+
+        // now layout our self.
+        // ensure that we're at least as big as the left operand
+        // (can't include underline or superclass drawing method will
+        //  scribble over underline)
+        this.size = this.computeSize(properties).
+            ensureHeight(this.lbb.widowHeight());
+        combined = combined.chainHoriz(
+            this.size.ensureHeight(combined.widowHeight()));
+
+        // layout the right operand, adjusting the margin to allow for a
+        // descender. (if you line wrap, you're going to have to fit under
+        // my descender.)
+        var right_prop = Object.create(properties);
+        // only inherit lineHeight if we didn't already wrap on the left
+        right_prop.lineHeight = (combined.multiline() ? 0 :
+                                 (properties.lineHeight || 0));
+        right_prop.lineHeight = Math.max(right_prop.lineHeight +
+                                         this.styles.expUnderHeight,
+                                         combined.widowHeight());
+        right_prop.margin = (properties.margin || 0);
+        // adjust for the new start position of the child.
+        right_prop.margin -= combined.widow().x;
+        // also leave room for a descender on the left hand side.
+        right_prop.margin += this.styles.expUnderWidth;
+
+        this.rightOperand.layout(this.canvas, this.styles, right_prop);
+        // again, leave space for an underline.
+        this.rbb = this.rightOperand.bbox;
+        var pad_rbb = this.rbb.
+            pad({ bottom: this.styles.expUnderHeight,
+                  left: (this.rightOperand.bbox.multiline() ?
+                         this.styles.expUnderWidth : 0) });
+        combined = combined.chainHoriz(pad_rbb);
+
+        // for ease of drawing, translate lbb and rbb to a self-centric
+        // coordinate system.
+        var offset = this.lbb.widow().negate();
+        this.bb = combined.translate(offset);
+        this.lbb = this.lbb.translate(offset);
+        this.rbb = this.rbb.translate(this.size.widow());
+
+        // done.
+        return combined;
+    };
     InfixWidget.bottomPath = function() {
-        var sz = this.size, bb = this.bbox;
-        var lsz = this.leftOperand.bbox;
-        var rsz = this.rightOperand.bbox;
-        // XXX how should this work w/ multiline widgets?
-        this.canvas.lineTo(0, lsz.bottom());
-        this.canvas.lineTo(-lsz.width(), lsz.bottom());
-        this.canvas.lineTo(-lsz.width(), bb.bottom());
-        this.canvas.lineTo(sz.width() + rsz.width(), bb.bottom());
-        this.canvas.lineTo(sz.width() + rsz.width(), rsz.bottom());
-        this.canvas.lineTo(sz.width(), rsz.bottom());
+        // if left hand side is multiline, then we can only go as far
+        // over as the widow.
+        this.canvas.lineTo(0, this.lbb.bottom());
+        this.canvas.lineTo(this.lbb.bl());
+        this.canvas.lineTo(this.lbb.left(),
+                           this.size.bottom() + this.styles.expUnderHeight);
+
+        // now we're either going to go down, if the right operand is multiline,
+        // or go back to the right if it's not.
+        if (this.rbb.multiline()) {
+            this.canvas.lineTo(this.bb.left(), this.bb.indent().y);
+            this.canvas.lineTo(this.bb.bl());
+            this.canvas.lineTo(this.bb.widow().x, this.bb.bottom());
+            this.canvas.lineTo(this.rbb.widow().x, this.rbb.bottom());
+            this.canvas.lineTo(this.rbb.bl());
+            this.canvas.lineTo(this.rbb.left(), this.rbb.indent().y);
+            this.canvas.lineTo(this.rbb.indent());
+        } else {
+            this.canvas.lineTo(this.lbb.left(), this.bb.bottom());
+            this.canvas.lineTo(this.rbb.right(), this.bb.bottom());
+            this.canvas.lineTo(this.rbb.br());
+            this.canvas.lineTo(this.rbb.bl());
+       }
     };
     InfixWidget.draw = context_saved(function() {
-        var bb = this.leftOperand.bbox;
-        // XXX how should this work w/ multiline widgets?
         // draw me
-        this.canvas.translate(bb.width(), 0);
-        InfixWidget.__proto__.draw.call(this);
+        this.canvas.withContext(this, function() {
+            this.canvas.translate(this.leftOperand.bbox.widow());
+            InfixWidget.__proto__.draw.call(this);
+        });
         // draw left child
-        this.canvas.translate(-bb.width(), 0);
         this.leftOperand.draw();
         // draw right child.
-        this.canvas.translate(bb.width() + this.size.width(), 0);
+        this.canvas.translate(this.leftOperand.bbox.widow());
+        this.canvas.translate(this.size.widow());
         this.rightOperand.draw();
     });
     InfixWidget.drawInterior = function() {
@@ -605,7 +695,7 @@ var make_crender = function() {
     var EndCapWidget = Object.create(ExpWidget);
     EndCapWidget.computeSize = context_saved(function(properties) {
         var r = this.pad(this.canvas.measureText(this.label));
-        return this.pad(r, this.extraPadding);
+        return this.pad(r, this.extraPadding, true/*shift origin*/);
     });
     EndCapWidget.drawInterior = function() {
         this.drawPaddedText(this.label, pt(this.extraPadding.left||0, 0),
@@ -643,7 +733,8 @@ var make_crender = function() {
         return this.pad(rect(this.styles.puzzleIndent +
                              this.styles.puzzleRadius +
                              this.styles.expWidth,
-                             this.styles.textHeight));
+                             this.styles.textHeight), this.styles.tilePadding,
+                       true/*shift origin*/);
     };
     ExpStmtWidget.computeBBox = function(properties) {
         // adjust margin to move expression continuations past our
@@ -684,7 +775,7 @@ var make_crender = function() {
         this.indent =  ExpStmtWidget.computeSize.call(this, properties).right();
         // make room for rhs socket
         return this.pad(r, { left: this.indent,
-                             right: this.styles.expWidth });
+                             right: this.styles.expWidth }, true/*shift*/);
     });
     LabelledExpStmtWidget.drawInterior = function() {
         // indent the text to match expression statements
@@ -700,7 +791,7 @@ var make_crender = function() {
         var r = this.pad(this.canvas.measureText(BREAK_TEXT+SEMI_TEXT));
         // indent the text to match expression statements
         this.indent =  ExpStmtWidget.computeSize.call(this, properties).right();
-        return this.pad(r, {left: this.indent });
+        return this.pad(r, {left: this.indent }, true);
     });
     BreakWidget.drawInterior = function() {
         // indent the text to match expression statements
@@ -755,8 +846,8 @@ var make_crender = function() {
         var r = this.pad(this.canvas.measureText(this.label));
         // pad to account for expression sockets on both sides.
         r = this.pad(r, { left: this.styles.expWidth,
-                          right: this.styles.expWidth });
-        return this.pad(r, this.extraPadding);
+                          right: this.styles.expWidth }, true);
+        return this.pad(r, this.extraPadding, true);
     });
     CommaListWidget.draw = function() {
         this.drawOutline();
@@ -888,7 +979,11 @@ var make_crender = function() {
             this.rightParenBB.ensureHeight(this.leftParenBB.height(),
                                            this.nameBB.height(),
                                            this.functionBB.height());
-
+        // ensure that we're taller than the lineheight context, so we can
+        // shoot a runner underneath the left hand side.
+        this.rightParenBB =
+            this.rightParenBB.ensureHeight((properties.lineHeight || 0) -
+                                           this.rightParenBB.top());
         // add enough for an underline.
         this.rightParenBB =
             this.rightParenBB.ensureHeight(this.rightParenBB.height() +
@@ -897,7 +992,8 @@ var make_crender = function() {
         // now we lay out the block
         var block_prop = Object.create(properties);
         block_prop.margin = 0; // already at the start of the line.
-        this.block.layout(this.canvas, this.styles, properties);
+        block_prop.lineHeight = 0;
+        this.block.layout(this.canvas, this.styles, block_prop);
         this.blockBB = this.block.bbox;
         var blkpt = pt(properties.margin + this.styles.functionIndent,
                        this.rightParenBB.bottom())
@@ -1051,8 +1147,8 @@ var make_crender = function() {
         h += this.bottomSize.height();
         // indent the text to match expression statements
         this.indent = ExpStmtWidget.computeSize.call(this, properties).right();
-        this.topSize = this.pad(this.topSize, { left: this.indent });
-        this.bottomSize = this.pad(this.bottomSize, { left: this.indent });
+        this.topSize = this.pad(this.topSize, { left: this.indent }, true);
+        this.bottomSize = this.pad(this.bottomSize, { left: this.indent }, true);
         w = Math.max(this.topSize.width(), this.bottomSize.width());
 
         this.whileBrace.layout(this.canvas, this.styles, properties);
