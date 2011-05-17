@@ -717,6 +717,9 @@ var make_crender = function() {
     EndCapWidget.extraPadding = { left: 0, right: 0 };
     EndCapWidget.leftHandDir = 1;
     // round right-hand side
+    EndCapWidget.bottomPath = function() {
+        this.canvas.lineTo(0, this.size.bottom());
+    };
     EndCapWidget.rightHandPath = CeeWidget.rightHandPath;
 
     // semicolon terminating an expression statement
@@ -724,11 +727,13 @@ var make_crender = function() {
     var SemiWidget = Object.create(EndCapWidget);
     SemiWidget.label = SEMI_TEXT;
     SemiWidget.extraPadding = { left: 4 };
+    SemiWidget.bgColor = function() { return this.styles.stmtColor; }
 
-    // while end cap
-    WhileBraceWidget = Object.create(EndCapWidget);
-    WhileBraceWidget.label = ") {";
-    WhileBraceWidget.extraPadding = { left: 5, right: 4 };
+    // while/if end cap
+    ParenBraceWidget = Object.create(EndCapWidget);
+    ParenBraceWidget.label = ") {";
+    ParenBraceWidget.extraPadding = { left: 5, right: 4 };
+    ParenBraceWidget.bgColor = function() { return this.styles.stmtColor; }
 
     // expression statement tile; takes an expression on the right.
     var ExpStmtWidget = Object.create(CeeWidget);
@@ -1129,50 +1134,63 @@ var make_crender = function() {
     var WHILE_TEXT = _("while");
     var WhileWidget = Object.create(CeeWidget);
     WhileWidget.bgColor = function() { return this.styles.stmtColor; };
-    this.testExpr = YadaWidget;
+    WhileWidget.testExpr = YadaWidget;
+    WhileWidget.label = WHILE_TEXT;
     WhileWidget.children = function() {
-        if (!this.whileBrace) {
-            this.whileBrace = Object.create(WhileBraceWidget);
+        if (!this.parenBrace) {
+            this.parenBrace = Object.create(ParenBraceWidget);
         }
         if (!this.block) {
             this.block = Object.create(BlockWidget);
         }
-        return [ this.testExpr, this.whileBrace, this.block ];
+        // parenBrace is not a mutable child of this widget.
+        return [ this.testExpr, this.block ];
     };
     WhileWidget.computeSize = context_saved(function(properties) {
         var w, h, indent;
         this.children(); // ensure children are defined/initialized
 
-        this.topSize = this.pad(this.canvas.measureText(WHILE_TEXT+" ("));
+        this.topSize = this.pad(this.canvas.measureText(this.label+" ("));
         // make room for rhs socket
         this.topSize = this.pad(this.topSize, { right: this.styles.expWidth });
         // grow vertically to match test testExpr
-        // XXX ADJUST MARGIN HERE?
-        this.testExpr.layout(this.canvas, this.styles, properties);
+        var test_props = Object.create(properties);
+        test_props.margin = test_props.lineHeight = 0; // align with open paren
+        this.testExpr.layout(this.canvas, this.styles, test_props);
         this.topSize = this.topSize.ensureHeight(this.testExpr.bbox.bottom());
+
         // increase the height to accomodate the block child.
-        // XXX ADJUST MARGIN HERE?
-        this.block.layout(this.canvas, this.styles, properties);
+        var block_props = Object.create(properties);
+        block_props.margin = block_props.lineHeight = 0;
+        this.block.layout(this.canvas, this.styles, block_props);
         h = this.topSize.height();
         h += this.block.bbox.bottom();
+        this.blockBottom = h;
+
+        // "other block stuff" (extension point used by IfWidget)
+        this.indent = ExpStmtWidget.computeSize.call(this, properties).right();
+        h += this.computeExtraBlockSize(properties);
+
         // now accomodate the close brace below
+        this.braceY = h;
         this.bottomSize = this.pad(this.canvas.measureText("} "));
         h += this.bottomSize.height();
+
         // indent the text to match expression statements
-        this.indent = ExpStmtWidget.computeSize.call(this, properties).right();
         this.topSize = this.pad(this.topSize, { left: this.indent }, true);
-        this.bottomSize = this.pad(this.bottomSize, { left: this.indent }, true);
+        this.bottomSize = this.pad(this.bottomSize, {left: this.indent}, true);
         w = Math.max(this.topSize.width(), this.bottomSize.width());
 
-        this.whileBrace.layout(this.canvas, this.styles, properties);
+        this.parenBrace.layout(this.canvas, this.styles, properties);
 
         return rect(w, h);
     });
+    WhileWidget.computeExtraBlockSize = function(properties) { return 0; };
     WhileWidget.computeBBox = function(properties) {
         var w, h;
         this.size = this.computeSize(properties);
         var sz0 = this.testExpr.bbox;
-        var sz1 = this.whileBrace.bbox;
+        var sz1 = this.parenBrace.bbox;
         var sz2 = this.block.bbox;
         w = Math.max(this.size.width(),
                      sz1.width() + sz0.width() + this.topSize.width(),
@@ -1180,9 +1198,8 @@ var make_crender = function() {
                      this.bottomSize.width());
 
         // force trailing brace to match expression height
-        // XXX fix for multiline test expressions.
-        this.whileBrace.bbox = this.whileBrace.size =
-            this.whileBrace.size.ensureHeight(this.topSize.height());
+        this.parenBrace.bbox = this.parenBrace.size =
+            this.parenBrace.size.ensureHeight(this.testExpr.bbox.widowHeight());
 
         return rect(w, this.size.height());
     };
@@ -1206,24 +1223,26 @@ var make_crender = function() {
         // inside of the C
         this.canvas.lineTo(this.styles.blockIndent,
                            this.size.height() - this.bottomSize.height());
+        this.extraRightHandPath(); // hook for subclass
         this.canvas.lineTo(this.styles.blockIndent, this.topSize.height());
         // top puzzle piece plug
         this.canvas.arc(this.styles.blockIndent + this.styles.puzzleIndent +
                         this.styles.puzzleRadius, this.topSize.height(),
-                        this.styles.tileCornerRadius,
+                        this.styles.puzzleRadius,
                         Math.PI, 0, true);
         this.canvas.lineTo(this.topSize.width(), this.topSize.height());
         // now the expression socket
         this.drawCapUp(pt(this.topSize.width(), 0),
                        false/*socket*/, true/*right*/, false/*exp*/);
     };
+    WhileWidget.extraRightHandPath = function() { };
     WhileWidget.drawInterior = function() {
         // indent the text to match expression statements
         var x = this.indent;
-        this.drawPaddedText(WHILE_TEXT, pt(x, 0), this.styles.keywordColor);
-        var wsz = this.pad(this.canvas.measureText(WHILE_TEXT), {});
+        this.drawPaddedText(this.label, pt(x, 0), this.styles.keywordColor);
+        var wsz = this.pad(this.canvas.measureText(this.label), {});
         this.drawPaddedText(" (", pt(x+wsz.width(), 0), this.styles.semiColor);
-        var y = this.topSize.height() + this.block.bbox.height() - 2;
+        var y = this.braceY - 2; // cheat the brace upwards a bit.
         this.drawPaddedText("}", pt(x, y), this.styles.semiColor);
 
         // now draw children
@@ -1231,11 +1250,69 @@ var make_crender = function() {
             this.canvas.translate(this.topSize.widow());
             this.testExpr.draw();
             this.canvas.translate(this.testExpr.bbox.widow());
-            this.whileBrace.draw();
+            this.parenBrace.draw();
         });
         this.canvas.translate(this.styles.blockIndent, this.topSize.height());
         this.block.draw();
     };
+
+    // If statement widget, similar to the WhileWidget
+    var IF_TEXT = _("if");
+    var IF_ELSE_TEXT = _("else");
+    var IfWidget = Object.create(WhileWidget);
+    IfWidget.label = IF_TEXT;
+    IfWidget.children = function() {
+        var children = IfWidget.__proto__.children.call(this);
+        if (this.elseBlock) {
+            children.push(this.elseBlock);
+        }
+        return children;
+    };
+    IfWidget.computeExtraBlockSize = function(properties) {
+        if (!this.elseBlock) { return 0; }
+
+        // height of 'else' clause and brace.
+        this.elseBB = this.pad(this.canvas.measureText(
+            "} "+IF_ELSE_TEXT+" {")).translate(
+                pt(this.indent, this.blockBottom));
+
+        var block_props = Object.create(properties);
+        block_props.margin = block_props.lineHeight = 0;
+        this.elseBlock.layout(this.canvas, this.styles, block_props);
+        this.elseBlockBB = this.elseBlock.bbox.translate(
+            pt(this.styles.blockIndent, this.elseBB.bottom()));
+
+        return this.elseBlockBB.bottom() - this.blockBottom;
+    };
+    IfWidget.extraRightHandPath = function() {
+        this.canvas.lineTo(this.styles.blockIndent, this.elseBB.bottom());
+        // make a puzzle piece plug
+        this.canvas.arc(this.styles.blockIndent + this.styles.puzzleIndent +
+                        this.styles.puzzleRadius, this.elseBB.bottom(),
+                        this.styles.puzzleRadius,
+                        Math.PI, 0, true);
+        this.drawRoundCorner(this.elseBB.br(), 1, false);
+        this.drawRoundCorner(this.elseBB.tr(), 0, false);
+        this.canvas.lineTo(this.styles.blockIndent, this.elseBB.top());
+    };
+    IfWidget.drawInterior = function() {
+        this.canvas.withContext(this, IfWidget.__proto__.drawInterior);
+        if (!this.elseBlock) { return; }
+
+        // draw the else keyword
+        var pt = this.elseBB.tl();
+        pt = pt.add(0, -2); // cheat up a bit.
+        this.drawPaddedText("} ", pt, this.styles.semiColor);
+        pt = pt.add(this.canvas.measureText("} ").width, 0);
+        this.drawPaddedText(IF_ELSE_TEXT, pt, this.styles.keywordColor);
+        pt = pt.add(this.canvas.measureText(IF_ELSE_TEXT).width, 0);
+        this.drawPaddedText(" {", pt, this.styles.semiColor);
+
+        // draw the else block.
+        this.canvas.translate(this.elseBlockBB.tl());
+        this.elseBlock.draw();
+    };
+
 
     var crender, crender_stmt, crender_stmts;
     var indentation, prec_stack = [ 0 ];
@@ -1491,23 +1568,15 @@ var make_crender = function() {
         assert(false, "Should be handled by block context");
         return Object.create(YadaWidget);
     });
-    // XXX STUB
     stmt("if", function() {
-        var esw = Object.create(ExpStmtWidget);
-        return esw;
+        var iw = Object.create(IfWidget);
+        iw.testExpr = crender(this.first);
+        iw.block = crender(this.second);
+        if (this.third) {
+            iw.elseBlock = crender(this.third);
+        }
+        return iw;
     });
-/*
-    stmt("if", function() {
-            var result = "if ("+crender(this.first)+") ";
-            // this.second.value === block
-            result += crender(this.second);
-            if (this.third) {
-                result += " else ";
-                result += crender(this.third);
-            }
-            return result;
-        });
-*/
     stmt("return", function() {
         var rw, w;
         if (this.first) {
