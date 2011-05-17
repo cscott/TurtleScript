@@ -554,7 +554,8 @@ var make_crender = function() {
             this.childPos.push(bbox.widow());
             bbox = first ? c.bbox : bbox.chainHoriz(c.bbox);
             if (c.bbox.multiline()) {
-                lineHeight = 0; // reset line height once we wrap
+                // reset line height once we wrap
+                lineHeight -= bbox.widow().y;
             }
             first = false;
         }.bind(this));
@@ -564,8 +565,10 @@ var make_crender = function() {
                          bottom: this.styles.expUnderHeight});
         // if we wrapped, we also need a leader on the left
         if (bbox.multiline()) {
-            bbox = bbox.pad({left: this.styles.expUnderWidth,
-                             indenty: this.styles.expUnderHeight});
+            bbox = bbox.pad({left: this.styles.expUnderWidth});
+            var indent = bbox.indent().x - bbox.left();
+            var indentSign = (indent < 0) ? -1 : (indent > 0) ? 1 : 0;
+            bbox = bbox.pad({indenty: indentSign*this.styles.expUnderHeight});
         }
         return bbox;
     };
@@ -587,7 +590,7 @@ var make_crender = function() {
         // along bottoms of each item and them up around the separator
         this.canvas.setFill(this.bgColor());
         this.canvas.beginPath();
-        this.canvas.moveTo(this[0].bbox.bl());
+        this.canvas.moveTo(this[0].bbox.indent());
         this.children().forEach(function(c, i) {
             if (i!==0) {
                 var cpos = this.commaPos[i-1];
@@ -696,12 +699,14 @@ var make_crender = function() {
             pad_lbb = this.lbb.pad({bottom: this.styles.expUnderHeight});
         }
         // account for underline
+        pad_rbb = this.rbb.pad({bottom:this.styles.expUnderHeight});
         if (this.rbb.multiline()) {
-            pad_rbb = this.rbb.pad({left:this.styles.expUnderWidth,
-                                    bottom:this.styles.expUnderHeight,
-                                    indenty:this.styles.expUnderHeight});
-        } else {
-            pad_rbb = this.rbb.pad({bottom:this.styles.expUnderHeight});
+            pad_rbb = pad_rbb.pad({left:this.styles.expUnderWidth});
+            var indentAmt = pad_rbb.indent().x - pad_rbb.left();
+            var indentSign = (indentAmt < 0) ? -1 : (indentAmt > 0) ? 1 : 0;
+            console.log(indentSign);
+            pad_rbb = pad_rbb.pad(
+                { indenty: indentSign*this.styles.expUnderHeight });
         }
 
         // ok, make total bbox
@@ -727,10 +732,8 @@ var make_crender = function() {
         // now we're either going to go down, if the right operand is multiline,
         // or go back to the right if it's not.
         if (this.rbb.multiline()) {
-            this.canvas.lineTo(this.lbb.left(),
-                               this.rbb.indent().y-this.styles.expUnderHeight);
-            this.canvas.lineTo(this.bb.left(),
-                               this.rbb.indent().y-this.styles.expUnderHeight);
+            this.canvas.lineTo(this.lbb.left(), this.bb.indent().y);
+            this.canvas.lineTo(this.bb.left(), this.bb.indent().y);
             this.canvas.lineTo(this.bb.bl());
             this.canvas.lineTo(this.rbb.widow().x, this.bb.bottom());
         } else {
@@ -864,6 +867,12 @@ var make_crender = function() {
     NameWidget.setFont = function() {
         this.canvas.setFontBold(true);
         this.canvas.setFill(this.styles.nameColor);
+    };
+    // Name literal -- kinda like a name, but different.
+    // XXX figure out exactly how this is different
+    var NameLiteralWidget = Object.create(NameWidget);
+    NameLiteralWidget.setFont = function() {
+        this.canvas.setFill(this.styles.textColor);
     };
 
     // Literals
@@ -1215,6 +1224,145 @@ var make_crender = function() {
             this.block.draw();
         });
     });
+
+    var DotNameWidget = Object.create(Widget);
+    DotNameWidget.isInvoke = false;
+    DotNameWidget.children = function() {
+        var r = [ this.leftOperand, this.name ];
+        if (this.isInvoke) {
+            if (!this.args) {
+                this.args = Object.create(CommaListWidget);
+                this.args.disallowEmptyList = true;
+            }
+            r = r.concat(this.args.children());
+        }
+    };
+    DotNameWidget.computeBBox = context_saved(function(properties) {
+        this.children(); // create argument list if necessary
+
+        // first, we have a left-hand expression
+        this.leftOperand.layout(this.canvas, this.styles, properties);
+        this.leftBB = this.leftOperand.bbox;
+
+        // now the dot operator
+        var dot = this.pad(this.canvas.measureText("."));
+        dot = dot.pad({ right: this.styles.expWidth /* for sockets */});
+        this.dotBB = dot.translate(this.leftBB.widow());
+
+        // and now a name. (don't worry about wrapping)
+        this.name.layout(this.canvas, this.styles, properties);
+        this.nameBB = this.name.bbox.translate(this.dotBB.widow());
+
+        var bbox = this.leftOperand.bbox.
+            chainHoriz(dot).chainHoriz(this.name.bbox);
+
+        if (this.isInvoke) {
+            // parentheses and an arguments list.
+            var lparen = this.pad(this.canvas.measureText("("));
+            lparen = lparen.pad({right: this.styles.expWidth/* for sockets */});
+            this.lparenBB = lparen.translate(this.nameBB.widow());
+
+            // align wrapped arguments with the open paren
+            var arg_props = Object.create(properties);
+            arg_props.margin = arg_props.lineHeight = 0;
+            this.args.layout(this.canvas, this.styles, arg_props);
+            this.argsBB = this.args.bbox.translate(this.lparenBB.widow());
+
+            var rparen = this.pad(this.canvas.measureText(")"));
+            rparen = rparen.pad({right: this.styles.expWidth/* for sockets */});
+            this.rparenBB = rparen.translate(this.argsBB.widow());
+            bbox = bbox.chainHoriz(lparen).
+                chainHoriz(this.args.bbox).chainHoriz(rparen);
+            // if args wrapped, need to adjust the indent to allow for underline
+            if (this.argsBB.multiline()) {
+                bbox = bbox.pad({ left: this.styles.expUnderWidth,
+                                  indenty: -this.styles.expUnderHeight });
+            }
+        } else {
+            // add a little space for the socket adapter on the right
+            bbox = bbox.pad({right: this.styles.expWidth});
+        }
+        bbox = bbox.pad({bottom: this.styles.expUnderHeight});
+        return bbox;
+    });
+    DotNameWidget.draw = function() {
+        this.drawOutline();
+        this.drawInterior();
+        this.drawChildren();
+    };
+    DotNameWidget.drawOutline = context_saved(function() {
+        this.canvas.setFill(this.bgColor());
+        this.canvas.beginPath();
+        this.canvas.moveTo(this.leftBB.bl());
+        this.canvas.lineTo(this.leftBB.widow().x, this.leftBB.bottom());
+        // draw the expression socket for the left operand
+        this.drawCapUp(this.leftBB.widow(), false/*socket*/,false/*left*/,
+                       false/*exp*/);
+        // draw the name socket for the name.
+        this.drawCapDown(this.nameBB.tl(), false/*socket*/,true/*right*/,
+                         true/*name*/);
+        // underline the name
+        this.canvas.lineTo(this.nameBB.bl());
+        this.canvas.lineTo(this.nameBB.br());
+        // other side of the name socket.
+        this.drawCapUp(this.nameBB.widow(), false/*socket*/,false/*left*/,
+                       true/*name*/);
+        if (this.isInvoke) {
+            // args list socket
+            this.drawCapDown(pt(this.argsBB.indent().x, this.argsBB.top()),
+                             false/*socket*/,true/*right*/,false/*exp*/);
+            // underline the args list
+            this.canvas.lineTo(this.argsBB.indent());
+            this.canvas.lineTo(this.argsBB.left(), this.argsBB.indent().y);
+            this.canvas.lineTo(this.argsBB.bl());
+            this.canvas.lineTo(this.argsBB.widow().x, this.argsBB.bottom());
+            // other side of args list socket
+            this.drawCapUp(this.argsBB.widow(),
+                           false/*socket*/, false/*left*/,false/*exp*/);
+            // around the close paren
+        }
+        this.canvas.lineTo(this.bbox.widow());
+        this.drawCapDown(this.bbox.widow(),
+                         true/*plug*/, true/*right*/,false/*exp*/);
+        // now trace the bottom of our bounding box
+        this.canvas.lineTo(this.bbox.widow().x, this.bbox.bottom());
+        this.canvas.lineTo(this.bbox.bl());
+        this.canvas.lineTo(this.bbox.left(), this.bbox.indent().y);
+        this.canvas.lineTo(this.bbox.indent());
+
+        // done!
+        this.canvas.closePath();
+        this.canvas.fill();
+        this.canvas.stroke();
+    });
+    DotNameWidget.drawInterior = context_saved(function() {
+        // draw the dot
+        this.drawPaddedText(".", this.dotBB.tl());
+        if (this.isInvoke) {
+            // draw the open paren
+            this.drawPaddedText("(", this.lparenBB.tl());
+            // draw the close paren
+            this.drawPaddedText(")", this.rparenBB.tl());
+        }
+    });
+    DotNameWidget.drawChildren = context_saved(function() {
+        // draw left operand.
+        this.leftOperand.draw();
+        // draw name
+        this.canvas.withContext(this, function() {
+            this.canvas.translate(this.nameBB.tl());
+            this.name.draw();
+        });
+        if (this.isInvoke) {
+            // draw args list
+            this.canvas.withContext(this, function() {
+                this.canvas.translate(this.argsBB.indent().x,
+                                      this.argsBB.top());
+                this.args.draw();
+            });
+        }
+    });
+
 
     // XXX function invocation, contains a name list
     var InvokeWidget = Object.create(YadaWidget);
@@ -1617,16 +1765,14 @@ var make_crender = function() {
         });
         return iw;
     }));
-    // XXX STUBS
     binary(".", 80, with_prec_paren(80, function() {
-        return Object.create(YadaWidget);
+        assert(this.second.arity==='literal', this.second);
+        var w = Object.create(DotNameWidget);
+        w.leftOperand = crender(this.first);
+        w.name = Object.create(NameLiteralWidget);
+        w.name.name = this.second.value;
+        return w;
     }));
-    /*
-    binary(".", 80, with_prec_paren(80, function() {
-            assert(this.second.arity==='literal', this.second);
-            return crender(this.first)+"."+this.second.value;
-            }));
-    */
 
     // Ternary ASTs
     dispatch.ternary = function() {
@@ -1636,11 +1782,22 @@ var make_crender = function() {
     var ternary = function(op, prec, f) {
         dispatch.ternary[op] = with_prec_paren(prec, f);
     };
+    ternary("(", 80, function() {
+        // precedence is 80, same as . and '(')
+        assert(this.second.arity==='literal', this.second);
+        var w = Object.create(DotNameWidget);
+        w.leftOperand = crender(this.first);
+        w.name = Object.create(NameLiteralWidget);
+        w.name.name = this.second.value;
+        w.isInvoke = true;
+        w.args = Object.create(CommaListWidget);
+        this.third.forEach(function(c) {
+            w.args.addChild(with_prec(0, crender)(c));
+        });
+        return w;
+    });
     // XXX STUBS
     ternary("?", 20, function() {
-        return Object.create(YadaWidget);
-    });
-    ternary("(", 80, function() {
         return Object.create(YadaWidget);
     });
     /*
@@ -1648,12 +1805,6 @@ var make_crender = function() {
             return crender(this.first) + " ? " +
                 crender(this.second) + " : " +
                 crender(this.third);
-        });
-    ternary("(", 80, function() {
-            // precedence is 80, same as . and '(')
-            assert(this.second.arity==='literal', this.second);
-            return crender(this.first) + "." + this.second.value + "(" +
-                gather(this.third, ", ", with_prec(0, crender)) + ")";
         });
     */
 

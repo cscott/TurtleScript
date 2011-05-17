@@ -19,11 +19,12 @@ Object.prototype.error = function (message, t) {
     console.log(t);
     throw t;
 };
-var tests = make_tests();
-var isource = tests[tests.length-2];
+var tests = make_tests(make_parse);
+var isource = "";
+//isource = tests[tests.length-2];
 //isource='{console=2+3;return this;}';
 //isource='var a,b="test\\n",c,d,e;console=typeof !3;while(!2&&3||4) {console=2*3/4;var z;break;} console=console; function foo (y) {return false;}';
-isource = tests[0].replace(/module/,'make_tests');
+//isource = tests[0].replace(/module/,'make_tests');
 //isource = 'var a = 1 + 2;';
 //isource = "function foo() { while(true) { return 3; } };";
 //isource = "console = 1 + 2 + 3 + 4 + 5;";
@@ -35,8 +36,13 @@ isource = tests[0].replace(/module/,'make_tests');
 //isource += "console = !function (x) { return x; } + function(){};";
 //isource = "while (function(x) { return x; }+(true)) { return false; }";
 //isource += "if (function(x) { return x; }+(true)) { return false; } else { return true; }";
-//isource = "console(1, 2, 3+4);console(1,function(a,b){},3,function(c,d){});console[function(e,f){}]=1;";
+isource += "var a = console.log(function() { },3);";
+isource += "console(1, 2, 3+4);console(1,function(a,b){},3,function(c,d){});console[function(e,f){}]=1;";
 //isource = "function foo(a) { return a(a,function(){}); }; function bar(b){}";
+//isource = tests[0];
+//isource = "console.a = console.b(2, function() { }, 3);";
+isource += "console.log(1, console.log(2, function(){}), 3);";
+isource += "console.log(1, console.log(2, function(){}), function(){});";
 
 // parse the example source
 var top_level = "isFinite parseInt Boolean String Function Math "+
