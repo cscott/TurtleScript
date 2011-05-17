@@ -707,7 +707,6 @@ var make_crender = function() {
             pad_rbb = pad_rbb.pad({left:this.styles.expUnderWidth});
             var indentAmt = pad_rbb.indent().x - pad_rbb.left();
             var indentSign = (indentAmt < 0) ? -1 : (indentAmt > 0) ? 1 : 0;
-            console.log(indentSign);
             pad_rbb = pad_rbb.pad(
                 { indenty: indentSign*this.styles.expUnderHeight });
         }
@@ -1367,10 +1366,6 @@ var make_crender = function() {
     });
 
 
-    // XXX function invocation, contains a name list
-    var InvokeWidget = Object.create(YadaWidget);
-
-    // XXX array creation, contains a expression list (vertical?)
     // XXX object creation, contains a funny sort of expression list (vertical?)
 
     // while statement tile. c-shaped, also takes a right hand expression.
