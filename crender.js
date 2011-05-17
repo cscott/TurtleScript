@@ -559,6 +559,9 @@ var make_crender = function() {
             }
             first = false;
         }.bind(this));
+        // misc. prettiness: don't underline if there's only one item
+        // in the list
+        if (this.length <= 1) { return bbox; }
         // add some extra width to encourage folks to add new stuff
         // and some height to account for the underline
         bbox = bbox.pad({right: this.styles.listEndPadding,
