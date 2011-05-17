@@ -49,6 +49,7 @@ var make_crender = function() {
     // By convention, we place the origin at the top-left of the I in INDENT,
     // so widgets typically return a bounding box with tl.y === 0, tl.x <=0,
     // and indent.x === 0.
+    // Note that indent.x < tl.x is possible and valid.
     var MultiLineBBox = {
         // multiline should generally be equivalent to
         //     this.indent.equals(this.bl) && this.widow.equals(this.tr);
@@ -97,12 +98,17 @@ var make_crender = function() {
         contains: function(x, y) {
             // allow passing a pt object as first arg
             if (typeof(x)==="object") { y=x.y; x=x.x; }
-            return ( // check overall bounding box
-                    (x >= this._tl.x) && (x < this._br.x) &&
-                    (y >= this._tl.y) && (y < this._br.y) &&
-                    // check indent
-                    (x >= this.indent().x || y >= this.indent().y) &&
-                    (x <  this.widow().x  || y <  this.widow().y) );
+            if (y < this._tl.y) {
+                return false;
+            } else if (y < this.indent.y()) {
+                return (x >= this.indent().x) && (x < this._br.x);
+            } else if (y < this.widow().y) {
+                return (x >= this._tl.x) && (x < this._br.x);
+            } else if (y < this._br.y) {
+                return (x >= this._tl.x) && (x < this.widow().x);
+            } else {
+                return false;
+            }
         },
         toString: function() {
             return "["+this.tl()+"-"+this.br()+" i:"+this.indent()+", "+
@@ -134,6 +140,10 @@ var make_crender = function() {
         var indent = this.indent();
         if (!this.multiline()) {
             indent = pt(indent.x, Math.max(indent.y, bb2.indent().y));
+            // is this creating a box with a negative indent?
+            if (this.left() < bb2.left()) {
+                tl = bb2.tl();
+            }
         }
         var widow = bb2.widow(); // falls back to tr()
         return this.create(tl, br, indent, widow, ml);
@@ -607,17 +617,17 @@ var make_crender = function() {
                                this.rbb.indent().y-this.styles.expUnderHeight);
             this.canvas.lineTo(this.bb.bl());
             this.canvas.lineTo(this.rbb.widow().x, this.bb.bottom());
-            this.canvas.lineTo(this.rbb.widow().x, this.rbb.bottom());
-            this.canvas.lineTo(this.rbb.bl());
-            this.canvas.lineTo(this.rbb.left(), this.rbb.indent().y);
-            this.canvas.lineTo(this.rbb.indent());
         } else {
             this.canvas.lineTo(this.lbb.left(), this.bb.bottom());
             this.canvas.lineTo(this.rbb.right(), this.bb.bottom());
-            this.canvas.lineTo(this.rbb.br());
-            this.canvas.lineTo(this.rbb.bl());
-       }
+        }
+        this.extraBottomPath(); // hook for sub class
+        this.canvas.lineTo(this.rbb.widow().x, this.rbb.bottom());
+        this.canvas.lineTo(this.rbb.bl());
+        this.canvas.lineTo(this.rbb.left(), this.rbb.indent().y);
+        this.canvas.lineTo(this.rbb.indent());
     };
+    InfixWidget.extraBottomPath = function() { };
     InfixWidget.draw = context_saved(function() {
         var lbb = (this.isPrefix) ? rect(0,0) : this.leftOperand.bbox;
         // draw me
@@ -646,6 +656,42 @@ var make_crender = function() {
     PrefixWidget.leftOperand = ({}).undefined;
     PrefixWidget.children = function() {
         return [ this.rightOperand ];
+    };
+
+    // make ([ operators from the infix widget
+    var WithSuffixWidget = Object.create(InfixWidget);
+    WithSuffixWidget.computeBBox = context_saved(function(properties) {
+        var bbox=WithSuffixWidget.__proto__.computeBBox.call(this, properties);
+        // add space at the widow end for the close operator
+        var co = this.pad(this.canvas.measureText(" "+this.closeOperator+" "));
+        co = co.pad({ right: this.styles.expWidth });
+        this.closeBB = co.translate(bbox.widow());
+        // now offset to "operator centric" coordinates, like the rest of
+        // infix widget (ugh)
+        var lbb = (this.isPrefix) ? rect(0,0) : this.leftOperand.bbox;
+        this.closeBB = this.closeBB.translate(lbb.widow().negate());
+
+        bbox = bbox.chainHoriz(co);
+
+        // record bottom corner for use in extraBottomPath
+        var wbb = bbox.translate(lbb.widow().negate());
+        this.wbb = pt(wbb.widow().x, wbb.bottom());
+
+        return bbox;
+    });
+    WithSuffixWidget.drawInterior = function() {
+        WithSuffixWidget.__proto__.drawInterior.call(this);
+        var offset = Math.floor(this.styles.expWidth / 2) - 1;
+        this.drawPaddedText(" "+this.closeOperator+" ",
+                            this.closeBB.tl().add(offset, 0));
+    };
+    WithSuffixWidget.extraBottomPath = function() {
+        this.canvas.lineTo(this.wbb);
+        this.drawCapUp(pt(this.wbb.x, this.bb.widow().y),
+                       true/*plug*/, true/*right*/, false/*exp*/);
+        this.canvas.lineTo(this.bb.widow());
+        this.drawCapDown(this.bb.widow(),
+                         false/*socket*/,false/*left*/, false/*exp*/);
     };
 
     var LabelledExpWidget = Object.create(ExpWidget);
@@ -840,24 +886,43 @@ var make_crender = function() {
     CommaListWidget.computeBBox = function(properties) {
         this.size = this.computeSize(properties);
         var first = true;
-        var w = 0, h = this.size.height();
+        var bbox = rect(0, this.size.height());
+        var lineHeight = properties.lineHeight || 0;
+        this.commaPos = [];
+        this.childPos = [];
         this.children().forEach(function(c) {
             // add separator (if not the first element)
             if (!first) {
-                w += this.size.right();
-                h = Math.max(h, this.size.bottom());
+                this.commaPos.push(bbox.widow());
+                bbox = bbox.chainHoriz(this.size);
             }
+            var child_props = Object.create(properties);
+            // adjust margin for new start position as well as to allow for
+            // a descender on the left.
+            child_props.margin = (properties.margin||0) - bbox.widow().x;
+            child_props.margin += this.styles.expUnderWidth;
+            // lineheight has to account for underline
+            child_props.lineHeight = this.styles.expUnderHeight +
+                Math.max(lineHeight, bbox.widowHeight());
             // add the child.
-            // XXX PROVIDE PROPER MARGIN, ACCOUNT FOR MULTILINE LAYOUT
-            c.layout(this.canvas, this.styles, properties);
-            w += c.bbox.right();
-            h = Math.max(h, c.bbox.bottom());
+            c.layout(this.canvas, this.styles, child_props);
+            this.childPos.push(bbox.widow());
+            bbox = first ? c.bbox : bbox.chainHoriz(c.bbox);
+            if (c.bbox.multiline()) {
+                lineHeight = 0; // reset line height once we wrap
+            }
             first = false;
         }.bind(this));
         // add some extra width to encourage folks to add new stuff
-        w += this.styles.listEndPadding;
-        // add some extra height for the underline.
-        return rect(w, h + this.styles.expUnderHeight);
+        // and some height to account for the underline
+        bbox = bbox.pad({right: this.styles.listEndPadding,
+                         bottom: this.styles.expUnderHeight});
+        // if we wrapped, we also need a leader on the left
+        if (bbox.multiline()) {
+            bbox = bbox.pad({left: this.styles.expUnderWidth,
+                             indenty: this.styles.expUnderHeight});
+        }
+        return bbox;
     };
     CommaListWidget.extraPadding = { left: -3, right: -3 }; // tighten up
     CommaListWidget.computeSize = context_saved(function(properties) {
@@ -873,50 +938,51 @@ var make_crender = function() {
         this.drawChildren();
     };
     CommaListWidget.drawOutline = context_saved(function() {
-        var x = 0;
+        if (this.length === 0) { return; }
+        // along bottoms of each item and them up around the separator
         this.canvas.setFill(this.bgColor());
         this.canvas.beginPath();
-        this.canvas.moveTo(x, this.bbox.bottom());
-        var first = true;
-        this.children().forEach(function(c) {
-            if (!first) {
+        this.canvas.moveTo(this[0].bbox.bl());
+        this.children().forEach(function(c, i) {
+            if (i!==0) {
+                var cpos = this.commaPos[i-1];
                 // draw the separator
-                this.drawCapUp(pt(x, 0),
+                this.drawCapUp(cpos,
                                false/*socket*/, false/*left*/, this.isName);
                 // right side.
-                x += this.size.right();
-                this.drawCapDown(pt(x, 0),
+                this.drawCapDown(cpos.add(this.size.tr()),
                                  false/*socket*/, true/*right*/, this.isName);
             }
-            this.canvas.lineTo(x, c.bbox.bottom());
-            x += c.bbox.right();
-            this.canvas.lineTo(x, c.bbox.bottom());
-            first = false;
+            // now draw the bottom border of the child.
+            var bb = c.bbox.translate(this.childPos[i]);
+            this.canvas.lineTo(bb.indent());
+            this.canvas.lineTo(bb.left(), bb.indent().y);
+            this.canvas.lineTo(bb.bl());
+            this.canvas.lineTo(bb.widow().x, bb.bottom());
         }.bind(this));
-        this.canvas.lineTo(x, this.bbox.bottom());
+        // now draw around my bounding box.
+        this.canvas.lineTo(this.bbox.widow().x, this.bbox.bottom());
+        this.canvas.lineTo(this.bbox.bl());
+        this.canvas.lineTo(this.bbox.left(), this.bbox.indent().y);
+        this.canvas.lineTo(this.bbox.indent());
+
         this.canvas.closePath();
         this.canvas.fill();
         this.canvas.stroke();
     });
     CommaListWidget.drawInterior = context_saved(function() {
-        this.canvas.setFill(this.styles.semiColor);
-        var x = this.styles.expWidth + this.extraPadding.left;
-        var first = true;
-        this.children().forEach(function(c) {
-            if (!first) {
-                this.drawPaddedText(this.label, pt(x, 0));
-                x += this.size.right();
-            }
-            x += c.bbox.right();
-            first = false;
+        var offset = this.styles.expWidth + (this.extraPadding.left || 0);
+        this.commaPos.forEach(function(pos) {
+            this.drawPaddedText(this.label, pos.add(offset,0),
+                                this.styles.semiColor);
         }.bind(this));
     });
     CommaListWidget.drawChildren = context_saved(function() {
-        this.children().forEach(function(c) {
-            c.draw();
-            canvas.translate(c.bbox.right(), 0);
-            // skip past separator
-            canvas.translate(this.size.right(), 0);
+        this.children().forEach(function(c, i) {
+            this.canvas.withContext(this, function() {
+                this.canvas.translate(this.childPos[i]);
+                c.draw();
+            });
         }.bind(this));
     });
 
@@ -937,7 +1003,7 @@ var make_crender = function() {
         this.expression.addChild(nameWidget);
     };
 
-    // XXX function expression, contains a name list and a block
+    // function expression, contains a name list and a block
     // XXX render functions w/ no body inline?
     var FUNCTION_TEXT = _("function");
     var FunctionWidget = Object.create(Widget);
@@ -973,39 +1039,39 @@ var make_crender = function() {
         this.leftParenBB = this.leftParenBB.translate(this.nameBB.widow());
 
         // args could be multiline, but aligns at the open paren
-        // XXX HANDLE MULTILINE CASE; ADJUST PASSED-IN MARGIN
-        this.args.layout(this.canvas, this.styles, properties);
+        var arg_props = Object.create(properties);
+        arg_props.lineHeight = arg_props.margin = 0;
+        this.args.layout(this.canvas, this.styles, arg_props);
         this.argsBB = this.args.bbox;
         // adjust args to have a minimum width (even w/ no args)
-        // XXX CAREFUL WHEN THERE'S A NEGATIVE OFFSET
         if (this.argsBB.width() < this.styles.functionNameSpace) {
-            this.argsBB = rect(this.styles.functionNameSpace,
-                               this.argsBB.height());
+            this.argsBB=this.argsBB.pad({right:this.styles.functionNameSpace});
         }
-        this.argsBB = this.argsBB.translate(this.leftParenBB.tr());
+        this.argsBB = this.argsBB.translate(this.leftParenBB.widow());
 
-        // XXX should fix this if args is multiline
         this.rightParenBB = this.pad(this.canvas.measureText(") {"));
         this.rightParenBB = this.rightParenBB.translate(this.argsBB.widow());
         // ensure this is tall enough to cover args
-        // XXX should really be looking at widow height
         this.rightParenBB =
             this.rightParenBB.ensureHeight(this.argsBB.widowHeight());
         // ensure rightParenBB is tall enough for everything else on the
-        // first line XXX multiline fixme
-        this.rightParenBB =
-            this.rightParenBB.ensureHeight(this.leftParenBB.height(),
-                                           this.nameBB.height(),
-                                           this.functionBB.height());
+        // first line (if we haven't line-wrapped yet)
+        if (!this.argsBB.multiline()) {
+            this.rightParenBB =
+                this.rightParenBB.ensureHeight(this.leftParenBB.height(),
+                                               this.nameBB.height(),
+                                               this.functionBB.height());
+        }
         // ensure that we're taller than the lineheight context, so we can
         // shoot a runner underneath the left hand side.
-        this.rightParenBB =
-            this.rightParenBB.ensureHeight((properties.lineHeight || 0) -
-                                           this.rightParenBB.top());
+        if (this.rightParenBB.bottom() < (properties.lineHeight || 0)) {
+            var extraPad = properties.lineHeight - this.rightParenBB.bottom();
+            this.rightParenBB = this.rightParenBB.pad({bottom: extraPad});
+        }
+
         // add enough for an underline.
         this.rightParenBB =
-            this.rightParenBB.ensureHeight(this.rightParenBB.height() +
-                                           this.styles.expUnderHeight);
+            this.rightParenBB.pad({bottom:this.styles.expUnderHeight});
 
         // now we lay out the block
         var block_prop = Object.create(properties);
@@ -1073,10 +1139,12 @@ var make_crender = function() {
         this.drawCapDown(this.rightParenBB.tl(),
                          false/*socket*/, false/*left*/, true/*name*/);
         // underline the arg list
-        this.canvas.lineTo(this.argsBB.br());
+        this.canvas.lineTo(this.argsBB.widow().x, this.argsBB.bottom());
         this.canvas.lineTo(this.argsBB.bl());
+        this.canvas.lineTo(this.argsBB.left(), this.argsBB.indent().y);
+        this.canvas.lineTo(this.argsBB.indent());
         // arg list name socket (left side of arg list; right side socket)
-        this.drawCapUp(this.argsBB.tl(),
+        this.drawCapUp(pt(this.argsBB.indent().x, this.argsBB.top()),
                          false/*socket*/, true/*right*/, true/*name*/);
         // function name socket (right side of name; left side socket)
         this.drawCapDown(this.leftParenBB.tl(),
@@ -1114,7 +1182,7 @@ var make_crender = function() {
         });
         // draw args list
         this.canvas.withContext(this, function() {
-            this.canvas.translate(this.argsBB.tl());
+            this.canvas.translate(this.argsBB.indent().x, this.argsBB.top());
             this.args.draw();
         });
         // draw block
@@ -1285,6 +1353,8 @@ var make_crender = function() {
         return this.elseBlockBB.bottom() - this.blockBottom;
     };
     IfWidget.extraRightHandPath = function() {
+        if (!this.elseBlock) { return; }
+
         this.canvas.lineTo(this.styles.blockIndent, this.elseBB.bottom());
         // make a puzzle piece plug
         this.canvas.arc(this.styles.blockIndent + this.styles.puzzleIndent +
@@ -1498,29 +1568,34 @@ var make_crender = function() {
     binary('*', 60);
     binary('/', 60);
 
-    // XXX STUBS
-    binary(".", 80, with_prec_paren(80, function() {
-        return Object.create(YadaWidget);
-    }));
     binary("[", 80, with_prec_paren(80, function() {
-        return Object.create(YadaWidget);
+        var iw = Object.create(WithSuffixWidget);
+        iw.operator = '[';
+        iw.closeOperator = ']';
+        iw.leftOperand = crender(this.first);
+        iw.rightOperand = with_prec(0, crender)(this.second);
+        return iw;
     }));
     binary("(", 75, with_prec_paren(80, function() {
+        // simple method invocation (doesn't set 'this')
+        var iw = Object.create(WithSuffixWidget);
+        iw.operator = '(';
+        iw.closeOperator = ')';
+        iw.leftOperand = crender(this.first);
+        iw.rightOperand = Object.create(CommaListWidget);
+        this.second.forEach(function(c) {
+            iw.rightOperand.addChild(with_prec(0, crender)(c));
+        });
+        return iw;
+    }));
+    // XXX STUBS
+    binary(".", 80, with_prec_paren(80, function() {
         return Object.create(YadaWidget);
     }));
     /*
     binary(".", 80, with_prec_paren(80, function() {
             assert(this.second.arity==='literal', this.second);
             return crender(this.first)+"."+this.second.value;
-            }));
-    binary('[', 80, with_prec_paren(80, function() {
-                return crender(this.first) + "[" +
-                    with_prec(0, crender)(this.second) + "]";
-            }));
-    binary('(', 75, with_prec_paren(75, function() {
-            // simple method invocation (doesn't set 'this')
-                return crender(this.first) + "(" +
-                gather(this.second, ", ", with_prec(0, crender)) + ")";
             }));
     */
 
