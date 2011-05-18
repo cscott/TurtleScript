@@ -75,6 +75,7 @@ to compile.</p>
 <SCRIPT src="./bytecode_table.js"></SCRIPT>
 <SCRIPT src="./bcompile.js"></SCRIPT>
 <SCRIPT src="./binterp.js"></SCRIPT>
+<SCRIPT src="./crender.js"></SCRIPT>
 <SCRIPT src="./tests.js"></SCRIPT>
 
 <pre id="errors"></pre>
@@ -139,7 +140,8 @@ function do_it() {
        return result;
     }
 
-    sources = make_tests(tokenize, make_parse, make_jcompile, make_render,
+    sources = make_tests(tokenize, make_parse, make_jcompile,
+                        make_render, make_crender,
                         make_bytecode_table, make_bcompile, make_binterp,
                         make_binterp().library_init,
                         self_test);
@@ -150,11 +152,12 @@ function do_it() {
     //isource = sources[7].replace(/module/, 'library_init');
     source = sources[0].replace(/module/, "tokenize") + "\n" +
              sources[1].replace(/module/, "make_parse") + "\n" +
-             sources[4].replace(/module/, "make_bytecode_table") + "\n" +
-             sources[5].replace(/module/, "make_bcompile") + "\n" +
-             sources[6].replace(/module/, "make_binterp") + "\n" +
-             sources[7].replace(/module/, "library_init") + "\n" +
-             sources[8].replace(/module/, "self_test") + "\n" +
+             //sources[4].replace(/module/, "make_crender") + "\n"+
+             sources[5].replace(/module/, "make_bytecode_table") + "\n" +
+             sources[6].replace(/module/, "make_bcompile") + "\n" +
+             sources[7].replace(/module/, "make_binterp") + "\n" +
+             sources[8].replace(/module/, "library_init") + "\n" +
+             sources[9].replace(/module/, "self_test") + "\n" +
              "{ library_init(); return self_test(arguments[0]); }\n";
 
     if (0) {
