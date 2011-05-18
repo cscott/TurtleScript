@@ -79,6 +79,10 @@ var make_crender = function() {
             if (typeof(multiline)==="boolean") { bb._multiline = multiline; }
             return bb;
         },
+        toString: function() {
+            return "["+this.tl()+"-"+this.br()+" i:"+this.indent()+", "+
+                "w:"+this.widow()+", m:"+this.multiline()+"]";
+        },
         translate: function(pt) {
             return this.create(this._tl.add(pt),
                                this._br.add(pt),
@@ -110,10 +114,61 @@ var make_crender = function() {
                 return false;
             }
         },
-        toString: function() {
-            return "["+this.tl()+"-"+this.br()+" i:"+this.indent()+", "+
-                "w:"+this.widow()+", m:"+this.multiline()+"]";
+        // pad a box
+        pad: function(padding, shift_origin) {
+            var tl = pt(this.left() - (padding.left || 0),
+                        this.top() - (padding.top || 0));
+            var br = pt(this.right() + (padding.right || 0),
+                        this.bottom() + (padding.bottom || 0));
+            var indent = this._indent &&
+                (pt(this.indent().x - (padding.indentx || 0),
+                    this.indent().y - (padding.indenty || 0)));
+            var widow = this._widow &&
+                (pt(this.widow().x + (padding.widowx || 0),
+                    this.widow().y + (padding.widowy || 0)));
+            var result = this.create(tl, br, indent, widow, this._multiline);
+            if (shift_origin) {
+                result = result.translate(result.tl().negate());
+            }
+            return result;
         },
+        // add a linebreak after a box and return the result
+        linebreak: function(margin, lineHeight) {
+            var height = Math.max(lineHeight||0, this.widowHeight());
+            var left = margin - this.widow().x;
+            var lb;
+            if (left < 0) {
+                lb = this.create(pt(left, 0), pt(0, height),
+                                 pt(0, height), pt(left, height), true);
+            } else {
+                lb = this.create(pt(0, 0), pt(left, height),
+                                 pt(left, height), pt(0, height), true);
+            }
+            return this.chainHoriz(lb);
+        },
+        // chain two bounding boxes together, top-aligning them.
+        chainHoriz: function(bb) {
+            var bb2 = bb.translate(this.widow());
+            var tl = pt(Math.min(this.left(), bb2.left()),
+                        Math.min(this.top(), bb2.top()));
+            var br = pt(Math.max(this.right(), bb2.right()),
+                        Math.max(this.bottom(), bb2.bottom()));
+            var ml = this.multiline() || bb2.multiline();
+            if (!ml) {
+                return bbox(tl, br);
+            }
+            // handle multiline case
+            var indent = this.indent();
+            if (!this.multiline()) {
+                indent = pt(indent.x, Math.max(indent.y, bb2.indent().y));
+                // is this creating a box with a negative indent?
+                if (this.left() < bb2.left()) {
+                    tl = bb2.tl();
+                }
+            }
+            var widow = bb2.widow(); // falls back to tr()
+            return this.create(tl, br, indent, widow, ml);
+        }
     };
     var bbox = function (tl, br) {
         return MultiLineBBox.create(tl, br);
@@ -125,47 +180,6 @@ var make_crender = function() {
         return bbox(pt(0,0), pt(w, h));
     };
 
-    // chain two bounding boxes together, top-aligning them.
-    MultiLineBBox.chainHoriz = function(bb) {
-        var bb2 = bb.translate(this.widow());
-        var tl = pt(Math.min(this.left(), bb2.left()),
-                    Math.min(this.top(), bb2.top()));
-        var br = pt(Math.max(this.right(), bb2.right()),
-                    Math.max(this.bottom(), bb2.bottom()));
-        var ml = this.multiline() || bb2.multiline();
-        if (!ml) {
-            return bbox(tl, br);
-        }
-        // handle multiline case
-        var indent = this.indent();
-        if (!this.multiline()) {
-            indent = pt(indent.x, Math.max(indent.y, bb2.indent().y));
-            // is this creating a box with a negative indent?
-            if (this.left() < bb2.left()) {
-                tl = bb2.tl();
-            }
-        }
-        var widow = bb2.widow(); // falls back to tr()
-        return this.create(tl, br, indent, widow, ml);
-    };
-    // pad a box
-    MultiLineBBox.pad = function(padding, shift_origin) {
-        var tl = pt(this.left() - (padding.left || 0),
-                    this.top() - (padding.top || 0));
-        var br = pt(this.right() + (padding.right || 0),
-                    this.bottom() + (padding.bottom || 0));
-        var indent = this._indent &&
-            (pt(this.indent().x - (padding.indentx || 0),
-                this.indent().y - (padding.indenty || 0)));
-        var widow = this._widow &&
-            (pt(this.widow().x + (padding.widowx || 0),
-                this.widow().y + (padding.widowy || 0)));
-        var result = this.create(tl, br, indent, widow, this._multiline);
-        if (shift_origin) {
-            result = result.translate(result.tl().negate());
-        }
-        return result;
-    };
     // FOR DEBUGGING
     MultiLineBBox.drawPath = function(canvas) {
         canvas.beginPath();
