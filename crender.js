@@ -525,7 +525,7 @@ var make_crender = function() {
     //     basically each symbol should have a 'line break after' property.
     var SeparatedListWidget = Object.create(Widget);
     // override this!
-    SeparatedListWidget.computeItems = function() { return []; };
+    SeparatedListWidget.computeItems = function(properties) { return []; };
     // items don't have to be children, but they are by default.
     SeparatedListWidget.children = function() {
         var result = [];
@@ -813,9 +813,9 @@ var make_crender = function() {
     DotNameInvokeWidget.computeItems = function(properties) {
         var addBBox = PrefixWidget.computeSizeOf.bind(this);
         var items = DotNameWidget.computeItems.call(this, properties);
-        items[3] = addBBox({ isSymbol: true, operator: "(" });
+        items[3] = addBBox({ isSymbol: true, operator: "(", noPad: true });
         items[4] = { widget: this.args };
-        items[5] = addBBox({ isSymbol: true, operator: ")", noPad:true });
+        items[5] = addBBox({ isSymbol: true, operator: ")", noPad: true });
         return items;
     };
 
