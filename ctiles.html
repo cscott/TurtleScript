@@ -3,7 +3,7 @@
 
 <body>
 <h1>JavaScript Tile Demo</h1>
-<canvas id="canvas" width="1000" height="10000"></canvas>
+<canvas id="canvas" width="100" height="100"></canvas>
 <!-- now include all our javascript -->
 <script src="./global.js"></script>
 <script src="./tokenize.js"></script>
@@ -19,7 +19,7 @@ Object.prototype.error = function (message, t) {
     console.log(t);
     throw t;
 };
-var tests = make_tests(make_parse);
+var tests = make_tests(make_parse, make_crender);
 var isource = "";
 //isource = tests[tests.length-2];
 //isource='{console=2+3;return this;}';
@@ -36,10 +36,11 @@ var isource = "";
 //isource += "console = !function (x) { return x; } + function(){};";
 //isource = "while (function(x) { return x; }+(true)) { return false; }";
 //isource += "if (function(x) { return x; }+(true)) { return false; } else { return true; }";
-isource += "var a = console.log(function() { },3);";
-isource += "console(1, 2, 3+4);console(1,function(a,b){},3,function(c,d){});console[function(e,f){}]=1;";
+//isource += "var a = console.log(function() { },3);";
+//isource += "console(1, 2, 3+4);console(1,function(a,b){},3,function(c,d){});console[function(e,f){}]=1;";
 //isource = "function foo(a) { return a(a,function(){}); }; function bar(b){}";
 isource = tests[0];
+//isource = tests[1];
 //isource = "console.a = console.b(2, function() { }, 3);";
 //isource += "console.log(1, console.log(2, function(){}), 3);";
 //isource += "console.log(1, console.log(2, function(){}), function(){});";
@@ -99,23 +100,12 @@ if (0) {
   };
 }
 
-canvas.translate(10,10);
 widget.layout(canvas, styles, {margin: 0, lineHeight: 0});
+var cElem = document.getElementById('canvas');
+cElem.width = Math.min(widget.bbox.width(), 8000)+10;
+cElem.height = Math.min(widget.bbox.height(), 30000)+10;
+canvas.translate(5,5);
 widget.draw();
-
-/*
-var red = canvas.makeColor(255, 0, 0, 255); // red
-canvas.setFontHeight(20);
-var txt = "This is a test";
-var rect = canvas.measureText(txt);
-console.log(rect);
-canvas.setFill(red);
-canvas.beginPath();
-canvas.rect(0,0,rect.width,rect.height);
-canvas.fill();
-canvas.setFill(textColor);
-canvas.drawText("This is a test", 0, rect.height);
-*/
 
 </script></pre>
 </body> </html>
