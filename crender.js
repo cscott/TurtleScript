@@ -707,19 +707,23 @@ var make_crender = function() {
     PrefixWidget.operator = "?";
     PrefixWidget.rightOperand = YadaWidget;
     PrefixWidget.computeItems = function(properties) {
-        this.size = this.computeSize(properties);
-        return [ { bbox: this.size, isSymbol: true, operator: this.operator },
+        var addBBox = PrefixWidget.computeSizeOf.bind(this);
+        return [ addBBox({ isSymbol: true, operator: this.operator }),
                  { widget: this.rightOperand } ];
     };
-    PrefixWidget.computeSize = context_saved(function(properties) {
-        var r = this.pad(this.canvas.measureText(" "+this.operator+" "));
-        return this.pad(r, { right: this.styles.expWidth /* for sockets */});
+    PrefixWidget.computeSizeOf = context_saved(function(item, properties) {
+        var txt = item.noPad ? item.operator : (" "+item.operator+" ");
+        var r = this.pad(this.canvas.measureText(txt));
+        r = this.pad(r, { right: this.styles.expWidth /* for sockets */});
+        item.bbox = r;
+        return item;
     });
     PrefixWidget.drawInterior = context_saved(function() {
         var offset = Math.floor(this.styles.expWidth / 2) - 1;
         this.items.forEach(function(item, index) {
             if (!item.isSymbol) return;
-            this.drawPaddedText(" "+item.operator+" ",
+            var txt = item.noPad ? item.operator : (" "+item.operator+" ");
+            this.drawPaddedText(txt,
                                 this.itemPos[index].add(offset, 0));
         }.bind(this));
     });
@@ -728,9 +732,9 @@ var make_crender = function() {
     var InfixWidget = Object.create(PrefixWidget);
     InfixWidget.leftOperand = YadaWidget;
     InfixWidget.computeItems = function(properties) {
-        this.size = this.computeSize(properties);
+        var addBBox = PrefixWidget.computeSizeOf.bind(this);
         return [ { widget: this.leftOperand },
-                 { bbox: this.size, isSymbol: true, operator: this.operator },
+                 addBBox({ isSymbol: true, operator: this.operator }),
                  { widget: this.rightOperand } ];
     };
 
@@ -738,29 +742,26 @@ var make_crender = function() {
     var WithSuffixWidget = Object.create(InfixWidget);
     WithSuffixWidget.closeOperator = '?';
     WithSuffixWidget.computeItems = function(properties) {
-        this.size = this.computeSize(properties);
+        var addBBox = PrefixWidget.computeSizeOf.bind(this);
         return [ { widget: this.leftOperand },
-                 { bbox: this.size, isSymbol: true,
-                   operator: this.operator },
+                 addBBox({ isSymbol: true, operator: this.operator,
+                           noPad: true }),
                  { widget: this.rightOperand },
-                 { bbox: this.size, isSymbol: true,
-                   operator: this.closeOperator } ];
+                 addBBox({ isSymbol: true, operator: this.closeOperator,
+                           noPad: true }) ];
     };
 
     var ParenWidget = Object.create(SeparatedListWidget);
-    ParenWidget.operator = '(';
     ParenWidget.operand = YadaWidget;
     ParenWidget.computeItems = function(properties) {
-        this.size = this.computeSize(properties);
-        return [ { bbox: this.size, isSymbol: true, operator: '(' },
+        var addBBox = PrefixWidget.computeSizeOf.bind(this);
+        return [ addBBox({ isSymbol: true, operator: '(', noPad:true }),
                  { widget: this.operand },
-                 { bbox: this.size, isSymbol: true, operator: ')' } ];
+                 addBBox({ isSymbol: true, operator: ')', noPad:true }) ];
     };
-    ParenWidget.computeSize = PrefixWidget.computeSize;
     ParenWidget.drawInterior= PrefixWidget.drawInterior;
 
     var NewArrayWidget = Object.create(SeparatedListWidget);
-    NewArrayWidget.operator = '[';
     NewArrayWidget._operand = CommaListWidget;
     NewArrayWidget.children = function() {
         return this._operand.children();
@@ -775,12 +776,11 @@ var make_crender = function() {
     };
     NewArrayWidget.length = 0;
     NewArrayWidget.computeItems = function(properties) {
-        this.size = this.computeSize(properties);
-        return [ { bbox: this.size, isSymbol: true, operator: '[' },
+        var addBBox = PrefixWidget.computeSizeOf.bind(this);
+        return [ addBBox({ isSymbol: true, operator: '[' }),
                  { widget: this._operand },
-                 { bbox: this.size, isSymbol: true, operator: ']' } ];
+                 addBBox({ isSymbol: true, operator: ']' }) ];
     };
-    NewArrayWidget.computeSize = PrefixWidget.computeSize;
     NewArrayWidget.drawInterior= PrefixWidget.drawInterior;
 
     var ConditionalWidget = Object.create(SeparatedListWidget);
@@ -788,17 +788,38 @@ var make_crender = function() {
     ConditionalWidget.trueOperand = YadaWidget;
     ConditionalWidget.falseOperand= YadaWidget;
     ConditionalWidget.computeItems = function(properties) {
-        var q = this.pad(this.canvas.measureText(" ? ")).pad(
-            { right: this.styles.expWidth /* for sockets */});
-        var c = this.pad(this.canvas.measureText(" : ")).pad(
-            { right: this.styles.expWidth /* for sockets */});
+        var addBBox = PrefixWidget.computeSizeOf.bind(this);
         return [ { widget: this.testOperand },
-                 { bbox: q, isSymbol: true, operator: '?' },
+                 addBBox({ isSymbol: true, operator: '?' }),
                  { widget: this.trueOperand },
-                 { bbox: c, isSymbol: true, operator: ':' },
+                 addBBox({ isSymbol: true, operator: ':' }),
                  { widget: this.falseOperand } ];
     };
     ConditionalWidget.drawInterior= PrefixWidget.drawInterior;
+
+    var DotNameWidget = Object.create(InfixWidget);
+    DotNameWidget.computeItems = function(properties) {
+        var addBBox = PrefixWidget.computeSizeOf.bind(this);
+        var dotItem = addBBox({ isSymbol: true, operator: ".", noPad: true });
+        var rightAdapter = rect(this.styles.expWidth, dotItem.bbox.height());
+        return [ { widget: this.leftOperand },
+                 dotItem,
+                 { widget: this.rightOperand, isName: true },
+                 { bbox: rightAdapter, isSymbol: true, operator: "" } ];
+    };
+
+    var DotNameInvokeWidget = Object.create(DotNameWidget);
+    DotNameInvokeWidget.args = CommaListWidget;
+    DotNameInvokeWidget.computeItems = function(properties) {
+        var addBBox = PrefixWidget.computeSizeOf.bind(this);
+        var items = DotNameWidget.computeItems.call(this, properties);
+        items[3] = addBBox({ isSymbol: true, operator: "(" });
+        items[4] = { widget: this.args };
+        items[5] = addBBox({ isSymbol: true, operator: ")", noPad:true });
+        return items;
+    };
+
+    // XXX object creation, contains a funny sort of expression list (vertical?)
 
     var LabelledExpWidget = Object.create(ExpWidget);
     LabelledExpWidget.computeSize = context_saved(function(properties) {
@@ -1187,147 +1208,6 @@ var make_crender = function() {
             this.block.draw();
         });
     });
-
-    var DotNameWidget = Object.create(Widget);
-    DotNameWidget.isInvoke = false;
-    DotNameWidget.children = function() {
-        var r = [ this.leftOperand, this.name ];
-        if (this.isInvoke) {
-            if (!this.args) {
-                this.args = Object.create(CommaListWidget);
-                this.args.disallowEmptyList = true;
-            }
-            r = r.concat(this.args.children());
-        }
-    };
-    DotNameWidget.computeBBox = context_saved(function(properties) {
-        this.children(); // create argument list if necessary
-
-        // first, we have a left-hand expression
-        this.leftOperand.layout(this.canvas, this.styles, properties);
-        this.leftBB = this.leftOperand.bbox;
-
-        // now the dot operator
-        var dot = this.pad(this.canvas.measureText("."));
-        dot = dot.pad({ right: this.styles.expWidth /* for sockets */});
-        this.dotBB = dot.translate(this.leftBB.widow());
-
-        // and now a name. (don't worry about wrapping)
-        this.name.layout(this.canvas, this.styles, properties);
-        this.nameBB = this.name.bbox.translate(this.dotBB.widow());
-
-        var bbox = this.leftOperand.bbox.
-            chainHoriz(dot).chainHoriz(this.name.bbox);
-
-        if (this.isInvoke) {
-            // parentheses and an arguments list.
-            var lparen = this.pad(this.canvas.measureText("("));
-            lparen = lparen.pad({right: this.styles.expWidth/* for sockets */});
-            this.lparenBB = lparen.translate(this.nameBB.widow());
-
-            // align wrapped arguments with the open paren
-            var arg_props = Object.create(properties);
-            arg_props.margin = arg_props.lineHeight = 0;
-            this.args.layout(this.canvas, this.styles, arg_props);
-            this.argsBB = this.args.bbox.translate(this.lparenBB.widow());
-
-            var rparen = this.pad(this.canvas.measureText(")"));
-            rparen = rparen.pad({right: this.styles.expWidth/* for sockets */});
-            this.rparenBB = rparen.translate(this.argsBB.widow());
-            bbox = bbox.chainHoriz(lparen).
-                chainHoriz(this.args.bbox).chainHoriz(rparen);
-            // if args wrapped, need to adjust the indent to allow for underline
-            if (this.argsBB.multiline()) {
-                bbox = bbox.pad({ left: this.styles.expUnderWidth,
-                                  indenty: -this.styles.expUnderHeight });
-            }
-        } else {
-            // add a little space for the socket adapter on the right
-            bbox = bbox.pad({right: this.styles.expWidth});
-        }
-        bbox = bbox.pad({bottom: this.styles.expUnderHeight});
-        return bbox;
-    });
-    DotNameWidget.draw = function() {
-        this.drawOutline();
-        this.drawInterior();
-        this.drawChildren();
-    };
-    DotNameWidget.drawOutline = context_saved(function() {
-        this.canvas.setFill(this.bgColor());
-        this.canvas.beginPath();
-        this.canvas.moveTo(this.leftBB.bl());
-        this.canvas.lineTo(this.leftBB.widow().x, this.leftBB.bottom());
-        // draw the expression socket for the left operand
-        this.drawCapUp(this.leftBB.widow(), false/*socket*/,false/*left*/,
-                       false/*exp*/);
-        // draw the name socket for the name.
-        this.drawCapDown(this.nameBB.tl(), false/*socket*/,true/*right*/,
-                         true/*name*/);
-        // underline the name
-        this.canvas.lineTo(this.nameBB.bl());
-        this.canvas.lineTo(this.nameBB.br());
-        // other side of the name socket.
-        this.drawCapUp(this.nameBB.widow(), false/*socket*/,false/*left*/,
-                       true/*name*/);
-        if (this.isInvoke) {
-            // args list socket
-            this.drawCapDown(pt(this.argsBB.indent().x, this.argsBB.top()),
-                             false/*socket*/,true/*right*/,false/*exp*/);
-            // underline the args list
-            this.canvas.lineTo(this.argsBB.indent());
-            this.canvas.lineTo(this.argsBB.left(), this.argsBB.indent().y);
-            this.canvas.lineTo(this.argsBB.bl());
-            this.canvas.lineTo(this.argsBB.widow().x, this.argsBB.bottom());
-            // other side of args list socket
-            this.drawCapUp(this.argsBB.widow(),
-                           false/*socket*/, false/*left*/,false/*exp*/);
-            // around the close paren
-        }
-        this.canvas.lineTo(this.bbox.widow());
-        this.drawCapDown(this.bbox.widow(),
-                         true/*plug*/, true/*right*/,false/*exp*/);
-        // now trace the bottom of our bounding box
-        this.canvas.lineTo(this.bbox.widow().x, this.bbox.bottom());
-        this.canvas.lineTo(this.bbox.bl());
-        this.canvas.lineTo(this.bbox.left(), this.bbox.indent().y);
-        this.canvas.lineTo(this.bbox.indent());
-
-        // done!
-        this.canvas.closePath();
-        this.canvas.fill();
-        this.canvas.stroke();
-    });
-    DotNameWidget.drawInterior = context_saved(function() {
-        // draw the dot
-        this.drawPaddedText(".", this.dotBB.tl());
-        if (this.isInvoke) {
-            // draw the open paren
-            this.drawPaddedText("(", this.lparenBB.tl());
-            // draw the close paren
-            this.drawPaddedText(")", this.rparenBB.tl());
-        }
-    });
-    DotNameWidget.drawChildren = context_saved(function() {
-        // draw left operand.
-        this.leftOperand.draw();
-        // draw name
-        this.canvas.withContext(this, function() {
-            this.canvas.translate(this.nameBB.tl());
-            this.name.draw();
-        });
-        if (this.isInvoke) {
-            // draw args list
-            this.canvas.withContext(this, function() {
-                this.canvas.translate(this.argsBB.indent().x,
-                                      this.argsBB.top());
-                this.args.draw();
-            });
-        }
-    });
-
-
-    // XXX object creation, contains a funny sort of expression list (vertical?)
 
     // while statement tile. c-shaped, also takes a right hand expression.
     var WHILE_TEXT = _("while");
@@ -1728,8 +1608,8 @@ var make_crender = function() {
         assert(this.second.arity==='literal', this.second);
         var w = Object.create(DotNameWidget);
         w.leftOperand = crender(this.first);
-        w.name = Object.create(NameLiteralWidget);
-        w.name.name = this.second.value;
+        w.rightOperand = Object.create(NameLiteralWidget);
+        w.rightOperand.name = this.second.value;
         return w;
     }));
 
@@ -1744,11 +1624,10 @@ var make_crender = function() {
     ternary("(", 80, function() {
         // precedence is 80, same as . and '(')
         assert(this.second.arity==='literal', this.second);
-        var w = Object.create(DotNameWidget);
+        var w = Object.create(DotNameInvokeWidget);
         w.leftOperand = crender(this.first);
-        w.name = Object.create(NameLiteralWidget);
-        w.name.name = this.second.value;
-        w.isInvoke = true;
+        w.rightOperand = Object.create(NameLiteralWidget);
+        w.rightOperand.name = this.second.value;
         w.args = Object.create(CommaListWidget);
         this.third.forEach(function(c) {
             w.args.addChild(with_prec(0, crender)(c));
