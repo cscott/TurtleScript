@@ -515,57 +515,66 @@ var make_crender = function() {
                         { bottom: this.styles.expUnderHeight });
     }
 
-    // lists (of exprs/names).
-    // XXX should eventually provide means for line wrapping.
-    // XXX each comma should have a 'line break after' property,
-    //     but toggling between "each arg on its own line" and "all on one line"
-    //     is probably fine for now.
-    var CommaListWidget = Object.create(ContainerWidget);
-    CommaListWidget.label = ",";
-    CommaListWidget.children = function() {
-        if (this.length == 0 && this.disallowEmptyList) {
-            return [ YadaWidget ];
-        }
-        return CommaListWidget.__proto__.children.call(this);
-    };
-    CommaListWidget.computeBBox = function(properties) {
-        this.size = this.computeSize(properties);
-        var first = true;
-        var bbox = rect(0, this.size.height());
-        var lineHeight = properties.lineHeight || 0;
-        this.commaPos = [];
-        this.childPos = [];
-        this.children().forEach(function(c) {
-            // add separator (if not the first element)
-            if (!first) {
-                this.commaPos.push(bbox.widow());
-                bbox = bbox.chainHoriz(this.size);
+    // lists of sockets, separated by symbols of some kind.
+    // the things can be names or exps; the symbols are circled by
+    // the widget's outline.  The names/exps can be multiline.
+    // the first symbol comes after the first name/exp; the last
+    // symbol comes after the last one.  Make a symbol falsey
+    // (null or undefined works well) to omit it.
+    // XXX should be able to make the symbols multline, too;
+    //     basically each symbol should have a 'line break after' property.
+    var SeparatedListWidget = Object.create(Widget);
+    // override these!
+    SeparatedListWidget.items = function() { return []; };
+    // items don't have to be children, but they are by default.
+    SeparatedListWidget.children = function() {
+        var result = [];
+        this.items().forEach(function(item) {
+            if (item.widget && !item.hide) {
+                result.push(item.widget);
             }
-            var child_props = Object.create(properties);
-            // adjust margin for new start position as well as to allow for
-            // a descender on the left.
-            child_props.margin = (properties.margin||0) - bbox.widow().x;
-            child_props.margin += this.styles.expUnderWidth;
-            // lineheight has to account for underline
-            child_props.lineHeight = this.styles.expUnderHeight +
-                Math.max(lineHeight, bbox.widowHeight());
-            // add the child.
-            c.layout(this.canvas, this.styles, child_props);
-            this.childPos.push(bbox.widow());
-            bbox = first ? c.bbox : bbox.chainHoriz(c.bbox);
-            if (c.bbox.multiline()) {
+        });
+        return result;
+    };
+    // meat & potatoes
+    SeparatedListWidget.computeBBox = function(properties) {
+        var items = this.items();
+
+        var bbox = rect(0, 0);
+        var lineHeight = properties.lineHeight || 0;
+
+        this.itemPos = [];
+        this.itemBBox = [];
+        items.forEach(function(item, index) {
+            var itemBB;
+            if (item.widget) {
+                var child_props = Object.create(properties);
+                // adjust margin for new start position as well as to allow for
+                // a descender on the left.
+                child_props.margin = (properties.margin||0) - bbox.widow().x;
+                child_props.margin += this.styles.expUnderWidth;
+                // lineheight has to account for underline
+                child_props.lineHeight = this.styles.expUnderHeight +
+                    Math.max(lineHeight, bbox.widowHeight());
+                // add the child.
+                item.widget.layout(this.canvas, this.styles, child_props);
+                itemBB = item.widget.bbox;
+            } else {
+                itemBB = item.bbox;
+            }
+            this.itemPos.push(bbox.widow());
+            this.itemBBox.push(itemBB.translate(bbox.widow()));
+            bbox = (index===0) ? itemBB : bbox.chainHoriz(itemBB);
+            if (itemBB.multiline()) {
                 // reset line height once we wrap
                 lineHeight -= bbox.widow().y;
             }
-            first = false;
         }.bind(this));
         // misc. prettiness: don't underline if there's only one item
         // in the list
-        if (this.length <= 1) { return bbox; }
-        // add some extra width to encourage folks to add new stuff
+        if (items.length <= 1 && !this.underlineShortLists) { return bbox; }
         // and some height to account for the underline
-        bbox = bbox.pad({right: this.styles.listEndPadding,
-                         bottom: this.styles.expUnderHeight});
+        bbox = bbox.pad({bottom: this.styles.expUnderHeight});
         // if we wrapped, we also need a leader on the left
         if (bbox.multiline()) {
             bbox = bbox.pad({left: this.styles.expUnderWidth});
@@ -575,41 +584,41 @@ var make_crender = function() {
         }
         return bbox;
     };
-    CommaListWidget.extraPadding = { left: -3, right: -3 }; // tighten up
-    CommaListWidget.computeSize = context_saved(function(properties) {
-        var r = this.pad(this.canvas.measureText(this.label));
-        // pad to account for expression sockets on both sides.
-        r = this.pad(r, { left: this.styles.expWidth,
-                          right: this.styles.expWidth }, true);
-        return this.pad(r, this.extraPadding, true);
-    });
-    CommaListWidget.draw = function() {
+    SeparatedListWidget.draw = context_saved(function() {
         this.drawOutline();
         this.drawInterior();
         this.drawChildren();
+    });
+    SeparatedListWidget.drawSymbol=function(item, index, leftName, rightName) {
+        // draw the top
+        this.drawCapUp(this.itemPos[index],
+                       false/*socket*/, false/*left*/, leftName||false);
+        // right side.
+        this.drawCapDown(this.itemBBox[index].tr(),
+                         false/*socket*/, true/*right*/, rightName||false);
     };
-    CommaListWidget.drawOutline = context_saved(function() {
-        if (this.length === 0) { return; }
+    SeparatedListWidget.drawOutline = context_saved(function() {
+        if (this.itemPos.length === 0) { return; }
+        var items = this.items();
         // along bottoms of each item and them up around the separator
         this.canvas.setFill(this.bgColor());
         this.canvas.beginPath();
-        this.canvas.moveTo(this[0].bbox.indent());
-        this.children().forEach(function(c, i) {
-            if (i!==0) {
-                var cpos = this.commaPos[i-1];
-                // draw the separator
-                this.drawCapUp(cpos,
-                               false/*socket*/, false/*left*/, this.isName);
-                // right side.
-                this.drawCapDown(cpos.add(this.size.tr()),
-                                 false/*socket*/, true/*right*/, this.isName);
+        this.canvas.moveTo(this.itemBBox[0].indent());
+        items.forEach(function(item, index) {
+            if (item.isSymbol) {
+                var leftName = (index===0)? this.isName : items[index-1].isName;
+                var rightName =((index+1)<items.length) ? items[index+1].isName:
+                    this.isName;
+                // move up and outline the symbol (extension point)
+                this.drawSymbol(item, index, leftName, rightName);
+            } else {
+                // draw the bottom border of the child.
+                var bb = this.itemBBox[index];
+                this.canvas.lineTo(bb.indent());
+                this.canvas.lineTo(bb.left(), bb.indent().y);
+                this.canvas.lineTo(bb.bl());
+                this.canvas.lineTo(bb.widow().x, bb.bottom());
             }
-            // now draw the bottom border of the child.
-            var bb = c.bbox.translate(this.childPos[i]);
-            this.canvas.lineTo(bb.indent());
-            this.canvas.lineTo(bb.left(), bb.indent().y);
-            this.canvas.lineTo(bb.bl());
-            this.canvas.lineTo(bb.widow().x, bb.bottom());
         }.bind(this));
         // now draw around my bounding box.
         this.canvas.lineTo(this.bbox.widow().x, this.bbox.bottom());
@@ -621,19 +630,65 @@ var make_crender = function() {
         this.canvas.fill();
         this.canvas.stroke();
     });
-    CommaListWidget.drawInterior = context_saved(function() {
-        var offset = this.styles.expWidth + (this.extraPadding.left || 0);
-        this.commaPos.forEach(function(pos) {
-            this.drawPaddedText(this.label, pos.add(offset,0),
-                                this.styles.semiColor);
+    SeparatedListWidget.drawInterior = function() {};
+    SeparatedListWidget.drawChildren = context_saved(function() {
+        this.items().forEach(function(item, index) {
+            if (item.widget) {
+                this.canvas.withContext(this, function() {
+                    this.canvas.translate(this.itemPos[index]);
+                    item.widget.draw();
+                });
+            }
         }.bind(this));
     });
-    CommaListWidget.drawChildren = context_saved(function() {
-        this.children().forEach(function(c, i) {
-            this.canvas.withContext(this, function() {
-                this.canvas.translate(this.childPos[i]);
-                c.draw();
-            });
+
+    // lists (of exprs/names).
+    // XXX should eventually provide means for line wrapping.
+    // XXX each comma should have a 'line break after' property,
+    //     but toggling between "each arg on its own line" and "all on one line"
+    //     is probably fine for now.
+    var CommaListWidget = Object.create(SeparatedListWidget);
+    CommaListWidget.length = 0;
+    CommaListWidget.addChild = ContainerWidget.addChild;
+    CommaListWidget.label = ",";
+    CommaListWidget.children = function() {
+        if (this.length == 0 && this.disallowEmptyList) {
+            return [ YadaWidget ];
+        }
+        return ContainerWidget.children.call(this);
+    };
+    CommaListWidget.items = function() {
+        if (this.length == 0 && this.disallowEmptyList) {
+            return [ { widget: YadaWidget } ];
+        }
+        this.size = this.computeSize();
+        var result = [];
+        Array.prototype.forEach.call(this, function(child, idx) {
+            if (idx !== 0) {
+                // comma separator
+                result.push( { bbox: this.size, isSymbol: true } );
+            }
+            result.push( { widget:child, isName: false } );
+        }.bind(this));
+        return result;
+    };
+
+    CommaListWidget.extraPadding = { left: -3, right: -3 }; // tighten up
+    CommaListWidget.computeSize = context_saved(function(properties) {
+        var r = this.pad(this.canvas.measureText(this.label));
+        // pad to account for expression sockets on both sides.
+        r = this.pad(r, { left: this.styles.expWidth,
+                          right: this.styles.expWidth }, true);
+        return this.pad(r, this.extraPadding, true);
+    });
+    CommaListWidget.drawInterior = context_saved(function() {
+        var offset = this.styles.expWidth + (this.extraPadding.left || 0);
+        this.items().forEach(function(item, index) {
+            if (!item.widget) {
+                var pos = this.itemPos[index];
+                this.drawPaddedText(this.label, pos.add(offset,0),
+                                    this.styles.semiColor);
+            }
         }.bind(this));
     });
 
