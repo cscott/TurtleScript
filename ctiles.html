@@ -43,6 +43,7 @@ isource = tests[0];
 //isource = "console.a = console.b(2, function() { }, 3);";
 //isource += "console.log(1, console.log(2, function(){}), 3);";
 //isource += "console.log(1, console.log(2, function(){}), function(){});";
+//isource = "console = { foo: 'bar', bat: {}, console:console };";
 
 // parse the example source
 var top_level = "isFinite parseInt Boolean String Function Math "+
@@ -79,6 +80,7 @@ var styles = {
    expUnderHeight: 5,
    expUnderWidth: 5, /* underline when it's running along the sides */
    blockIndent: 26,
+   objIndent: 12, /* indent for the slot names in an object initializer */
    blockBottomPadding: 8, /* below last tile in a block */
    functionIndent: 5, /* thin line on left side of function */
    functionNameSpace: 3, /* space to leave for a missing function name */

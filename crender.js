@@ -560,21 +560,26 @@ var make_crender = function() {
         this.itemPos = [];
         this.itemBBox = [];
         this.items.forEach(function(item, index) {
+            var child_props = Object.create(properties);
+            // adjust margin for new start position as well as to allow for
+            // a descender on the left.
+            child_props.margin = (properties.margin||0) - bbox.widow().x;
+            child_props.margin += this.styles.expUnderWidth;
+            child_props.margin += (item.indent || 0);
+            // lineheight has to account for underline
+            child_props.lineHeight = this.styles.expUnderHeight +
+                Math.max(lineHeight, bbox.widowHeight());
+            // add the child.
             var itemBB;
             if (item.widget) {
-                var child_props = Object.create(properties);
-                // adjust margin for new start position as well as to allow for
-                // a descender on the left.
-                child_props.margin = (properties.margin||0) - bbox.widow().x;
-                child_props.margin += this.styles.expUnderWidth;
-                // lineheight has to account for underline
-                child_props.lineHeight = this.styles.expUnderHeight +
-                    Math.max(lineHeight, bbox.widowHeight());
-                // add the child.
                 item.widget.layout(this.canvas, this.styles, child_props);
                 itemBB = item.widget.bbox;
             } else {
-                itemBB = item.bbox;
+                if (typeof(item.bbox)==="function") {
+                    itemBB = item.bbox(child_props);
+                } else {
+                    itemBB = item.bbox;
+                }
             }
             this.itemPos.push(bbox.widow());
             this.itemBBox.push(itemBB.translate(bbox.widow()));
@@ -606,19 +611,31 @@ var make_crender = function() {
         this.drawChildren();
     });
     SeparatedListWidget.drawSymbol=function(item, index, props) {
-        // draw the top
-        this.drawCapUp(this.itemPos[index], props.leftIsPlug || false,
-                       false/*left*/, props.leftIsName || false);
-        // right side.
-        this.drawCapDown(this.itemBBox[index].tr(), props.rightIsPlug || false,
-                         true/*right*/, props.rightIsName || false);
+        var bb = this.itemBBox[index];
+        // draw up left side
+        if (!props.leftSuppress) {
+            this.drawCapUp(this.itemPos[index],
+                           props.leftIsPlug || false,
+                           false/*left*/, props.leftIsName || false);
+        }
+        // trace top border of bbox
+        if (bb.multiline()) {
+            this.drawRoundCorner(bb.tr(), 3, true);
+            this.drawRoundCorner(pt(bb.right(), bb.widow().y), 0, true);
+        }
+        // draw down right side
+        if (!props.rightSuppress) {
+            this.drawCapDown(bb.widow(),
+                             props.rightIsPlug || false,
+                             true/*right*/, props.rightIsName || false);
+        }
     };
     SeparatedListWidget.drawOutline = context_saved(function() {
         if (this.itemPos.length === 0) { return; }
         // along bottoms of each item and them up around the separator
         this.canvas.setFill(this.bgColor());
         this.canvas.beginPath();
-        this.canvas.moveTo(this.itemBBox[0].indent());
+        this.canvas.moveTo(this.bbox.indent());
         this.items.forEach(function(item, index) {
             if (item.isSymbol) {
                 // move up and outline the symbol (extension point)
@@ -627,10 +644,12 @@ var make_crender = function() {
                 if (index > 0) {
                     props.leftIsName = this.items[index-1].isName;
                     props.leftIsPlug = false; /* socket */
+                    props.leftSuppress = this.items[index-1].isSymbol;
                 }
                 if ((index+1) < this.items.length) {
                     props.rightIsName = this.items[index+1].isName;
                     props.rightIsPlug = false; /* socket */
+                    props.rightSuppress = this.items[index+1].isSymbol;
                 }
                 this.drawSymbol(item, index, props);
             } else if (this.itemBBox[index].width() > 0 ||
@@ -847,20 +866,33 @@ var make_crender = function() {
         // set up our colon and comma bboxes
         var colon = addBBox({ isSymbol: true, operator: ": ", noPad:true });
         var comma = addBBox({ isSymbol: true, operator: ", ", noPad:true });
+        var lastComma = addBBox({ isSymbol: true, operator: " ", noPad:true });
         // now add items.
         this.forEach(function(item, index) {
             r.push({ widget: item.name, isName: true });
             r.push(colon);
-            r.push({ widget: item.value });
+            r.push({ widget: item.value, indent: this.styles.blockIndent });
             if ((index+1) < this.length) {
                 r.push(comma);
+            } else {
+                r.push(lastComma);
             }
         }.bind(this));
         r.push(addBBox({ isSymbol: true, operator: '}' }, properties));
+        // break after each comma?
+        if (this.length > 0) { // XXX USE BETTER MULTILINE CRITERION
+            var indenter = function(old_bb, indent, props) {
+                return old_bb.linebreak(props.margin, props.lineHeight).
+                    pad({ widowx: indent });
+            };
+            var objIndent = this.styles.objIndent;
+            comma.bbox = indenter.bind(this, comma.bbox, objIndent);
+            r[0].bbox = indenter.bind(this, r[0].bbox, objIndent);
+            lastComma.bbox = indenter.bind(this, lastComma.bbox, 0);
+        }
         return r;
     };
     NewObjectWidget.drawInterior = PrefixWidget.drawInterior;
-
 
     var LabelledExpWidget = Object.create(ExpWidget);
     LabelledExpWidget.computeSize = context_saved(function(properties) {
