@@ -672,10 +672,19 @@ var make_crender = function() {
         }
         this.size = this.computeSize(properties);
         var result = [];
+        var comma = { bbox: this.size, isSymbol: true };
+        //line break!
+        var commaNL = Object.create(comma);
+        commaNL.bbox = function(props) {
+            if (props.margin > -this.styles.commaBreakWidth) {
+                return comma.bbox;
+            }
+            return comma.bbox.linebreak(props.margin, props.lineHeight).
+                pad({widowx: this.styles.expWidth });
+        }.bind(this);
         Array.prototype.forEach.call(this, function(child, idx) {
             if (idx !== 0) {
-                // comma separator
-                result.push( { bbox: this.size, isSymbol: true } );
+                result.push( commaNL );
             }
             result.push( { widget:child, isName: this.isName || false } );
         }.bind(this));
