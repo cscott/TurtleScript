@@ -119,10 +119,10 @@ var make_tests = function() {
             // no op
         };
         true["ifElse"] = function(_this_, ifTrue, ifFalse) {
-            ifTrue.call(_this_);
+            return ifTrue.call(_this_);
         };
         false["ifElse"] = function(_this_, ifTrue, ifFalse) {
-            ifFalse.call(_this_);
+            return ifFalse.call(_this_);
         };
         // The above don't actually work, because properties added to
         // "true" and "false" disappear.  But this ought to work as a kludge:
@@ -140,9 +140,9 @@ var make_tests = function() {
         Boolean.prototype["ifElse"] = function(_this_, ifTrue, ifFalse) {
             console.log("Boolean.ifElse fallback");
             if (this.toString() === "false") {
-                ifFalse.call(_this_);
+                return ifFalse.call(_this_);
             } else {
-                ifTrue.call(_this_);
+                return ifTrue.call(_this_);
             }
         };
         var i = 0;

@@ -650,10 +650,10 @@ var make_binterp = function(bytecode_table) {
             // no op
         };
         true["ifElse"] = function(_this_, ifTrue, ifFalse) {
-            ifTrue.call(_this_);
+            return ifTrue.call(_this_);
         };
         false["ifElse"] = function(_this_, ifTrue, ifFalse) {
-            ifFalse.call(_this_);
+            return ifFalse.call(_this_);
         };
     };
 
