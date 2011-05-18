@@ -819,7 +819,34 @@ var make_crender = function() {
         return items;
     };
 
-    // XXX object creation, contains a funny sort of expression list (vertical?)
+    // object creation, contains a funny sort of expression list (vertical?)
+    var NewObjectWidget = Object.create(SeparatedListWidget);
+    NewObjectWidget.length = 0;
+    NewObjectWidget.addChild = function(name, value) {
+        Array.prototype.push.call(this, {name:name, value:value});
+    };
+    NewObjectWidget.forEach = Array.prototype.forEach;
+    NewObjectWidget.computeItems = function(properties) {
+        var addBBox = PrefixWidget.computeSizeOf.bind(this);
+        var r = [];
+        r.push(addBBox({ isSymbol: true, operator: '{' }, properties));
+        // set up our colon and comma bboxes
+        var colon = addBBox({ isSymbol: true, operator: ": ", noPad:true });
+        var comma = addBBox({ isSymbol: true, operator: ", ", noPad:true });
+        // now add items.
+        this.forEach(function(item, index) {
+            r.push({ widget: item.name, isName: true });
+            r.push(colon);
+            r.push({ widget: item.value });
+            if ((index+1) < this.length) {
+                r.push(comma);
+            }
+        }.bind(this));
+        r.push(addBBox({ isSymbol: true, operator: '}' }, properties));
+        return r;
+    };
+    NewObjectWidget.drawInterior = PrefixWidget.drawInterior;
+
 
     var LabelledExpWidget = Object.create(ExpWidget);
     LabelledExpWidget.computeSize = context_saved(function(properties) {
@@ -854,9 +881,16 @@ var make_crender = function() {
     };
     // Name literal -- kinda like a name, but different.
     // XXX figure out exactly how this is different
+    // XXX one way is that it can have non-name characters, in which
+    // case it should render in quotes.
     var NameLiteralWidget = Object.create(NameWidget);
     NameLiteralWidget.setFont = function() {
         this.canvas.setFill(this.styles.textColor);
+    };
+    NameLiteralWidget.setName = function(name) {
+        // XXX if name has non-name characters, put it in quotes here?
+        // I guess the 'with quotes' rendering should really be dynamic?
+        this.name = name;
     };
 
     // Literals
@@ -1526,30 +1560,16 @@ var make_crender = function() {
         });
         return w;
     }));
-    // STUBS
-    unary('{', 90,  with_prec_paren(90, function() {
-        return Object.create(YadaWidget); // XXX
-    }));
-/*
     unary('{', 90, with_prec_paren(90, function() {
-                // new object creation
-                var result = "{";
-                if (this.first.length > 0) {
-                    indentation += 1;
-                    result += nl();
-                    result += gather(this.first, ","+nl(), function(item) {
-                            // XXX suppress quotes around item.key when
-                            //     unnecessary
-                            return str_escape(item.key) + ": " +
-                                with_prec(0, crender)(item);
-                        });
-                    indentation -= 1;
-                    result += nl();
-                }
-                result +="}";
-                return result;
-            }));
-*/
+        // new object creation
+        var w = Object.create(NewObjectWidget);
+        this.first.forEach(function(item) {
+            var name = Object.create(NameLiteralWidget);
+            name.setName(item.key);
+            w.addChild(name, with_prec(0, crender)(item));
+        });
+        return w;
+    }));
 
     // Binary ASTs
     dispatch.binary = function() {
@@ -1609,7 +1629,7 @@ var make_crender = function() {
         var w = Object.create(DotNameWidget);
         w.leftOperand = crender(this.first);
         w.rightOperand = Object.create(NameLiteralWidget);
-        w.rightOperand.name = this.second.value;
+        w.rightOperand.setName(this.second.value);
         return w;
     }));
 
@@ -1627,7 +1647,7 @@ var make_crender = function() {
         var w = Object.create(DotNameInvokeWidget);
         w.leftOperand = crender(this.first);
         w.rightOperand = Object.create(NameLiteralWidget);
-        w.rightOperand.name = this.second.value;
+        w.rightOperand.setName(this.second.value);
         w.args = Object.create(CommaListWidget);
         this.third.forEach(function(c) {
             w.args.addChild(with_prec(0, crender)(c));
