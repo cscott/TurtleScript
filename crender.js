@@ -6,7 +6,7 @@
 
 var make_crender = function() {
     // stub for i18n
-    var _ = function(txt) { return txt; }
+    var _ = function(txt) { return txt; };
     // basic graphics datatypes
     var Point = {
         create: function(x, y) {
@@ -18,16 +18,16 @@ var make_crender = function() {
         },
         add: function(x, y) {
             if (typeof(x)==="object") { y=x.y; x=x.x; }
-            return pt((this.x||0) + (x||0), (this.y||0) + (y||0));
+            return this.create((this.x||0) + (x||0), (this.y||0) + (y||0));
         },
         negate: function() {
-            return pt(-(this.x||0), -(this.y||0));
+            return this.create(-(this.x||0), -(this.y||0));
         },
         toString: function() {
             return "("+this.x+","+this.y+")";
         }
     };
-    var pt = function(x, y) { return Point.create(x, y); }
+    var pt = function(x, y) { return Point.create(x, y); };
 
     // Bounding boxes are slightly fancy multiline rectangles.
     // They contain a starting indent and a trailing widow, like so:
@@ -155,7 +155,7 @@ var make_crender = function() {
                         Math.max(this.bottom(), bb2.bottom()));
             var ml = this.multiline() || bb2.multiline();
             if (!ml) {
-                return bbox(tl, br);
+                return this.create(tl, br);
             }
             // handle multiline case
             var indent = this.indent();
@@ -266,7 +266,8 @@ var make_crender = function() {
             this.bbox.drawPath(this.canvas);
             this.canvas.fill();
             this.canvas.stroke();
-            this.drawPaddedText(DEFAULT_TEXT, pt(0, 0), this.styles.textColor);
+            this.drawPaddedText(DEFAULT_WIDGET_TEXT, pt(0, 0),
+                                this.styles.textColor);
         }),
         // drawing aids
         drawPaddedText: function(text, pt, color) {
@@ -323,10 +324,10 @@ var make_crender = function() {
         },
         // bounding box debugging
         debugBBox: context_saved(function(bbox) {
-            this.canvas.setStroke(canvas.makeColor(255,0,0));
+            this.canvas.setStroke(this.canvas.makeColor(255,0,0));
             (bbox || this.bbox).drawPath(this.canvas);
             this.canvas.stroke();
-        }),
+        })
     };
     // helpers
     var ContainerWidget = Object.create(Widget);
@@ -386,37 +387,6 @@ var make_crender = function() {
         return r;
     };
 
-    // Invisible vertical stacking container
-    var BlockWidget = Object.create(Widget);
-    BlockWidget.length = 0; // this is an array-like object.
-    BlockWidget.addChild = ContainerWidget.addChild;
-    BlockWidget.children = function() {
-        var r = [];
-        if (this.vars) { r.push(this.vars); }
-        return r.concat(ContainerWidget.children.call(this));
-    };
-    BlockWidget.addVar = function(nameWidget) {
-        if (!this.vars) { this.vars = Object.create(VarWidget); }
-        this.vars.addName(nameWidget);
-    };
-    BlockWidget.computeSize = function(properties) {
-        return rect(0, 0); // no size of our own
-    };
-    BlockWidget.computeBBox = function(properties) {
-        // add a little padding below last block
-        return this.pad(VertWidget.computeBBox.call(this, properties),
-                        { bottom: this.styles.blockBottomPadding });
-    };
-    BlockWidget.draw = context_saved(function() {
-        var children = this.children();
-        var drawChild = context_saved(function(c, idx) {
-            this.canvas.translate(this.childOrigin[idx]);
-            c.draw();
-        }).bind(this);
-
-        children.forEach(drawChild);
-    });
-
     // simple c-shaped statement.
     var CeeWidget = Object.create(Widget);
     CeeWidget.ceeStartPt = function() {
@@ -464,7 +434,7 @@ var make_crender = function() {
 
     // Expression tiles
     var ExpWidget = Object.create(Widget);
-    ExpWidget.outlineColor = function() { return this.styles.tileOutlineColor; }
+    ExpWidget.outlineColor = function(){ return this.styles.tileOutlineColor; };
     ExpWidget.draw = context_saved(function() {
         this.canvas.setFill(this.bgColor());
         this.canvas.setStroke(this.outlineColor());
@@ -513,8 +483,8 @@ var make_crender = function() {
     // yada yada yada expression
     var YADA_TEXT = "...";
     var YadaWidget = Object.create(ExpWidget);
-    YadaWidget.bgColor = function() { return this.styles.yadaColor; }
-    YadaWidget.outlineColor = function() { return this.styles.yadaColor; }
+    YadaWidget.bgColor = function() { return this.styles.yadaColor; };
+    YadaWidget.outlineColor = function() { return this.styles.yadaColor; };
     YadaWidget.computeSize = context_saved(function(properties) {
         return this.pad(this.canvas.measureText(YADA_TEXT));
     });
@@ -527,16 +497,12 @@ var make_crender = function() {
     HorizExpWidget.computeBBox = function(properties) {
         return this.pad(HorizWidget.computeBBox.call(this, properties),
                         { bottom: this.styles.expUnderHeight });
-    }
+    };
 
-    // lists of sockets, separated by symbols of some kind.
+    // lists of things, separated by symbols of some kind.
     // the things can be names or exps; the symbols are circled by
-    // the widget's outline.  The names/exps can be multiline.
-    // the first symbol comes after the first name/exp; the last
-    // symbol comes after the last one.  Make a symbol falsey
-    // (null or undefined works well) to omit it.
-    // XXX should be able to make the symbols multline, too;
-    //     basically each symbol should have a 'line break after' property.
+    // the widget's outline.  The symbols/names/exps can be multiline.
+    // XXX basically each symbol should have a 'line break after' property.
     var SeparatedListWidget = Object.create(Widget);
     // override this!
     SeparatedListWidget.computeItems = function(properties) { return []; };
@@ -695,13 +661,13 @@ var make_crender = function() {
     CommaListWidget.addChild = ContainerWidget.addChild;
     CommaListWidget.label = ",";
     CommaListWidget.children = function() {
-        if (this.length == 0 && this.disallowEmptyList) {
+        if (this.length === 0 && this.disallowEmptyList) {
             return [ YadaWidget ];
         }
         return ContainerWidget.children.call(this);
     };
     CommaListWidget.computeItems = function(properties) {
-        if (this.length == 0 && this.disallowEmptyList) {
+        if (this.length === 0 && this.disallowEmptyList) {
             return [ { widget: YadaWidget } ];
         }
         this.size = this.computeSize(properties);
@@ -754,10 +720,11 @@ var make_crender = function() {
     PrefixWidget.drawInterior = context_saved(function() {
         var offset = Math.floor(this.styles.expWidth / 2) - 1;
         this.items.forEach(function(item, index) {
-            if (!item.isSymbol) return;
-            var txt = item.noPad ? item.operator : (" "+item.operator+" ");
-            this.drawPaddedText(txt,
-                                this.itemPos[index].add(offset, 0));
+            if (item.isSymbol) {
+                var txt = item.noPad ? item.operator : (" "+item.operator+" ");
+                this.drawPaddedText(txt,
+                                    this.itemPos[index].add(offset, 0));
+            }
         }.bind(this));
     });
 
@@ -906,7 +873,7 @@ var make_crender = function() {
     };
     LabelledExpWidget.getLabel = function() {
         return this.label;
-    }
+    };
     LabelledExpWidget.setFont = function() {
         this.canvas.setFill(this.styles[this.fontStyle]);
     };
@@ -986,13 +953,13 @@ var make_crender = function() {
     var SemiWidget = Object.create(EndCapWidget);
     SemiWidget.label = SEMI_TEXT;
     SemiWidget.extraPadding = { left: 4 };
-    SemiWidget.bgColor = function() { return this.styles.stmtColor; }
+    SemiWidget.bgColor = function() { return this.styles.stmtColor; };
 
     // while/if end cap
-    ParenBraceWidget = Object.create(EndCapWidget);
+    var ParenBraceWidget = Object.create(EndCapWidget);
     ParenBraceWidget.label = ") {";
     ParenBraceWidget.extraPadding = { left: 5, right: 4 };
-    ParenBraceWidget.bgColor = function() { return this.styles.stmtColor; }
+    ParenBraceWidget.bgColor = function() { return this.styles.stmtColor; };
 
     // expression statement tile; takes an expression on the right.
     var ExpStmtWidget = Object.create(CeeWidget);
@@ -1100,6 +1067,37 @@ var make_crender = function() {
         this.expression.addChild(nameWidget);
     };
 
+    // Invisible vertical stacking container
+    var BlockWidget = Object.create(Widget);
+    BlockWidget.length = 0; // this is an array-like object.
+    BlockWidget.addChild = ContainerWidget.addChild;
+    BlockWidget.children = function() {
+        var r = [];
+        if (this.vars) { r.push(this.vars); }
+        return r.concat(ContainerWidget.children.call(this));
+    };
+    BlockWidget.addVar = function(nameWidget) {
+        if (!this.vars) { this.vars = Object.create(VarWidget); }
+        this.vars.addName(nameWidget);
+    };
+    BlockWidget.computeSize = function(properties) {
+        return rect(0, 0); // no size of our own
+    };
+    BlockWidget.computeBBox = function(properties) {
+        // add a little padding below last block
+        return this.pad(VertWidget.computeBBox.call(this, properties),
+                        { bottom: this.styles.blockBottomPadding });
+    };
+    BlockWidget.draw = context_saved(function() {
+        var children = this.children();
+        var drawChild = context_saved(function(c, idx) {
+            this.canvas.translate(this.childOrigin[idx]);
+            c.draw();
+        }).bind(this);
+
+        children.forEach(drawChild);
+    });
+
     // function expression, contains a name list and a block
     // XXX render functions w/ no body inline?
     var FUNCTION_TEXT = _("function");
@@ -1178,7 +1176,7 @@ var make_crender = function() {
         this.block.layout(this.canvas, this.styles, block_prop);
         this.blockBB = this.block.bbox;
         var blkpt = pt(properties.margin + this.styles.functionIndent,
-                       this.rightParenBB.bottom())
+                       this.rightParenBB.bottom());
         this.blockBB = this.blockBB.translate(blkpt);
 
         // and the final close bracket
