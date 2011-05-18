@@ -9,12 +9,23 @@
 // C. Scott Ananian, May 13 2011
 
 var make_canvas = function(canvas_id) {
-    var canvas_ = document.getElementById(canvas_id).getContext('2d');
+    var canvasElem_ = document.getElementById(canvas_id);
+    var canvas_ = canvasElem_.getContext('2d');
     return {
         fontHeight: 10, // font is 10px when canvas is created.
         fontBold: false,
         fontItalic: false,
 
+        // resize the underlying canvas element.  Also clears the drawing area.
+        resize: function(width, height) {
+            canvasElem_.width = width;
+            canvasElem_.height = height;
+            // chrome seems to clear as a side effect of the above, but let's
+            // make it explicit
+            canvas_.clearRect(0,0,width,height);
+        },
+        // execute the given function, saving and restoring the canvas context
+        // around its invocation.
         withContext: function(_this_, f) {
             var h, b, i;
             h = this.fontHeight;
