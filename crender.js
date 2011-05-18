@@ -1108,7 +1108,8 @@ var make_crender = function() {
         arg_props.lineHeight = arg_props.margin = 0;
         this.args.layout(this.canvas, this.styles, arg_props);
         this.argsBB = this.args.bbox;
-        // adjust args to have a minimum width (even w/ no args)
+        // adjust args to have a minimum height/width (even w/ no args)
+        this.argsBB = this.argsBB.ensureHeight(this.styles.expHalfHeight*2);
         if (this.argsBB.width() < this.styles.functionNameSpace) {
             this.argsBB=this.argsBB.pad({right:this.styles.functionNameSpace});
         }
