@@ -524,12 +524,12 @@ var make_crender = function() {
     // XXX should be able to make the symbols multline, too;
     //     basically each symbol should have a 'line break after' property.
     var SeparatedListWidget = Object.create(Widget);
-    // override these!
-    SeparatedListWidget.items = function() { return []; };
+    // override this!
+    SeparatedListWidget.computeItems = function() { return []; };
     // items don't have to be children, but they are by default.
     SeparatedListWidget.children = function() {
         var result = [];
-        this.items().forEach(function(item) {
+        this.items.forEach(function(item) {
             if (item.widget && !item.hide) {
                 result.push(item.widget);
             }
@@ -538,14 +538,14 @@ var make_crender = function() {
     };
     // meat & potatoes
     SeparatedListWidget.computeBBox = function(properties) {
-        var items = this.items();
+        this.items = this.computeItems(properties);
 
         var bbox = rect(0, 0);
         var lineHeight = properties.lineHeight || 0;
 
         this.itemPos = [];
         this.itemBBox = [];
-        items.forEach(function(item, index) {
+        this.items.forEach(function(item, index) {
             var itemBB;
             if (item.widget) {
                 var child_props = Object.create(properties);
@@ -572,7 +572,9 @@ var make_crender = function() {
         }.bind(this));
         // misc. prettiness: don't underline if there's only one item
         // in the list
-        if (items.length <= 1 && !this.underlineShortLists) { return bbox; }
+        if (this.items.length <= 1 && !this.underlineShortLists) {
+            return bbox;
+        }
         // and some height to account for the underline
         bbox = bbox.pad({bottom: this.styles.expUnderHeight});
         // if we wrapped, we also need a leader on the left
@@ -589,30 +591,38 @@ var make_crender = function() {
         this.drawInterior();
         this.drawChildren();
     });
-    SeparatedListWidget.drawSymbol=function(item, index, leftName, rightName) {
+    SeparatedListWidget.drawSymbol=function(item, index, props) {
         // draw the top
-        this.drawCapUp(this.itemPos[index],
-                       false/*socket*/, false/*left*/, leftName||false);
+        this.drawCapUp(this.itemPos[index], props.leftIsPlug || false,
+                       false/*left*/, props.leftIsName || false);
         // right side.
-        this.drawCapDown(this.itemBBox[index].tr(),
-                         false/*socket*/, true/*right*/, rightName||false);
+        this.drawCapDown(this.itemBBox[index].tr(), props.rightIsPlug || false,
+                         true/*right*/, props.rightIsName || false);
     };
     SeparatedListWidget.drawOutline = context_saved(function() {
         if (this.itemPos.length === 0) { return; }
-        var items = this.items();
         // along bottoms of each item and them up around the separator
         this.canvas.setFill(this.bgColor());
         this.canvas.beginPath();
         this.canvas.moveTo(this.itemBBox[0].indent());
-        items.forEach(function(item, index) {
+        this.items.forEach(function(item, index) {
             if (item.isSymbol) {
-                var leftName = (index===0)? this.isName : items[index-1].isName;
-                var rightName =((index+1)<items.length) ? items[index+1].isName:
-                    this.isName;
                 // move up and outline the symbol (extension point)
-                this.drawSymbol(item, index, leftName, rightName);
-            } else {
+                var props = { leftIsName: this.isName, leftIsPlug: true,
+                              rightIsName: this.isName, rightIsPlug: true };
+                if (index > 0) {
+                    props.leftIsName = this.items[index-1].isName;
+                    props.leftIsPlug = false; /* socket */
+                }
+                if ((index+1) < this.items.length) {
+                    props.rightIsName = this.items[index+1].isName;
+                    props.rightIsPlug = false; /* socket */
+                }
+                this.drawSymbol(item, index, props);
+            } else if (this.itemBBox[index].width() > 0 ||
+                       this.itemBBox[index].height() > 0) {
                 // draw the bottom border of the child.
+                // (skip this if this is a zero-size item)
                 var bb = this.itemBBox[index];
                 this.canvas.lineTo(bb.indent());
                 this.canvas.lineTo(bb.left(), bb.indent().y);
@@ -632,7 +642,7 @@ var make_crender = function() {
     });
     SeparatedListWidget.drawInterior = function() {};
     SeparatedListWidget.drawChildren = context_saved(function() {
-        this.items().forEach(function(item, index) {
+        this.items.forEach(function(item, index) {
             if (item.widget) {
                 this.canvas.withContext(this, function() {
                     this.canvas.translate(this.itemPos[index]);
@@ -657,18 +667,18 @@ var make_crender = function() {
         }
         return ContainerWidget.children.call(this);
     };
-    CommaListWidget.items = function() {
+    CommaListWidget.computeItems = function(properties) {
         if (this.length == 0 && this.disallowEmptyList) {
             return [ { widget: YadaWidget } ];
         }
-        this.size = this.computeSize();
+        this.size = this.computeSize(properties);
         var result = [];
         Array.prototype.forEach.call(this, function(child, idx) {
             if (idx !== 0) {
                 // comma separator
                 result.push( { bbox: this.size, isSymbol: true } );
             }
-            result.push( { widget:child, isName: false } );
+            result.push( { widget:child, isName: this.isName || false } );
         }.bind(this));
         return result;
     };
@@ -683,7 +693,7 @@ var make_crender = function() {
     });
     CommaListWidget.drawInterior = context_saved(function() {
         var offset = this.styles.expWidth + (this.extraPadding.left || 0);
-        this.items().forEach(function(item, index) {
+        this.items.forEach(function(item, index) {
             if (!item.widget) {
                 var pos = this.itemPos[index];
                 this.drawPaddedText(this.label, pos.add(offset,0),
@@ -692,207 +702,103 @@ var make_crender = function() {
         }.bind(this));
     });
 
-    // Infix operator
-    var InfixWidget = Object.create(HorizExpWidget);
-    InfixWidget.operator = '?'; // override
-    InfixWidget.leftHandDir = 1;
-    InfixWidget.rightHandDir =-1;
-    InfixWidget.leftOperand = YadaWidget;
-    InfixWidget.rightOperand = YadaWidget;
-    InfixWidget.children = function() {
-        return [ this.leftOperand, this.rightOperand ];
+    // make a prefix operator widget
+    var PrefixWidget = Object.create(SeparatedListWidget);
+    PrefixWidget.operator = "?";
+    PrefixWidget.rightOperand = YadaWidget;
+    PrefixWidget.computeItems = function(properties) {
+        this.size = this.computeSize(properties);
+        return [ { bbox: this.size, isSymbol: true, operator: this.operator },
+                 { widget: this.rightOperand } ];
     };
-    InfixWidget.computeSize = context_saved(function(properties) {
+    PrefixWidget.computeSize = context_saved(function(properties) {
         var r = this.pad(this.canvas.measureText(" "+this.operator+" "));
         return this.pad(r, { right: this.styles.expWidth /* for sockets */});
     });
-    InfixWidget.computeBBox = function(properties) {
-        // first, layout the left operand.
-        if (this.isPrefix) {
-            this.lbb = rect(0,0);
-        } else {
-            this.leftOperand.layout(this.canvas, this.styles, properties);
-            this.lbb = this.leftOperand.bbox;
-        }
-
-        // now layout our own self.
-        // ensure that we're at least as big as the left operand
-        // (can't include underline in size or superclass drawing method will
-        //  scribble over the underline)
-        var my_props = Object.create(properties);
-        my_props.lineHeight = Math.max((my_props.lineHeight || 0),
-                                       this.lbb.widowHeight());
-        my_props.margin = (my_props.margin||0) - this.lbb.widow().x;
-        this.size = this.computeSize(my_props);
-
-        var combined = this.lbb.chainHoriz(this.size);
-        // top of the underline
-        var topUnder = combined.bottom();
-
-        // layout the right operand, adjusting the margin and line height
-        // to allow for a descender.
-        var right_prop = Object.create(properties);
-        // only inherit lineHeight if we didn't already wrap on the left
-        right_prop.lineHeight = (combined.multiline() ? 0 :
-                                 (properties.lineHeight || 0));
-        right_prop.lineHeight = this.styles.expUnderHeight +
-            Math.max(right_prop.lineHeight, topUnder - this.lbb.widow().y);
-
-        right_prop.margin = (properties.margin || 0);
-        // adjust for the new start position of the child.
-        right_prop.margin -= combined.widow().x;
-        // also leave room for a descender on the left hand side.
-        right_prop.margin += this.styles.expUnderWidth;
-
-        this.rightOperand.layout(this.canvas, this.styles, right_prop);
-        this.rbb = this.rightOperand.bbox;
-
-        var pad_lbb, pad_rbb;
-        // account for underline on left
-        if (this.rbb.multiline()) {
-            // if right is multiline, then its adjustment of the indent
-            // depth already accounts for the left underline.
-            pad_lbb = this.lbb;
-        } else {
-            pad_lbb = this.lbb.pad({bottom: this.styles.expUnderHeight});
-        }
-        // account for underline
-        pad_rbb = this.rbb.pad({bottom:this.styles.expUnderHeight});
-        if (this.rbb.multiline()) {
-            pad_rbb = pad_rbb.pad({left:this.styles.expUnderWidth});
-            var indentAmt = pad_rbb.indent().x - pad_rbb.left();
-            var indentSign = (indentAmt < 0) ? -1 : (indentAmt > 0) ? 1 : 0;
-            pad_rbb = pad_rbb.pad(
-                { indenty: indentSign*this.styles.expUnderHeight });
-        }
-
-        // ok, make total bbox
-        combined = pad_lbb.chainHoriz(this.size).chainHoriz(pad_rbb);
-
-        // for ease of drawing, translate lbb and rbb to a self-centric
-        // coordinate system.
-        var offset = this.lbb.widow().negate();
-        this.bb = combined.translate(offset);
-        this.lbb = this.lbb.translate(offset);
-        this.rbb = this.rbb.translate(this.size.widow());
-
-        // done.
-        return combined;
-    };
-    InfixWidget.bottomPath = function() {
-        // if left hand side is multiline, then we can only go as far
-        // over as the widow.
-        if (!this.isPrefix) {
-            this.canvas.lineTo(0, this.lbb.bottom());
-            this.canvas.lineTo(this.lbb.bl());
-        }
-        // now we're either going to go down, if the right operand is multiline,
-        // or go back to the right if it's not.
-        if (this.rbb.multiline()) {
-            this.canvas.lineTo(this.lbb.left(), this.bb.indent().y);
-            this.canvas.lineTo(this.bb.left(), this.bb.indent().y);
-            this.canvas.lineTo(this.bb.bl());
-            this.canvas.lineTo(this.rbb.widow().x, this.bb.bottom());
-        } else {
-            this.canvas.lineTo(this.lbb.left(), this.bb.bottom());
-            this.canvas.lineTo(this.rbb.right(), this.bb.bottom());
-        }
-        this.extraBottomPath(); // hook for sub class
-        this.canvas.lineTo(this.rbb.widow().x, this.rbb.bottom());
-        this.canvas.lineTo(this.rbb.bl());
-        this.canvas.lineTo(this.rbb.left(), this.rbb.indent().y);
-        this.canvas.lineTo(this.rbb.indent());
-    };
-    InfixWidget.extraBottomPath = function() { };
-    InfixWidget.draw = context_saved(function() {
-        var lbb = (this.isPrefix) ? rect(0,0) : this.leftOperand.bbox;
-        // draw me
-        this.canvas.withContext(this, function() {
-            this.canvas.translate(lbb.widow());
-            InfixWidget.__proto__.draw.call(this);
-        });
-        // draw left child
-        if (!this.isPrefix) {
-            this.leftOperand.draw();
-        }
-        // draw right child.
-        this.canvas.translate(lbb.widow());
-        this.canvas.translate(this.size.widow());
-        this.rightOperand.draw();
+    PrefixWidget.drawInterior = context_saved(function() {
+        var offset = Math.floor(this.styles.expWidth / 2) - 1;
+        this.items.forEach(function(item, index) {
+            if (!item.isSymbol) return;
+            this.drawPaddedText(" "+item.operator+" ",
+                                this.itemPos[index].add(offset, 0));
+        }.bind(this));
     });
-    InfixWidget.drawInterior = function() {
-        this.drawPaddedText(" "+this.operator+" ",
-                            pt(Math.floor(this.styles.expWidth / 2) - 1, 0));
-    };
 
-    // make a prefix operator widget out of the infix widget
-    var PrefixWidget = Object.create(InfixWidget);
-    PrefixWidget.isPrefix = true;
-    PrefixWidget.leftHandDir = -1;
-    PrefixWidget.leftOperand = ({}).undefined;
-    PrefixWidget.children = function() {
-        return [ this.rightOperand ];
+    // Infix operator (from prefix widget)
+    var InfixWidget = Object.create(PrefixWidget);
+    InfixWidget.leftOperand = YadaWidget;
+    InfixWidget.computeItems = function(properties) {
+        this.size = this.computeSize(properties);
+        return [ { widget: this.leftOperand },
+                 { bbox: this.size, isSymbol: true, operator: this.operator },
+                 { widget: this.rightOperand } ];
     };
 
     // make ([ operators from the infix widget
     var WithSuffixWidget = Object.create(InfixWidget);
-    WithSuffixWidget.computeBBox = context_saved(function(properties) {
-        var bbox=WithSuffixWidget.__proto__.computeBBox.call(this, properties);
-        // add space at the widow end for the close operator
-        var co = this.pad(this.canvas.measureText(" "+this.closeOperator+" "));
-        co = co.pad({ right: this.styles.expWidth });
-        this.closeBB = co.translate(bbox.widow());
-        // now offset to "operator centric" coordinates, like the rest of
-        // infix widget (ugh)
-        var lbb = (this.isPrefix) ? rect(0,0) : this.leftOperand.bbox;
-        this.closeBB = this.closeBB.translate(lbb.widow().negate());
-
-        bbox = bbox.chainHoriz(co);
-
-        // record bottom corner for use in extraBottomPath
-        var wbb = bbox.translate(lbb.widow().negate());
-        this.wbb = pt(wbb.widow().x, wbb.bottom());
-
-        return bbox;
-    });
-    WithSuffixWidget.drawInterior = function() {
-        WithSuffixWidget.__proto__.drawInterior.call(this);
-        var offset = Math.floor(this.styles.expWidth / 2) - 1;
-        this.drawPaddedText(" "+this.closeOperator+" ",
-                            this.closeBB.tl().add(offset, 0));
+    WithSuffixWidget.closeOperator = '?';
+    WithSuffixWidget.computeItems = function(properties) {
+        this.size = this.computeSize(properties);
+        return [ { widget: this.leftOperand },
+                 { bbox: this.size, isSymbol: true,
+                   operator: this.operator },
+                 { widget: this.rightOperand },
+                 { bbox: this.size, isSymbol: true,
+                   operator: this.closeOperator } ];
     };
-    WithSuffixWidget.extraBottomPath = function() {
-        this.canvas.lineTo(this.wbb);
-        this.drawCapUp(pt(this.wbb.x, this.bb.widow().y),
-                       true/*plug*/, true/*right*/, false/*exp*/);
-        this.canvas.lineTo(this.bb.widow());
-        this.drawCapDown(this.bb.widow(),
-                         false/*socket*/,false/*left*/, false/*exp*/);
-    };
-    var ParenWidget = Object.create(WithSuffixWidget);
+
+    var ParenWidget = Object.create(SeparatedListWidget);
     ParenWidget.operator = '(';
-    ParenWidget.closeOperator = ')';
-    ParenWidget.isPrefix = PrefixWidget.isPrefix;
-    ParenWidget.leftHandDir = PrefixWidget.leftHandDir;
-    ParenWidget.leftOperand = PrefixWidget.leftOperand;
-    ParenWidget.children = PrefixWidget.children;
+    ParenWidget.operand = YadaWidget;
+    ParenWidget.computeItems = function(properties) {
+        this.size = this.computeSize(properties);
+        return [ { bbox: this.size, isSymbol: true, operator: '(' },
+                 { widget: this.operand },
+                 { bbox: this.size, isSymbol: true, operator: ')' } ];
+    };
+    ParenWidget.computeSize = PrefixWidget.computeSize;
+    ParenWidget.drawInterior= PrefixWidget.drawInterior;
 
-    var NewArrayWidget = Object.create(ParenWidget);
+    var NewArrayWidget = Object.create(SeparatedListWidget);
     NewArrayWidget.operator = '[';
-    NewArrayWidget.closeOperator = ']';
-    NewArrayWidget.rightOperand = CommaListWidget;
+    NewArrayWidget._operand = CommaListWidget;
     NewArrayWidget.children = function() {
-        return this.rightOperand.children();
+        return this._operand.children();
     };
     NewArrayWidget.addChild = function(child) {
-        if (this.rightOperand === CommaListWidget) {
+        if (this._operand === CommaListWidget) {
             // don't mutate the prototype
-            this.rightOperand = Object.create(CommaListWidget);
+            this._operand = Object.create(CommaListWidget);
         }
-        this.rightOperand.addChild(child);
-        this.length = this.rightOperand.length;
+        this._operand.addChild(child);
+        this.length = this._operand.length;
     };
     NewArrayWidget.length = 0;
+    NewArrayWidget.computeItems = function(properties) {
+        this.size = this.computeSize(properties);
+        return [ { bbox: this.size, isSymbol: true, operator: '[' },
+                 { widget: this._operand },
+                 { bbox: this.size, isSymbol: true, operator: ']' } ];
+    };
+    NewArrayWidget.computeSize = PrefixWidget.computeSize;
+    NewArrayWidget.drawInterior= PrefixWidget.drawInterior;
+
+    var ConditionalWidget = Object.create(SeparatedListWidget);
+    ConditionalWidget.testOperand = YadaWidget;
+    ConditionalWidget.trueOperand = YadaWidget;
+    ConditionalWidget.falseOperand= YadaWidget;
+    ConditionalWidget.computeItems = function(properties) {
+        var q = this.pad(this.canvas.measureText(" ? ")).pad(
+            { right: this.styles.expWidth /* for sockets */});
+        var c = this.pad(this.canvas.measureText(" : ")).pad(
+            { right: this.styles.expWidth /* for sockets */});
+        return [ { widget: this.testOperand },
+                 { bbox: q, isSymbol: true, operator: '?' },
+                 { widget: this.trueOperand },
+                 { bbox: c, isSymbol: true, operator: ':' },
+                 { widget: this.falseOperand } ];
+    };
+    ConditionalWidget.drawInterior= PrefixWidget.drawInterior;
 
     var LabelledExpWidget = Object.create(ExpWidget);
     LabelledExpWidget.computeSize = context_saved(function(properties) {
@@ -1639,7 +1545,7 @@ var make_crender = function() {
             // case better (where we need to dynamically add parens)
             if (prev_prec > prec) {
                 var p = Object.create(ParenWidget);
-                p.rightOperand = result;
+                p.operand = result;
                 result = p;
             }
             return result;
@@ -1849,17 +1755,13 @@ var make_crender = function() {
         });
         return w;
     });
-    // XXX STUBS
     ternary("?", 20, function() {
-        return Object.create(YadaWidget);
+        var w = Object.create(ConditionalWidget);
+        w.testOperand = crender(this.first);
+        w.trueOperand = crender(this.second);
+        w.falseOperand = crender(this.third);
+        return w;
     });
-    /*
-    ternary("?", 20, function() {
-            return crender(this.first) + " ? " +
-                crender(this.second) + " : " +
-                crender(this.third);
-        });
-    */
 
     // Statements
     dispatch.statement = function() {
