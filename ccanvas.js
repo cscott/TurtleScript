@@ -4,6 +4,8 @@
 // APIs we actually need (and don't require string parsing in the API)
 // to make the native implementation easier.
 
+// This isn't Simplified JavaScript -- we use try/finally here.
+
 // C. Scott Ananian, May 13 2011
 
 var make_canvas = function(canvas_id) {
