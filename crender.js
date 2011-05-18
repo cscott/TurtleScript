@@ -1543,7 +1543,7 @@ var make_crender = function() {
         var result = "", i=0;
         while (i < s.length) {
             var c = s.charAt(i);
-            if (table[c]) {
+            if (table.hasOwnProperty(c)) {
                 result += "\\" + table[c];
             } else if (c < ' ' || c > '~') {
                 // XXX allow some accented UTF-8 characters (printable ones)?

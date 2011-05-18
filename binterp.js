@@ -507,6 +507,31 @@ var make_binterp = function(bytecode_table) {
             return dispatch.invoke.call(this, nargs);
         }, 1/*is apply*/);
 
+        // primitives will be replaced by message sends
+        // XXX this is simplistic; a proper version should explicitly
+        //     represent the type conversions performed.
+        native_func(MyObject, "+", function(_this_, arg1) {
+            return _this_ + arg1;
+        });
+        native_func(MyObject, "-", function(_this_, arg1) {
+            return _this_ - arg1;
+        });
+        native_func(MyObject, "*", function(_this_, arg1) {
+            return _this_ * arg1;
+        });
+        native_func(MyObject, "/", function(_this_, arg1) {
+            return _this_ / arg1;
+        });
+        native_func(MyObject, "=", function(_this_, arg1) {
+            return _this_ === arg1;
+        });
+        native_func(MyObject, ">", function(_this_, arg1) {
+            return _this_ > arg1;
+        });
+        native_func(MyObject, ">=", function(_this_, arg1) {
+            return _this_ >= arg1;
+        });
+
         return frame;
     };
     var library_init = function() {

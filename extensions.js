@@ -1,0 +1,37 @@
+// some extensions to javascript to make the browser environment
+// better make the Simplified JavaScript 'native' environment.
+
+Object.prototype['+'] = function(operand) { return this + operand; };
+Object.prototype['-'] = function(operand) { return this - operand; };
+Object.prototype['*'] = function(operand) { return this * operand; };
+Object.prototype['/'] = function(operand) { return this / operand; };
+Object.prototype['='] = function(operand) { return this === operand; };
+Object.prototype['>'] = function(operand) { return this > operand; };
+Object.prototype['>='] = function(operand) { return this >= operand; };
+// workarounds for implicit conversions done during dispatch
+Number.prototype['='] = function(operand) {
+    return Number(this) === operand;
+};
+Boolean.prototype['='] = function(operand) {
+    return this == operand;
+};
+String.prototype['='] = function(operand) {
+    return String(this) === operand;
+};
+// support for loopless bytecode
+Boolean.prototype["while"] = function(_this_, cond, body) {
+    // strange: === gives the wrong value. == works, because (i think)
+    // it coerces to string, like the below.  ! also does the wrong
+    // thing.  Hm!
+    if (this.toString() === "false") { return; }
+    body.call(_this_);
+    var cc = cond.call(_this_);
+    cc["while"](_this_, cond, body);
+};
+Boolean.prototype["ifElse"] = function(_this_, ifTrue, ifFalse) {
+    if (this.toString() === "false") {
+        return ifFalse.call(_this_);
+    } else {
+        return ifTrue.call(_this_);
+    }
+};
