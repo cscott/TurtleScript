@@ -140,7 +140,9 @@ function update_from_source(canvas, styles, isource) {
                 Math.min(widget.bbox.height(), 30000)+10);
   // wrap in withContext to undo the effects of the 'translate'
   canvas.withContext({}, function() {
-    canvas.translate(5,5);
+    // canvas coordinates are pixels, so a 1px line straddles two pixels.
+    // offset coordinates by 0.5,0.5 to get the 1px lines to be sharp
+    canvas.translate(4.5,4.5);
     widget.draw();
   });
   // done!
