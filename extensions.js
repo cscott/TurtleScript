@@ -1,6 +1,16 @@
 // some extensions to javascript to make the browser environment
 // better make the Simplified JavaScript 'native' environment.
 
+Object.newUint8Array = function(size) {
+    return new Uint8Array(size);
+};
+
+// provide the delete operator without introducing new syntax
+Object['delete'] = function(o, f) {
+    delete o[f];
+};
+
+// Primitive operations, rephrased as message dispatch
 Object.prototype['+'] = function(operand) { return this + operand; };
 Object.prototype['-'] = function(operand) { return this - operand; };
 Object.prototype['*'] = function(operand) { return this * operand; };

@@ -179,7 +179,7 @@ var make_binterp = function(bytecode_table) {
                 var i = obj[SLOT_PREFIX+"length"];
                 while (i > nval) {
                     // Object.delete defines in global.js; uses 'delete'
-                    Object.delete(obj, SLOT_PREFIX+(i-1));
+                    Object['delete'](obj, SLOT_PREFIX+(i-1));
                     i -= 1;
                 }
                 // fall through to set length
