@@ -91,14 +91,15 @@ div.ts { margin-bottom: 1em; }
 <h1>TurtleScript tile test 3</h1>
 
 <SCRIPT src="./global.js"></SCRIPT>
-<SCRIPT src="./tokens.js"></SCRIPT>
+<SCRIPT src="./extensions.js"></SCRIPT>
+<SCRIPT src="./tokenize.js"></SCRIPT>
 <SCRIPT src="./parse.js"></SCRIPT>
 <SCRIPT src="./json2.js"></SCRIPT>
-<SCRIPT src="./compile.js"></SCRIPT>
+<SCRIPT src="./jcompile.js"></SCRIPT>
 <SCRIPT src="./render2.js"></SCRIPT>
 <pre class="ts">
 <SCRIPT>
-parse = make_parse();
+parse = make_parse(tokenize);
 source = "var original_symbol = { nud: function () { this.error('Undefined.'); }, led: function (left) { this.error('Missing operator.'); } };";
 //source = "var sym = { a: 1, b: 2 }.supercalifragilisticexp;";
 //source = "var sym = function(a) { return a; };";
@@ -109,5 +110,5 @@ document.write(render(tree));
 </pre>
 
 <hr>
-<!-- hhmts start -->Last modified: Wed Jul 21 17:55:48 EDT 2010 <!-- hhmts end -->
+<!-- hhmts start -->Last modified: Thu May 19 19:01:08 EDT 2011 <!-- hhmts end -->
 </body> </html>
