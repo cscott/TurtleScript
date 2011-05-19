@@ -10,6 +10,21 @@ Object['delete'] = function(o, f) {
     delete o[f];
 };
 
+// provide exception functionality without introducing new syntax
+Object['throw'] = function(obj) {
+    throw obj;
+};
+
+Object['try'] = function(bodyBlock, catchBlock, finallyBlock) {
+    try {
+	bodyBlock();
+    } catch(e) {
+	if (catchBlock) catchBlock(e);
+    } finally {
+	if (finallyBlock) finallyBlock();
+    }
+};
+
 // Primitive operations, rephrased as message dispatch
 Object.prototype['+'] = function(operand) { return this + operand; };
 Object.prototype['-'] = function(operand) { return this - operand; };
