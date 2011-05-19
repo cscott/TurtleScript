@@ -12,20 +12,21 @@
 <!-- my stuff -->
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
 <script src="./global.js" type="text/javascript"></script>
-<script src="./tokens.js" type="text/javascript"></script>
+<script src="./extensions.js" type="text/javascript"></script>
+<script src="./tokenize.js" type="text/javascript"></script>
 <script src="./parse.js" type="text/javascript"></script>
-<script src="./compile.js" type="text/javascript"></script>
+<script src="./jcompile.js" type="text/javascript"></script>
 <script src="./render.js" type="text/javascript"></script>
 <script src="./tests.js" type="text/javascript"></script>
 <script type="text/javascript">
 $(function() {
   // generate some stuff on the canvas
-  var parse = make_parse();
-  var compile = make_compile();
-  var source = make_tests(make_parse, make_compile, make_render)[0];
+  var parse = make_parse(tokenize);
+  var jcompile = make_jcompile();
+  var source = make_tests(make_parse, make_jcompile, make_render)[0];
   //$("#debug").append(html_escape(source)+"\n");
   var tree = parse(source);
-  //$("#debug").append(html_escape(compile(tree)));
+  //$("#debug").append(html_escape(jcompile(tree)));
   var render = make_render($, html_escape);
   var elem = render(tree);
   //$("#debug").append(html_escape(elem.toSource()));
@@ -144,5 +145,5 @@ hr { clear: both; }
 
 <hr>
 <address></address>
-<!-- hhmts start -->Last modified: Fri Jul  9 13:31:50 EDT 2010 <!-- hhmts end -->
+<!-- hhmts start -->Last modified: Thu May 19 18:57:45 EDT 2011 <!-- hhmts end -->
 </body> </html>
