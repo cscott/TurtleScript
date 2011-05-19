@@ -10,6 +10,11 @@ Object['delete'] = function(o, f) {
     delete o[f];
 };
 
+// provide the 'in' operator without introducing new syntax
+Object['in'] = function(o, f) {
+    return f in o;
+};
+
 // provide exception functionality without introducing new syntax
 Object['throw'] = function(obj) {
     throw obj;
