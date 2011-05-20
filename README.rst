@@ -29,7 +29,7 @@ Chambers et al's `OOPSLA 89`_ paper was a further incentive to
 investigate minimal executable representations.  The hope is that
 a few powerful optimizations can be employed against a tiny set of
 fundamental operations to create a compact and high-performance
-environment which is truly "turtles all the way down".
+environment which is truly "`turtles all the way down`_".
 
 .. _Etoys: http://wiki.laptop.org/go/Etoys
 .. _Scratch: http://scratch.mit.edu/
@@ -46,6 +46,7 @@ environment which is truly "turtles all the way down".
 .. _cola: http://piumarta.com/software/cola/
 .. _maru: http://piumarta.com/software/maru/
 .. _OOPSLA 89: http://selflanguage.org/documentation/published/implementation.html
+.. _turtles all the way down: http://en.wikipedia.org/wiki/Turtles_all_the_way_down
 
 Warnings and Caveats
 --------------------
