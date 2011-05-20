@@ -1,16 +1,3 @@
-Finding the latest code
------------------------
-This source code is hosted at http://github.com/cscott/TurtleScript.
-Fork and contribute!
-
-Warnings and Caveats
---------------------
-
-This README is a description of a work-in-progress.
-It is likely to get increasingly outdated over time.  I'll attempt to
-periodically overhaul it to match reality, but it may always contain
-historical fragments, false starts, and loose ends.
-
 Project Goals
 -------------
 
@@ -57,16 +44,27 @@ environment which is truly "turtles all the way down".
 .. _maru: http://piumarta.com/software/maru/
 .. _OOPSLA 89: http://selflanguage.org/documentation/published/implementation.html
 
+Warnings and Caveats
+--------------------
+
+This README is a description of a work-in-progress.
+It is likely to get increasingly outdated over time.  I'll attempt to
+periodically overhaul it to match reality, but it may always contain
+historical fragments, false starts, and loose ends.
+
 State of the world: 2011-05-19
 ------------------------------
 
-The code begins with a parser for the "Simplified JavaScript" of
+The source code for the project is hosted at
+http://github.com/cscott/TurtleScript.
+
+It begins with a parser for the "Simplified JavaScript" of
 `Douglas Crockford`_ in `parse.js`_.  I've extended the language very
 slightly: it now supports block comments and '$' in identifiers, and
 represents blocks in the parse tree in a more uniform fashion.  I've
 also hoisted all variable declarations to the top of a block, to more
 accurately reflect their scope.  Some further improvements are
-discussed in `Interesting Parser Tasks`, but the base language is not
+discussed in `Interesting Parser Tasks`_, but the base language is not
 expected to change much more.
 
 There are a few backends which process the parsed text.  The first to
@@ -133,7 +131,7 @@ compiler, and renderer, to effect even more fundamental changes to the
 language driving the turtle.  In fact, you can keep digging all the
 way into the object system and runtime.  Turtles all the way down!
 
-Help wanted!
+See `Helping out`_ to contribute!
 
 .. _Douglas Crockford: http://www.crockford.com/javascript/
 .. _parse.js: http://cscott.net/Projects/TurtleScript/parse.js
@@ -391,13 +389,21 @@ of a small set of powerful optimizations: inlining, constant
 propagation, and memoization.  Here's a task list:
 
 1. Transform all the binary and unary operators into method calls.
-   They will become simple 'invoke' operations in bytecode.  Tricky
+   They will become simple ``invoke`` operations in bytecode.  The tricky
    part is just ensuring that method lookup/dispatch works properly on
    primitives, and that the various type coercions are done correctly.
 
 2. Remove jumps from the bytecode.  Use dispatch to the boolean
    results of comparisons instead.  See the ``ifElse`` and ``while``
-   operators in `extensions.js`_.
+   operators in `extensions.js`_.  An example::
+
+     var i = 0;
+     (function() { i += 1; }).while(this, function() { return i < 5; });
+
+     function pluralize(str, n) {
+         return str + ((n==1).ifElse(this, function() { return ""; },
+                                           function() { return "s"; }));
+     }
 
 3. Remove the five ``get_slot``/``set_slot`` variants and replace with
    ``get_getter`` and ``get_setter`` messages sent to the object's
@@ -415,7 +421,8 @@ propagation, and memoization.  Here's a task list:
 
    Then we can make a special "numeric string" subclass of string,
    used for strings which can be parsed as ``uint32_t`` numbers (ie, valid
-   array indices).  (If length > 10 or any of the first 10 characters
+   array indices) and represented internally as a tagged integer.
+   (If length > 10 or any of the first 10 characters
    is not a digit, then it's not a numeric string.  Negative integers
    are not numeric strings.)  This lets us implement array indexing
    efficiently as a method of ``NumericString``::
@@ -439,11 +446,11 @@ propagation, and memoization.  Here's a task list:
    stored in a `Typed Array`_.  This can include a proper `object model`_
    and garbage collector.  Use `NaN boxing`_, possibly based more-or-less
    directly on SpiderMonkey's `jsval.h`_ but with the addition of
-   ``NumericString`` as described above.
+   a ``NumericString`` type as described above.
 
 5. Write a simple bytecode interpreter in C which can operate on
    system images created by the JavaScript implementation above.
-   Bind it to a canvas, run it in NaCl as a demo?  At this point you'd
+   Bind it to a canvas, run it in `NaCl`_ as a demo?  At this point you'd
    have a system which was turtles all the way down to bytecode.
 
 6. Construct a REPL loop for interactive use of the system.  Maybe
@@ -452,7 +459,8 @@ propagation, and memoization.  Here's a task list:
    and you can type commands at a proper to update the frame/compute
    results.  This may involve writing some code which can convert
    from a native object representation to an equivalent parse tree,
-   which would look like: '{ foo: 'bar', bat: function() { ... } }'.
+   which would look something like:
+   ``{ foo: 'bar', bat: function() { ... } }``.
    We'd need a way to link a ``binterp`` function ID with the
    corresponding widget tree.
 
@@ -465,6 +473,7 @@ propagation, and memoization.  Here's a task list:
 .. _object model: http://piumarta.com/software/cola/objmodel2.pdf
 .. _NaN boxing: http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation/
 .. _jsval.h: http://hg.mozilla.org/tracemonkey/annotate/9c869e64ee26/js/src/jsval.h
+.. _NaCl: http://en.wikipedia.org/wiki/Google_Native_Client
 
 Rendering Ideas
 ===============
@@ -525,7 +534,7 @@ Additional thoughts:
    in both cases an "expander" would be used to show/edit a complex
    value.)
 
-3. I believe we want to explicit represent "line breaks", rather than
+3. I believe we want to explicitly represent "line breaks", rather than
    allow constructs to extend indefinitely to the right.  My original
    thought was to just add a "new line" flag to the ``binop`` node and
    to the function call nodes (both the "binary" and "ternary" forms).
@@ -542,10 +551,42 @@ Additional thoughts:
 
    An alternative is to make layout "smarter" so that the correct
    orientation is selected automatically.  It's probably possible to
-   reach a happy medium where automatic line breaks happen in
-   reasonable places, but which still allows a user to customize
+   reach a happy medium in which automatic line breaks happen in
+   reasonable places but the user is still able to customize the
    display for additional clarity/expressiveness.
 
+4. I'd prefer that syntactic extension to the base language occur
+   through the definition of new *graphical block* types, which can
+   desugar to the basic AST structures; thus, the block widget is a type of
+   macro.  We still need a means to represent the macro textually, so
+   that there is a lossless conversion between text and graphical
+   forms, but correspondence might be accomplished by simple
+   convention, like being imported from a path rooted at ``macros``::
+
+     var IfBlockMacro = imports.macros.IfBlockMacro;
+     var foo = function() {
+          var i;
+          IfBlockMacro(function() { i=0; },
+                       function() { return i < 5; },
+                       function() { i+=1; },
+                       function() { /* body */ });
+     }
+
+   A user without a definition for ``IfBlockMacro`` would see
+   a graphical representation corresponding to the text above.  But if the
+   ``IfBlockMacro`` function includes an ``asWidget()`` method, it could
+   define its own graphical representation which could suppress the
+   ``function()`` and ``return`` cruft to yield a graphical representation
+   identical to the traditional syntactic form::
+
+     for ( i=0 ; i < 5 ; i+=1 ) {
+       /* body */
+     }
+
+   But this resemblance is purely visual; the underlying source
+   language and syntax remains unchanged.  More radical visual changes
+   could also be accomplished, but display of macros can also be
+   toggled off to yield more traditional (if verbose) syntax.
 
 Renderer Tasks
 ===============
@@ -553,9 +594,10 @@ Renderer Tasks
 The following is a potential implementation order for additional
 rendering tasks:
 
-1. Split crender.js to separate out the Widget definitions from the
+1. Split `crender.js`_ to separate out the Widget definitions from the
    code which transforms a parse tree into widgets.  Perhaps make
-   the AST node definitions their own separate module as well?
+   the AST node definitions their own separate module as well, instead
+   of conflating them with token objects in `parse.js`_?
 
 2. Move parenthesization of expressions based on precedence from the
    transform code into the widget rendering.  Parentheses should
@@ -581,6 +623,8 @@ rendering tasks:
    that are in scope.  Perhaps combine this with an object browser
    which can display active objects and let you drag/drop slot names.
 
+.. _crender.js: http://cscott.net/Projects/TurtleScript/crender.js
+.. _parse.js: http://cscott.net/Projects/TurtleScript/parse.js
 .. _Lessphic: http://piumarta.com/software/cola/canvas.pdf
 
 Interaction Ideas
@@ -665,7 +709,7 @@ Environment
 This section contains more tentative thoughts about the overall
 application environment.
 
-1. Try to build on the shoulders of HTML/CSS/DOM/JavaScript?
+1. Building on the shoulders of HTML/CSS/DOM/JavaScript (or not)
 
    One original goal was to attempt to leverage the existing HTML
    elements and DOM rather than invent our own GUI framework.
@@ -772,10 +816,12 @@ Helping out
 
 Comments on the goals expressed here and suggestions for future (or
 related) work are welcomed.  You can also hack away and contribute code
-using the standard github fork-and-pull-request mechanism.  Thanks
+using the standard `github`_ fork-and-pull-request mechanism.  Thanks
 for reading!
 
   -- C. Scott Ananian, 9-14 July 2010, revised 19 May 2011
+
+.. _github: http://github.com/cscott/TurtleScript
 
 .. |---| unicode:: U+2014  .. em dash, trimming surrounding whitespace
    :trim:
