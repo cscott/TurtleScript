@@ -21,7 +21,7 @@
 .ts li.placeholder {
   /* Borrowed from .ui-state-highlight */
   border: 1px solid #b2a266;
-  background: #f7f3de url(images/ui-bg_fine-grain_15_f7f3de_60x60.png) 50% 50% repeat;
+  background: #f7f3de url(jquery/pepper-grinder/images/ui-bg_fine-grain_15_f7f3de_60x60.png) 50% 50% repeat;
   color: #3a3427;
 }
 
