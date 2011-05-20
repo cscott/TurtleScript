@@ -20,13 +20,13 @@ Object['throw'] = function(obj) {
     throw obj;
 };
 
-Object['try'] = function(bodyBlock, catchBlock, finallyBlock) {
+Object['try'] = function(_this_, bodyBlock, catchBlock, finallyBlock) {
     try {
-	bodyBlock();
+	bodyBlock.call(_this_);
     } catch(e) {
-	if (catchBlock) catchBlock(e);
+	if (catchBlock) catchBlock.call(_this_, e);
     } finally {
-	if (finallyBlock) finallyBlock();
+	if (finallyBlock) finallyBlock.call(_this_);
     }
 };
 
@@ -55,8 +55,7 @@ Boolean.prototype["while"] = function(_this_, cond, body) {
     // thing.  Hm!
     if (this.toString() === "false") { return; }
     body.call(_this_);
-    var cc = cond.call(_this_);
-    cc["while"](_this_, cond, body);
+    Boolean(cond.call(_this_))["while"](_this_, cond, body);
 };
 Boolean.prototype["ifElse"] = function(_this_, ifTrue, ifFalse) {
     if (this.toString() === "false") {
@@ -64,4 +63,8 @@ Boolean.prototype["ifElse"] = function(_this_, ifTrue, ifFalse) {
     } else {
         return ifTrue.call(_this_);
     }
+};
+// it's more natural to write while loops like this:
+Function.prototype["while"] = function(_this_, cond) {
+    Boolean(cond.call(_this_))["while"](_this_, cond, this);
 };
