@@ -1,4 +1,4 @@
-.. image:: images/hello-world.png
+.. image:: http://cscott.net/Projects/TurtleScript/images/hello-world.png
    :align: right
 
 Project Goals
@@ -71,7 +71,7 @@ accurately reflect their scope.  Some further improvements are
 discussed in `Interesting Parser Tasks`_, but the base language is not
 expected to change much more.
 
-.. figure:: images/compile.png
+.. figure:: http://cscott.net/Projects/TurtleScript/images/compile.png
    :alt: Bytecode output
    :align: right
    :target: tdop.html_
@@ -94,7 +94,7 @@ which is a highly modified version of Douglas Crockford's original `parser
 demonstration`_.  The bytecode instruction set is simple, but not
 simple enough; `Simplifying the Environment`_ discusses improvements.
 
-.. figure:: images/tiles1.png
+.. figure:: http://cscott.net/Projects/TurtleScript/images/tiles1.png
    :alt: 2010 graphical tiles
    :align: right
    :target: tile2.html_
@@ -114,7 +114,7 @@ model also failed to satisfy: jQuery UI had a lot of problems with
 horizontal layouts, and the real time re-layout during drag operations
 made the display stutter unacceptably.
 
-.. figure:: images/tiles2.png
+.. figure:: http://cscott.net/Projects/TurtleScript/images/tiles2.png
    :alt: 2011 graphical tiles
    :align: right
    :target: tile2.html_
