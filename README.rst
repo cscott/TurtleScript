@@ -6,18 +6,15 @@ Fork and contribute!
 Warnings and Caveats
 --------------------
 
-This README contains rough release notes for a work-in-progress.
-It contains a description of where the work stood at a particular
-point in time, and is likely to get increasingly outdated as the code is
-hacked on.
-
-As things approach nice points for showing others the work, we'll
-overhaul and rewrite the README to describe the new shiny stuff.
+This README is a description of a work-in-progress.
+It is likely to get increasingly outdated over time.  I'll attempt to
+periodically overhaul it to match reality, but it may always contain
+historical fragments, false starts, and loose ends.
 
 Project Goals
 -------------
 
-TurtleScript is an experiment to provide a simple logo-like
+The TurtleScript experiment attempts to provide a simple logo-like
 programming environment which is based on a "real" programming
 language.  It draws heavy inspiration from Etoys_, Scratch_, BYOB_,
 Elements_, TileScript_, `Turtle Art`_, and `Open Blocks`_.  As a
@@ -35,6 +32,15 @@ already provides an advanced runtime environment and sandbox.  It is
 also a commercially-important programming language, which is (sadly)
 important to many vocationally-minded educators.
 
+I've also been recently (re)inspired by the Smalltalk community, and
+in particular by Ian Piumarta's work on the small self-describing
+systems cola_ and maru_.  The SELF bytecode format described in
+Chambers et al's `OOPSLA 89`_ paper was a further incentive to
+investigate minimal executable representations.  The hope is that
+a few powerful optimizations can be employed against a tiny set of
+fundamental operations to create a compact and high-performance
+environment which is truly "turtles all the way down".
+
 .. _Etoys: http://wiki.laptop.org/go/Etoys
 .. _Scratch: http://scratch.mit.edu/
 .. _BYOB: http://byob.berkeley.edu/
@@ -47,56 +53,68 @@ important to many vocationally-minded educators.
 .. _Lively Qt: http://lively.cs.tut.fi/qt/
 .. _Sugar: http://wiki.laptop.org/go/Sugar
 .. _View Source: http://wiki.laptop.org/go/View_Source
+.. _cola: http://piumarta.com/software/cola/
+.. _maru: http://piumarta.com/software/maru/
+.. _OOPSLA 89: http://selflanguage.org/documentation/published/implementation.html
 
-State of the world: 2010-07-09
+State of the world: 2011-05-19
 ------------------------------
 
-The code at the moment contains a parser and compiler for the
-"Simplified JavaScript" of `Douglas Crockford`_.  I've extended
-the language very slightly: it now supports block comments and '$' in
-identifiers, and represents blocks in the parse tree in a more
-uniform fashion.  I've also hoisted all variable declarations to the
-top of a block, to more accurately reflect their scope.
+The code begins with a parser for the "Simplified JavaScript" of
+`Douglas Crockford`_ in `parse.js`_.  I've extended the language very
+slightly: it now supports block comments and '$' in identifiers, and
+represents blocks in the parse tree in a more uniform fashion.  I've
+also hoisted all variable declarations to the top of a block, to more
+accurately reflect their scope.  Some further improvements are
+discussed in `Interesting Parser Tasks`, but the base language is not
+expected to change much more.
 
-The compiler emits JavaScript from the parse tree; this can
-be ``eval``'ed by the browser's standard JavaScript environment.  At the
-moment, this isn't very interesting |---| but it allows us to modify the
-parsed language in various ways and still emit ECMA-standard
-JavaScript.  There are some `Interesting Parser Tasks`_ and
-`Interesting Compiler Tasks`_, described in their own sections.
+There are a few backends which process the parsed text.  The first to
+be implemented (`jcompile.js`_, July 2010) simply emitted JavaScript
+from the parse tree which can be ``eval``'ed by the browser's standard
+JavaScript environment.  At the moment, this isn't very interesting
+|---| but it allows us to modify the parsed language in various ways
+and still emit ECMA-standard JavaScript which can take advantage of
+browsers' highly-tuned JavaScript implementations.  Some possible
+extensions are described in the `Interesting Compiler Tasks`_ section.
 
-You can test the parser/compiler using `tdop.html`_, which is a modified
-version of Douglas Crockford's parser demonstration.
+In May 2011 I wrote a simple bytecode compiler/interpreter for the
+language, inspired by Piumarta's maru_ system.  You can test the
+parser and the bytecode compiler and interpreter using `tdop.html`_,
+which is a highly modified version of Douglas Crockford's original `parser
+demonstration`_.  The bytecode instruction set is simple, but not
+simple enough; `Simplifying the Environment`_ discusses improvements.
 
-I've also implemented a very simple tile-based renderer for the parse
-tree.  The `tiles.html`_ file demonstrates this, displaying the source
-code for the parser.  By hacking the page source you can display the
-parser, compiler, renderer or test suite, all of which are written in
-Simplified JavaScript.
+Back in 2010 I implemented some simple tile-based renderers for the parse
+tree.  These used jQuery_ to render the tree as CSS-styled HTML.
+A CSS-styling demo is at `tile2.html`_ and `tiles.html`_ displays
+"editable" interactive source using `jQuery UI`_.  I was dissatisfied
+with these results.  The markup process was very slow, and rendering
+into HTML/CSS added a lot of additional difficulty and complexity.
+The promise of clean semantic HTML for the program source was not
+fulfilled: the actual generated HTML needed to be exceedingly crufty
+in order to get the rendering close to what I wanted.  The interaction
+model also failed to satisfy: jQuery UI had a lot of problems with
+horizontal layouts, and the real time re-layout during drag operations
+made the display stutter unacceptably.
 
-The demonstration is very slow: it uses about 7 seconds of runtime (on
-my machine) to perform markup using jQuery_ in order to implement a
-very simple drag-and-drop editing system.  Commenting out this
-statement reveals that the parsing/compiling/rendering speed is quite
-reasonable.
+I revisited the rendering code in 2011.  As discussed in the `Rendering
+Ideas`_ section, I wanted to explore tile-based representations that
+were nonetheless faithful to the "traditional" text-based layout of
+source.  This time I decided to skip the complexity of the HTML/CSS
+layers and render directly to a canvas.  The result can be seen at
+`ctiles.html`_.  This renderer is written in Simplified JavaScript
+with a very small `canvas API`_, and can display itself.
+Further discussion can be found in the `Interaction Ideas`_ and
+`Renderer Tasks`_ sections.
 
-I'm not really satisfied with the current rendering, although it is a
-reasonable proof-of-concept. `Rendering Ideas`_ presents suggested
-improvements.
-
-The interaction model is a bit janky as well.  I used `jQuery UI`_ to get
-something up and running quickly, but it has a lot of problems with
-horizontal layouts.  In addition, the real-time re-layout to show
-possible drop locations makes the display stutter unacceptably.
-`Interaction Ideas`_ suggests some fixes.
-
-It's my intention to drive towards an application similar to
+It is still my intention to drive towards an initial application similar to
 `Turtle Art`_, with an on-screen turtle controlled by the script tiles.
 This will be a public demonstration of the ideas behind the
 TurtleScript project.  The on-screen palette will include a tab for
 each imported namespace, which displays tiles for each name
-(method or variable) defined in that namespace.  So the Turtle Art
-clone would offer a ``run()`` method to be defined, starting with
+(method or variable) defined in that namespace.  So the activity would
+initially offer a ``run()`` method to be defined, starting with
 ``var turtle = imports.turtle`` (borrowing the `gjs module system`_,
 which is built on the single global ``imports`` definition).  This is
 sufficient to put the standard ``forward(...)``, ``turn(...)``, ``pen up()``,
@@ -112,15 +130,23 @@ other commands.
 
 Ideally you should also be able to drill down all the way to the parser,
 compiler, and renderer, to effect even more fundamental changes to the
-language driving the turtle.
+language driving the turtle.  In fact, you can keep digging all the
+way into the object system and runtime.  Turtles all the way down!
 
 Help wanted!
 
 .. _Douglas Crockford: http://www.crockford.com/javascript/
+.. _parse.js: http://cscott.net/Projects/TurtleScript/parse.js
+.. _jcompile.js: http://cscott.net/Projects/TurtleScript/jcompile.js
+.. _maru: http://piumarta.com/software/maru/
 .. _tdop.html: http://cscott.net/Projects/TurtleScript/tdop.html
-.. _tiles.html: http://cscott.net/Projects/TurtleScript/tiles.html
+.. _parser demonstration: http://javascript.crockford.com/tdop/index.html
 .. _jQuery: http://jquery.com/
 .. _jQuery UI: http://jqueryui.com/
+.. _tile2.html: http://cscott.net/Projects/TurtleScript/tile2.html
+.. _tiles.html: http://cscott.net/Projects/TurtleScript/tiles.html
+.. _ctiles.html: http://cscott.net/Projects/TurtleScript/ctiles.html
+.. _canvas API: http://cscott.net/Projects/TurtleScript/ccanvas.js
 .. _gjs module system: http://cananian.livejournal.com/58744.html
 
 Interesting Parser Tasks
@@ -154,6 +180,11 @@ JavaScript" language.  The four that I think are interesting are:
    full Unicode in identifiers, we might also want to transform names to
    escape/unescape these characters.
 
+   Once the variable names are independent of the keywords, both
+   variable names and keywords ought to be fully translatable. A good
+   demo would be to translate a good chunk of the system code (and
+   comments!) and allow real-time switching between display languages.
+
 2. Introduce a `yada yada yada`_ operator.
 
    When programming interactively, we will often have some "holes" in the
@@ -168,31 +199,42 @@ JavaScript" language.  The four that I think are interesting are:
 
    The yada yada yada operator can be compiled to
    ``Object.yada_yada_yada()`` or some other placeholder or global method.
+   By default it will probably throw an exception or enter the debugger.
 
 3. Add an ``imports`` global.
 
    This is a trivial change to the top-level scope of the parser, but it
-   is the hook on which the module mechanism will hang.
+   is the hook on which the module mechanism will hang.  The existing
+   code should be rewritten to use the imports global, which we'll
+   hand-populate with our modules until we've got a "real" loader
+   running.
 
-4. Add explicit "new line" flags.
+4. Preserve comments and new lines.
 
-   See `Rendering Ideas`_, below.
+   Comments are an important part of the documentation of a program,
+   and shouldn't get discarded during the parse.  Similarly, newlines
+   are an important part of the formatting of the program text, which
+   is useful even when doing graphical rendering (see `Rendering
+   Ideas`_, below).  Newlines can be attached to parser tokens.  In
+   the simplest case, each token would have a boolean flag to indicate
+   whether it was followed by a newline.  I haven't yet figured out
+   whether a boolean is sufficient, or whether we actually need to
+   count *how many* newlines occur.  I assume we should count them all
+   initially, and chose the ignore the quantity at a later stage if
+   that turns out to be best.
 
 In contrast, I don't believe these are pressing (or even
 desirable):
 
-1. Add throw, try, catch, and finally.
+1. Add throw, try, catch, and finally keywords.  Add delete and in operators.
 
    Exceptions add a lot to the expressivity of the language.  I expect
-   that their function can be implemented in the library, though:
-   ``Object.throw(msg)`` can implement ``throw``, and
-   ``Function.try(catch_func, finally_func)`` can be used to execute a
-   ``try/catch/finally`` sequence, with the blocks transformed into
-   first-class functions sharing a lexical scope.
-
-   The library implementation will use the low-level functionality of
-   full JavaScript (and thus will not be introspectable), but we can
-   avoid further complicating our syntax.
+   that their function can be implemented in the library, however,
+   without requiring additional syntax in the base language.  The
+   `extensions.js`_ file demonstrates how these might be implemented
+   as library methods.  The implementations of these methods will need
+   to be primitive (and thus will not be introspectable), but we can
+   retain our simplified syntactic vocabulary.
 
 2. Add more/better looping constructs.
 
@@ -200,9 +242,13 @@ desirable):
    programmers, a ``for i = 1 to 5 { ... }`` or ``repeat(5) { ... }``
    sort of loop might be easier to understand.  A standard library
    function (taking a function as a block) or a macro or "build your
-   own tile" feature might be a better way to add this feature.
+   own tile" feature might be a better way to add this feature.  (In
+   particular, I've found myself using the standard `Arrays.forEach`_
+   method extensively when writing Simplified JavaScript.)
 
+.. _extensions.js: http://cscott.net/Projects/TurtleScript/extensions.js
 .. _yada yada yada: http://search.cpan.org/~tmtm/Yada-Yada-Yada-1.00/Yada.pm
+.. _Arrays.forEach: https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/forEach
 
 Interesting Compiler Tasks
 ==========================
@@ -215,7 +261,29 @@ warranted, however, if they simplify the implementation of (and
 reflection into) the rest of the system.  Here are some interesting
 compiler extensions:
 
-1. Allow serialization of (running) program state.
+1. Providing "real" block scope for variables in JavaScript, either by
+   transforming ``var`` to ``let`` in Mozilla-based browsers, or by creating
+   new anonymous functions at block level to implement the necessary scoping.
+
+   This just simplifies the programming model to better match most
+   users' expectations.  Very little existing code depends on the *lack*
+   of block scope, although naive code written for our Simplified JavaScript
+   environment might then fail to run in a native JavaScript environment.
+
+2. Support ``yield``.
+
+   `Generators/yield`_ are a powerful language extension, especially when
+   implementing asynchronous computation.  They are implemented in the
+   Mozilla JavaScript engines, but not in Webkit or V8.  It would be
+   helpful to be able to use ``yield``, even when running in these
+   other browsers.
+
+   The importance of this feature depends on the details of the event
+   model we adopt.  Adding ``yield`` introduces an incompatibility
+   with ECMAScript 5 browsers, but not with Mozilla JavaScript
+   engines.
+
+3. Allow serialization of (running) program state.
 
    JavaScript currently provides "real" information hiding, in the
    form of a function's closure object.  Variables defined in function
@@ -237,16 +305,7 @@ compiler extensions:
    deserializing a function's closure [1]_.  The ``$scope`` parameter can be
    stored as a ``scope`` property of the ``Function`` object.
 
-2. Providing "real" block scope for variables in JavaScript, either by
-   transforming ``var`` to ``let`` in Mozilla-based browsers, or by creating
-   new anonymous functions at block level to implement the necessary scoping.
-
-   This just simplifies the programming model to better match most
-   users' expectations.  Very little existing code depends on the *lack*
-   of block scope, although naive code written for our Simplified JavaScript
-   environment might then fail to run in a native JavaScript environment.
-
-3. Bind ``this`` properly in inner functions.
+4. Bind ``this`` properly in inner functions.
 
    This is a `proposal by Crockford`_.  Function expressions should
    bind ``this`` from their scope at definition time; only method invocation
@@ -263,7 +322,7 @@ compiler extensions:
    JavaScript code will fail to run in a native JavaScript
    environment.
 
-4. Extend properties of ``Function`` objects.
+5. Extend properties of ``Function`` objects.
 
    Every function object should have a ``scope`` property, as proposed
    above, as well as ``name`` and ``arguments`` parameters, as in the
@@ -281,19 +340,6 @@ compiler extensions:
    Most existing code would be unaffected by the presence of additional
    properties of Function objects, and most naive user code will not need
    to access these properties.
-
-5. Support ``yield``.
-
-   `Generators/yield`_ are a powerful language extension, especially when
-   implementing asynchronous computation.  They are implemented in the
-   Mozilla JavaScript engines, but not in Webkit or V8.  It would be
-   helpful to be able to use ``yield``, even when running in these
-   other browsers.
-
-   The importance of this feature depends on the details of the event
-   model we adopt.  Adding ``yield`` introduces an incompatibility
-   with ECMAScript 5 browsers, but not with Mozilla JavaScript
-   engines.
 
 6. A hidden property mechanism for objects.
 
@@ -336,11 +382,95 @@ compiler extensions:
 .. _not enumerable: https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Object/defineProperty
 .. _prophylactic: http://javascript.crockford.com/code.html
 
+Simplifying the Environment
+===========================
+
+The existing bytecode compiler/interpreter is simple, but it could be
+even simpler.  With fewer basic forms, we can get better mileage out
+of a small set of powerful optimizations: inlining, constant
+propagation, and memoization.  Here's a task list:
+
+1. Transform all the binary and unary operators into method calls.
+   They will become simple 'invoke' operations in bytecode.  Tricky
+   part is just ensuring that method lookup/dispatch works properly on
+   primitives, and that the various type coercions are done correctly.
+
+2. Remove jumps from the bytecode.  Use dispatch to the boolean
+   results of comparisons instead.  See the ``ifElse`` and ``while``
+   operators in `extensions.js`_.
+
+3. Remove the five ``get_slot``/``set_slot`` variants and replace with
+   ``get_getter`` and ``get_setter`` messages sent to the object's
+   map.  The ``mapof`` operator is the only new bytecode operator
+   needed.  The result from ``get_getter``/``get_setter`` is a
+   function, so these will be immediately followed by an invocation
+   to actually perform the get/set.
+
+   The implementation of ``get_getter`` for a map representing an
+   array will indirect through the field::
+
+     ArrayMap.get_getter = function(field) {
+       return field.array_getter(this);
+     }
+
+   Then we can make a special "numeric string" subclass of string,
+   used for strings which can be parsed as ``uint32_t`` numbers (ie, valid
+   array indices).  (If length > 10 or any of the first 10 characters
+   is not a digit, then it's not a numeric string.  Negative integers
+   are not numeric strings.)  This lets us implement array indexing
+   efficiently as a method of ``NumericString``::
+
+     NumericString.array_getter = function(map) {
+       // this function creation and its subsequent invocation should
+       // be inlined.
+       val idx = this.asUint32();
+       return native_func(obj) { return memory.get(obj + OFFSET + idx * 8); }
+     }
+     // all other fields use normal object lookup.
+     String.array_getter = function(map) {
+       // this should also be inlinable.
+       return ObjectMap.get_getter.call(map, this);
+     }
+
+   We've now reduced all runtime type tests to the same basic dispatch
+   mechanism, which we can optimize using specialization and inlining.
+
+4. Rewrite bytecode interpreter to operate on object representations
+   stored in a `Typed Array`_.  This can include a proper `object model`_
+   and garbage collector.  Use `NaN boxing`_, possibly based more-or-less
+   directly on SpiderMonkey's `jsval.h`_ but with the addition of
+   ``NumericString`` as described above.
+
+5. Write a simple bytecode interpreter in C which can operate on
+   system images created by the JavaScript implementation above.
+   Bind it to a canvas, run it in NaCl as a demo?  At this point you'd
+   have a system which was turtles all the way down to bytecode.
+
+6. Construct a REPL loop for interactive use of the system.  Maybe
+   integrate this with the tile demo, so that you can see a tile
+   representation of the current frame, including bound method bodies,
+   and you can type commands at a proper to update the frame/compute
+   results.  This may involve writing some code which can convert
+   from a native object representation to an equivalent parse tree,
+   which would look like: '{ foo: 'bar', bat: function() { ... } }'.
+   We'd need a way to link a ``binterp`` function ID with the
+   corresponding widget tree.
+
+7. Efficient compiler which does an interpretation of the bytecode
+   during the first execution, propagating constants and memoizable
+   function results.
+
+.. _extensions.js: http://cscott.net/Projects/TurtleScript/extensions.js
+.. _Typed Array: http://www.khronos.org/registry/typedarray/specs/latest/
+.. _object model: http://piumarta.com/software/cola/objmodel2.pdf
+.. _NaN boxing: http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation/
+.. _jsval.h: http://hg.mozilla.org/tracemonkey/annotate/9c869e64ee26/js/src/jsval.h
+
 Rendering Ideas
 ===============
 
-I'm not really satisfied with the current rendering of the parse tree.
-I've got two conflicting ideas for improving it:
+I originally had two conflicting ideas for rendering the Simplified
+JavaScript parse tree:
 
 1. Move towards a traditional text representation.
 
@@ -372,41 +502,86 @@ I've got two conflicting ideas for improving it:
    the expression/list to grow outside the tile without forcing the
    tile itself to expand horizontally.
 
-See `tile2.html`_ for some additional tile styling experiments.
+Current code leaves heavily towards the first option, although we use
+puzzle piece styling as much as possible.  The original code used a
+"stacking" 3d look which made deeply-nested expressions look too
+"tall"; the current look using a single 3d level, with pieces fitting
+into indents so that the combination of pieces is still flat.
 
-For both layouts, the current "stacking" 3-d model needs to be retired: it
-makes deeply nested expressions look too "tall".  There should be a single
-3-d level, with pieces fitting into indents so that the combination is
-still the same height (not stacked).
+Additional thoughts:
 
-Repeated binary expressions (``... + ... + ...`` or ``... && ... &&
-...``) need to be flattened, instead of exposing the parse tree
-details.  Explicit piece boundaries should only be shown where
-precedence levels vary, where they serve to visually indicate
-"parentheses" in the traditional text representation.
+1. Repeated binary expressions (``... + ... + ...`` or ``... && ... &&
+   ...``) need to be flattened, instead of exposing the parse tree
+   details.  Explicit piece boundaries should only be shown where
+   precedence levels vary, where they serve to visually indicate
+   "parentheses" in the traditional text representation.
 
-It may be possible to aggressively use a "click to expand"
-representation, so that the rendering of a long function or namespace
-is not overwhelmingly complex.  Initially we might only see a list of
-top level symbols, with expander boxes.  Clicking on the expander
-would show the definition of that symbol.  (This could visually relate
-to the way the object browser represents non-primitive field values:
-in both cases an "expander" would be used to show/edit a complex
-value.)
+2. It may be possible to aggressively use a "click to expand"
+   representation, so that the rendering of a long function or namespace
+   is not overwhelmingly complex.  Initially we might only see a list of
+   top level symbols, with expander boxes.  Clicking on the expander
+   would show the definition of that symbol.  (This could visually relate
+   to the way the object browser represents non-primitive field values:
+   in both cases an "expander" would be used to show/edit a complex
+   value.)
 
-I believe we will probably want to explicit represent "line breaks",
-in either representation, rather than allow constructs to extend
-indefinitely to the right.  I propose to add a "new line" flag to
-the ``binop`` node and to the function call nodes (both the "binary" and
-"ternary" forms).  Setting the newline flag on the ``binop`` would arrange
-the "right" and "left" operands vertically.  Setting the newline flag
-on the function invocation would arrange the arguments vertically.
-You might also want to be able to toggle vertical/horizontal orientations
-for the arguments of function definitions, and for the array and object
-constructor forms.  (An alternative is to make layout "smarter" so that
-the correct orientation is selected automatically.)
+3. I believe we want to explicit represent "line breaks", rather than
+   allow constructs to extend indefinitely to the right.  My original
+   thought was to just add a "new line" flag to the ``binop`` node and
+   to the function call nodes (both the "binary" and "ternary" forms).
+   Setting the newline flag on the ``binop`` would arrange the "right"
+   and "left" operands vertically.  Setting the newline flag on the
+   function invocation would arrange the arguments vertically.
+   Similar flags would allow you to toggle vertical/horizontal
+   orientations for the arguments of function definitions, and for the
+   array and object constructor forms.
 
-.. _tile2.html: http://cscott.net/Projects/TurtleScript/tile2.html
+   My current thinking is that all tokens should have a
+   "newlinesAfter" count, and as many places as possible should
+   support adding newlines to the rendering, using a uniform gesture.
+
+   An alternative is to make layout "smarter" so that the correct
+   orientation is selected automatically.  It's probably possible to
+   reach a happy medium where automatic line breaks happen in
+   reasonable places, but which still allows a user to customize
+   display for additional clarity/expressiveness.
+
+
+Renderer Tasks
+===============
+
+The following is a potential implementation order for additional
+rendering tasks:
+
+1. Split crender.js to separate out the Widget definitions from the
+   code which transforms a parse tree into widgets.  Perhaps make
+   the AST node definitions their own separate module as well?
+
+2. Move parenthesization of expressions based on precedence from the
+   transform code into the widget rendering.  Parentheses should
+   automatically appear around a binop if its operator precedence is
+   lower than its context.
+
+3. Add the ability to losslessly render Widgets back into Simplified JavaScript
+   source and/or a parse tree.
+
+4. Add basic 'pick' functionality.  (Possibly split Widget
+   representation into Composite/Composable at the same time, as is
+   done in `Lessphic`_.)
+
+5. Allow dragging widgets (but not actual editing yet).
+
+6. Allow editing trees via drag and drop (but not yet editing/creating
+   names).
+
+7. Click to edit literals, including name literals.  (Modal dialog is
+   fine at first.)
+
+8. Name literal browser/palettes, for each access to all the names
+   that are in scope.  Perhaps combine this with an object browser
+   which can display active objects and let you drag/drop slot names.
+
+.. _Lessphic: http://piumarta.com/software/cola/canvas.pdf
 
 Interaction Ideas
 =================
@@ -424,14 +599,21 @@ programming on touchscreen devices.  Here are some of my current ideas:
    To solve this problem, the drop targets should be identified
    *without* resizing the rendering; any expansion should occur only
    *after* the drop.  For example, border colors might highlight to
-   indicate that a drop may occur between two existing tiles.
+   indicate that a drop may occur between two existing tiles.  When
+   you drag a block out, it should be replaced by a "yada yada yada"
+   element *of the exact same size* so that the parent widget does
+   not immediately change.  Only after the drop should the yada yada
+   yada shrink.
 
    Alternatively, one could explore an "explicit resize" model, where
-   the user uses an explicit pinch/spread gesture to expand or contract
-   an element (block body, say).  This gives more control of layout to
-   the user, at the cost of forcing them to perform additional actions
-   to "tidy up" the display.  The benefit is entirely avoiding automatic
-   resize (and thus flicker) during editing.
+   the user uses an explicit pinch/spread gesture to expand or
+   contract an element (block body, say).  This gives more control of
+   layout to the user, at the cost of forcing them to perform
+   additional actions to "tidy up" the display.  Perhaps "double tap
+   to shrink fit" is the main gesture -- after you drag out a large
+   block body, the placeholder yada yada yada stays the same large
+   size until you double tap it.  The benefit is entirely avoiding
+   automatic resize (and thus flicker) during editing.
 
    Some additional study of existing block-based systems is warranted.
 
@@ -483,21 +665,23 @@ Environment
 This section contains more tentative thoughts about the overall
 application environment.
 
-1. Try to build on the shoulders of HTML/CSS/DOM/JavaScript.
+1. Try to build on the shoulders of HTML/CSS/DOM/JavaScript?
 
-   Rather than try to invent our own GUI framework, try to leverage
-   the existing HTML elements and DOM.  Use DOM event model (with some
+   One original goal was to attempt to leverage the existing HTML
+   elements and DOM rather than invent our own GUI framework.
+   We'd use DOM event model (with some
    sugar).  Applications should serialize to an HTML/CSS tree with
    JavaScript bindings; probably other bits like "the current contents
-   of a canvas" should be serialized as well.  Perhaps CSS and the DOM
+   of a canvas" could be serialized as well.  Perhaps CSS and the DOM
    can be unified with JavaScript/JSON using something like `CSS
    JSON`_ and `JsonML`_ to mitigate the number of different syntaxes
    involved.
 
-   On the other hand, maybe it's best to jettison most of the HTML/CSS
-   rendering infrastructure: it adds a lot of complexity to the
-   environment.  Perhaps some "Simplified HTML" subset can be
-   employed.  As a limit case, perhaps only <canvas> elements?
+   At the moment, I feel that the complexity this adds to the
+   environment isn't warranted.  We should be able to harness/embed
+   HTML/CSS, but we shouldn't use it as a building block.  Perhaps
+   some "Simplified HTML" subset can be employed.  As a limit case,
+   perhaps only <canvas> elements?  (That's what we're doing now.)
 
 2. Work on serialization format.
 
@@ -534,6 +718,17 @@ application environment.
 
       Might be tricky to do without native browser support.
 
+   e. Build an in-browser VM.
+
+      My most recent work has been inspired by efforts like `jslinux`_
+      which use the `JavaScript Typed Array`_ API to build "low level"
+      abstractions in the browser.  I believe it's possible to
+      construct a reasonably-performing object model in the browser
+      using a raw memory abstraction.  This then trivially allows for
+      serialization.  The major disadvantage is that we lose
+      interoperability with native browser objects, and potentially
+      a bit of the performance of the native VM.
+
    Picking a serialization format and building it should foreground
    representation and project-scope issues.  At the end we'll have a
    hand-built module as well as a lightweight module loader.
@@ -567,6 +762,8 @@ application environment.
 .. _in some browsers: http://cananian.livejournal.com/60624.html
 .. _JSON-P: http://bob.pythonmac.org/archives/2005/12/05/remote-json-jsonp/
 .. _Crockford's <module> proposal: http://json.org/module.html
+.. _jslinux: http://bellard.org/jslinux/index.html
+.. _JavaScript Typed Array: http://www.khronos.org/registry/typedarray/specs/latest/
 .. _JSPON: http://www.jspon.org/
 .. _Firefox JSON bug: https://bugzilla.mozilla.org/show_bug.cgi?id=509184
 
@@ -578,12 +775,12 @@ related) work are welcomed.  You can also hack away and contribute code
 using the standard github fork-and-pull-request mechanism.  Thanks
 for reading!
 
-  -- C. Scott Ananian, 9-14 July 2010
+  -- C. Scott Ananian, 9-14 July 2010, revised 19 May 2011
 
 .. |---| unicode:: U+2014  .. em dash, trimming surrounding whitespace
    :trim:
 
 ..  LocalWords:  README TurtleScript Etoys TileScript JavaScript runtime jQuery
 ..  LocalWords:  Crockford renderer namespace gjs yada introspectable Mozilla
-..  LocalWords:  Webkit ECMAScript hasOwnProperty serializable JSON iframe
-..  LocalWords:  Ananian
+..  LocalWords:  Webkit ECMAScript hasOwnProperty serializable JSON iframe ECMA
+..  LocalWords:  Ananian bytecode CSS API maru boolean editability resize
