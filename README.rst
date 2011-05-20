@@ -1,3 +1,6 @@
+.. image:: images/hello-world.png
+   :align: right
+
 Project Goals
 -------------
 
@@ -67,6 +70,13 @@ accurately reflect their scope.  Some further improvements are
 discussed in `Interesting Parser Tasks`_, but the base language is not
 expected to change much more.
 
+.. figure:: images/compile.png
+   :alt: Bytecode output
+   :align: right
+   :target: tdop.html_
+
+   Simple bytecode compiler/interpreter, 2011
+
 There are a few backends which process the parsed text.  The first to
 be implemented (`jcompile.js`_, July 2010) simply emitted JavaScript
 from the parse tree which can be ``eval``'ed by the browser's standard
@@ -83,6 +93,13 @@ which is a highly modified version of Douglas Crockford's original `parser
 demonstration`_.  The bytecode instruction set is simple, but not
 simple enough; `Simplifying the Environment`_ discusses improvements.
 
+.. figure:: images/tiles1.png
+   :alt: 2010 graphical tiles
+   :align: right
+   :target: tile2.html_
+
+   Original CSS experiments, 2010
+
 Back in 2010 I implemented some simple tile-based renderers for the parse
 tree.  These used jQuery_ to render the tree as CSS-styled HTML.
 A CSS-styling demo is at `tile2.html`_ and `tiles.html`_ displays
@@ -96,6 +113,13 @@ model also failed to satisfy: jQuery UI had a lot of problems with
 horizontal layouts, and the real time re-layout during drag operations
 made the display stutter unacceptably.
 
+.. figure:: images/tiles2.png
+   :alt: 2011 graphical tiles
+   :align: right
+   :target: tile2.html_
+
+   Tile Rendering using <canvas>, 2011
+
 I revisited the rendering code in 2011.  As discussed in the `Rendering
 Ideas`_ section, I wanted to explore tile-based representations that
 were nonetheless faithful to the "traditional" text-based layout of
@@ -106,7 +130,7 @@ with a very small `canvas API`_, and can display itself.
 Further discussion can be found in the `Interaction Ideas`_ and
 `Renderer Tasks`_ sections.
 
-It is still my intention to drive towards an initial application similar to
+It is my intention to drive towards an initial application similar to
 `Turtle Art`_, with an on-screen turtle controlled by the script tiles.
 This will be a public demonstration of the ideas behind the
 TurtleScript project.  The on-screen palette will include a tab for
@@ -131,7 +155,7 @@ compiler, and renderer, to effect even more fundamental changes to the
 language driving the turtle.  In fact, you can keep digging all the
 way into the object system and runtime.  Turtles all the way down!
 
-See `Helping out`_ to contribute!
+See `Helping out`_ to contribute.
 
 .. _Douglas Crockford: http://www.crockford.com/javascript/
 .. _parse.js: http://cscott.net/Projects/TurtleScript/parse.js
