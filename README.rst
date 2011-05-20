@@ -588,18 +588,18 @@ Additional thoughts:
    forms, but correspondence might be accomplished by simple
    convention, like being imported from a path rooted at ``macros``::
 
-     var IfBlockMacro = imports.macros.IfBlockMacro;
+     var ForBlockMacro = imports.macros.ForBlockMacro;
      var foo = function() {
           var i;
-          IfBlockMacro(function() { i=0; },
-                       function() { return i < 5; },
-                       function() { i+=1; },
-                       function() { /* body */ });
+          ForBlockMacro(function() { i=0; },
+                        function() { return i < 5; },
+                        function() { i+=1; },
+                        function() { /* body */ });
      }
 
-   A user without a definition for ``IfBlockMacro`` would see
+   A user without a definition for ``ForBlockMacro`` would see
    a graphical representation corresponding to the text above.  But if the
-   ``IfBlockMacro`` function includes an ``asWidget()`` method, it could
+   ``ForBlockMacro`` function includes an ``asWidget()`` method, it could
    define its own graphical representation which could suppress the
    ``function()`` and ``return`` cruft to yield a graphical representation
    identical to the traditional syntactic form::
