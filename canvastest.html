@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Canvas events test</title>
+<meta name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<link rel="shortcut icon" href="images/turtle_icon-16x16.ico" />
+<link rel="apple-touch-icon" href="images/turtle_icon-128x128.png" />
+<link rel="apple-touch-startup-image" href="images/turtle_splash-320x460.png" />
+<!-- XXX apparently alternate size startup images don't work yet on  iOS XXX
+     XXX only solution is to use document.write() to add an appropriate
+     XXX link element on the fly, boo.  And even that doesn't work for the
+     XXX retina display resolution. -->
+<!--
+<link rel="apple-touch-startup-image"
+      sizes="640x920" href="images/turtle_splash-640x920.png" />
+<link rel="apple-touch-startup-image"
+      sizes="1024x748" href="images/turtle_splash-1024x748.png" />
+<link rel="apple-touch-startup-image"
+      sizes="768x1004" href="images/turtle_splash-768x1004.png" />
+-->
+<style type="text/css">
+html, body, canvas { padding: 0; margin: 0; }
+#canvas {
+  position: absolute;
+  width: 100%; height: 100%;
+  -webkit-user-select: none;
+}
+</style>
+<script type="text/javascript" src="ccanvas.js"></script>
+<script type="text/javascript">
+var canvas;
+var canvasElem;
+var drawFrame;
+
+var USE_FRAME_TIMER = false;
+
+var lastTouches=[];
+var changed = false;
+var invalidate = function() {
+  changed = true;
+  if (!USE_FRAME_TIMER) drawFrame();
+  // XXX or window.setTimeout(drawFrame, 30)?
+}
+window.onresize = function() {
+  invalidate();
+}
+var onTouchMove = function(e) {
+  e.preventDefault();
+  lastTouches = e.targetTouches;
+  invalidate();
+};
+var onTouchEnd = function(e) {
+  e.preventDefault();
+  if (e.targetTouches.length > 0) return false;
+  lastTouches = e.targetTouches;
+  canvasElem.removeEventListener('touchmove', onTouchMove, false);
+  canvasElem.removeEventListener('touchend', onTouchEnd, false);
+  invalidate();
+  return false;
+};
+var onTouchStart = function (e) {
+  if (e.targetTouches.length != 1) return false;
+  canvasElem.addEventListener('touchmove', onTouchMove, false);
+  canvasElem.addEventListener('touchend', onTouchEnd, false);
+  lastTouches = e.targetTouches;
+  invalidate();
+  return false;
+};
+var pos=0, dir=1;
+drawFrame = function() {
+  if (!changed) return;
+  changed = false;
+  var sz = canvas.size();
+
+  canvas.resize(window.innerWidth, window.innerHeight,
+                window.devicePixelRatio || 1);
+  canvas.clearRect(0,0,sz.width, sz.height);
+
+  canvas.setFontHeight(20);
+  canvas.setFill(canvas.makeColor(0,0,0));
+  var m = canvas.measureText('Text');
+  // XXX window.orientation is not reliable; the resize callback seems to occur
+  //     before window.orientation changes.  Just looking at the width/height
+  //     is probably better.
+  var orientation = (canvas.size().width > canvas.size().height) ?
+      "landscape" : "portrait";
+  canvas.drawText("Width: "+canvas.size().width+", Height: "+canvas.size().height+", O: "+orientation, 0.5, 0.5+2*m.height);
+  canvas.drawText("Touches: "+lastTouches.length, 0.5, 0.5+3*m.height);
+
+  canvas.setFill(canvas.makeColor(Math.floor(pos*255/sz.width),0,0));
+  canvas.beginPath();
+  canvas.rect(pos, 0, 10, 50);
+  canvas.fill();
+  pos += dir;
+  if (pos < 0) { dir = 1; }
+  if (pos > sz.width) { dir = -1; }
+
+  // draw a mark at every point
+  canvas.beginPath();
+  var size=50;
+  var i = 0;
+  while (i < lastTouches.length) {
+    canvas.rect(lastTouches[i].clientX-size,
+                lastTouches[i].clientY-size,
+                size*2, size*2);
+    i+=1;
+  }
+  canvas.fill();
+
+  if (lastTouches.length == 1 && false) {
+   console.log(lastTouches[0].clientX+","+lastTouches[0].clientY);
+  }
+
+};
+if (window.navigator.userAgent.indexOf('iPhone') != -1) {
+  if (!window.navigator.standalone == true) {
+    // XXX display message prompting to add this app to the home screen
+  }
+}
+
+window.onload=function() {
+  canvas = make_canvas('canvas');
+  canvasElem = document.getElementById('canvas');
+  window.onresize();
+  canvasElem.addEventListener('touchstart', onTouchStart, false);
+  if (USE_FRAME_TIMER) {
+    window.setInterval(drawFrame, 30);
+  }
+  changed = true; // draw first frame
+  drawFrame();
+};
+</script>
+</head>
+<body><canvas id="canvas"></canvas></body>
+</html>
