@@ -6,6 +6,13 @@
 
 // This isn't Simplified JavaScript -- we use try/finally here.
 
+// BUGS FOUND: iOS -- the rect() primitive seems to improperly clear the area
+// between 0,0 and the given x,y coordinate.  I reimplemented in terms of
+// the path primitives to work around.
+// iOS - the text primitives don't seem to properly invalidate the rectangle
+// the draw into.  Therefore, unless there is some *other* drawing operation
+// to expand the bounding box of the invalidation, the text will be clipped.
+
 // C. Scott Ananian, May 13 2011
 
 var make_canvas = function(canvas_id) {
@@ -13,6 +20,7 @@ var make_canvas = function(canvas_id) {
     var canvas_ = canvasElem_.getContext('2d');
     var width_ = canvasElem_.width;
     var height_ = canvasElem_.height;
+    var scale_ = 1;
     return {
         fontHeight: 10, // font is 10px when canvas is created.
         fontBold: false,
@@ -23,19 +31,29 @@ var make_canvas = function(canvas_id) {
         // display where we want to gain extra resolution w/o shrinking
         // everything.
         resize: function(width, height, scale) {
+            if (width === width_ && height !== height_ &&
+                (scale||1) === scale_) {
+                // skip resize, which will save a clearRect on the client
+                // end (since spec says we must clear the canvas whenever
+                // one of the width/height fields is assigned)
+                return; /* nothing to do */
+            }
             width_ = width;
             height_ = height;
-            scale = scale || 1;
-            canvasElem_.width = width * scale;
-            canvasElem_.height = height * scale;
-            canvas_.setTransform(scale, 0, 0, scale, 0, 0);
-            // chrome seems to clear as a side effect of the above, but let's
-            // make it explicit
-            canvas_.clearRect(0,0,width,height);
+            scale_ = scale || 1;
+            canvasElem_.width = width_ * scale_;
+            canvasElem_.height = height_ * scale_;
+            canvas_.setTransform(scale_, 0, 0, scale_, 0, 0);
+            // spec will clear as a side effect of the above.
+            // We're not going to do it explicitly, because that would just
+            // waste cycles.
+            if (false) { /* disabled for performance */
+                canvas_.clearRect(0,0,width_,height_);
+            }
         },
         // get the current canvas size
         size: function() {
-            return { width: width_, height: height_ };
+            return { width: width_, height: height_, scale: scale_ };
         },
         // execute the given function, saving and restoring the canvas context
         // around its invocation.
@@ -86,7 +104,14 @@ var make_canvas = function(canvas_id) {
             canvas_.lineTo(x, y);
         },
         rect: function(x, y, w, h) {
-            canvas_.rect(x, y, w, h);
+            // the rect primitive seems to have some issues on iOS
+	    // (see above).  We're going to implement it in terms of
+	    // primitives.
+            this.moveTo(x,y);
+            this.lineTo(x+w, y);
+            this.lineTo(x+w, y+h);
+            this.lineTo(x, y+h);
+            this.closePath();
         },
         stroke: function() {
             canvas_.stroke();
