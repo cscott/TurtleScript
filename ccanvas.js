@@ -11,18 +11,31 @@
 var make_canvas = function(canvas_id) {
     var canvasElem_ = document.getElementById(canvas_id);
     var canvas_ = canvasElem_.getContext('2d');
+    var width_ = canvasElem_.width;
+    var height_ = canvasElem_.height;
     return {
         fontHeight: 10, // font is 10px when canvas is created.
         fontBold: false,
         fontItalic: false,
 
         // resize the underlying canvas element.  Also clears the drawing area.
-        resize: function(width, height) {
-            canvasElem_.width = width;
-            canvasElem_.height = height;
+        // scale is 'devicePixelRatio' for devices like the iPhone retina
+        // display where we want to gain extra resolution w/o shrinking
+        // everything.
+        resize: function(width, height, scale) {
+            width_ = width;
+            height_ = height;
+            scale = scale || 1;
+            canvasElem_.width = width * scale;
+            canvasElem_.height = height * scale;
+            canvas_.setTransform(scale, 0, 0, scale, 0, 0);
             // chrome seems to clear as a side effect of the above, but let's
             // make it explicit
             canvas_.clearRect(0,0,width,height);
+        },
+        // get the current canvas size
+        size: function() {
+            return { width: width_, height: height_ };
         },
         // execute the given function, saving and restoring the canvas context
         // around its invocation.
