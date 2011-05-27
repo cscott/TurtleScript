@@ -190,7 +190,7 @@ function do_it() {
        fill('source', 'Interpreted source', o, 1/*no escape*/);
    }
 
-   top_level_defs = "isFinite parseInt Boolean String Function Math " +
+   top_level_defs = "isFinite parseInt Boolean String Function Math now " +
                      "make_tests console arguments document html_escape";
     tree = parse(source, top_level_defs);
     if (tree) {

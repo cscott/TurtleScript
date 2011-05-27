@@ -1,8 +1,35 @@
 // some extensions to javascript to make the browser environment
-// better make the Simplified JavaScript 'native' environment.
+// better match the Simplified JavaScript 'native' environment.
 
 Object.newUint8Array = function(size) {
     return new Uint8Array(size);
+};
+
+// minimal replacement for (new Date()).getTime()
+var now = function() {
+    return (new Date()).getTime();
+};
+
+// This replaces the 'new' operator.
+Function.prototype['new'] = function() {
+    var object, result;
+    if (typeof(this.prototype)==="object") {
+	object = { __proto__: this.prototype };
+    } else {
+	object = {};
+    }
+    var result = this.apply(object, arguments);
+    if (typeof(result)==="object") {
+	return result;
+    }
+    return object;
+};
+// This replaces the 'instanceof' operator.
+Function.prototype.hasInstance = function(obj) {
+    // a proper definition of this can be written in simplified JS, but
+    // it requires a bit of special code in the implementation of
+    // Function.bind.
+    return obj instanceof this;
 };
 
 // provide the delete operator without introducing new syntax
