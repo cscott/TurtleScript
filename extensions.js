@@ -14,11 +14,11 @@ var now = function() {
 Function.prototype['new'] = function() {
     var object, result;
     if (typeof(this.prototype)==="object") {
-	object = { __proto__: this.prototype };
+	object = Object.create(this.prototype);
     } else {
 	object = {};
     }
-    var result = this.apply(object, arguments);
+    result = this.apply(object, arguments);
     if (typeof(result)==="object") {
 	return result;
     }
@@ -37,16 +37,13 @@ Object['delete'] = function(o, f) {
     delete o[f];
 };
 
-// provide the 'in' operator without introducing new syntax
-Object['in'] = function(o, f) {
-    return f in o;
-};
-
 // provide exception functionality without introducing new syntax
 Object['throw'] = function(obj) {
     throw obj;
 };
 
+// XXX: doesn't handle non-local control flow (ie, return from containing
+//      subroutine inside a bodyBlock)
 Object['try'] = function(_this_, bodyBlock, catchBlock, finallyBlock) {
     try {
 	bodyBlock.call(_this_);
