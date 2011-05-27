@@ -1568,6 +1568,7 @@ var make_crender = function() {
     };
     dispatch.literal = function() {
         var w;
+        if (this.value === undefined) { return Object.create(UndefinedWidget); }
         if (this.value === null) { return Object.create(NullWidget); }
         if (typeof(this.value)==='object') {
             w = Object.create(LabelledExpWidget);

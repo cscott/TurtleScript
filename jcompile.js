@@ -71,6 +71,7 @@ var make_jcompile = function() {
 	return this.value+"/*"+this.scope.level+"*/";
     };
     dispatch.literal = function() {
+        if (this.value === undefined) { return "undefined"; }
         if (this.value === null) { return "null"; }
         if (typeof(this.value)==='object') {
             if (this.value.length === 0) { return "Array"; }

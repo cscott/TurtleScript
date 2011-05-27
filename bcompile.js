@@ -178,9 +178,11 @@ var make_bcompile = function(bytecode_table) {
                     encode_uint(out, lv ? 2 : 3); /* boolean tags */
                 } else if (lv === null) {
                     encode_uint(out, 4 /* null tag */);
+                } else if (lv === undefined) {
+                    encode_uint(out, 5 /* undefined tag */);
                 } else {
                     console.log("UNKNOWN LITERAL TYPE", lv);
-                    encode_uint(out, 5 /* unknown */);
+                    encode_uint(out, 6 /* unknown */);
                 }
                 i += 1;
             }
@@ -249,6 +251,10 @@ var make_bcompile = function(bytecode_table) {
         state.emit("get_slot_direct", state.literal(this.value));
     };
     dispatch.literal = function(state) {
+        if (this.value === undefined) {
+            state.emit("push_literal", state.literal(undefined));
+            return;
+        }
         if (this.value === null) {
             state.emit("push_literal", state.literal(null));
             return;
@@ -552,10 +558,18 @@ var make_bcompile = function(bytecode_table) {
         });
     });
     stmt("var", function(state) {
-        /* Ignore!  We're not checking declarations here. */
-        // XXX technically we should set these to 'undefined' in our
+        // Set variables to 'undefined' in our
         // local frame, in order to properly hide definitions in
         // surrounding contexts.
+        state.bcompile_stmt({
+            arity: 'binary',
+            value: '=',
+            first: this.first,
+            second: {
+                arity: 'literal',
+                value: undefined
+            }
+        });
     });
     stmt("if", function(state) {
         var falseLabel = state.new_label();
@@ -576,8 +590,7 @@ var make_bcompile = function(bytecode_table) {
         if (this.first) {
             state.bcompile_expr(this.first);
         } else {
-            // XXX really "undefined"
-            state.emit("push_literal", state.literal(null));
+            state.emit("push_literal", state.literal(undefined));
         }
         state.emit("return");
         state.current_func.can_fall_off = false;

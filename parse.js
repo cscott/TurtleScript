@@ -285,6 +285,7 @@ var make_parse = function (tokenize) {
     constant("true", true);
     constant("false", false);
     constant("null", null);
+    constant("undefined", undefined);
     constant("NaN", NaN);
     constant("Infinity", Infinity);
     constant("Object", {});
