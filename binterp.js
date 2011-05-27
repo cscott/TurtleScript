@@ -139,7 +139,7 @@ var make_binterp = function(bytecode_table) {
             }
             return MyNumber[SLOT_PREFIX+name];
         }
-        if (typeof(obj)==="object" && obj.buffer) {
+        if (typeof(obj)==="object" && obj!==null && obj.buffer) {
             // very basic TypedArray support
             if (name === "length" || isFinite(1 * name)) {
                 return obj[name];
@@ -234,7 +234,7 @@ var make_binterp = function(bytecode_table) {
         if (func === null || typeof(func) !== "object" ||
             func.type !== "function") {
             // XXX: throw wrapped TypeError
-            Object.error("Not a function at "+this.stack.pc, {});
+            Object.throw("Not a function at "+this.stack.pc);
         }
         // "native code"
         if (func.type === "function" && func.native_code) {
@@ -432,7 +432,7 @@ var make_binterp = function(bytecode_table) {
         native_func(MyObject, "hasOwnProperty", function(_this_, propname) {
             return _this_.hasOwnProperty(SLOT_PREFIX+propname);
         });
-        native_func(MyObject, "create", function(_this_, prototype) {
+        native_func(my_ObjectCons, "create", function(_this_, prototype) {
             // Object.create defined in global.js; uses 'new'
             var result = Object.create(prototype);
             oset(result, "__proto__", prototype);
@@ -465,7 +465,7 @@ var make_binterp = function(bytecode_table) {
             return Math.floor(val);
         });
         // *Very* basic TypedArray support
-        native_func(MyObject, "newUint8Array", function(_this_, size) {
+        native_func(my_ObjectCons, "newUint8Array", function(_this_, size) {
             // newUint8Array defined in global.js; uses 'new'
             return Object.newUint8Array(size);
         });
