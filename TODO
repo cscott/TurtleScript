@@ -5,6 +5,27 @@ Native environment:
    primitives
 2) Once this works, removing jmps should be straightforward, because
    the dispatch to booleans will work.
+   --> need to add a Function.prototype.return() method which will
+       return from a particular function, so that:
+         function foo(bar) {
+            if (bar) { return 3; }
+            return 4;
+         }
+       can be desugared into:
+         function foo(bar) {
+            bar.ifElse(function() { foo.return(3); }, function() {});
+            return 4; // or foo.return(4)
+         }
+       XXX: should really be a method of the frame object?  Otherwise
+       recursive invocations of foo could get confused?  Maybe not
+       an actual problem; returning from the innermost foo might always
+       be the right thing.  Think about this:
+
+         function foo(f) {
+            if (random()) foo(function() { foo.return(f()); });
+            return 3;
+         }
+      So really it should be $frame.return(3).
 3) Get rid of get_slot/set_slot variants & support getters/setters
    -> get_getter / get_setter
     along with primitive functions to get/set particular slots
