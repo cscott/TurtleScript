@@ -148,6 +148,7 @@ var make_parse = function (tokenize) {
     };
 
     // CSA: hoist all declarations in a block to the top.
+    // XXX should hoist vars declared in named functions, too?
     var hoist_var = function(stmt_list) {
         var v = [], s = [], i = 0;
         while (i < stmt_list.length) {
