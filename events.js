@@ -1117,6 +1117,15 @@ var calmB = function (srcB,intervalB) {
         compilerEventStreamArg: compilerEventStreamArg,
         */
         Behavior: Behavior,
-        EventStream: EventStream
+        EventStream: EventStream,
+        /* For use by test suite only... */
+        base: {
+            Pulse: Pulse,
+            propagatePulse: propagatePulse
+        },
+        engine: {
+            createNode: createNode,
+            doNotPropagate: doNotPropagate
+        }
     };
 };
