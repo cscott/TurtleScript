@@ -205,6 +205,23 @@ var make_tests = function() {
         return true;
     };
     test[i+=1] = function() {
+	// test 'new' and 'instanceof'
+        function Foo(arg) { this.foo = arg; }
+        Foo.prototype = {};
+        var f = Foo.new('foo');
+        function Bar(x, y) { this.bar = x+y; }
+        Bar.prototype = f;
+        var b = Bar.new(3, 4);
+        var s = "Hey! "+b.foo+" "+b.bar;
+        s += " "+Bar.hasInstance(b)+" "+Foo.hasInstance(b);
+	// hasInstance should still work on bound functions
+        // XXX: chrome v8 appears to implement this incorrectly.
+        var Foo2 = Foo.bind();
+        var Bar2 = Bar.bind(f, 1, 2);
+        s += " "+Bar2.hasInstance(b)+" "+Foo2.hasInstance(b);
+        return s;
+    };
+    test[i+=1] = function() {
         // very basic Uint8Array support.
         var uarr = Object.newUint8Array(256);
         uarr[0] = 255;

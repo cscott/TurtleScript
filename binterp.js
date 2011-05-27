@@ -444,6 +444,9 @@ var make_binterp = function(bytecode_table) {
         native_func(frame, "parseInt", function(_this_, number, radix) {
             return parseInt(number, radix);
         });
+        native_func(frame, "now", function(_this_) {
+            return now(); /* (new Date()).getTime() */
+        });
         native_func(MyString, "charAt", function(_this_, idx) {
             // note that accessing a string by index (w/o using charAt)
             // isn't actually part of EcmaScript 3 & might not work in IE
@@ -639,12 +642,18 @@ var make_binterp = function(bytecode_table) {
             if (arguments.length === 0) {
                 return method;
             }
+            var addHasInstance = function(f) {
+                // from definition of internal HasInstance method in ECMA
+                // JavaScript spec.
+                f.hasInstance = function(v) { return method.hasInstance(v); };
+                return f;
+            };
             var nthis = arguments[0];
             // avoid copying the arguments array if we don't have to
             if (arguments.length === 1) {
-                return function bind0 () {
+                return addHasInstance(function bind0 () {
                     return method.apply(nthis, arguments);
-                };
+                });
             }
             // ok, we need to copy the bound arguments
             var nargs = [];
@@ -653,12 +662,36 @@ var make_binterp = function(bytecode_table) {
                 nargs.push(arguments[i]);
                 i += 1;
             }
-            return function bindN () {
+            return addHasInstance(function bindN () {
                 // use concat.apply to finesse the fact that arguments isn't
                 // necessarily a 'real' array.
                 return method.apply(nthis, Array.prototype.concat.apply(
                                     nargs, arguments));
-            };
+            });
+        };
+        Function.prototype.hasInstance = function(v) {
+            var o;
+            if (typeof(v) !== 'object') { return false; }
+            o = this.prototype;
+            if (typeof(o) !== 'object') { Object.throw('TypeError'); /*XXX*/ }
+            while (true) {
+                v = v.__proto__;
+                if (v === null) { return false; }
+                if (o === v) { return true; }
+            }
+        };
+        Function.prototype['new'] = function() {
+            var object, result;
+            if (typeof(this.prototype)==="object") {
+                object = Object.create(this.prototype);
+            } else {
+                object = {};
+            }
+            result = this.apply(object, arguments);
+            if (typeof(result)==="object") {
+                return result;
+            }
+            return object;
         };
         Function.prototype.toString = function () {
             var result = "function ";

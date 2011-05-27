@@ -162,9 +162,9 @@ function do_it() {
 
     if (0) {
     // HACK to run specific test cases
-    test_case = sources[22].replace(/module/, "self_test");
+    test_case = sources[30].replace(/module/, "self_test");
     eval(test_case); // defines the 'self_test' method
-    source = sources[7].replace(/module/, "library_init") + "\n" +
+    source = sources[8].replace(/module/, "library_init") + "\n" +
              test_case + "\n" +
              "{ library_init(); return self_test(); }\n";
     // END HACK
