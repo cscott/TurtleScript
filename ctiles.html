@@ -14,6 +14,7 @@
 <script src="./bcompile.js"></script>
 <script src="./binterp.js"></script>
 <script src="./tests.js"></script>
+<script src="./events.js"></script>
 <!-- ok, some selectors for various demos -->
 <p>Click on a link to display the source code for that function:</p>
 <p id="demos"></p>
@@ -83,7 +84,8 @@ function add_demo(title, source) {
 // a collection of various bits of code used for testing different widgets
 var tests = make_tests(tokenize, make_parse, make_crender,
                        make_bytecode_table, make_bcompile,
-                       make_binterp, make_binterp().library_init);
+                       make_binterp, make_binterp().library_init,
+                       make_flapjax);
 add_demo('Hello, world', 'console.log("Hello, world!");');
 add_demo('JS tokenizer', tests[0].replace(/module/, 'tokenize'));
 add_demo('JS parser', tests[1].replace(/module/, 'make_parse'));
@@ -92,7 +94,8 @@ add_demo('Bytecode table', tests[3].replace(/module/, 'make_bytecode_table'));
 add_demo('Bytecode compiler', tests[4].replace(/module/, 'make_bcompile'));
 add_demo('Bytecode interpreter', tests[5].replace(/module/, 'make_binterp'));
 add_demo('Standard library', tests[6].replace(/module/, 'stdlib'));
-add_demo('Test suite', tests[7].replace(/module/, 'make_tests'));
+add_demo('Event library', tests[7].replace(/module/, 'make_flapjax'));
+add_demo('Test suite', tests[8].replace(/module/, 'make_tests'));
 
 var isource = "";
 isource = tests[tests.length-2];

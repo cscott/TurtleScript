@@ -2,11 +2,11 @@
 // as such it is:
 /*
  * Copyright (c) 2006-2009, The Flapjax Team.  All Rights Reserved.
- *  
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  * * Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
  * * Redistributions in binary form must reproduce the above copyright notice,
@@ -15,7 +15,7 @@
  * * Neither the name of the Brown University, the Flapjax Team, nor the names
  *   of its contributors may be used to endorse or promote products derived
  *   from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -27,8 +27,53 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
+var make_flapjax = function(setTimeout, clearTimeout) {
+
+    var slice = function(arr, start, stop) {
+        return Array.prototype.slice.call(arr, start, stop);
+    };
+
+    var zip = function(arrays) {
+        var ret = [], i = 0;
+        if (arrays.length > 0) {
+            while (i < arrays[0].length) {
+                ret.push([]);
+                arrays.forEach(function(arr) {
+                    ret[i].push(arr[i]);
+                });
+                i += 1;
+            }
+        }
+        return ret;
+    };
+
+    //map: (a * ... -> z) * [a] * ... -> [z]
+    var map = function (fn) {
+        var arrays = slice(arguments, 1);
+        var ret = [];
+        if (arrays.length === 1) {
+            arrays[0].forEach(function(e) {
+                ret.push(fn(e));
+            });
+        } else if (arrays.length > 1) {
+            var o = {};
+            zip(arrays).forEach(function(args) {
+                ret.push(fn.apply(o, args));
+            });
+        }
+        return ret;
+    };
+
+    //filter: (a -> Boolean) * Array a -> Array a
+    var filter = function (predFn, arr) {
+        var res = [];
+        arr.forEach(function(elem) {
+            if (predFn(elem)) { res.push(elem); }
+        });
+        return res;
+    };
 
 //////////////////////////////////////////////////////////////////////////////
 // Flapjax core
@@ -39,7 +84,7 @@ var doNotPropagate = { };
 //Pulse: Stamp * Path * Obj
 var Pulse = function (stamp, value) {
   // Timestamps are used by liftB (and ifE).  Since liftB may receive multiple
-  // update signals in the same run of the evaluator, it only propagates the 
+  // update signals in the same run of the evaluator, it only propagates the
   // signal if it has a new stamp.
   this.stamp = stamp;
   this.value = value;
@@ -61,22 +106,23 @@ var PQ = function () {
       ctx.val[kvpos] = kv;
     }
   };
-  this.isEmpty = function () { 
-    return ctx.val.length === 0; 
+  this.isEmpty = function () {
+    return ctx.val.length === 0;
   };
   this.pop = function () {
-    if(ctx.val.length == 1) {
+    if(ctx.val.length === 1) {
       return ctx.val.pop();
     }
     var ret = ctx.val.shift();
     ctx.val.unshift(ctx.val.pop());
     var kvpos = 0;
     var kv = ctx.val[0];
-    while(1) { 
+    while(1) {
       var leftChild = (kvpos*2+1 < ctx.val.length ? ctx.val[kvpos*2+1].k : kv.k+1);
       var rightChild = (kvpos*2+2 < ctx.val.length ? ctx.val[kvpos*2+2].k : kv.k+1);
-      if(leftChild > kv.k && rightChild > kv.k)
+      if(leftChild > kv.k && rightChild > kv.k) {
           break;
+      }
 
       if(leftChild < rightChild) {
         ctx.val[kvpos] = ctx.val[kvpos*2+1];
@@ -95,28 +141,31 @@ var PQ = function () {
 
 var lastRank = 0;
 var stamp = 1;
-var nextStamp = function () { return ++stamp; };
+var nextStamp = function () {
+    stamp += 1;
+    return stamp;
+};
 
-//propagatePulse: Pulse * Array Node -> 
-//Send the pulse to each node 
+//propagatePulse: Pulse * Array Node ->
+//Send the pulse to each node
 var propagatePulse = function (pulse, node) {
-  var queue = new PQ(); //topological queue for current timestep
+  var queue = PQ.new(); //topological queue for current timestep
 
   queue.insert({k:node.rank,n:node,v:pulse});
   var len = 1;
 
   while (len) {
     var qv = queue.pop();
-    len--;
-    var nextPulse = qv.n.updater(new Pulse(qv.v.stamp, qv.v.value));
+    len-=1;
+    var nextPulse = qv.n.updater(Pulse.new(qv.v.stamp, qv.v.value));
     var weaklyHeld = true;
 
-    if (nextPulse != doNotPropagate) {
-      for (i = 0; i < qv.n.sendsTo.length; i++) {
-        weaklyHeld = weaklyHeld && qv.n.sendsTo[i].weaklyHeld;
-        len++;
-	queue.insert({k:qv.n.sendsTo[i].rank,n:qv.n.sendsTo[i],v:nextPulse});
-      }
+    if (nextPulse !== doNotPropagate) {
+      qv.n.sendsTo.forEach(function(n) {
+        weaklyHeld = weaklyHeld && n.weaklyHeld;
+        len+=1;
+        queue.insert({k:n.rank,n:n,v:nextPulse});
+      });
       if (qv.n.sendsTo.length > 0 && weaklyHeld) {
           qv.n.weaklyHeld = true;
       }
@@ -127,32 +176,43 @@ var propagatePulse = function (pulse, node) {
 //Event: Array Node b * ( (Pulse a -> Void) * Pulse b -> Void)
 var EventStream = function (nodes,updater) {
   this.updater = updater;
-  
+
   this.sendsTo = []; //forward link
   this.weaklyHeld = false;
-  
-  for (var i = 0; i < nodes.length; i++) {
-    nodes[i].attachListener(this);
-  }
-  
-  this.rank = ++lastRank;
+
+  nodes.forEach(function(n) {
+        n.attachListener(this);
+  }.bind(this));
+
+  lastRank += 1;
+  this.rank = lastRank;
 };
-EventStream.prototype = new Object();
+EventStream.prototype = {};
 
 //createNode: Array Node a * ( (Pulse b ->) * (Pulse a) -> Void) -> Node b
 var createNode = function (nodes, updater) {
-  return new EventStream(nodes,updater);
+  return EventStream.new(nodes,updater);
+};
+
+//note that this creates a new timestamp and new event queue
+var sendEvent = function (node, value) {
+  if (!EventStream.hasInstance(node)) {
+      Object.throw('sendEvent: expected Event as first arg');
+  } //SAFETY
+
+  propagatePulse(Pulse.new(nextStamp(), value),node);
 };
 
 var genericAttachListener = function(node, dependent) {
   node.sendsTo.push(dependent);
-  
+
   if(node.rank > dependent.rank) {
     var lowest = lastRank+1;
     var q = [dependent];
     while(q.length) {
       var cur = q.splice(0,1)[0];
-      cur.rank = ++lastRank;
+      lastRank += 1;
+      cur.rank = lastRank;
       q = q.concat(cur.sendsTo);
     }
   }
@@ -160,17 +220,19 @@ var genericAttachListener = function(node, dependent) {
 
 var genericRemoveListener = function (node, dependent, isWeakReference) {
   var foundSending = false;
-  for (var i = 0; i < node.sendsTo.length && !foundSending; i++) {
-    if (node.sendsTo[i] == dependent) {
+  var i = 0;
+  while( i < node.sendsTo.length && !foundSending ) {
+    if (node.sendsTo[i] === dependent) {
       node.sendsTo.splice(i, 1);
       foundSending = true;
     }
+    i += 1;
   }
 
-  if (isWeakReference === true && node.sendsTo.length == 0) {
+  if (isWeakReference === true && node.sendsTo.length === 0) {
     node.weaklyHeld = true;
   }
-  
+
   return foundSending;
 };
 
@@ -178,8 +240,8 @@ var genericRemoveListener = function (node, dependent, isWeakReference) {
 //flow from node to dependent
 //note: does not add flow as counting for rank nor updates parent ranks
 EventStream.prototype.attachListener = function(dependent) {
-  if (!(dependent instanceof EventStream)) {
-    throw 'attachListener: expected an EventStream';
+  if (!EventStream.hasInstance(dependent)) {
+      Object.throw('attachListener: expected an EventStream');
   }
   genericAttachListener(this, dependent);
 };
@@ -187,15 +249,15 @@ EventStream.prototype.attachListener = function(dependent) {
 
 //note: does not remove flow as counting for rank nor updates parent ranks
 EventStream.prototype.removeListener = function (dependent, isWeak) {
-  if (!(dependent instanceof EventStream)) {
-    throw 'removeListener: expected an EventStream';
+  if (!EventStream.hasInstance(dependent)) {
+    Object.throw('removeListener: expected an EventStream');
   }
 
   genericRemoveListener(this, dependent, isWeak);
 };
 
 
-// An internalE is a node that simply propagates all pulses it receives.  It's used internally by various 
+// An internalE is a node that simply propagates all pulses it receives.  It's used internally by various
 // combinators.
 var internalE = function(dependsOn) {
   return createNode(dependsOn || [ ],function(pulse) { return pulse; });
@@ -203,7 +265,7 @@ var internalE = function(dependsOn) {
 
 var zeroE = function() {
   return createNode([],function(pulse) {
-      throw ('zeroE : received a value; zeroE should not receive a value; the value was ' + pulse.value);
+      Object.throw ('zeroE : received a value; zeroE should not receive a value; the value was ' + pulse.value);
   });
 };
 
@@ -212,19 +274,19 @@ var oneE = function(val) {
   var sent = false;
   var evt = createNode([],function(pulse) {
     if (sent) {
-      throw ('oneE : received an extra value');
+      Object.throw ('oneE : received an extra value');
     }
     sent = true;
     return pulse;
   });
-  window.setTimeout(function() { sendEvent(evt,val); },0);
+  setTimeout(function() { sendEvent(evt,val); },0);
   return evt;
 };
 
 
 // a.k.a. mplus; mergeE(e1,e2) == mergeE(e2,e1)
 var mergeE = function() {
-  if (arguments.length == 0) {
+  if (arguments.length === 0) {
     return zeroE();
   }
   else {
@@ -254,47 +316,50 @@ var constantE = function(e,v) { return e.constantE(v); };
 
 //This is up here so we can add things to its prototype that are in flapjax.combinators
 var Behavior = function (event, init, updater) {
-  if (!(event instanceof EventStream)) { 
-    throw 'Behavior: expected event as second arg'; 
+  if (!EventStream.hasInstance(event)) {
+    Object.throw ('Behavior: expected event as second arg');
   }
-  
+
   var behave = this;
   this.last = init;
-  
+
   //sendEvent to this might impact other nodes that depend on this event
   //sendBehavior defaults to this one
   this.underlyingRaw = event;
-  
+
   //unexposed, sendEvent to this will only impact dependents of this behaviour
-  this.underlying = createNode([event], updater 
+  this.underlying = createNode([event], updater
     ? function (p) {
-        behave.last = updater(p.value); 
+        behave.last = updater(p.value);
         p.value = behave.last; return p;
-      } 
+      }
     : function (p) {
         behave.last = p.value;
         return p;
       });
 };
-Behavior.prototype = new Object();
+Behavior.prototype = {};
 
+Behavior.prototype.valueNow = function() {
+  return this.last;
+};
+var valueNow = function(behavior) { return behavior.valueNow(); };
+
+
+Behavior.prototype.changes = function() {
+  return this.underlying;
+};
+var changes = function (behave) { return behave.changes(); };
 
 
 var receiverE = function() {
   var evt = internalE();
   evt.sendEvent = function(value) {
-    propagatePulse(new Pulse(nextStamp(), value),evt);
+    propagatePulse(Pulse.new(nextStamp(), value),evt);
   };
   return evt;
 };
 
-
-//note that this creates a new timestamp and new event queue
-var sendEvent = function (node, value) {
-  if (!(node instanceof EventStream)) { throw 'sendEvent: expected Event as first arg'; } //SAFETY
-  
-  propagatePulse(new Pulse(nextStamp(), value),node);
-};
 
 // bindE :: EventStream a * (a -> EventStream b) -> EventStream b
 EventStream.prototype.bindE = function(k) {
@@ -304,35 +369,35 @@ EventStream.prototype.bindE = function(k) {
    */
   var m = this;
   var prevE = false;
-  
+
   var outE = createNode([],function(pulse) { return pulse; });
   outE.name = "bind outE";
-  
+
   var inE = createNode([m], function (pulse) {
     if (prevE) {
       prevE.removeListener(outE, true);
-      
+
     }
     prevE = k(pulse.value);
-    if (prevE instanceof EventStream) {
+    if (EventStream.hasInstance(prevE)) {
       prevE.attachListener(outE);
     }
     else {
-      throw "bindE : expected EventStream";
+      Object.throw("bindE : expected EventStream");
     }
 
     return doNotPropagate;
   });
   inE.name = "bind inE";
-  
+
   return outE;
 };
 
 EventStream.prototype.mapE = function(f) {
-  if (!(f instanceof Function)) {
-    throw ('mapE : expected a function as the first argument; received ' + f);
-  };
-  
+  if (!Function.hasInstance(f)) {
+    Object.throw ('mapE : expected a function as the first argument; received ' + f);
+  }
+
   return createNode([this],function(pulse) {
     pulse.value = f(pulse.value);
     return pulse;
@@ -347,10 +412,10 @@ var notE = function(e) { return e.notE(); };
 
 
 EventStream.prototype.filterE = function(pred) {
-  if (!(pred instanceof Function)) {
-    throw ('filterE : expected predicate; received ' + pred);
-  };
-  
+  if (!Function.hasInstance(pred)) {
+    Object.throw ('filterE : expected predicate; received ' + pred);
+  }
+
   // Can be a bindE
   return createNode([this], function(pulse) {
     return pred(pulse.value) ? pulse : doNotPropagate;
@@ -410,11 +475,11 @@ EventStream.prototype.switchE = function() {
 
 
 var recE = function(fn) {
-  var inE = receiverE(); 
-  var outE = fn(inE); 
-  outE.mapE(function(x) { 
-    inE.sendEvent(x); }); 
-  return outE; 
+  var inE = receiverE();
+  var outE = fn(inE);
+  outE.mapE(function(x) {
+    inE.sendEvent(x); });
+  return outE;
 };
 
 
@@ -424,33 +489,36 @@ var switchE = function(e) { return e.switchE(); };
 EventStream.prototype.ifE = function(thenE,elseE) {
   var testStamp = -1;
   var testValue = false;
-  
+
   createNode([this],function(pulse) { testStamp = pulse.stamp; testValue = pulse.value; return doNotPropagate; });
-  
-  return mergeE(createNode([thenE],function(pulse) { if (testValue && (testStamp == pulse.stamp)) { send(pulse); } }),
-    createNode([elseE],function(pulse) { if (!testValue && (testStamp == pulse.stamp)) { send(pulse); } }));
+
+  // XXX broken? CSA tried to fix..
+  return mergeE(createNode([thenE],function(pulse) { return (testValue && (testStamp === pulse.stamp)) ? pulse : doNotPropagate; }),
+                createNode([elseE],function(pulse) { return (!testValue && (testStamp === pulse.stamp)) ? pulse : doNotPropagate; }));
 };
 
 
 var ifE = function(test,thenE,elseE) {
-  if (test instanceof EventStream)
+  if (EventStream.hasInstance(test))
     { return test.ifE(thenE,elseE); }
   else
     { return test ? thenE : elseE; }
 };
 
-    
+
 var andE = function (/* . nodes */) {
   var nodes = slice(arguments, 0);
-  
-  var acc = (nodes.length > 0)? 
+
+  var acc = (nodes.length > 0)?
   nodes[nodes.length - 1] : oneE(true);
-  
-  for (var i = nodes.length - 2; i > -1; i--) {
+
+  var i = nodes.length - 2;
+  while (i >= 0) {
     acc = ifE(
-      nodes[i], 
-      acc, 
+      nodes[i],
+      acc,
       nodes[i].constantE(false));
+    i -= 1;
   }
   return acc;
 };
@@ -464,13 +532,15 @@ EventStream.prototype.andE = function( /* others */ ) {
 
 var orE = function () {
   var nodes = slice(arguments, 0);
-  var acc = (nodes.length > 2)? 
-  nodes[nodes.length - 1] : oneE(false); 
-  for (var i = nodes.length - 2; i > -1; i--) {
+  var acc = (nodes.length > 2)?
+  nodes[nodes.length - 1] : oneE(false);
+  var i = nodes.length - 2;
+  while (i >= 0) {
     acc = ifE(
       nodes[i],
       nodes[i],
       acc);
+    i -= 1;
   }
   return acc;
 };
@@ -483,50 +553,50 @@ EventStream.prototype.orE = function(/*others*/) {
 
 
 var delayStaticE = function (event, time) {
-  
+
   var resE = internalE();
-  
-  createNode([event], function (p) { 
-    setTimeout(function () { sendEvent(resE, p.value);},  time ); 
+
+  createNode([event], function (p) {
+    setTimeout(function () { sendEvent(resE, p.value);},  time );
     return doNotPropagate;
   });
-  
+
   return resE;
 };
 
 //delayE: Event a * [Behavior] Number ->  Event a
 EventStream.prototype.delayE = function (time) {
   var event = this;
-  
-  if (time instanceof Behavior) {
-    
+
+  if (Behavior.hasInstance(time)) {
+
     var receiverEE = internalE();
-    var link = 
+    var link =
     {
-      from: event, 
+      from: event,
       towards: delayStaticE(event, valueNow(time))
     };
-    
+
     //TODO: Change semantics such that we are always guaranteed to get an event going out?
-    var switcherE = 
+    var switcherE =
     createNode(
       [changes(time)],
       function (p) {
-        link.from.removeListener(link.towards); 
+        link.from.removeListener(link.towards);
         link =
         {
-          from: event, 
+          from: event,
           towards: delayStaticE(event, p.value)
         };
         sendEvent(receiverEE, link.towards);
         return doNotPropagate;
       });
-    
+
     var resE = receiverEE.switchE();
-    
+
     sendEvent(switcherE, valueNow(time));
     return resE;
-    
+
       } else { return delayStaticE(event, time); }
 };
 
@@ -538,44 +608,44 @@ var delayE = function(sourceE,interval) {
 
 //mapE: ([Event] (. Array a -> b)) . Array [Event] a -> [Event] b
 var mapE = function (fn /*, [node0 | val0], ...*/) {
-  //      if (!(fn instanceof Function)) { throw 'mapE: expected fn as second arg'; } //SAFETY
-  
+  //      if (!Function.hasInstance(fn)) { Object.throw ('mapE: expected fn as second arg'); } //SAFETY
+
   var valsOrNodes = slice(arguments, 0);
   //selectors[i]() returns either the node or real val, optimize real vals
   var selectors = [];
   var selectI = 0;
   var nodes = [];
-  for (var i = 0; i < valsOrNodes.length; i++) {
-    if (valsOrNodes[i] instanceof EventStream) {
-      nodes.push(valsOrNodes[i]);
-      selectors.push( 
+  valsOrNodes.forEach(function(vn) {
+    if (EventStream.hasInstance(vn)) {
+      nodes.push(vn);
+      selectors.push(
         (function(ii) {
-            return function(realArgs) { 
+            return function(realArgs) {
               return realArgs[ii];
             };
         })(selectI));
-      selectI++;
+      selectI+=1;
     } else {
-      selectors.push( 
-        (function(aa) { 
+      selectors.push(
+        (function(aa) {
             return function () {
               return aa;
-            }; 
-        })(valsOrNodes[i]));
-    } 
-  }
-  
+            };
+        })(vn));
+    }
+  });
+
   var context = this;
   var nofnodes = slice(selectors,1);
-  
+
   if (nodes.length === 0) {
     return oneE(fn.apply(context, valsOrNodes));
-  } else if ((nodes.length === 1) && (fn instanceof Function)) {
+  } else if ((nodes.length === 1) && Function.hasInstance(fn)) {
     return nodes[0].mapE(
       function () {
         var args = arguments;
         return fn.apply(
-          context, 
+          context,
           map(function (s) {return s(args);}, nofnodes));
       });
   } else if (nodes.length === 1) {
@@ -583,24 +653,26 @@ var mapE = function (fn /*, [node0 | val0], ...*/) {
       function (v) {
         var args = arguments;
         return v.apply(
-          context, 
+          context,
           map(function (s) {return s(args);}, nofnodes));
-      });                
-  } else if (fn instanceof Function) {
+      });
+  /* XXX CSA BROKEN: createTimeSyncNode no longer defined...
+  } else if (Function.hasInstance(fn)) {
     return createTimeSyncNode(nodes).mapE(
       function (arr) {
         return fn.apply(
           this,
           map(function (s) { return s(arr); }, nofnodes));
       });
-  } else if (fn instanceof EventStream) {
+  } else if (EventStream.hasInstance(fn)) {
     return createTimeSyncNode(nodes).mapE(
       function (arr) {
         return arr[0].apply(
-          this, 
+          this,
           map(function (s) {return s(arr); }, nofnodes));
       });
-      } else {throw 'unknown mapE case';}
+  XXX end broken bit */
+  } else { Object.throw('unknown mapE case'); }
 };
 
 
@@ -622,7 +694,8 @@ EventStream.prototype.filterRepeatsE = function(optStart) {
   var prev = optStart;
 
   return this.filterE(function (v) {
-    if (!hadFirst || !(isEqual(prev,v))) {
+    // XXX CSA uses more specific notion of equality than original
+    if (!hadFirst || prev !== v) {
       hadFirst = true;
       prev = v;
       return true;
@@ -648,8 +721,8 @@ var calmStaticE = function (triggerE, time) {
       var towards = null;
       return function (p) {
         if (towards !== null) { clearTimeout(towards); }
-        towards = setTimeout( function () { 
-            towards = null; 
+        towards = setTimeout( function () {
+            towards = null;
             sendEvent(out,p.value); }, time );
         return doNotPropagate;
       };
@@ -659,7 +732,7 @@ var calmStaticE = function (triggerE, time) {
 
 //calmE: Event a * [Behavior] Number -> Event a
 EventStream.prototype.calmE = function(time) {
-  if (time instanceof Behavior) {
+  if (Behavior.hasInstance(time)) {
     var out = internalE();
     createNode(
       [this],
@@ -667,7 +740,7 @@ EventStream.prototype.calmE = function(time) {
         var towards = null;
         return function (p) {
           if (towards !== null) { clearTimeout(towards); }
-          towards = setTimeout( function () { 
+          towards = setTimeout( function () {
               towards = null;
               sendEvent(out,p.value); }, valueNow(time));
           return doNotPropagate;
@@ -675,7 +748,7 @@ EventStream.prototype.calmE = function(time) {
       }());
     return out;
   } else {
-    return calmStaticE(this,time);       
+    return calmStaticE(this,time);
   }
 };
 
@@ -689,13 +762,13 @@ EventStream.prototype.blindE = function (time) {
   return createNode(
     [this],
     function () {
-      var intervalFn = 
-      time instanceof Behavior?
+      var intervalFn =
+      Behavior.hasInstance(time)?
       function () { return valueNow(time); }
       : function () { return time; };
-      var lastSent = (new Date()).getTime() - intervalFn() - 1;
+      var lastSent = now() - intervalFn() - 1;
       return function (p) {
-        var curTime = (new Date()).getTime();
+        var curTime = now();
         if (curTime - lastSent > intervalFn()) {
           lastSent = curTime;
           return p;
@@ -712,188 +785,62 @@ var blindE = function(sourceE,interval) {
 
 
 EventStream.prototype.startsWith = function(init) {
-  return new Behavior(this,init);
+  return Behavior.new(this,init);
 };
 
 
 var startsWith = function(e,init) {
-  if (!(e instanceof EventStream)) {
-    throw 'startsWith: expected EventStream; received ' + e;
+  if (!EventStream.hasInstance(e)) {
+    Object.throw('startsWith: expected EventStream; received ' + e);
   }
-  return e.startsWith(init); 
-};
-
-
-Behavior.prototype.valueNow = function() {
-  return this.last;
-};
-var valueNow = function(behavior) { return behavior.valueNow(); };
-
-
-Behavior.prototype.changes = function() {
-  return this.underlying;
-};
-
-
-var changes = function (behave) { return behave.changes(); };
-
-
-Behavior.prototype.switchB = function() {
-  var behaviourCreatorsB = this;
-  var init = valueNow(behaviourCreatorsB);
-  
-  var prevSourceE = null;
-  
-  var receiverE = new internalE();
-  
-  //XXX could result in out-of-order propagation! Fix!
-  var makerE = 
-  createNode(
-    [changes(behaviourCreatorsB)],
-    function (p) {
-      if (!(p.value instanceof Behavior)) { throw 'switchB: expected Behavior as value of Behavior of first argument'; } //SAFETY
-      if (prevSourceE != null) {
-        prevSourceE.removeListener(receiverE);
-      }
-      
-      prevSourceE = changes(p.value);
-      prevSourceE.attachListener(receiverE);
-      
-      sendEvent(receiverE, valueNow(p.value));
-      return doNotPropagate;
-    });
-  
-  if (init instanceof Behavior) {
-    sendEvent(makerE, init);
-  }
-  
-  return startsWith(
-    receiverE,
-    init instanceof Behavior? valueNow(init) : init);
-};
-
-
-var switchB = function (b) { return b.switchB(); };
-
-
-//TODO test, signature
-var timerB = function(interval) {
-  return startsWith(timerE(interval), (new Date()).getTime());
-};
-
-
-//TODO test, signature
-var delayStaticB = function (triggerB, time, init) {
-  return startsWith(delayStaticE(changes(triggerB), time), init);
-};
-
-//TODO test, signature
-Behavior.prototype.delayB = function (time, init) {
-  var triggerB = this;
-  if (time instanceof Behavior) {
-    return startsWith(
-      delayE(
-        changes(triggerB), 
-        time),
-      arguments.length > 3 ? init : valueNow(triggerB));
-  } else {
-    return delayStaticB(
-      triggerB, 
-      time,
-      arguments.length > 3 ? init : valueNow(triggerB));
-  }
-};
-
-
-var delayB = function(srcB, timeB, init) { 
-  return srcB.delayB(timeB,init); 
-};
-
-
-//artificially send a pulse to underlying event node of a behaviour
-//note: in use, might want to use a receiver node as a proxy or an identity map
-Behavior.prototype.sendBehavior = function(val) {
-  sendEvent(this.underlyingRaw,val);
-};
-Behavior.prototype.sendBehavior = Behavior.prototype.sendBehavior;
-
-var sendBehavior = function (b,v) { b.sendBehavior(v); };
-
-
-
-Behavior.prototype.ifB = function(trueB,falseB) {
-  var testB = this;
-  //TODO auto conversion for behaviour funcs
-  if (!(trueB instanceof Behavior)) { trueB = constantB(trueB); }
-  if (!(falseB instanceof Behavior)) { falseB = constantB(falseB); }
-  return liftB(function(te,t,f) { return te ? t : f; },testB,trueB,falseB);
-};
-
-
-var ifB = function(test,cons,altr) {
-  if (!(test instanceof Behavior)) { test = constantB(test); };
-  
-  return test.ifB(cons,altr);
-};
-
-
-
-//condB: . [Behavior boolean, Behavior a] -> Behavior a
-var condB = function (/* . pairs */ ) {
-  var pairs = slice(arguments, 0);
-return liftB.apply({},[function() {
-    for(var i=0;i<pairs.length;i++) {
-      if(arguments[i]) return arguments[pairs.length+i];
-    }
-    return undefined;
-  }].concat(map(function(pair) {return pair[0];},pairs).concat(map(function(pair) {return pair[1];},pairs))));
+  return e.startsWith(init);
 };
 
 
 //TODO optionally append to objects
 //createConstantB: a -> Behavior a
 var constantB = function (val) {
-  return new Behavior(internalE(), val);
+  return Behavior.new(internalE(), val);
 };
 
 
 var liftB = function (fn /* . behaves */) {
 
   var args = slice(arguments, 1);
-  
+
   //dependencies
   var constituentsE =
     map(changes,
-    filter(function (v) { return v instanceof Behavior; },
-      arguments));
-  
+    filter(function (v) { return Behavior.hasInstance(v); },
+           slice(arguments, 0)));
+
   //calculate new vals
   var getCur = function (v) {
-    return v instanceof Behavior ? v.last : v;
+    return Behavior.hasInstance(v) ? v.last : v;
   };
-  
+
   var ctx = this;
   var getRes = function () {
     return getCur(fn).apply(ctx, map(getCur, args));
   };
 
-  if(constituentsE.length == 1) {
-    return new Behavior(constituentsE[0],getRes(),getRes);
+  if(constituentsE.length === 1) {
+    return Behavior.new(constituentsE[0],getRes(),getRes);
   }
-    
+
   //gen/send vals @ appropriate time
   var prevStamp = -1;
   var mid = createNode(constituentsE, function (p) {
-    if (p.stamp != prevStamp) {
+    if (p.stamp !== prevStamp) {
       prevStamp = p.stamp;
-      return p; 
+      return p;
     }
     else {
       return doNotPropagate;
     }
   });
-  
-  return new Behavior(mid,getRes(),getRes);
+
+  return Behavior.new(mid,getRes(),getRes);
 };
 
 
@@ -903,9 +850,129 @@ Behavior.prototype.liftB = function(/* args */) {
 };
 
 
+Behavior.prototype.switchB = function() {
+  var behaviourCreatorsB = this;
+  var init = valueNow(behaviourCreatorsB);
+
+  var prevSourceE = null;
+
+  var receiverE = internalE.new();
+
+  //XXX could result in out-of-order propagation! Fix!
+  var makerE =
+  createNode(
+    [changes(behaviourCreatorsB)],
+    function (p) {
+        if (!Behavior.hasInstance(p.value)) { Object.throw ('switchB: expected Behavior as value of Behavior of first argument'); } //SAFETY
+      if (prevSourceE !== null) {
+        prevSourceE.removeListener(receiverE);
+      }
+
+      prevSourceE = changes(p.value);
+      prevSourceE.attachListener(receiverE);
+
+      sendEvent(receiverE, valueNow(p.value));
+      return doNotPropagate;
+    });
+
+  if (Behavior.hasInstance(init)) {
+    sendEvent(makerE, init);
+  }
+
+  return startsWith(
+    receiverE,
+    Behavior.hasInstance(init)? valueNow(init) : init);
+};
+
+
+var switchB = function (b) { return b.switchB(); };
+
+
+/* XXX CSA omitted
+//TODO test, signature
+var timerB = function(interval) {
+  return startsWith(timerE(interval), now());
+};
+*/
+
+//TODO test, signature
+var delayStaticB = function (triggerB, time, init) {
+  return startsWith(delayStaticE(changes(triggerB), time), init);
+};
+
+//TODO test, signature
+Behavior.prototype.delayB = function (time, init) {
+  var triggerB = this;
+  if (Behavior.hasInstance(time)) {
+    return startsWith(
+      delayE(
+        changes(triggerB),
+        time),
+      arguments.length > 3 ? init : valueNow(triggerB));
+  } else {
+    return delayStaticB(
+      triggerB,
+      time,
+      arguments.length > 3 ? init : valueNow(triggerB));
+  }
+};
+
+
+var delayB = function(srcB, timeB, init) {
+  return srcB.delayB(timeB,init);
+};
+
+
+//artificially send a pulse to underlying event node of a behaviour
+//note: in use, might want to use a receiver node as a proxy or an identity map
+Behavior.prototype.sendBehavior = function(val) {
+  sendEvent(this.underlyingRaw,val);
+};
+
+var sendBehavior = function (b,v) { b.sendBehavior(v); };
+
+
+
+Behavior.prototype.ifB = function(trueB,falseB) {
+  var testB = this;
+  //TODO auto conversion for behaviour funcs
+  if (!Behavior.hasInstance(trueB)) { trueB = constantB(trueB); }
+  if (!Behavior.hasInstance(falseB)) { falseB = constantB(falseB); }
+  return liftB(function(te,t,f) { return te ? t : f; },testB,trueB,falseB);
+};
+
+
+var ifB = function(test,cons,altr) {
+  if (!Behavior.hasInstance(test)) { test = constantB(test); }
+
+  return test.ifB(cons,altr);
+};
+
+
+
+//condB: . [Behavior boolean, Behavior a] -> Behavior a
+var condB = function (/* . pairs */ ) {
+  var pairs = slice(arguments, 0);
+return liftB.apply({},[function() {
+    var i=0;
+    while (i<pairs.length) {
+      if(arguments[i]) {
+        return arguments[pairs.length+i];
+      }
+      i+=1;
+    }
+    return undefined;
+  }].concat(map(function(pair) {return pair[0];},pairs).concat(map(function(pair) {return pair[1];},pairs))));
+};
+
+
 var andB = function (/* . behaves */) {
 return liftB.apply({},[function() {
-    for(var i=0; i<arguments.length; i++) {if(!arguments[i]) return false;}
+    var i=0;
+    while (i<arguments.length) {
+        if(!arguments[i]) { return false; }
+        i+=1;
+    }
     return true;
 }].concat(slice(arguments,0)));
 };
@@ -918,7 +985,11 @@ Behavior.prototype.andB = function() {
 
 var orB = function (/* . behaves */ ) {
 return liftB.apply({},[function() {
-    for(var i=0; i<arguments.length; i++) {if(arguments[i]) return true;}
+    var i=0;
+    while (i<arguments.length) {
+        if(arguments[i]) { return true; }
+        i+=1;
+    }
     return false;
 }].concat(slice(arguments,0)));
 };
@@ -952,6 +1023,100 @@ Behavior.prototype.calmB = function (intervalB) {
 };
 
 
-var calmB = function (srcB,intervalB) { 
+var calmB = function (srcB,intervalB) {
   return srcB.calmB(intervalB);
+};
+
+///// Module export stuff.
+    return {
+        constantB: constantB,
+        delayB: delayB,
+        calmB: calmB,
+        blindB: blindB,
+        valueNow: valueNow,
+        switchB: switchB,
+        andB: andB,
+        orB: orB,
+        notB: notB,
+        liftB: liftB,
+        condB: condB,
+        ifB: ifB,
+        /*
+        timerB: timerB,
+        disableTimer: disableTimer,
+        insertDomB: insertDomB,
+        insertDom: insertDom,
+        mouseTopB: mouseTopB,
+        mouseLeftB: mouseLeftB,
+        mouseB: mouseB,
+        extractValueB: extractValueB,
+        this.$B = impl.$B;
+        extractValueE: extractValueE,
+        extractEventE: extractEventE,
+        this.$E = impl.$E;
+        clicksE: clicksE,
+        timerE: timerE,
+        extractValueOnEventE: extractValueOnEventE,
+        extractIdB: extractIdB,
+        insertDomE: insertDomE,
+        insertValueE: insertValueE,
+        insertValueB: insertValueB,
+        tagRec: tagRec,
+        getWebServiceObjectE: getWebServiceObjectE,
+        getForeignWebServiceObjectE: getForeignWebServiceObjectE,
+        evalForeignScriptValE: evalForeignScriptValE,
+        */
+        oneE: oneE,
+        zeroE: zeroE,
+        mapE: mapE,
+        mergeE: mergeE,
+        switchE: switchE,
+        filterE: filterE,
+        ifE: ifE,
+        recE: recE,
+        constantE: constantE,
+        collectE: collectE,
+        andE: andE,
+        orE: orE,
+        notE: notE,
+        filterRepeatsE: filterRepeatsE,
+        receiverE: receiverE,
+        sendEvent: sendEvent,
+        snapshotE: snapshotE,
+        onceE: onceE,
+        skipFirstE: skipFirstE,
+        delayE: delayE,
+        blindE: blindE,
+        calmE: calmE,
+        startsWith: startsWith,
+        /*
+        changes: changes,
+        getElementsByClass: getElementsByClass,
+        getObj: getObj,
+        this.$ = impl.$;
+        readCookie: readCookie,
+        swapDom: swapDom,
+        getURLParam: getURLParam,
+        cumulativeOffset: cumulativeOffset,
+        fold: fold,
+        foldR: foldR,
+        */
+        map: map,
+        /*
+        filter: filter,
+        member: member,
+        slice: slice,
+        forEach: forEach,
+        toJSONString: toJSONString,
+        compilerInsertDomB: compilerInsertDomB,
+        compilerInsertValueB: compilerInsertValueB,
+        compilerLift: compilerLift,
+        compilerCall: compilerCall,
+        compilerIf: compilerIf,
+        compilerUnbehavior: compilerUnbehavior,
+        compilerEventStreamArg: compilerEventStreamArg,
+        */
+        Behavior: Behavior,
+        EventStream: EventStream
+    };
 };
