@@ -29,55 +29,19 @@ html, body, canvas { padding: 0; margin: 0; }
   -webkit-user-select: none;
 }
 </style>
+<script type="text/javascript" src="global.js"></script>
+<script type="text/javascript" src="extensions.js"></script>
 <script type="text/javascript" src="ccanvas.js"></script>
+<script type="text/javascript" src="events.js"></script>
 <script type="text/javascript">
 var canvas;
 var canvasElem;
-var drawFrame;
+var flapjax;
 
 var USE_FRAME_TIMER = false;
 
-var lastTouches=[];
-var changed = false;
-var invalidate = function() {
-  changed = true;
-  if (!USE_FRAME_TIMER) drawFrame();
-  // XXX or window.setTimeout(drawFrame, 30)?
-}
-// XXX need to emulate touches with mouse events.  But don't get this
-//     mixed up with the platform mouse emulation!
-window.onresize = function() {
-  invalidate();
-}
-var onTouchMove = function(e) {
-  e.preventDefault();
-  lastTouches = e.targetTouches;
-  invalidate();
-};
-var onTouchEnd = function(e) {
-  e.preventDefault();
-  if (e.targetTouches.length > 0) return false;
-  lastTouches = e.targetTouches;
-  canvasElem.removeEventListener('touchmove', onTouchMove, false);
-  canvasElem.removeEventListener('touchend', onTouchEnd, false);
-  invalidate();
-  return false;
-};
-var onTouchStart = function (e) {
-  if (e.targetTouches.length != 1) return false;
-  canvasElem.addEventListener('touchmove', onTouchMove, false);
-  canvasElem.addEventListener('touchend', onTouchEnd, false);
-  lastTouches = e.targetTouches;
-  invalidate();
-  return false;
-};
-//XXX: handle touchcancel which is called when app is interrupted
-//     (ie, a call arrives on the iphone and we force-switch apps)
-
-var pos=0, dir=1;
-drawFrame = function() {
-  if (!changed) return;
-  changed = false;
+var drawFrame = function(touchB, tickB) {
+  var lastTouches = touchB.valueNow();
   var sz = canvas.size();
 
   canvas.resize(window.innerWidth, window.innerHeight,
@@ -105,30 +69,28 @@ drawFrame = function() {
   canvas.drawText(str, 0.5, 0.5+2*m.height);
   canvas.drawText("Touches: "+lastTouches.length, 0.5, 0.5+3*m.height);
 
-  canvas.setFill(canvas.makeColor(Math.floor(pos*255/sz.width),0,0));
+  var amt = (tickB.valueNow() % sz.width) / sz.width; // 0-1
+  canvas.setFill(canvas.makeColor(Math.floor(amt*255),0,0));
   canvas.beginPath();
-  canvas.rect(pos, 0, 10, 50);
+  canvas.rect(amt*sz.width, 0, 10, 50);
   canvas.fill();
-  pos += dir;
-  if (pos < 0) { dir = 1; }
-  if (pos > sz.width) { dir = -1; }
 
   // draw a mark at every point
   canvas.beginPath();
   var size=50;
   var i = 0;
   while (i < lastTouches.length) {
+    /*
+    canvas.setFill(canvas.makeColor(Math.floor(amt*255),
+                                    Math.floor(lastTouches[i].force*255),
+                                    0));
+    */
     canvas.rect(lastTouches[i].clientX-size,
                 lastTouches[i].clientY-size,
                 size*2, size*2);
     i+=1;
   }
   canvas.fill();
-
-  if (lastTouches.length == 1 && false) {
-   console.log(lastTouches[0].clientX+","+lastTouches[0].clientY);
-  }
-
 };
 if (window.navigator.userAgent.indexOf('iPhone') != -1) {
   if (!window.navigator.standalone == true) {
@@ -139,13 +101,114 @@ if (window.navigator.userAgent.indexOf('iPhone') != -1) {
 window.onload=function() {
   canvas = make_canvas('canvas');
   canvasElem = document.getElementById('canvas');
-  window.onresize();
-  canvasElem.addEventListener('touchstart', onTouchStart, false);
+
+  // set up event loop
+  flapjax = make_flapjax(window.setTimeout, window.clearTimeout);
+  uiEvents = flapjax.receiverE(); // new empty event stream
+  // frame timer (optional)
   if (USE_FRAME_TIMER) {
-    window.setInterval(drawFrame, 30);
+    var FrameTickEvent = function() {
+      this.type = "frametick";
+      this.tick = (FrameTickEvent.lastTick || 0) + 1;
+      FrameTickEvent.lastTick = this.tick;
+    };
+    window.setInterval(function() {
+      uiEvents.sendEvent(new FrameTickEvent());
+    }, 30);
   }
-  changed = true; // draw first frame
-  drawFrame();
+  // pass on touchstart/touchmove/touchcancel events
+  var sender = function(e) { e.preventDefault(); uiEvents.sendEvent(e); };
+  canvasElem.addEventListener('touchstart', sender, false);
+  canvasElem.addEventListener('touchmove', sender, false);
+  canvasElem.addEventListener('touchend', sender, false);
+  canvasElem.addEventListener('touchcancel', sender, false);
+
+  // emulate touches with mouse events for desktop platforms.
+  var onMouseMove = function(e) {
+    uiEvents.sendEvent({
+      type: "touchmove",
+      emulated: true,
+      targetTouches: [ { clientX: e.clientX, clientY: e.clientY } ]
+    });
+  };
+  var onMouseUp = function(e) {
+    uiEvents.sendEvent({
+      type: "touchend",
+      emulated: true,
+      targetTouches: []
+    });
+    canvasElem.removeEventListener('mousemove', onMouseMove, false);
+    canvasElem.removeEventListener('mouseup', onMouseUp, false);
+  };
+  var onMouseDown = function(e) {
+    uiEvents.sendEvent({
+      type: "touchstart",
+      emulated: true,
+      targetTouches: [ { clientX: e.clientX, clientY: e.clientY } ]
+    });
+    canvasElem.addEventListener('mousemove', onMouseMove, false);
+    canvasElem.addEventListener('mouseup', onMouseUp, false);
+  };
+  canvasElem.addEventListener('mousedown', onMouseDown, false);
+
+  // notify on resize events
+  window.onresize = function() {
+    uiEvents.sendEvent({ type: "resize" });
+  };
+
+  // helper function
+  var filterByType = function(evt, type) {
+    var ty = type.toLowerCase();
+    return evt.filterE(function(e) { return e.type.toLowerCase()===ty; });
+  };
+
+  // behaviors, filtered from the master event stream.
+  var tickB = filterByType(uiEvents, "frametick").
+              mapE(function(e) { return e.tick }).startsWith(0);
+  var touchE = uiEvents.filterE(function(e) {
+    var ty = e.type.toLowerCase();
+    if (ty==="touchstart") { return e.targetTouches.length===1; }
+    if (ty==="touchmove" || ty==="touchcancel") { return true; }
+    if (ty==="touchend") { return e.targetTouches.length === 0; }
+    return false;
+  }).mapE(function(e) { return e.targetTouches; });
+
+  /* this appears unnecessary: */
+  touchE = touchE.filterRepeatsE(
+    undefined, function eq(x, y) {
+    // test two 'target touches' arrays for equality
+    if (x.length !== y.length) { return false; }
+    for (var i=0; i<x.length; i++) {
+      if (x[i].clientX !== y[i].clientX) { return false; }
+      if (x[i].clientY !== y[i].clientY) { return false; }
+    }
+    return true;
+  }, function clone(x) {
+    var r = [];
+    Array.prototype.forEach.call(x, function(e) {
+      r.push({ clientX: e.clientX, clientY: e.clientY });
+    });
+    return r;
+  });
+
+  var touchB = touchE.startsWith([]);
+
+  var resizeE = filterByType(uiEvents, "resize");
+
+  var drawFrameE = resizeE;
+  if (USE_FRAME_TIMER) {
+    // draw new frames based on the tick counter.
+    drawFrameE = drawFrameE.mergeE(tickB.changes());
+  } else {
+    // alternatively, map target touches to drawn frames.
+    drawFrameE = drawFrameE.mergeE(touchB.changes());
+  }
+  // don't try to draw frames faster than the eye can see
+  drawFrameE = drawFrameE.calmE(35);
+  // draw frames in the future
+  drawFrameE.mapE(function(_) { drawFrame(touchB, tickB); });
+  // draw first frame right now.
+  drawFrame(touchB, tickB);
 };
 </script>
 </head>
