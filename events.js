@@ -149,7 +149,7 @@ var nextStamp = function () {
 //propagatePulse: Pulse * Array Node ->
 //Send the pulse to each node
 var propagatePulse = function (pulse, node) {
-  var queue = PQ.new(); //topological queue for current timestep
+  var queue = PQ.New(); //topological queue for current timestep
 
   queue.insert({k:node.rank,n:node,v:pulse});
   var len = 1;
@@ -157,7 +157,7 @@ var propagatePulse = function (pulse, node) {
   while (len) {
     var qv = queue.pop();
     len-=1;
-    var nextPulse = qv.n.updater(Pulse.new(qv.v.stamp, qv.v.value));
+    var nextPulse = qv.n.updater(Pulse.New(qv.v.stamp, qv.v.value));
     var weaklyHeld = true;
 
     if (nextPulse !== doNotPropagate) {
@@ -191,16 +191,16 @@ EventStream.prototype = {};
 
 //createNode: Array Node a * ( (Pulse b ->) * (Pulse a) -> Void) -> Node b
 var createNode = function (nodes, updater) {
-  return EventStream.new(nodes,updater);
+  return EventStream.New(nodes,updater);
 };
 
 //note that this creates a new timestamp and new event queue
 var sendEvent = function (node, value) {
   if (!EventStream.hasInstance(node)) {
-      Object.throw('sendEvent: expected Event as first arg');
+      Object.Throw('sendEvent: expected Event as first arg');
   } //SAFETY
 
-  propagatePulse(Pulse.new(nextStamp(), value),node);
+  propagatePulse(Pulse.New(nextStamp(), value),node);
 };
 
 var genericAttachListener = function(node, dependent) {
@@ -241,7 +241,7 @@ var genericRemoveListener = function (node, dependent, isWeakReference) {
 //note: does not add flow as counting for rank nor updates parent ranks
 EventStream.prototype.attachListener = function(dependent) {
   if (!EventStream.hasInstance(dependent)) {
-      Object.throw('attachListener: expected an EventStream');
+      Object.Throw('attachListener: expected an EventStream');
   }
   genericAttachListener(this, dependent);
 };
@@ -250,7 +250,7 @@ EventStream.prototype.attachListener = function(dependent) {
 //note: does not remove flow as counting for rank nor updates parent ranks
 EventStream.prototype.removeListener = function (dependent, isWeak) {
   if (!EventStream.hasInstance(dependent)) {
-    Object.throw('removeListener: expected an EventStream');
+    Object.Throw('removeListener: expected an EventStream');
   }
 
   genericRemoveListener(this, dependent, isWeak);
@@ -265,7 +265,7 @@ var internalE = function(dependsOn) {
 
 var zeroE = function() {
   return createNode([],function(pulse) {
-      Object.throw ('zeroE : received a value; zeroE should not receive a value; the value was ' + pulse.value);
+      Object.Throw ('zeroE : received a value; zeroE should not receive a value; the value was ' + pulse.value);
   });
 };
 
@@ -274,7 +274,7 @@ var oneE = function(val) {
   var sent = false;
   var evt = createNode([],function(pulse) {
     if (sent) {
-      Object.throw ('oneE : received an extra value');
+      Object.Throw ('oneE : received an extra value');
     }
     sent = true;
     return pulse;
@@ -317,7 +317,7 @@ var constantE = function(e,v) { return e.constantE(v); };
 //This is up here so we can add things to its prototype that are in flapjax.combinators
 var Behavior = function (event, init, updater) {
   if (!EventStream.hasInstance(event)) {
-    Object.throw ('Behavior: expected event as second arg');
+    Object.Throw ('Behavior: expected event as second arg');
   }
 
   var behave = this;
@@ -355,7 +355,7 @@ var changes = function (behave) { return behave.changes(); };
 var receiverE = function() {
   var evt = internalE();
   evt.sendEvent = function(value) {
-    propagatePulse(Pulse.new(nextStamp(), value),evt);
+    propagatePulse(Pulse.New(nextStamp(), value),evt);
   };
   return evt;
 };
@@ -383,7 +383,7 @@ EventStream.prototype.bindE = function(k) {
       prevE.attachListener(outE);
     }
     else {
-      Object.throw("bindE : expected EventStream");
+      Object.Throw("bindE : expected EventStream");
     }
 
     return doNotPropagate;
@@ -395,7 +395,7 @@ EventStream.prototype.bindE = function(k) {
 
 EventStream.prototype.mapE = function(f) {
   if (!Function.hasInstance(f)) {
-    Object.throw ('mapE : expected a function as the first argument; received ' + f);
+    Object.Throw ('mapE : expected a function as the first argument; received ' + f);
   }
 
   return createNode([this],function(pulse) {
@@ -413,7 +413,7 @@ var notE = function(e) { return e.notE(); };
 
 EventStream.prototype.filterE = function(pred) {
   if (!Function.hasInstance(pred)) {
-    Object.throw ('filterE : expected predicate; received ' + pred);
+    Object.Throw ('filterE : expected predicate; received ' + pred);
   }
 
   // Can be a bindE
@@ -608,7 +608,7 @@ var delayE = function(sourceE,interval) {
 
 //mapE: ([Event] (. Array a -> b)) . Array [Event] a -> [Event] b
 var mapE = function (fn /*, [node0 | val0], ...*/) {
-  //      if (!Function.hasInstance(fn)) { Object.throw ('mapE: expected fn as second arg'); } //SAFETY
+  //      if (!Function.hasInstance(fn)) { Object.Throw ('mapE: expected fn as second arg'); } //SAFETY
 
   var valsOrNodes = slice(arguments, 0);
   //selectors[i]() returns either the node or real val, optimize real vals
@@ -672,7 +672,7 @@ var mapE = function (fn /*, [node0 | val0], ...*/) {
           map(function (s) {return s(arr); }, nofnodes));
       });
   XXX end broken bit */
-  } else { Object.throw('unknown mapE case'); }
+  } else { Object.Throw('unknown mapE case'); }
 };
 
 
@@ -785,13 +785,13 @@ var blindE = function(sourceE,interval) {
 
 
 EventStream.prototype.startsWith = function(init) {
-  return Behavior.new(this,init);
+  return Behavior.New(this,init);
 };
 
 
 var startsWith = function(e,init) {
   if (!EventStream.hasInstance(e)) {
-    Object.throw('startsWith: expected EventStream; received ' + e);
+    Object.Throw('startsWith: expected EventStream; received ' + e);
   }
   return e.startsWith(init);
 };
@@ -800,7 +800,7 @@ var startsWith = function(e,init) {
 //TODO optionally append to objects
 //createConstantB: a -> Behavior a
 var constantB = function (val) {
-  return Behavior.new(internalE(), val);
+  return Behavior.New(internalE(), val);
 };
 
 
@@ -825,7 +825,7 @@ var liftB = function (fn /* . behaves */) {
   };
 
   if(constituentsE.length === 1) {
-    return Behavior.new(constituentsE[0],getRes(),getRes);
+    return Behavior.New(constituentsE[0],getRes(),getRes);
   }
 
   //gen/send vals @ appropriate time
@@ -840,7 +840,7 @@ var liftB = function (fn /* . behaves */) {
     }
   });
 
-  return Behavior.new(mid,getRes(),getRes);
+  return Behavior.New(mid,getRes(),getRes);
 };
 
 
@@ -856,14 +856,14 @@ Behavior.prototype.switchB = function() {
 
   var prevSourceE = null;
 
-  var receiverE = internalE.new();
+  var receiverE = internalE.New();
 
   //XXX could result in out-of-order propagation! Fix!
   var makerE =
   createNode(
     [changes(behaviourCreatorsB)],
     function (p) {
-        if (!Behavior.hasInstance(p.value)) { Object.throw ('switchB: expected Behavior as value of Behavior of first argument'); } //SAFETY
+        if (!Behavior.hasInstance(p.value)) { Object.Throw ('switchB: expected Behavior as value of Behavior of first argument'); } //SAFETY
       if (prevSourceE !== null) {
         prevSourceE.removeListener(receiverE);
       }

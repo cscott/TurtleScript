@@ -11,7 +11,7 @@ var now = function() {
 };
 
 // This replaces the 'new' operator.
-Function.prototype['new'] = function() {
+Function.prototype.New = function() {
     var object, result;
     if (typeof(this.prototype)==="object") {
 	object = Object.create(this.prototype);
@@ -38,7 +38,7 @@ Object['delete'] = function(o, f) {
 };
 
 // provide exception functionality without introducing new syntax
-Object['throw'] = function(obj) {
+Object['Throw'] = function(obj) {
     throw obj;
 };
 
