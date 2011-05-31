@@ -719,13 +719,24 @@ var calmStaticE = function (triggerE, time) {
     [triggerE],
     function() {
       var towards = null;
-      return function (p) {
-        if (towards !== null) { clearTimeout(towards); }
-        towards = setTimeout( function () {
-            towards = null;
-            sendEvent(out,p.value); }, time );
+      var lastVal, sawMoreRecent;
+      var doit = function (p) {
+        if (towards === null) {
+          sawMoreRecent = false;
+          lastVal = null; // free memory
+          towards = setTimeout( function () {
+              towards = null;
+              if (sawMoreRecent) { doit(lastVal); }
+          }, time );
+          sendEvent(out, p);
+        } else {
+          // hmm, don't propagate this yet, but maybe do it later.
+          sawMoreRecent = true;
+          lastVal = p;
+        }
         return doNotPropagate;
       };
+      return doit;
     }());
   return out;
 };
