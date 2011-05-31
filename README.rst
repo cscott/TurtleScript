@@ -117,7 +117,7 @@ made the display stutter unacceptably.
 .. figure:: http://cscott.net/Projects/TurtleScript/images/tiles2.png
    :alt: 2011 graphical tiles
    :align: right
-   :target: tile2.html_
+   :target: ctiles.html_
 
    Tile Rendering using <canvas>, 2011
 
