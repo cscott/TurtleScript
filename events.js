@@ -689,15 +689,19 @@ var snapshotE = function(triggerE,valueB) {
 };
 
 
-EventStream.prototype.filterRepeatsE = function(optStart) {
-  var hadFirst = optStart === undefined ? false : true;
+// XXX CSA this is more specific notion of equality than original
+var _default_eq_ = function(x,y) { return x===y; };
+var _default_cp_ = function(x) { return x; };
+EventStream.prototype.filterRepeatsE = function(optStart, optEq, optClone) {
+  var hadFirst = (optStart === undefined) ? false : true;
   var prev = optStart;
+  var eq = optEq ? optEq : _default_eq_;
+  var cp = optClone ? optClone : _default_cp_;
 
   return this.filterE(function (v) {
-    // XXX CSA uses more specific notion of equality than original
-    if (!hadFirst || prev !== v) {
+    if (!hadFirst || !eq(prev, v)) {
       hadFirst = true;
-      prev = v;
+      prev = cp(v);
       return true;
     }
     else {
