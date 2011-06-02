@@ -164,5 +164,5 @@ var make = function(canvas_id) {
         },
     };
 };
-    return { make: make };
+    return make;
 });

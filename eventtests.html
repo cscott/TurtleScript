@@ -9,24 +9,29 @@
 <div id="errors"></div>
 <div id="info"></div>
 <pre>
-<script type="text/javascript" src="./global.js"></script>
-<script type="text/javascript" src="./extensions.js"></script>
-<script type="text/javascript" src="./events.js"></script>
-<script type="text/javascript" src="./eventtests.js"></script>
-<script type="text/javascript">
+<script type="text/javascript" src="global.js"></script>
+<script type="text/javascript" src="global-es5.js"></script>
+<script type="text/javascript" src="extensions.js"></script>
 
-var flapjax = make_flapjax(window.setTimeout, window.clearTimeout);
+<script type="text/javascript" src="require.js"></script>
+<script type="text/javascript">
+define("timeouts", { setTimeout: window.setTimeout,
+                     clearTimeout: window.clearTimeout });
+</script>
+<script type="text/javascript">
+define('main', ['html-escape','eventtests'], function(html_escape,eventtests) {
+
 var errors = "", infos = "";
 function error(str) {
   console.log("ERROR", str);
-  document.write("ERROR: "+str+"\n");
+  //document.write("ERROR: "+str+"\n");
   errors += "<li>"+html_escape(str)+"</li>\n";
 }
 function info(str) {
-  document.write("INFO: "+str+"\n");
+  //document.write("INFO: "+str+"\n");
   infos += "<li>"+html_escape(str)+"</li>\n";
 }
-flapjax_tests(flapjax, info, error);
+eventtests(info, error);
 
 function fill(elem_id, h1, contents, no_escape) {
   if (!no_escape) contents = html_escape(contents);
@@ -36,12 +41,14 @@ function fill(elem_id, h1, contents, no_escape) {
 
 fill('status', errors ? 'Failed.' : 'Success!', '');
 // put infos and errors into appropriate elements
-if (infos && false) {
+if (infos) {
   fill('info', 'Informational messages', '<ul>'+infos+'</ul>', true);
 }
 if (errors) {
   fill('errors', 'Errors', '<ol>'+errors+'</ol>', true);
 }
+
+});
 </script>
 </pre>
 </body> </html>

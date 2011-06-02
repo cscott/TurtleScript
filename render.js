@@ -3,8 +3,8 @@
 // Written in Simplified JavaScript, but uses jQuery methods.
 // C. Scott Ananian
 // 2010-07-08
-
-var make_render = function($, html_escape) {
+define(["str-escape","html-escape"], function make_render(str_escape, html_escape) {
+    // grabs $ from global context, sigh
     var render, render_stmt, render_stmts;
     var indentation, prec_stack = [ 0 ];
 
@@ -44,15 +44,6 @@ var make_render = function($, html_escape) {
 
     var semi = function () {
         return $("<span class='semi'>;</span>");
-    };
-
-    var str_escape = function(s) {
-        if (s.toSource) {
-            // abuse toSource() to properly quote a string value.
-            return s.toSource().slice(12,-2);
-        }
-        // FIXME value isn't escaped on chrome/webkit
-        return '"' + s.toString() + '"';
     };
 
     var dispatch = {};
@@ -362,4 +353,4 @@ var make_render = function($, html_escape) {
         prec_stack = [ 0 ];
         return render_stmts(parse_tree);
     };
-};
+});

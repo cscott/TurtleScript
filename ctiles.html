@@ -4,178 +4,20 @@
 <body>
 <h1>JavaScript Tile Demo</h1>
 <!-- now include all our javascript -->
-<script src="./global.js"></script>
-<script src="./extensions.js"></script>
-<script src="./tokenize.js"></script>
-<script src="./parse.js"></script>
-<script src="./ccanvas.js"></script>
-<script src="./crender.js"></script>
-<script src="./bytecode_table.js"></script>
-<script src="./bcompile.js"></script>
-<script src="./binterp.js"></script>
-<script src="./tests.js"></script>
-<script src="./events.js"></script>
+<script type="text/javascript" src="./global.js"></script>
+<script type="text/javascript" src="./global-es5.js"></script>
+<script type="text/javascript" src="./extensions.js"></script>
+<script type="text/javascript" data-main="ctiles.js"
+        src="require.js"></script>
+<script type="text/javascript">
+define("timeouts", { setTimeout: window.setTimeout,
+                     clearTimeout: window.clearTimeout });
+</script>
 <!-- ok, some selectors for various demos -->
 <p>Click on a link to display the source code for that function:</p>
 <p id="demos"></p>
 <!-- output from any broken javascript will show up here -->
 <pre id="output"><script>
-// set up some global context
-Object.prototype.error = function (message, t) {
-    t = t || this;
-    t.name = "SyntaxError";
-    t.message = message;
-    console.log(t);
-    throw t;
-};
-
-// set up the canvas styles
-function make_styles(canvas) {
-var styles = {
-   textHeight: 20,
-   tilePadding: { left: 4, top: 1, right: 3, bottom: 5},
-   textColor: canvas.makeColor(0, 0, 0),
-   nameColor: canvas.makeColor(160, 82, 45), // variable names
-   commentColor: canvas.makeColor(178, 34, 34), // comments
-   keywordColor: canvas.makeColor(160, 32, 240),// keywords
-   constColor: canvas.makeColor(0, 139, 139), // constants,this,arguments
-   slotColor: canvas.makeColor(0, 0, 255), // slots in objects
-   literalColor: canvas.makeColor(139, 34, 82), // string literals
-   semiColor: canvas.makeColor(0, 0, 0, 76),// semicolon
-   tileColor: canvas.makeColor(253, 250, 235),
-   tileOutlineColor: canvas.makeColor(255, 204, 106, 125),
-   yadaColor: canvas.makeColor(249, 250, 215, 0), // background of ... expr
-   stmtColor: canvas.makeColor(253, 250, 215),
-   tileCornerRadius: 4,
-   puzzleIndent: 5,
-   puzzleRadius: 5,
-   expHalfHeight: 12,
-   expWidth: 6,
-   expUnderHeight: 5,
-   expUnderWidth: 5, /* underline when it's running along the sides */
-   blockIndent: 26,
-   objIndent: 12, /* indent for the slot names in an object initializer */
-   blockBottomPadding: 8, /* below last tile in a block */
-   functionIndent: 5, /* thin line on left side of function */
-   functionNameSpace: 3, /* space to leave for a missing function name */
-   listEndPadding: 0, /* empty space on right side of lists */
-   commaBreakWidth: 600, /* line wrapping HACK */
-};
-if (0) {
-  // for debugging, make spacing larger and background transparent
-  styles = {
-    __proto__: styles,
-    tileColor: canvas.makeColor(253, 250, 235, 10),
-    tileOutlineColor: canvas.makeColor(255, 204, 106, 205),
-    expUnderHeight: 8,
-    expUnderWidth: 8, /* underline when it's running along the sides */
-    functionIndent: 8, /* thin line on left side of function */
-    functionNameSpace: 8,
-  };
-}
-return styles;
-};
-
-var demos=[];
-function add_demo(title, source) {
-  demos.push({title:title, source: source});
-}
-
-// a collection of various bits of code used for testing different widgets
-var tests = make_tests(tokenize, make_parse, make_crender,
-                       make_bytecode_table, make_bcompile,
-                       make_binterp, make_binterp().library_init,
-                       make_flapjax);
-add_demo('Hello, world', 'console.log("Hello, world!");');
-add_demo('JS tokenizer', tests[0].replace(/module/, 'tokenize'));
-add_demo('JS parser', tests[1].replace(/module/, 'make_parse'));
-add_demo('Tile renderer', tests[2].replace(/module/, 'make_crender'));
-add_demo('Bytecode table', tests[3].replace(/module/, 'make_bytecode_table'));
-add_demo('Bytecode compiler', tests[4].replace(/module/, 'make_bcompile'));
-add_demo('Bytecode interpreter', tests[5].replace(/module/, 'make_binterp'));
-add_demo('Standard library', tests[6].replace(/module/, 'stdlib'));
-add_demo('Event library', tests[7].replace(/module/, 'make_flapjax'));
-add_demo('Test suite', tests[8].replace(/module/, 'make_tests'));
-
-var isource = "";
-isource = tests[tests.length-2];
-//isource='{console=2+3;return this;}';
-//isource='var a,b="test\\n",c,d,e;console=typeof !3;while(!2&&3||4) {console=2*3/4;var z;break;} console=console; function foo (y) {return false;}';
-//isource = tests[0].replace(/module/,'make_tests');
-//isource = 'var a = 1 + 2;';
-//isource = "function foo() { while(true) { return 3; } };";
-//isource = "console = 1 + 2 + 3 + 4 + 5;";
-//isource += "console = !3 + !function(x) { return function(){}; };";
-//isource += "console = 3 - 4 + 5 - function(x) { return function(){}; };";
-//isource += "console = (3 + function (x) { return x; }) + function(){};";
-//isource += "console = function(x) { /*return x;*/ };";
-//isource += "console = !1 + 2 * 3;";
-//isource += "console = !function (x) { return x; } + function(){};";
-//isource = "while (function(x) { return x; }+(true)) { return false; }";
-//isource += "if (function(x) { return x; }+(true)) { return false; } else { return true; }";
-//isource += "var a = console.log(function() { },3);";
-//isource += "console(1, 2, 3+4);console(1,function(a,b){},3,function(c,d){});console[function(e,f){}]=1;";
-//isource = "function foo(a) { return a(a,function(){}); }; function bar(b){}";
-//isource = tests[0];
-//isource = tests[1];
-//isource = "console.a = console.b(2, function() { }, 3);";
-//isource += "console.log(1, console.log(2, function(){}), 3);";
-//isource += "console.log(1, console.log(2, function(){}), function(){});";
-//isource = "console = { foo: 'bar', bat: {}, console:console };";
-//add_demo('Extra demo', isource);
-
-var parse = make_parse(tokenize);
-var crender = make_crender();
-
-function update_from_source(canvas, styles, isource) {
-  // parse the example source
-  var top_level = "isFinite parseInt Boolean String Function Math "+
-                  "console arguments now";
-  var tree = parse(isource, top_level);
-
-  // make widgets from parse tree
-  var widget = crender(tree);
-
-  // lay them out on the canvas
-  widget.layout(canvas, styles, {margin: 0, lineHeight: 0});
-  // resize the canvas appropriately
-  // (chrome seems to have trouble w/ enormous canvases, so limit reasonably)
-  canvas.resize(Math.min(widget.bbox.width(), 8000)+10,
-                Math.min(widget.bbox.height(), 30000)+10);
-  // wrap in withContext to undo the effects of the 'translate'
-  canvas.withContext({}, function() {
-    // canvas coordinates are pixels, so a 1px line straddles two pixels.
-    // offset coordinates by 0.5,0.5 to get the 1px lines to be sharp
-    canvas.translate(4.5,4.5);
-    widget.draw();
-  });
-  // done!
-}
-
-var canvas;
-var styles;
-
-function emit_demo_links() {
-  var src = "";
-  demos.forEach(function(item, idx) {
-    if (idx !== 0) src += ' | ';
-    src += '<'+'a href="#" id="demo'+idx+'">'+item.title+'<'+'/a>';
-  });
-  document.getElementById('demos').innerHTML = src;
-  demos.forEach(function(item, idx) {
-    var elem = document.getElementById('demo'+idx);
-    elem.onclick = function() {
-       update_from_source(canvas, styles, item.source);
-    };
-  });
-}
-
-window.onload = function() {
-   canvas = make_canvas('canvas');
-   styles = make_styles(canvas);
-   emit_demo_links();
-   update_from_source(canvas, styles, demos[0].source);
-};
 </script></pre>
 <!-- and finally: the canvas! -->
 <canvas id="canvas" width="100" height="100"></canvas>

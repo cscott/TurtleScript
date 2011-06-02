@@ -3,7 +3,7 @@ define(["ccanvas", "events"], function(ccanvas, flapjax) {
 var USE_FRAME_TIMER = false;
 
 var initEventLoop = function(canvasId, drawFrame) {
-  var canvas = ccanvas.make(canvasId);
+  var canvas = ccanvas(canvasId);
   var canvasElem = document.getElementById(canvasId);
 
   // set up event loop

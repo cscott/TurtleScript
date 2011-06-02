@@ -5,8 +5,7 @@
 
 // C. Scott Ananian
 // 2011-05-10
-
-var make_bytecode_table = function() {
+define(function make_bytecode_table() {
 
     // Table of bytecodes
     var bytecodes_by_num = [];
@@ -131,6 +130,10 @@ var make_bytecode_table = function() {
 
     // OK, return an object wrapping all this stuff.
     return {
+	__module_name__: "bytecode-table",
+	__module_init__: make_bytecode_table,
+	__module_deps__: [],
+
         for_num: function(n) {
             return bytecodes_by_num[n];
         },
@@ -138,4 +141,4 @@ var make_bytecode_table = function() {
             return bytecodes_by_name[name];
         }
     };
-};
+});

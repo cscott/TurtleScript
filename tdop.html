@@ -64,19 +64,15 @@ to compile.</p>
   </TR>
 </TBODY></TABLE>
 
-<NOSCRIPT></NOSCRIPT>
-<SCRIPT src="./global.js"></SCRIPT>
-<SCRIPT src="./extensions.js"></SCRIPT>
-<SCRIPT src="./tokenize.js"></SCRIPT>
-<SCRIPT src="./parse.js"></SCRIPT>
-<SCRIPT src="./json2.js"></SCRIPT>
-<SCRIPT src="./jcompile.js"></SCRIPT>
-<SCRIPT src="./render.js"></SCRIPT>
-<SCRIPT src="./bytecode_table.js"></SCRIPT>
-<SCRIPT src="./bcompile.js"></SCRIPT>
-<SCRIPT src="./binterp.js"></SCRIPT>
-<SCRIPT src="./crender.js"></SCRIPT>
-<SCRIPT src="./tests.js"></SCRIPT>
+<script type="text/javascript" src="./global.js"></script>
+<script type="text/javascript" src="./global-es5.js"></script>
+<script type="text/javascript" src="./extensions.js"></script>
+<script type="text/javascript" data-main="tdop.js"
+        src="require.js"></script>
+<script type="text/javascript">
+define("timeouts", { setTimeout: window.setTimeout,
+                     clearTimeout: window.clearTimeout });
+</script>
 
 <pre id="errors"></pre>
 <pre id="isource"></pre>
@@ -90,182 +86,6 @@ to compile.</p>
 <div id="source"></div>
 
 <PRE id="output"><SCRIPT>
-/*jslint evil: true */
-
-/*members create, error, message, name, prototype, stringify, toSource,
-    toString, write
-*/
-
-/*global JSON, make_parse, parse, source, tree */
-
-// Transform a token object into an exception object and throw it.
-// (this conflicts with jQuery, so we're going to keep it out of global.js)
-Object.prototype.error = function (message, t) {
-    t = t || this;
-    t.name = "SyntaxError";
-    t.message = message;
-    throw t;
-};
-
-var CATCH_ERRORS = true;
-var SHOW_SOURCE = true;
-var PRINT_TREE = false;
-var PRINT_JCOMPILE = false;
-var PRINT_RAW_BYTECODE = false;
-var PRINT_ENCODED_BYTECODE = true;
-
-function fill(elem_id, h1, contents, no_escape) {
-  if (!no_escape) contents = html_escape(contents);
-  elem = document.getElementById(elem_id);
-  elem.innerHTML = "<h1>" + h1 + "</h1>\n" + contents;
-}
-
-function do_it() {
-    parse = make_parse(tokenize);
-
-// We are going to make the compiler/interpreter compile itself.
-    var self_test = function (source) {
-       var result;
-       var parse = make_parse(tokenize);
-       var bc_table = make_bytecode_table();
-       var bcompile = make_bcompile(bc_table);
-       source = source || '{ return 1+2; }';
-       //result = tokenize(source, '=<>!+-*&|/%^', '=<>&|');
-       var tree = parse(source, "isFinite parseInt Boolean String Function Math console arguments");
-       //result = tree;
-       var bc = bcompile(tree);
-       result = bc.decompile(0);
-       //result = bc.encode().join();
-       //console.log(result);
-       return result;
-    }
-
-    sources = make_tests(tokenize, make_parse, make_jcompile,
-                        make_render, make_crender,
-                        make_bytecode_table, make_bcompile, make_binterp,
-                        make_binterp().library_init,
-                        self_test);
-
-    // combine sources
-    isource = '{ return 2+3; }'; // input to interpreted version of compiler
-    //isource = 'var f = function() { };';
-    //isource = sources[7].replace(/module/, 'library_init');
-    source = sources[0].replace(/module/, "tokenize") + "\n" +
-             sources[1].replace(/module/, "make_parse") + "\n" +
-             //sources[4].replace(/module/, "make_crender") + "\n"+
-             sources[5].replace(/module/, "make_bytecode_table") + "\n" +
-             sources[6].replace(/module/, "make_bcompile") + "\n" +
-             sources[7].replace(/module/, "make_binterp") + "\n" +
-             sources[8].replace(/module/, "library_init") + "\n" +
-             sources[9].replace(/module/, "self_test") + "\n" +
-             "{ library_init(); return self_test(arguments[0]); }\n";
-
-    if (0) {
-    // HACK to run specific test cases
-    test_case = sources[30].replace(/module/, "self_test");
-    eval(test_case); // defines the 'self_test' method
-    source = sources[8].replace(/module/, "library_init") + "\n" +
-             test_case + "\n" +
-             "{ library_init(); return self_test(); }\n";
-    // END HACK
-    }
-
-    if (1) {
-       // for use comparing the output of the interpreter with the
-       // output of the javascript code run directly.
-       eresult = self_test(isource);
-       if (typeof(eresult) != "string") eresult = ""+JSON.stringify(eresult);
-       fill('expected-result', 'Expected result', eresult);
-    }
-
-    if (SHOW_SOURCE) {
-       sl = source.split(/\n/);
-       ci = 0;
-       o = "<pre>";
-       for (j=0; j < sl.length; j++) {
-          o += ci+": "+html_escape(sl[j])+"\n";
-          ci += sl[j].length + 1;
-       }
-       o += "</pre>";
-       fill('source', 'Interpreted source', o, 1/*no escape*/);
-   }
-
-   top_level_defs = "isFinite parseInt Boolean String Function Math now " +
-                     "make_tests console arguments document html_escape";
-    tree = parse(source, top_level_defs);
-    if (tree) {
-        /* Raw compiled tree */
-        if (PRINT_TREE) {
-           fill('parse-tree', 'Parse tree',
-            JSON.stringify(tree, ['key', 'name', 'message',
-            'value', 'arity', 'first', 'second', 'third', 'fourth'], 4));
-        }
-
-        /* Pretty-printed to eval'able javascript */
-        if (PRINT_JCOMPILE) {
-           jcompile = make_jcompile();
-           fill('jcompile', 'Recompiled to JavaScript', jcompile(tree));
-        }
-
-        /* Bytecode compiled (raw) */
-        bc_table = make_bytecode_table();
-        bcompile = make_bcompile(bc_table);
-        bc = bcompile(tree);
-        if (PRINT_RAW_BYTECODE) {
-            fill('raw-bytecode', 'Raw Bytecode File Contents',
-                 JSON.stringify(bc, ['functions', 'literals', 'id', 'nargs',
-                                     'bytecode', 'label'], 4));
-        }
-        if (PRINT_ENCODED_BYTECODE) {
-            var out_file = bc.encode();
-            fill('encoded-bytecode', 'Encoded Bytecode', out_file.length+" "+
-             JSON.stringify(out_file));
-        }
-
-        /* Pretty-printed bytecode */
-        b = "<p>Index: ";
-        for (i=0; i<bc.functions.length; i++) {
-          var f = bc.functions[i];
-          b+= "<a href='#bc-"+i+"'>";
-          b+= html_escape((f.name) ? f.name : ("<#"+i+">"));
-          b+= "</a> ";
-        }
-        b += "</p>";
-        for (i=0; i<bc.functions.length; i++) {
-          var f = bc.functions[i];
-          b += "<h2><a id='bc-"+i+"'>Function #"+f.id;
-          if (f.name) b += " "+html_escape(f.name);
-          b += "</a>";
-          b += " ("+f.nargs+" args; max stack depth="+f.max_stack+")</h2>\n";
-          b += "<pre>"+html_escape(bc.decompile(f.id))+"</pre>";
-        }
-        fill('bytecode', 'Compiled Bytecode', b, 1/*no escape*/);
-
-        /* Interpreter test! */
-        m = make_binterp(bc_table);
-        frame = m.make_top_level_frame.call(/*this: */{/*this*/} ,
-                                            /* args:*/ isource);
-        result = m.binterp(bc, 0, frame);
-        fill('isource', 'Input to interpreted compiler', isource);
-        if (typeof(result) != "string") result = ""+JSON.stringify(result);
-        fill('result', 'Result from interpreter', result);
-   }
-}
-
-if (!CATCH_ERRORS) {
-    do_it();
-} else {
-    try {
-        do_it();
-    } catch (e) {
-        fill('errors', 'Error!',
-             JSON.stringify(e, ['name', 'message', 'from', 'to',
-                                          'key', 'value', 'arity', 'first',
-                                          'second', 'third', 'fourth'], 4));
-    }
-}
-
-
 </SCRIPT>
 </PRE>
 

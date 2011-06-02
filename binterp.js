@@ -6,8 +6,7 @@
 
 // C. Scott Ananian
 // 2011-05-11
-
-var make_binterp = function(bytecode_table) {
+define(["bytecode-table", "html-escape"], function make_binterp(bytecode_table, html_escape) {
     var mkstate = function(parent, frame, module, func_id) {
         return {
             // Main interpreter state.
@@ -726,8 +725,12 @@ var make_binterp = function(bytecode_table) {
         return TOP.stack.pop();
     };
     return {
+        __module_name__: "binterp",
+        __module_init__: make_binterp,
+        __module_deps__: ["bytecode-table", "html-escape"],
+
         binterp: binterp,
         make_top_level_frame: make_top_level_frame,
         library_init: library_init
     };
-};
+});

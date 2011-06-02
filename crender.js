@@ -3,8 +3,7 @@
 // Written in Simplified JavaScript.
 // C. Scott Ananian
 // 2011-05-13
-
-var make_crender = function() {
+define(["str-escape"], function make_crender(str_escape) {
     // stub for i18n
     var _ = function(txt) { return txt; };
     // basic graphics datatypes
@@ -1520,46 +1519,6 @@ var make_crender = function() {
         };
     };
 
-    var str_escape = function(s) {
-        if (s.toSource) {
-            // abuse toSource() to properly quote a string value.
-            return s.toSource().slice(12,-2);
-        }
-        // Erg, use hand-coded version
-        var quotes = '"';
-        if (s.indexOf('"') !== -1 && s.indexOf("'") === -1) {
-            quotes = "'";
-        }
-
-        var table = {};
-        table["\n"] = "n";
-        table["\r"] = "r";
-        table["\f"] = "f";
-        table["\b"] = "b";
-        table["\t"] = "t";
-        table["\\"] = "\\";
-        table[quotes] = quotes;
-
-        var result = "", i=0;
-        while (i < s.length) {
-            var c = s.charAt(i);
-            if (table.hasOwnProperty(c)) {
-                result += "\\" + table[c];
-            } else if (c < ' ' || c > '~') {
-                // XXX allow some accented UTF-8 characters (printable ones)?
-                var cc = c.charCodeAt(0).toString(16);
-                while (cc.length < 4) {
-                    cc = "0" + cc;
-                }
-                result += "\\u" + cc;
-            } else {
-                result += c;
-            }
-            i += 1;
-        }
-        return quotes + result + quotes;
-    };
-
     var dispatch = {};
     dispatch.name = function() {
         var nw = Object.create(NameWidget);
@@ -1815,10 +1774,14 @@ var make_crender = function() {
         return bw;
     };
 
-    return function (parse_tree) {
+    var c = function (parse_tree) {
         // parse_tree should be an array of statements.
         indentation = 0;
         prec_stack = [ 0 ];
         return crender_stmts(parse_tree);
     };
-};
+    c.__module_name__ = "crender";
+    c.__module_init__ = make_crender;
+    c.__module_deps__ = ['str-escape'];
+    return c;
+});

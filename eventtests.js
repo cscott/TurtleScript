@@ -1,4 +1,5 @@
-function flapjax_tests(flapjax, info, error) {
+define(["events"], function(flapjax) {
+return function flapjax_tests(info, error) {
 
         var a = function (b, m) { (b? info : error)('tests: ' + m); };
 
@@ -1058,4 +1059,5 @@ function flapjax_tests(flapjax, info, error) {
                 (bBehavior? info : error)('====flapjax.behavior====');
 
         return true;
-}
+};
+});

@@ -5,8 +5,7 @@
 // Douglas Crockford
 // 2008-07-07
 // Modified by C. Scott Ananian
-
-var make_parse = function (tokenize) {
+define(["tokenize"], function make_parse(tokenize) {
     var DEBUG;
     var scope;
     var symbol_table = {};
@@ -561,7 +560,7 @@ var make_parse = function (tokenize) {
         return [ this ];
     });
 
-    return function parse (source, top_level, debug) {
+    var parse = function (source, top_level, debug) {
         DEBUG = debug;
         tokens = tokenize(source, '=<>!+-*&|/%^', '=<>&|');
         token_nr = 0;
@@ -580,4 +579,8 @@ var make_parse = function (tokenize) {
         scope.pop();
         return s;
     };
-};
+    parse.__module_name__ = "parse";
+    parse.__module_init__ = make_parse;
+    parse.__module_deps__ = ["tokenize"];
+    return parse;
+});

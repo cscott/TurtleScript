@@ -39,10 +39,3 @@ if (typeof Function.prototype.bind !== 'function') {
             };
     };
 }
-
-// Properly escape < > & for html
-// XXX this should be a property of String?
-function html_escape(s) {
-    var table = { "<":"&lt;", ">":"&gt;", "&":"&amp;" };
-    return s.replace(/[<>&]/g, function(ss) { return table[ss]; });
-}

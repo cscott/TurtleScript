@@ -27,8 +27,7 @@
 //
 // C. Scott Ananian
 // 2011-05-10
-
-var make_bcompile = function(bytecode_table) {
+define(["bytecode-table"], function make_bcompile(bytecode_table) {
     // helper function for debugging
     var assert = function(b, obj) {
         if (!b) {
@@ -678,7 +677,7 @@ var make_bcompile = function(bytecode_table) {
         return;
     };
 
-    return function bcompile (parse_tree) {
+    var bcompile = function (parse_tree) {
         var state = mkstate();
         state.current_func = state.new_function(0);
         state.bcompile_stmts(parse_tree);
@@ -687,4 +686,8 @@ var make_bcompile = function(bytecode_table) {
         }
         return state;
     };
-};
+    bcompile.__module_name__ = "bcompile";
+    bcompile.__module_init__ = make_bcompile;
+    bcompile.__module_deps__ = ["bytecode-table"];
+    return bcompile;
+});

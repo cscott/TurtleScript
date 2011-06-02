@@ -1,15 +1,31 @@
 // a collection of interesting test cases.
-
-var make_tests = function() {
-    var test=[], i=0;
+define(["str-escape",
+        // test are just imported to make test cases out of them
+        "tokenize", "parse", "jcompile", "crender", "bytecode-table",
+        "bcompile", "binterp", "events"],
+       function make_tests(str_escape,
+                           tokenize, parse, jcompile, crender, bytecode_table,
+                           bcompile, binterp, events) {
+    var deps = ["str-escape", "tokenize", "parse", "jcompile", "crender",
+                 "bytecode-table", "bcompile", "binterp", "events"];
+    var test=[], i=1/* skip str_escape */;
     // first tests are our own source code, from the arguments.
     while (i < arguments.length) {
-        test[i] = arguments[i];
+        test[i-1] = arguments[i];
+        test[i-1].__module_name__ = deps[i]; // hack
         i += 1;
     }
-    i -= 1;
+    i -= 2;
+    // standard library from binterp (should be split out into separate module)
+    binterp.library_init.__module_name__ = "stdlib"; // hack hack
+    test[i+=1] = binterp.library_init;
     // next test case is this function itself.
-    if (make_tests) { test[i+=1] = make_tests; }
+    if (make_tests) {
+        make_tests.__module_name__ = "tests";
+        make_tests.__module_deps__ = deps;
+        make_tests.__module_init__ = make_tests;
+        test[i+=1] = make_tests;
+    }
     // now some ad-hoc test cases.  Phrased as functions so they can be
     // syntax-checked, etc.
     test[i+=1] = function() {
@@ -291,13 +307,31 @@ var make_tests = function() {
     };
     */
 
-    var test_source = [], j=0;
+    var test_source = [], j=0, test_map = {};
     while (j <= i) {
-        test_source[j] = "var module = ";
-        test_source[j] += test[j].toSource ?
-            test[j].toSource() : test[j].toString();
-        test_source[j] += ";";
+        test_source[j] = "define(";
+        if (test[j].__module_name__) {
+            test_source[j] += str_escape(test[j].__module_name__)+",";
+        }
+        var d = test[j].__module_deps__ || [];
+        test_source[j] += "["+d.map(str_escape).join(",") + "],";
+        var f = test[j].__module_init__ ? test[j].__module_init__ : test[j];
+        if (!test[j].__module_name__) {
+            test_source[j] += "function() { return ";
+        }
+        test_source[j] += f.toSource ? f.toSource() : f.toString();
+        if (!test[j].__module_name__) {
+            test_source[j] += "; }";
+        }
+        test_source[j] += ");";
+        if (test[j].__module_name__) {
+            test_map[test[j].__module_name__] = test_source[j];
+        }
         j+=1;
     }
+    // add an accessor method to the test_source array
+    test_source.lookup = function(name) {
+        return test_map[name];
+    };
     return test_source;
-};
+});

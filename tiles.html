@@ -11,59 +11,14 @@
 
 <!-- my stuff -->
 <link href="stylesheet.css" rel="stylesheet" type="text/css" />
-<script src="./global.js" type="text/javascript"></script>
-<script src="./extensions.js" type="text/javascript"></script>
-<script src="./tokenize.js" type="text/javascript"></script>
-<script src="./parse.js" type="text/javascript"></script>
-<script src="./jcompile.js" type="text/javascript"></script>
-<script src="./render.js" type="text/javascript"></script>
-<script src="./tests.js" type="text/javascript"></script>
+<script type="text/javascript" src="./global.js"></script>
+<script type="text/javascript" src="./global-es5.js"></script>
+<script type="text/javascript" src="./extensions.js"></script>
+<script type="text/javascript" data-main="tiles.js"
+        src="require.js"></script>
 <script type="text/javascript">
-$(function() {
-  // generate some stuff on the canvas
-  var parse = make_parse(tokenize);
-  var jcompile = make_jcompile();
-  var source = make_tests(make_parse, make_jcompile, make_render)[0];
-  //$("#debug").append(html_escape(source)+"\n");
-  var tree = parse(source);
-  //$("#debug").append(html_escape(jcompile(tree)));
-  var render = make_render($, html_escape);
-  var elem = render(tree);
-  //$("#debug").append(html_escape(elem.toSource()));
-  $("#test").append(render(tree));
-
-  // this next statement is slooooow...
-  $(".ts ul").sortable({
-    placeholder: 'placeholder active',
-    forcePlaceholderSize: true, // use dynamic size of draggable if height=0
-    revert: 100,//ms: fast revert
-    tolerance: 'pointer',
-    distance: 0,
-    cancel: '.placeholder',
-    //items: '> *:not(.fixed)',
-    cursor: 'default',
-    //cursorAt: { bottom: 0, right: 0 }, // iphone only?
-  });
-/*
-  var interconnect = [
-    // statements can be dropped on other statement lists
-    ".ts .block > ul",
-    // expressions can be dropped on other expressions
-    ".ts ul.expr",
-    // variables in var/argument lists can be dropped on each other
-    ".ts ul.arguments, .ts ul.variables",
-  ];
-  var i=0;
-  while (i < interconnect.length) {
-    $(interconnect[i]).sortable( "option", "connectWith", interconnect[i] );
-    i += 1;
-  }
-
-  $(".ts > div.function").draggable();
-  $(".ts, .ts ul, .ts li, .ts span, .ts *").disableSelection().
-    css("WebkitUserSelect", "none");
-*/
-});
+define("timeouts", { setTimeout: window.setTimeout,
+                     clearTimeout: window.clearTimeout });
 </script>
 <style type="text/css">
 #canvas {
@@ -145,5 +100,5 @@ hr { clear: both; }
 
 <hr>
 <address></address>
-<!-- hhmts start -->Last modified: Thu May 19 18:57:45 EDT 2011 <!-- hhmts end -->
+<!-- hhmts start -->Last modified: Thu Jun  2 03:01:52 EDT 2011 <!-- hhmts end -->
 </body> </html>

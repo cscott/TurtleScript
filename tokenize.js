@@ -20,8 +20,7 @@
 //      '<>+-&', '=>&:'
 // will match any of these:
 //      <=  >>  >>>  <>  >=  +: -: &: &&: &&
-
-var tokenize = function (_this_, prefix, suffix, DEBUG) {
+define(function make_tokenize() { function tokenize (_this_, prefix, suffix, DEBUG) {
     var c;                      // The current character.
     var from;                   // The index of the start of the token.
     var i = 0;                  // The index of the current character.
@@ -274,3 +273,7 @@ var tokenize = function (_this_, prefix, suffix, DEBUG) {
     }
     return result;
 };
+tokenize.__module_name__ = "tokenize";
+tokenize.__module_init__ = make_tokenize;
+return tokenize;
+});

@@ -8,8 +8,7 @@
 //
 // C. Scott Ananian
 // 2010-07-02ish
-
-var make_jcompile = function() {
+define(["str-escape"], function make_jcompile(str_escape) {
     var jcompile, jcompile_stmt, jcompile_stmts;
     var indentation, prec_stack = [ 0 ];
 
@@ -55,15 +54,6 @@ var make_jcompile = function() {
             if (prev_prec > prec) { result = "(" + result + ")"; }
             return result;
         };
-    };
-
-    var str_escape = function(s) {
-        if (s.toSource) {
-            // abuse toSource() to properly quote a string value.
-            return s.toSource().slice(12,-2);
-        }
-        // FIXME value isn't escaped on chrome/webkit
-        return '"' + s.toString() + '"';
     };
 
     var dispatch = {};
@@ -254,10 +244,14 @@ var make_jcompile = function() {
         return gather(tree_list, nl(), jcompile_stmt);
     };
 
-    return function (parse_tree) {
+    var j = function (parse_tree) {
         // parse_tree should be an array of statements.
         indentation = 0;
         prec_stack = [ 0 ];
         return jcompile_stmts(parse_tree);
     };
-};
+    j.__module_name__ = "jcompile";
+    j.__module_init__ = make_jcompile;
+    j.__module_deps__ = ['str-escape'];
+    return j;
+});
