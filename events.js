@@ -719,8 +719,8 @@ var filterRepeatsE = function(sourceE,optStart) {
 //credit Pete Hopkins
 var calmStaticE = function (triggerE, time) {
   var out = internalE();
-  createNode(
-    [triggerE],
+  return createNode(
+    [triggerE, out],
     function() {
       var towards = null;
       var lastVal, sawMoreRecent;
@@ -730,19 +730,21 @@ var calmStaticE = function (triggerE, time) {
           lastVal = null; // free memory
           towards = setTimeout( function () {
               towards = null;
-              if (sawMoreRecent) { doit(lastVal); }
+              if (sawMoreRecent) {
+                  sendEvent(out, lastVal);
+              }
           }, time );
-          sendEvent(out, p);
+          // propagate directly.
+          return p;
         } else {
           // hmm, don't propagate this yet, but maybe do it later.
           sawMoreRecent = true;
           lastVal = p;
+          return doNotPropagate;
         }
-        return doNotPropagate;
       };
       return doit;
     }());
-  return out;
 };
 
 //calmE: Event a * [Behavior] Number -> Event a
