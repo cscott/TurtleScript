@@ -1,17 +1,15 @@
 // Rectangle, Polygon, other shapes
-define(["./Shape", "./Point"], function(Shape, Point) {
-    var Shapes = {};
-
-    function Rectangle(origin, corner) {
-        this._origin = origin;
-        this._corner = corner;
-    }
-    Rectangle.fromExtent = function(origin, extent) {
-        return Rectangle.New(origin, origin.add(extent));
-    };
-    Rectangle.zero = Rectangle.New(Point.zero, Point.zero);
-    Rectangle.prototype = {
-        __proto__: Shape.prototype,
+define(["./constructor", "./Shape", "./Point"], function(constructor, Shape, Point) {
+    var Rectangle = {
+        __proto__: Shape,
+        __init__: function(origin, corner) {
+            Rectangle.__proto__.__init__.call(this);
+            this._origin = origin;
+            this._corner = corner;
+        },
+        fromExtent: function(origin, extent) {
+            return Rectangle.New(origin, origin.add(extent));
+        },
         origin: function() { return this._origin; },
         corner: function() { return this._corner; },
         extent: function() { return this._corner.sub(this._origin); },
@@ -106,26 +104,29 @@ define(["./Shape", "./Point"], function(Shape, Point) {
             return "Rectangle("+this.origin()+","+this.corner()+")";
         }
     };
+    Rectangle.New = constructor(Rectangle);
+    Rectangle.zero = Rectangle.New(Point.zero, Point.zero);
 
+    var Polygon = {
+        __proto__: Shape,
+        __init__: function() {
+            Polygon.__proto__.__init__.call(this);
+            this.vertices = [];
+            this.addAll(arguments);
+        },
+        newStar: function(numVertices, innerRadius, outerRadius) {
+            var star = Polygon.New();
+            var i = 0;
+            while (i < numVertices) {
+                star.add(Point.polar(outerRadius,
+                                     2 * Math.PI * i / numVertices));
+                star.add(Point.polar(innerRadius,
+                                     2 * Math.PI * (i + .5) / numVertices));
+                i += 1;
+            }
+            return star;
+        },
 
-    function Polygon() {
-        this.vertices = [];
-        this.addAll(arguments);
-    };
-    Polygon.newStar = function(numVertices, innerRadius, outerRadius) {
-        var star = Polygon.New();
-        var i = 0;
-        while (i < numVertices) {
-            star.add(Point.polar(outerRadius,
-                                 2 * Math.PI * i / numVertices));
-            star.add(Point.polar(innerRadius,
-                                 2 * Math.PI * (i + .5) / numVertices));
-            i += 1;
-        }
-        return star;
-    };
-    Polygon.prototype = {
-        __proto__: Shape.prototype,
         add: function(pt) { this.vertices.push(pt); return this; },
         addAll: function(ptList) {
             this.vertices.push.apply(this.vertices, ptList);
@@ -158,17 +159,19 @@ define(["./Shape", "./Point"], function(Shape, Point) {
             }).join(', ') + ")";
         }
     };
+    Polygon.New = constructor(Polygon);
 
-    Rectangle.prototype.asPolygon = function() {
+    Rectangle.asPolygon = function() {
         return Polygon.New(this.topLeft(), this.topRight(),
                            this.bottomRight(), this.bottomLeft());
     };
-    Rectangle.prototype.transformedBy = function(transform) {
+    Rectangle.transformedBy = function(transform) {
         return this.asPolygon().transformedBy(transform);
     };
 
-
-    Shapes.Rectangle = Rectangle;
-    Shapes.Polygon = Polygon;
-    return Shapes;
+    // Exports
+    return {
+        Rectangle: Rectangle,
+        Polygon: Polygon
+    };
 });

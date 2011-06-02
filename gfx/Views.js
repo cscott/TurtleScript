@@ -1,5 +1,5 @@
 // The basic View hierarchy
-define(['./Color', './Shape'], function(Color, Shape) {
+define(['./constructor', './Color', './Shape'], function(constructor, Color, Shape) {
 
     // ----------------------------------------------------------------
 
@@ -7,14 +7,15 @@ define(['./Color', './Shape'], function(Color, Shape) {
     // sibling views.  The group as a whole can provide content for an
     // arbitrary number of parent containers.
 
-    function CompositeView() {
-        this.length = 0; // an array-like object.
-        this.containers = []; // All Views for which I hold the contents
-    }
-    CompositeView.withContainer = function(aView) {
-        return CompositeView.New().addContainer(aView);
-    };
-    CompositeView.prototype = {
+    var CompositeView = {
+        length: 0, // an array-like object.
+        __init__: function() {
+            this.containers = []; // All Views for which I hold the contents
+        },
+        New: constructor(CompositeView),
+        withContainer: function(aView) {
+            return CompositeView.New().addContainer(aView);
+        },
         addContainer: function(aView) {
             this.containers.push(aView);
             return this;
@@ -53,13 +54,16 @@ define(['./Color', './Shape'], function(Color, Shape) {
     // A ComposableView can be combined with other views in a hierarchical
     // fashion.  (The structure is actually be a bipartite graph, somewhat
     // more general than a simple tree-like hierarchy.)
-    function ComposableView(contents) {
-        // CompositeView of which I am a member and for which I provide content
-        this._container = null;
-        // CompositeView of other views that provide my content
-        this._contents = (contents || CompositeView.New()).addContainer(this);
-    }
-    ComposableView.prototype = {
+    var ComposableView = {
+        New: constructor(ComposableView),
+        __init__: function(contents) {
+            // CompositeView of which I am a member and for which I
+            // provide content
+            this._container = null;
+            // CompositeView of other views that provide my content
+            this._contents =
+                (contents || CompositeView.New()).addContainer(this);
+        },
         contents: function() { return this._contents; },
         container: function() { return this._container; },
         setContainer: function(aView) {
@@ -78,14 +82,18 @@ define(['./Color', './Shape'], function(Color, Shape) {
         }
     };
 
-    function TransformView(contents, transform) {
-        ComposableView.call(this, contents); // invoke superclass constructor
-        this.transform = transform; // || IdentifyTransform XXXXXXXXX
-        this.inverse = transform.inverted();
-    };
-    TransformView.prototype = {
-        __proto__: ComposableView.prototype,
+    var TransformView = {
+        __proto__: ComposableView,
+        __init__: function(contents, transform) {
+            // invoke superclass constructor
+            TransformView.__proto__.__init__.call(this, contents);
+            this.transform = transform; // || IdentifyTransform XXXXXXXXX
+            this.inverse = transform.inverted();
+        },
+        New: constructor(TransformView),
+
         // XXX fill in transform methods once we define Transform module!
+
         toString: function() {
             return "TransformView("+
                 this.contents().toString()+","+
@@ -93,10 +101,10 @@ define(['./Color', './Shape'], function(Color, Shape) {
         }
     };
 
-    ComposableView.prototype.transformView = function() {
+    ComposableView.transformView = function() {
         return TransformView.New().addLast(this);
     };
-    CompositeView.prototype.transformView = function() {
+    CompositeView.transformView = function() {
         return TransformView.New(this);
     };
 
@@ -105,16 +113,20 @@ define(['./Color', './Shape'], function(Color, Shape) {
     // A View is an abstract ComposableView having a shape that can be
     // displayed and/or interacted with.  Concrete Subtypes must implement
     // pathOn() and bounds().
-    function View() {
-        ComposableView.call(this); // superclass constructor
+    var View = {
+        __proto__: ComposableView,
+        __init__: function() {
+            // superclass constructor
+            View.__proto__.__init__.call(this);
+        },
+        New: constructor(View),
+
         // use ugly colors so we can easily tell if someone forgets to set
-        // these properly!
-        this.fillColor = Color.magenta;
-        this.strokeColor = Color.green;
-        this.strokeWidth = 2;
-    }
-    View.prototype = {
-        __proto__: ComposableView.prototype,
+        // these properly in a subclass!
+        fillColor: Color.magenta,
+        strokeColor: Color.green,
+        strokeWidth: 2,
+
         pathOn: function(aCanvas) {
             Object.Throw("Subclass must implement pathOn!");
         },
@@ -129,19 +141,21 @@ define(['./Color', './Shape'], function(Color, Shape) {
     // ----------------------------------------------------------------
 
     // A ShapedView provides its displayable path via a Shape.
-    function ShapedView(shape) {
-        View.call(this); // superclass constructor
-        this.shape = shape;
-    }
-    ShapedView.prototype = {
-        __proto__: View.prototype,
+    var ShapedView = {
+        __proto__: View,
+        __init__: function(shape) {
+            // superclass constructor
+            ShapedView.__proto__.__init__.call(this);
+            this.shape = shape;
+        },
+        New: constructor(ShapedView),
 
         toString: function() {
             return "ShapedView("+this.shape.toString()+")";
         }
     };
 
-    Shape.prototype.shapedView = function() {
+    Shape.shapedView = function() {
         return ShapedView.New(this);
     };
 

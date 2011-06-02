@@ -1,16 +1,19 @@
 // Simple Color abstraction, based on Lessphic.
-define(function() {
-    function Color(r, g, b, a/*optional*/) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.a = (arguments.length<4) ? 1.0 : a;
-    }
-    Color.From8888 = function(r8, g8, b8, a8) {
-        if (arguments.length < 4) { a8 = 255; }
-        return Color.New(r8/255, g8/255, b8/255, a8/255);
-    };
-    Color.prototype = {
+define(['./constructor'], function(constructor) {
+    var Color = {
+	a: 1, /* default value (fully opaque) */
+	__init__: function(r, g, b, a/*optional*/) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+	    if (arguments.length >= 4 && a !== this.a) {
+		this.a = a;
+	    }
+	},
+	From8888: function(r8, g8, b8, a8) {
+            if (arguments.length < 4) { a8 = 255; }
+            return Color.New(r8/255, g8/255, b8/255, a8/255);
+	},
         mixedWith: function(color, ratio/*optional*/) {
             if (ratio===undefined) { ratio = 0.5; }
             var n = 1 - ratio;
@@ -38,6 +41,8 @@ define(function() {
         },
         toString: function() { return this.toCSS(); }
     };
+    Color.New = constructor(Color);
+
     Color.white = Color.New(1, 1, 1);
     Color.black = Color.New(0, 0, 0);
     Color.red   = Color.New(1, 0, 0);

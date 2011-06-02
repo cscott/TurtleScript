@@ -1,6 +1,8 @@
 define(function() {
-    function Shape() { }
-    Shape.prototype = {
+    var Shape = {
+        // no New method; this is an abstract class.
+        __init__: function() { /* nothing to do */ },
+
         pathOn: function(canvas) { /* empty shape */ },
         bounds: function() { Object.Throw("Empty Shape"); },
         // derived methods
