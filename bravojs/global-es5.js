@@ -313,6 +313,7 @@ if (!Object.seal) {
 }
 
 // ES5 15.2.3.9
+try {
 if (!Object.freeze) {
     Object.freeze = function (object) {
         return object;
@@ -329,6 +330,7 @@ if (!Object.freeze) {
         }
     };
 }
+} catch(e) { /* require('engine') often fails */ }
 
 // ES5 15.2.3.10
 if (!Object.preventExtensions) {

@@ -153,6 +153,13 @@ bravojs.dirname = function bravojs_dirname(path)
   return s;
 }
 
+/** Add a version query string (to bust caching?) only if url is not file
+ *  protocol. */
+bravojs.addQuery = function bravojs_addQuery(url) {
+  if (url.match(/^http/)) return url+"?1";
+  return url;
+};
+
 /** Turn a module identifier and module directory into a canonical
  *  module.id.
  */
@@ -303,7 +310,10 @@ bravojs.initializeModule = function bravojs_initializeModule(id)
   exports = bravojs.requireMemo[id] = {};
   module  = new bravojs.Module(id, dependencies);
 
-  moduleFactory(require, exports, module);
+  var retval = moduleFactory(require, exports, module);
+  if (retval) {
+    bravojs.requireMemo[id] = retval;
+  }
 }
 
 /** Search the module memo and return the correct module's exports, or throw.
@@ -375,7 +385,7 @@ bravojs.requireFactory = function bravojs_requireFactory(moduleDir, dependencies
     if (id === '')
       throw new Error("Cannot canonically name the resource bearing this main module");
 
-    return window.location.protocol + "/" + id + ".js";
+    return window.location.protocol + "//" + id + ".js";
   }
 
   newRequire.memoize = function require_memoize(id, dependencies, moduleFactory)
@@ -549,7 +559,7 @@ bravojs.Module.prototype.load = function bravojs_Module_load(moduleIdentifier, c
 
   var script = document.createElement('SCRIPT');
   script.setAttribute("type","text/javascript");
-  script.setAttribute("src", require.canonicalize(moduleIdentifier) + "?1");
+  script.setAttribute("src", bravojs.addQuery(require.canonicalize(moduleIdentifier)));
 
   if (document.addEventListener)	/* Non-IE; see bravojs_Module_declare */
   {
@@ -606,7 +616,7 @@ bravojs.es5_shim_then = function bravojs_es5_shim_then(callback)
     /* Load ES-5 shim into the environment before executing the main module */
     var script = document.createElement('SCRIPT');
     script.setAttribute("type","text/javascript");
-    script.setAttribute("src", bravojs.dirname(bravojs.url) + "/global-es5.js?1");
+    script.setAttribute("src", bravojs.addQuery(bravojs.dirname(bravojs.url) + "/global-es5.js"));
 
     if (document.addEventListener)
       script.onload = callback;

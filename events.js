@@ -29,7 +29,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-var make_flapjax = function(setTimeout, clearTimeout) {
+module.declare(['timeouts'], function(require, exports, module) {
+    var setTimeout = require('timeouts').setTimeout;
+    var clearTimeout = require('timeouts').clearTimeout;
 
     var slice = function(arr, start, stop) {
         return Array.prototype.slice.call(arr, start, stop);
@@ -1145,4 +1147,4 @@ var calmB = function (srcB,intervalB) {
             doNotPropagate: doNotPropagate
         }
     };
-};
+});

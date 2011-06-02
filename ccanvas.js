@@ -15,8 +15,11 @@
 
 // C. Scott Ananian, May 13 2011
 
-var make_canvas = function(canvas_id) {
-    var canvasElem_ = document.getElementById(canvas_id);
+module.declare(function(require, exports, module) {
+exports.make = function(canvas_id) {
+    var canvasElem_ = canvas_id ?
+        document.getElementById(canvas_id) :
+	document.createElement("canvas");
     var canvas_ = canvasElem_.getContext('2d');
     var width_ = canvasElem_.width;
     var height_ = canvasElem_.height;
@@ -161,3 +164,4 @@ var make_canvas = function(canvas_id) {
         },
     };
 };
+});
