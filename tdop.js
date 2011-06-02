@@ -1,4 +1,4 @@
-define(["html-escape", "json2", "parse", "bcompile", "binterp", "tests"], function(html_escape, JSON, parse, bcompile, binterp, tests) {
+define(["html-escape", "json2", "ts!parse", "ts!bcompile", "ts!binterp", "ts!tests"], function(html_escape, JSON, parse, bcompile, binterp, tests) {
 
 /*jslint evil: true */
 

@@ -1,4 +1,4 @@
-define(["parse", "ccanvas", "crender", "crender-styles", "tests"], function(parse, ccanvas, crender, crender_styles, tests) {
+define(["ts!parse", "ccanvas", "ts!crender", "ts!crender-styles", "ts!tests"], function(parse, ccanvas, crender, crender_styles, tests) {
 
 // set up some global context
 Object.prototype.error = function (message, t) {

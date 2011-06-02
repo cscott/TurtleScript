@@ -29,7 +29,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-define(["./timeouts"], function make_flapjax(timeouts) {
+define(["!timeouts"], function make_flapjax(timeouts) {
     var setTimeout = timeouts.setTimeout;
     var clearTimeout = timeouts.clearTimeout;
 

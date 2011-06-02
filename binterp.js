@@ -6,7 +6,7 @@
 
 // C. Scott Ananian
 // 2011-05-11
-define(["bytecode-table", "html-escape"], function make_binterp(bytecode_table, html_escape) {
+define(["bytecode-table", "!html-escape"], function make_binterp(bytecode_table, html_escape) {
     var mkstate = function(parent, frame, module, func_id) {
         return {
             // Main interpreter state.

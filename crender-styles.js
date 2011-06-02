@@ -29,7 +29,7 @@ var styles = {
    functionIndent: 5, /* thin line on left side of function */
    functionNameSpace: 3, /* space to leave for a missing function name */
    listEndPadding: 0, /* empty space on right side of lists */
-   commaBreakWidth: 600, /* line wrapping HACK */
+   commaBreakWidth: 600 /* line wrapping HACK */
 };
 if (0) {
   // for debugging, make spacing larger and background transparent
@@ -40,7 +40,7 @@ if (0) {
     expUnderHeight: 8,
     expUnderWidth: 8, /* underline when it's running along the sides */
     functionIndent: 8, /* thin line on left side of function */
-    functionNameSpace: 8,
+    functionNameSpace: 8
   };
 }
 return styles;

@@ -1,5 +1,5 @@
 // a collection of interesting test cases.
-define(["str-escape",
+define(["!str-escape",
         // test are just imported to make test cases out of them
         "tokenize", "parse", "jcompile", "crender", "bytecode-table",
         "bcompile", "binterp", "events"],

@@ -1,4 +1,4 @@
-define(["ccanvas", "events"], function(ccanvas, flapjax) {
+define(["ccanvas", "ts!events"], function(ccanvas, flapjax) {
 
 var USE_FRAME_TIMER = false;
 

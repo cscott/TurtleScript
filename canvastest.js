@@ -1,5 +1,4 @@
-define(["global.js","extensions.js","./browsercanvas"], function(_x, _y, browsercanvas) {
-
+define(["./browsercanvas","ts!gfx/gfx"], function(browsercanvas, gfx) {
 /*
 if (window.navigator.userAgent.indexOf('iPhone') != -1) {
   if (!window.navigator.standalone == true) {
