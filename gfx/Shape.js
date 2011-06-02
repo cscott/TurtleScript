@@ -7,7 +7,9 @@ define(function() {
         layoutWidth: function() { return this.width(); },
         layoutHeight: function() { return this.height(); },
         width: function() { return this.bounds().width(); },
-        height: function() { return this.bounds().height(); }
+        height: function() { return this.bounds().height(); },
+        // helpers
+        toString: function() { return "Shape"; }
     };
     return Shape;
 });
