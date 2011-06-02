@@ -221,6 +221,14 @@ define(["str-escape",
         return true;
     };
     test[i+=1] = function() {
+	// more array method tests
+	var s = "";
+        [1, 2, 3, 4].map(function(x) { return x*2; }).forEach(function(e, i){
+	    s += [i, e].join(',') + " ";
+	});
+	return s;
+    };
+    test[i+=1] = function() {
 	// test 'new' and 'instanceof'
         function Foo(arg) { this.foo = arg; }
         Foo.prototype = {};

@@ -83,7 +83,7 @@ function do_it() {
 
     if (0) {
     // HACK to run specific test cases
-    test_case = tests[30].replace(/^define\(/, "define('self_test',");
+    test_case = tests[28].replace(/^define\(/, "define('self_test',");
     source = fake_require +
 	    tests.lookup("stdlib")+"\n"+
 	    test_case + "\n"+

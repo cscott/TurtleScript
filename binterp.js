@@ -623,6 +623,34 @@ define(["bytecode-table", "html-escape"], function make_binterp(bytecode_table, 
             }
             return result;
         };
+	Array.prototype.forEach =  function(block, thisObject) {
+            var len = (1*this.length) || 0;
+            var i = 0;
+            while (i < len) {
+                if (this.hasOwnProperty(i)) {
+                    block.call(thisObject, this[i], i, this);
+		}
+		i += 1;
+            }
+	};
+        Array.prototype.map = function(fun /*, thisp*/) {
+            var len = (1*this.length) || 0;
+            /*
+            if (typeof fun != "function")
+                throw new TypeError();
+            */
+
+            var res = [], i = 0;
+            var thisp = arguments[1];
+            while (i < len) {
+                if (this.hasOwnProperty(i)) {
+                    res[i] = fun.call(thisp, this[i], i, this);
+                }
+                i += 1;
+            }
+            res.length = len;
+            return res;
+        };
         Array.prototype.join = function(sep) {
             var result = "", i = 0;
             sep = sep || ',';

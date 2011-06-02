@@ -35,14 +35,6 @@ define(["bytecode-table"], function make_bcompile(bytecode_table) {
             Object.error("Assertion failure", obj);
         }
     };
-    // helper function for lists
-    var foreach = function(lst, f) {
-        var i = 0;
-        while ( i < lst.length ) {
-            f(i, lst[i]);
-            i += 1;
-        }
-    };
 
     var dispatch = {};
     // compilation state
@@ -302,7 +294,7 @@ define(["bytecode-table"], function make_bcompile(bytecode_table) {
         var i=0;
         state.emit("new_array");
         // now initialize the array.
-        foreach(this.first, function(i, e) {
+        this.first.forEach(function(e, i) {
             state.emit("dup");
             state.bcompile_expr(e);
             state.emit("set_slot_direct", state.literal(i));
@@ -313,7 +305,7 @@ define(["bytecode-table"], function make_bcompile(bytecode_table) {
         var i=0;
         state.emit("new_object");
         // now initialize the object.
-        foreach(this.first, function(i, e) {
+        this.first.forEach(function(e, i) {
             state.emit("dup");
             // preserve function names
             if (e.arity === "function") {
@@ -494,7 +486,7 @@ define(["bytecode-table"], function make_bcompile(bytecode_table) {
         // first arg is 'this'
         state.bcompile_expr({ value: "this", arity: "this" });
         // arguments
-        foreach(this.second, function(i, e) {
+        this.second.forEach(function(e, i) {
             state.bcompile_expr(e);
         });
         state.emit("invoke", this.second.length);
@@ -536,7 +528,7 @@ define(["bytecode-table"], function make_bcompile(bytecode_table) {
         state.emit("get_slot_direct_check", state.literal(this.second.value));
         state.emit("swap");
         // now order is "<top> this function".  Push arguments.
-        foreach(this.third, function(i, e) {
+        this.third.forEach(function(e, i) {
             state.bcompile_expr(e);
         });
         // invoke!
@@ -552,7 +544,7 @@ define(["bytecode-table"], function make_bcompile(bytecode_table) {
         dispatch.statement[value] = f;
     };
     stmt("block", function(state) {
-        foreach(this.first, function(i, e) {
+        this.first.forEach(function(e, i) {
             state.bcompile_stmt(e);
         });
     });
@@ -655,7 +647,7 @@ define(["bytecode-table"], function make_bcompile(bytecode_table) {
         // context.
         state.emit("push_frame");
         state.emit("get_slot_direct", state.literal("arguments"));
-        foreach(this.first, function(i, e) {
+        this.first.forEach(function(e, i) {
             state.emit("dup");
             state.emit("get_slot_direct", state.literal(i));
             state.emit("push_frame");
