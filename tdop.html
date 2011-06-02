@@ -37,26 +37,23 @@ to compile.</p>
   </TR>
   <TR>
     <TD valign="top"><A href="./parse.js">parse.js</A></TD>
-    <TD>This file installs the <CODE>make_parse</CODE> function which produces
-      the parse function. The indirection was done so that we could conveniently
-      recover the source of the function.</TD>
+    <TD>This file installs the <CODE>parse</CODE> function.</TD>
   </TR>
   <TR>
     <TD valign="top"><A href="./bytecode_table.js">bytecode_table.js</A></TD>
-    <TD>This file installs the <CODE>make_bytecode_table</CODE> function which
+    <TD>This file installs the <CODE>bytecode_table</CODE> object which
       wraps the short list of bytecode instructions used by the compiler and
       interpreter.</TD>
   </TR>
   <TR>
     <TD valign="top"><A href="./bcompile.js">bcompile.js</A></TD>
-    <TD>This file installs the <CODE>make_bcompile</CODE> function
-      which produces the <code>bcompile</code> function.  This
+    <TD>This file installs the <code>bcompile</code> function.  This
       compiles a parse tree into a list of bytecode-compiled functions.</TD>
   </TR>
   <TR>
     <TD valign="top"><A href="./binterp.js">binterp.js</A></TD>
-    <TD>This file installs the <CODE>make_binterp</CODE> function
-      which produces the bytecode interpreter.  It piggybacks on the
+    <TD>This file installs the <CODE>binterp</CODE> object which
+      contains the bytecode interpreter.  It piggybacks on the
       meta-level's object system, but otherwise tries hard not to
       let meta-level definitions leak into the interpreted state.
       All primitive objects and library functions are reimplemented

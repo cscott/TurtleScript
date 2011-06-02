@@ -177,8 +177,8 @@ define(["bytecode-table", "html-escape"], function make_binterp(bytecode_table, 
                 // truncate the array.
                 var i = obj[SLOT_PREFIX+"length"];
                 while (i > nval) {
-                    // Object.delete defines in global.js; uses 'delete'
-                    Object['delete'](obj, SLOT_PREFIX+(i-1));
+                    // Object.Delete defined in global.js; uses 'delete'
+                    Object.Delete(obj, SLOT_PREFIX+(i-1));
                     i -= 1;
                 }
                 // fall through to set length
@@ -233,7 +233,7 @@ define(["bytecode-table", "html-escape"], function make_binterp(bytecode_table, 
         if (func === null || typeof(func) !== "object" ||
             func.type !== "function") {
             // XXX: throw wrapped TypeError
-            Object.throw("Not a function at "+this.stack.pc);
+            Object.Throw("Not a function at "+this.stack.pc);
         }
         // "native code"
         if (func.type === "function" && func.native_code) {
@@ -700,14 +700,14 @@ define(["bytecode-table", "html-escape"], function make_binterp(bytecode_table, 
             var o;
             if (typeof(v) !== 'object') { return false; }
             o = this.prototype;
-            if (typeof(o) !== 'object') { Object.throw('TypeError'); /*XXX*/ }
+            if (typeof(o) !== 'object') { Object.Throw('TypeError'); /*XXX*/ }
             while (true) {
                 v = v.__proto__;
                 if (v === null) { return false; }
                 if (o === v) { return true; }
             }
         };
-        Function.prototype['new'] = function() {
+        Function.prototype['New'] = function() {
             var object, result;
             if (typeof(this.prototype)==="object") {
                 object = Object.create(this.prototype);

@@ -99,11 +99,9 @@ function emit_demo_links() {
   });
 }
 
-window.onload = function() {
-   canvas = ccanvas('canvas');
-   styles = crender_styles(canvas);
-   emit_demo_links();
-   update_from_source(canvas, styles, demos[0].source);
-};
+canvas = ccanvas('canvas');
+styles = crender_styles(canvas);
+emit_demo_links();
+update_from_source(canvas, styles, demos[0].source);
 
 });

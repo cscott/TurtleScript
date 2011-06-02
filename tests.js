@@ -232,10 +232,10 @@ define(["str-escape",
 	// test 'new' and 'instanceof'
         function Foo(arg) { this.foo = arg; }
         Foo.prototype = {};
-        var f = Foo.new('foo');
+        var f = Foo.New('foo');
         function Bar(x, y) { this.bar = x+y; }
         Bar.prototype = f;
-        var b = Bar.new(3, 4);
+        var b = Bar.New(3, 4);
         var s = "Hey! "+b.foo+" "+b.bar;
         s += " "+Bar.hasInstance(b)+" "+Foo.hasInstance(b);
 	// hasInstance should still work on bound functions

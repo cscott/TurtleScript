@@ -33,7 +33,7 @@ Function.prototype.hasInstance = function(obj) {
 };
 
 // provide the delete operator without introducing new syntax
-Object['delete'] = function(o, f) {
+Object['Delete'] = function(o, f) {
     delete o[f];
 };
 
@@ -44,7 +44,7 @@ Object['Throw'] = function(obj) {
 
 // XXX: doesn't handle non-local control flow (ie, return from containing
 //      subroutine inside a bodyBlock)
-Object['try'] = function(_this_, bodyBlock, catchBlock, finallyBlock) {
+Object['Try'] = function(_this_, bodyBlock, catchBlock, finallyBlock) {
     try {
 	bodyBlock.call(_this_);
     } catch(e) {
