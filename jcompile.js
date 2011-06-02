@@ -58,7 +58,7 @@ define(["str-escape"], function make_jcompile(str_escape) {
 
     var dispatch = {};
     dispatch.name = function() {
-	return this.value+"/*"+this.scope.level+"*/";
+        return this.value+"/*"+this.scope.level+"*/";
     };
     dispatch.literal = function() {
         if (this.value === undefined) { return "undefined"; }
@@ -121,7 +121,7 @@ define(["str-escape"], function make_jcompile(str_escape) {
                 var result = jcompile(this.first)+' '+this.value+' ';
                 // handle left associativity
                 result += with_prec(is_right ? (prec-1) : (prec+1),
-				    jcompile)(this.second);
+                                    jcompile)(this.second);
                 return result;
             });
     };
@@ -151,7 +151,13 @@ define(["str-escape"], function make_jcompile(str_escape) {
             }));
     binary('(', 75, with_prec_paren(75, function() {
             // simple method invocation (doesn't set 'this')
-                return jcompile(this.first) + "(" +
+            var first = jcompile(this.first);
+            // catch weird case where standard javascript fails to parse an
+            // immediate application of a function expression.
+            if (this.first.arity==='function') {
+                first = "(" + first + ")";
+            }
+            return first + "(" +
                 gather(this.second, ", ", with_prec(0, jcompile)) + ")";
             }));
 
