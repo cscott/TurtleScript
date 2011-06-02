@@ -29,9 +29,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-module.declare(['timeouts'], function(require, exports, module) {
-    var setTimeout = require('timeouts').setTimeout;
-    var clearTimeout = require('timeouts').clearTimeout;
+define(["./timeouts"], function(timeouts) {
+    var setTimeout = timeouts.setTimeout;
+    var clearTimeout = timeouts.clearTimeout;
 
     var slice = function(arr, start, stop) {
         return Array.prototype.slice.call(arr, start, stop);

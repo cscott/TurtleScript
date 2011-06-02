@@ -1,11 +1,8 @@
-module.declare(['ccanvas', 'events'], function(require, exports, module) {
-
-var ccanvas = require('ccanvas');
-var flapjax = require('events');
+define(["ccanvas", "events"], function(ccanvas, flapjax) {
 
 var USE_FRAME_TIMER = false;
 
-exports.initEventLoop = function(canvasId, drawFrame) {
+var initEventLoop = function(canvasId, drawFrame) {
   var canvas = ccanvas.make(canvasId);
   var canvasElem = document.getElementById(canvasId);
 
@@ -117,4 +114,5 @@ exports.initEventLoop = function(canvasId, drawFrame) {
   drawFrame(canvas, touchB, tickB);
 };
 
+    return { initEventLoop: initEventLoop };
 });

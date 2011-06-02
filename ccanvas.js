@@ -15,8 +15,8 @@
 
 // C. Scott Ananian, May 13 2011
 
-module.declare(function(require, exports, module) {
-exports.make = function(canvas_id) {
+define(function() {
+var make = function(canvas_id) {
     var canvasElem_ = canvas_id ?
         document.getElementById(canvas_id) :
 	document.createElement("canvas");
@@ -164,4 +164,5 @@ exports.make = function(canvas_id) {
         },
     };
 };
+    return { make: make };
 });
