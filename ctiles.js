@@ -82,7 +82,6 @@ function update_from_source(canvas, styles, isource) {
 }
 
 var canvas;
-var styles;
 
 function emit_demo_links() {
   var src = "";
@@ -94,14 +93,13 @@ function emit_demo_links() {
   demos.forEach(function(item, idx) {
     var elem = document.getElementById('demo'+idx);
     elem.onclick = function() {
-       update_from_source(canvas, styles, item.source);
+       update_from_source(canvas, crender_styles, item.source);
     };
   });
 }
 
 canvas = ccanvas('canvas');
-styles = crender_styles(canvas);
 emit_demo_links();
-update_from_source(canvas, styles, demos[0].source);
+update_from_source(canvas, crender_styles, demos[0].source);
 
 });

@@ -3,30 +3,11 @@
 // Written in Simplified JavaScript.
 // C. Scott Ananian
 // 2011-05-13
-define(["str-escape"], function make_crender(str_escape) {
+define(["str-escape", "gfx/Point", "gfx/Color"], function make_crender(str_escape, Point, Color) {
     // stub for i18n
     var _ = function(txt) { return txt; };
     // basic graphics datatypes
-    var Point = {
-        create: function(x, y) {
-            if (typeof(x)==="object") { y=x.y; x=x.x; }
-            var p = Object.create(Point);
-            p.x = x;
-            p.y = y;
-            return p;
-        },
-        add: function(x, y) {
-            if (typeof(x)==="object") { y=x.y; x=x.x; }
-            return this.create((this.x||0) + (x||0), (this.y||0) + (y||0));
-        },
-        negate: function() {
-            return this.create(-(this.x||0), -(this.y||0));
-        },
-        toString: function() {
-            return "("+this.x+","+this.y+")";
-        }
-    };
-    var pt = function(x, y) { return Point.create(x, y); };
+    var pt = function(x, y) { return Point.New(x, y); };
 
     // Bounding boxes are slightly fancy multiline rectangles.
     // They contain a starting indent and a trailing widow, like so:
@@ -323,7 +304,7 @@ define(["str-escape"], function make_crender(str_escape) {
         },
         // bounding box debugging
         debugBBox: context_saved(function(bbox) {
-            this.canvas.setStroke(this.canvas.makeColor(255,0,0));
+            this.canvas.setStroke(Color.red);
             (bbox || this.bbox).drawPath(this.canvas);
             this.canvas.stroke();
         })

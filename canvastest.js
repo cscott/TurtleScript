@@ -27,17 +27,17 @@ var drawFrame = function(canvas, touchB, tickB) {
   // work around iOS bug which clips text unless something *else*
   // ensures that the invalidation rectangle is big enough.
   var m = canvas.measureText(str);
-  canvas.setFill(canvas.makeColor(255,255,255));
+  canvas.setFill(gfx.Color.white);
   canvas.beginPath();
   canvas.rect(0.5, 0.5, 0.5+m.width, 0.5+m.height);
   canvas.fill();
 
-  canvas.setFill(canvas.makeColor(0,0,0));
+  canvas.setFill(gfx.Color.black);
   canvas.drawText(str, 0.5, 0.5+2*m.height);
   canvas.drawText("Touches: "+lastTouches.length, 0.5, 0.5+3*m.height);
 
   var amt = (tickB.valueNow() % sz.width) / sz.width; // 0-1
-  canvas.setFill(canvas.makeColor(Math.floor(amt*255),0,0));
+  canvas.setFill(gfx.Color.New(amt,0,0,0.8));
   canvas.beginPath();
   canvas.rect(amt*sz.width, 0, 10, 50);
   canvas.fill();
@@ -48,9 +48,7 @@ var drawFrame = function(canvas, touchB, tickB) {
   var i = 0;
   while (i < lastTouches.length) {
     /*
-    canvas.setFill(canvas.makeColor(Math.floor(amt*255),
-                                    Math.floor(lastTouches[i].force*255),
-                                    0));
+    canvas.setFill(gfx.Color(amt, lastTouches[i].force, 0));
     */
     canvas.rect(lastTouches[i].clientX-size,
                 lastTouches[i].clientY-size,

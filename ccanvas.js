@@ -122,17 +122,11 @@ var make = function(canvas_id) {
         fill: function() {
             canvas_.fill();
         },
-        makeColor: function(r, g, b, a/*optional*/) {
-            if (typeof(a) !== "number") a=255;/*opaque by default*/
-            return { r: r, g: g, b: b, a: a,
-                     style: "rgba("+r+","+g+","+b+","+(a/255)+")",
-                   };
-        },
         setStroke: function(color) {
-            canvas_.strokeStyle = color.style;
+            canvas_.strokeStyle = color.toCSS();
         },
         setFill: function(color) {
-            canvas_.fillStyle = color.style;
+            canvas_.fillStyle = color.toCSS();
         },
         setFontHeight: function(height) {
             // height should be in current drawing units

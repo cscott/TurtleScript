@@ -6,6 +6,10 @@ define(function() {
         this.b = b;
         this.a = (arguments.length<4) ? 1.0 : a;
     }
+    Color.From8888 = function(r8, g8, b8, a8) {
+        if (arguments.length < 4) { a8 = 255; }
+        return Color.New(r8/255, g8/255, b8/255, a8/255);
+    };
     Color.prototype = {
         mixedWith: function(color, ratio/*optional*/) {
             if (ratio===undefined) { ratio = 0.5; }
