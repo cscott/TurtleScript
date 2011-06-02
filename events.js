@@ -184,7 +184,7 @@ var EventStream = function (nodes,updater) {
 
   nodes.forEach(function(n) {
         n.attachListener(this);
-  }.bind(this));
+  }, this);
 
   lastRank += 1;
   this.rank = lastRank;

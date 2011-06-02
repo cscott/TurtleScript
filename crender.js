@@ -339,7 +339,7 @@ define(["str-escape", "gfx/Point", "gfx/Color"], function make_crender(str_escap
             c.layout(this.canvas, this.styles, child_properties);
 
             r = r.chainHoriz(c.bbox);
-        }.bind(this));
+        }, this);
         return r;
     };
 
@@ -363,7 +363,7 @@ define(["str-escape", "gfx/Point", "gfx/Color"], function make_crender(str_escap
                         Math.min(r.top(), bb.top())),
                      pt(Math.max(bb.right(), r.right()),
                         Math.max(bb.bottom(), r.bottom())));
-        }.bind(this));
+        }, this);
         return r;
     };
 
@@ -534,7 +534,7 @@ define(["str-escape", "gfx/Point", "gfx/Color"], function make_crender(str_escap
                 // reset line height once we wrap
                 lineHeight -= bbox.widow().y;
             }
-        }.bind(this));
+        }, this);
         // misc. prettiness: don't underline if there's only one item
         // in the list
         if (this.items.length <= 1 && !this.underlineShortLists) {
@@ -608,7 +608,7 @@ define(["str-escape", "gfx/Point", "gfx/Color"], function make_crender(str_escap
                 this.canvas.lineTo(bb.bl());
                 this.canvas.lineTo(bb.widow().x, bb.bottom());
             }
-        }.bind(this));
+        }, this);
         // now draw around my bounding box.
         this.canvas.lineTo(this.bbox.widow().x, this.bbox.bottom());
         this.canvas.lineTo(this.bbox.bl());
@@ -628,7 +628,7 @@ define(["str-escape", "gfx/Point", "gfx/Color"], function make_crender(str_escap
                     item.widget.draw();
                 });
             }
-        }.bind(this));
+        }, this);
     });
 
     // lists (of exprs/names).
@@ -667,7 +667,7 @@ define(["str-escape", "gfx/Point", "gfx/Color"], function make_crender(str_escap
                 result.push( commaNL );
             }
             result.push( { widget:child, isName: this.isName || false } );
-        }.bind(this));
+        }, this);
         return result;
     };
 
@@ -687,7 +687,7 @@ define(["str-escape", "gfx/Point", "gfx/Color"], function make_crender(str_escap
                 this.drawPaddedText(this.label, pos.add(offset,0),
                                     this.styles.semiColor);
             }
-        }.bind(this));
+        }, this);
     });
 
     // make a prefix operator widget
@@ -714,7 +714,7 @@ define(["str-escape", "gfx/Point", "gfx/Color"], function make_crender(str_escap
                 this.drawPaddedText(txt,
                                     this.itemPos[index].add(offset, 0));
             }
-        }.bind(this));
+        }, this);
     });
 
     // Infix operator (from prefix widget)
@@ -833,7 +833,7 @@ define(["str-escape", "gfx/Point", "gfx/Color"], function make_crender(str_escap
             } else {
                 r.push(lastComma);
             }
-        }.bind(this));
+        }, this);
         r.push(addBBox({ isSymbol: true, operator: '}' }, properties));
         // break after each comma?
         if (this.length > 0) { // XXX USE BETTER MULTILINE CRITERION
@@ -1082,9 +1082,9 @@ define(["str-escape", "gfx/Point", "gfx/Color"], function make_crender(str_escap
         var drawChild = context_saved(function(c, idx) {
             this.canvas.translate(this.childOrigin[idx]);
             c.draw();
-        }).bind(this);
+        });
 
-        children.forEach(drawChild);
+        children.forEach(drawChild, this);
     });
 
     // function expression, contains a name list and a block
