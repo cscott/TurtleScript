@@ -91,9 +91,14 @@ define(function make_tokenize() { function tokenize (_this_, prefix, suffix, DEB
 // number.
 
 // A number cannot start with a decimal point. It must start with a digit,
-// possibly '0'.
+// possibly '0'. (CSA hack: allow numbers to start with a decimal point)
 
-        } else if (c >= '0' && c <= '9') {
+        } else if (c >= '0' && c <= '9' ||
+		   (c === '.' &&
+		    _this_.charAt(i+1) >= '0' && _this_.charAt(i+1) <= '9')) {
+	    if (c === '.') {
+		str = '';
+	    } else {
             str = c;
             i += 1;
 
@@ -107,6 +112,7 @@ define(function make_tokenize() { function tokenize (_this_, prefix, suffix, DEB
                 i += 1;
                 str += c;
             }
+	    }
 
 // Look for a decimal fraction part.
 
