@@ -3,7 +3,7 @@
 // Written in Simplified JavaScript, but uses jQuery methods.
 // C. Scott Ananian
 // 2010-07-08
-define(["str-escape","html-escape"], function make_render(str_escape, html_escape) {
+define(["str-escape","!html-escape"], function make_render(str_escape, html_escape) {
     // grabs $ from global context, sigh
     var render, render_stmt, render_stmts;
     var indentation, prec_stack = [ 0 ];

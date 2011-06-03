@@ -1,4 +1,4 @@
-define(["parse", "jcompile", "render", "tests", "html-escape"], function(parse, jcompile, render, tests, html_escape) {
+define(["parse", "jcompile", "render", "tests", "!html-escape"], function(parse, jcompile, render, tests, html_escape) {
 
 // set up some global context
 Object.prototype.error = function (message, t) {
