@@ -71,8 +71,8 @@ var make_render = function(html_escape) {
             var prev_prec = prec_stack[prec_stack.length - 1];
             var result = with_prec(prec, f).apply(obj || this, arguments);
             if (prev_prec > prec) {
-		result = span("expr paren", "(" + result + ")");
-	    }
+                result = span("expr paren", "(" + result + ")");
+            }
             return result;
         };
     };
@@ -86,17 +86,17 @@ var make_render = function(html_escape) {
         return '"' + s.toString() + '"';
     };
     var div = function(classes, text) {
-	if (!classes) return "<div>"+text+"</div>";
-	return "<div class='"+classes+"'>" + text + "</div>";
+        if (!classes) return "<div>"+text+"</div>";
+        return "<div class='"+classes+"'>" + text + "</div>";
     };
     var span = function(classes, text) {
-	if (!classes) return "<span>"+text+"</span>";
-	return "<span class='"+classes+"'>" + text + "</span>";
+        if (!classes) return "<span>"+text+"</span>";
+        return "<span class='"+classes+"'>" + text + "</span>";
     };
     var spanned = function(classes, f) {
-	return function() {
-	    return span(classes, f.apply(this, arguments));
-	};
+        return function() {
+            return span(classes, f.apply(this, arguments));
+        };
     };
 
     var dispatch = {};
@@ -109,7 +109,7 @@ var make_render = function(html_escape) {
         }
         if (typeof(this.value)==='string') { return html_escape(str_escape(this.value)); }
         return this.value.toString();
-	});
+        });
 
     // UNARY ASTs
     dispatch.unary = function() {
@@ -124,43 +124,43 @@ var make_render = function(html_escape) {
     unary('!', 70);
     unary('-', 70);
     unary('typeof', 70, with_prec_paren(70, function() {
-		// XXX
+                // XXX
                 return "typeof("+with_prec(0, render)(this.first)+")";
             }));
     unary('[', 90/*???*/, with_prec_paren(90, function() {
                 // new array creation
-		// XXX
+                // XXX
                 return "[" + gather(this.first, ", ", with_prec(0, render)) +
                     "]";
             }));
     unary('{', 90/*???*/, with_prec_paren(90, function() {
                 // new object creation
                 var result = span("exprleft newobj", "{");
-		result += "</span>"+span("connect objconn","")+"</span></div>";
-		// XXX fix "one line" form.
+                result += "</span>"+span("connect objconn","")+"</span></div>";
+                // XXX fix "one line" form.
                 if (this.first.length > 0) {
                     indentation += 1;
                     result += nl();
-		    result += "<div class='e enest objnest'><span><span>";
-		    var mid = span("exprend", ",");
-		    mid += "</span></span></div>";
-		    mid += "</span></span></div>" + nl();
-		    mid += "<div class='e enest objnest'><span><span>";
-		    mid += "<div class='e efirst'><span><span>";
-		    result += "<div class='e efirst'><span><span>";
+                    result += "<div class='e enest objnest'><span><span>";
+                    var mid = span("exprend", ",");
+                    mid += "</span></span></div>";
+                    mid += "</span></span></div>" + nl();
+                    mid += "<div class='e enest objnest'><span><span>";
+                    mid += "<div class='e efirst'><span><span>";
+                    result += "<div class='e efirst'><span><span>";
                     result += gather(this.first, mid, function(item) {
                             // XXX suppress quotes around item.key when
                             //     unnecessary
                             return span("objkey", html_escape(str_escape(item.key)) + ": ") +
                                 with_prec(0, render)(item);
                         });
-		    result += span("exprend", ""); // cap the final element
+                    result += span("exprend", ""); // cap the final element
                     indentation -= 1;
-		    result += "</span></span></div>";
-		    result += "</span></span></div>";
+                    result += "</span></span></div>";
+                    result += "</span></span></div>";
                     result += nl();
                 }
-		result += "<div class='e econt'><span><span>";
+                result += "<div class='e econt'><span><span>";
                 result +=span("exprright newobj", "}");
                 return result;
             }));
@@ -275,21 +275,21 @@ var make_render = function(html_escape) {
             var result = "function";
             if (this.name) { result += " " + html_escape(this.name); }
             result += " (" + gather(this.first, ", ", render) + ") {";
-	    result = span("exprleft func", result);
-	    result += "</span>"+span("connect funcconn","")+"</span></div>";
-	    // XXX fix "one line" form.
+            result = span("exprleft func", result);
+            result += "</span>"+span("connect funcconn","")+"</span></div>";
+            // XXX fix "one line" form.
             if (this.second.length > 0) {
                 indentation += 1;
                 result += nl();
-		result += "<div class='e enest funcnest'><span><span>";
-		// XXX make function body context
-		result += render_stmts(this.second); // function body
+                result += "<div class='e enest funcnest'><span><span>";
+                // XXX make function body context
+                result += render_stmts(this.second); // function body
                 indentation -= 1;
-		result += "</span></span></div>";
+                result += "</span></span></div>";
             }
             result += nl();
-	    result += "<div class='e econt'><span><span>";
-	    result +=span("exprright func", "}");
+            result += "<div class='e econt'><span><span>";
+            result +=span("exprright func", "}");
             return result;
         });
 
@@ -300,18 +300,18 @@ var make_render = function(html_escape) {
         return dispatch[tree.arity].apply(tree);
     };
     render_stmt = function(tree) {
-	if (tree.arity==='statement') {
-	    return render(tree);
-	}
-	// an "expression statement"
-	result = "<div class='stmt'><span>";
-	// XXX some bridge to make a expr holder
-	result += "<div class='e efirst'><span><span>";
-	result += render(tree);
-	result += "<span class='exprend semi'>;</span>"; // cap off the end
-	result += "</span></span></div>"; // close the expression context
-	result += "</span></div>"; // close the statement
-	return result;
+        if (tree.arity==='statement') {
+            return render(tree);
+        }
+        // an "expression statement"
+        result = "<div class='stmt'><span>";
+        // XXX some bridge to make a expr holder
+        result += "<div class='e efirst'><span><span>";
+        result += render(tree);
+        result += "<span class='exprend semi'>;</span>"; // cap off the end
+        result += "</span></span></div>"; // close the expression context
+        result += "</span></div>"; // close the statement
+        return result;
     };
     render_stmts = function(tree_list) {
         return gather(tree_list, nl(), render_stmt);

@@ -623,16 +623,16 @@ define(["bytecode-table", "!html-escape"], function make_binterp(bytecode_table,
             }
             return result;
         };
-	Array.prototype.forEach =  function(block, thisObject) {
+        Array.prototype.forEach =  function(block, thisObject) {
             var len = (1*this.length) || 0;
             var i = 0;
             while (i < len) {
                 if (this.hasOwnProperty(i)) {
                     block.call(thisObject, this[i], i, this);
-		}
-		i += 1;
+                }
+                i += 1;
             }
-	};
+        };
         Array.prototype.map = function(fun /*, thisp*/) {
             var len = (1*this.length) || 0;
             /*

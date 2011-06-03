@@ -14,13 +14,13 @@ var now = function() {
 Function.prototype.New = function() {
     var object, result;
     if (typeof(this.prototype)==="object") {
-	object = Object.create(this.prototype);
+        object = Object.create(this.prototype);
     } else {
-	object = {};
+        object = {};
     }
     result = this.apply(object, arguments);
     if (typeof(result)==="object") {
-	return result;
+        return result;
     }
     return object;
 };
@@ -46,11 +46,11 @@ Object['Throw'] = function(obj) {
 //      subroutine inside a bodyBlock)
 Object['Try'] = function(_this_, bodyBlock, catchBlock, finallyBlock) {
     try {
-	bodyBlock.call(_this_);
+        bodyBlock.call(_this_);
     } catch(e) {
-	if (catchBlock) catchBlock.call(_this_, e);
+        if (catchBlock) catchBlock.call(_this_, e);
     } finally {
-	if (finallyBlock) finallyBlock.call(_this_);
+        if (finallyBlock) finallyBlock.call(_this_);
     }
 };
 

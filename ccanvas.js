@@ -19,7 +19,7 @@ define(function() {
 var make = function(canvas_id) {
     var canvasElem_ = canvas_id ?
         document.getElementById(canvas_id) :
-	document.createElement("canvas");
+        document.createElement("canvas");
     var canvas_ = canvasElem_.getContext('2d');
     var width_ = canvasElem_.width;
     var height_ = canvasElem_.height;
@@ -108,8 +108,8 @@ var make = function(canvas_id) {
         },
         rect: function(x, y, w, h) {
             // the rect primitive seems to have some issues on iOS
-	    // (see above).  We're going to implement it in terms of
-	    // primitives.
+            // (see above).  We're going to implement it in terms of
+            // primitives.
             this.moveTo(x,y);
             this.lineTo(x+w, y);
             this.lineTo(x+w, y+h);

@@ -149,7 +149,7 @@ return function flapjax_tests(info, error) {
                 e.createNode(
                         [],
                         function (pulse) {
-			    return pulse;
+                            return pulse;
                         });
 
         var secondsAdd1Node =
@@ -171,7 +171,7 @@ return function flapjax_tests(info, error) {
         var bConstantNode = true;
     // CSA HACK
     e.createConstantNode = function(nodes, val) {
-	return e.createNode(nodes, function(pulse) { pulse.value = val; return pulse; });
+        return e.createNode(nodes, function(pulse) { pulse.value = val; return pulse; });
     };
 
         recConst = -2;
@@ -527,7 +527,7 @@ return function flapjax_tests(info, error) {
         var bLift = true;
 
         var bLiftE = true;
-	/*
+        /*
         var toLiftAddXY = function (x, y) { return x + y; };
         var liftX = flapjax.receiverE();
         var liftY = e.createConstantNode([liftX], 3);

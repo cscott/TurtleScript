@@ -221,15 +221,15 @@ define(["str-escape",
         return true;
     };
     test[i+=1] = function() {
-	// more array method tests
-	var s = "";
+        // more array method tests
+        var s = "";
         [1, 2, 3, 4].map(function(x) { return x*2; }).forEach(function(e, i){
-	    s += [i, e].join(',') + " ";
-	});
-	return s;
+            s += [i, e].join(',') + " ";
+        });
+        return s;
     };
     test[i+=1] = function() {
-	// test 'new' and 'instanceof'
+        // test 'new' and 'instanceof'
         function Foo(arg) { this.foo = arg; }
         Foo.prototype = {};
         var f = Foo.New('foo');
@@ -238,7 +238,7 @@ define(["str-escape",
         var b = Bar.New(3, 4);
         var s = "Hey! "+b.foo+" "+b.bar;
         s += " "+Bar.hasInstance(b)+" "+Foo.hasInstance(b);
-	// hasInstance should still work on bound functions
+        // hasInstance should still work on bound functions
         // XXX: chrome v8 appears to implement this incorrectly.
         var Foo2 = Foo.bind();
         var Bar2 = Bar.bind(f, 1, 2);

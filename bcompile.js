@@ -113,17 +113,17 @@ define(["bytecode-table"], function make_bcompile(bytecode_table) {
         // compact encoding
         var encode_uint = function(out, val) {
             assert(val >= 0, val);
-	    if (val < 128) {
-	        out.push(val);
-	        return;
-	    }
-	    var msb = Math.floor(val / 128);
-	    var lsb = (val - 128*msb);
+            if (val < 128) {
+                out.push(val);
+                return;
+            }
+            var msb = Math.floor(val / 128);
+            var lsb = (val - 128*msb);
             assert(lsb >= 0 && lsb < 128, val);
             assert(msb > 0, val);
-	    // little-endian
-	    out.push(lsb + 128);
-	    encode_uint(out, msb);
+            // little-endian
+            out.push(lsb + 128);
+            encode_uint(out, msb);
         };
         var encode_str = function(out, str) {
             var i = 0;
@@ -148,7 +148,7 @@ define(["bytecode-table"], function make_bcompile(bytecode_table) {
                 var j = 0;
                 while (j < f.bytecode.length) {
                     var v = f.bytecode[j];
-		    v = (typeof(v) === "number") ? v : v.label;
+                    v = (typeof(v) === "number") ? v : v.label;
                     encode_uint(out, v);
                     j += 1;
                 }

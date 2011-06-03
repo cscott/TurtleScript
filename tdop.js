@@ -35,59 +35,59 @@ function do_it() {
 // We are going to make the compiler/interpreter compile itself.
     var make_self_test = function(parse, bcompile) {
        return function (source) {
-	   var result;
-	   source = source || '{ return 1+2; }';
-	   //result = tokenize(source, '=<>!+-*&|/%^', '=<>&|');
-	   var tree = parse(source, "isFinite parseInt Boolean String Function Math console arguments");
-	   //result = tree;
-	   var bc = bcompile(tree);
-	   result = bc.decompile(0);
-	   //result = bc.encode().join();
-	   //console.log(result);
-	   return result;
+           var result;
+           source = source || '{ return 1+2; }';
+           //result = tokenize(source, '=<>!+-*&|/%^', '=<>&|');
+           var tree = parse(source, "isFinite parseInt Boolean String Function Math console arguments");
+           //result = tree;
+           var bc = bcompile(tree);
+           result = bc.decompile(0);
+           //result = bc.encode().join();
+           //console.log(result);
+           return result;
        };
     };
     define("self_test", ["parse", "bcompile"], make_self_test);
     var self_test_source = make_self_test.toSource ?
-	make_self_test.toSource() : make_self_test.toString();
+        make_self_test.toSource() : make_self_test.toString();
     self_test_source = 'define("self_test", ["parse","bcompile"], '+
-	self_test_source + ');\n';
+        self_test_source + ');\n';
 
     // combine sources
     isource = '{ return 2+3; }'; // input to interpreted version of compiler
     //isource = 'var f = function() { };';
     //isource = sources[7].replace(/module/, 'library_init');
     var fake_require =
-	"var __modules__ = {};\n"+
-	"function define(name, deps, init_func) {\n"+
-	"  function map(a, f) {\n"+
-	"    var i = 0, r = [];\n"+
-	"    while (i < a.length) {\n"+
-	"      r[i] = f(a[i]);\n"+
-	"      i+=1;\n"+
-	"    }\n"+
-	"    return r;\n"+
-	"  }\n"+
-	"  var d = map(deps, function(m) { return __modules__[m]; });\n"+
+        "var __modules__ = {};\n"+
+        "function define(name, deps, init_func) {\n"+
+        "  function map(a, f) {\n"+
+        "    var i = 0, r = [];\n"+
+        "    while (i < a.length) {\n"+
+        "      r[i] = f(a[i]);\n"+
+        "      i+=1;\n"+
+        "    }\n"+
+        "    return r;\n"+
+        "  }\n"+
+        "  var d = map(deps, function(m) { return __modules__[m]; });\n"+
         "  __modules__[name] = init_func.apply(this, d);\n"+
-	"}\n";
+        "}\n";
     source = fake_require +
-	tests.lookup("tokenize")+"\n"+
-	tests.lookup("parse")+"\n"+
-	tests.lookup("bytecode-table")+"\n"+
-	tests.lookup("bcompile")+"\n"+
-	tests.lookup("binterp")+"\n"+
-	tests.lookup("stdlib")+"\n"+
-	self_test_source+"\n"+
-	"{ return __modules__['self_test'](arguments[0]); }\n";
+        tests.lookup("tokenize")+"\n"+
+        tests.lookup("parse")+"\n"+
+        tests.lookup("bytecode-table")+"\n"+
+        tests.lookup("bcompile")+"\n"+
+        tests.lookup("binterp")+"\n"+
+        tests.lookup("stdlib")+"\n"+
+        self_test_source+"\n"+
+        "{ return __modules__['self_test'](arguments[0]); }\n";
 
     if (0) {
     // HACK to run specific test cases
     test_case = tests[29].replace(/^define\(/, "define('self_test',");
     source = fake_require +
-	    tests.lookup("stdlib")+"\n"+
-	    test_case + "\n"+
-	    "{ return __modules__['self_test'](arguments[0]); }\n";
+            tests.lookup("stdlib")+"\n"+
+            test_case + "\n"+
+            "{ return __modules__['self_test'](arguments[0]); }\n";
     // END HACK
     }
 

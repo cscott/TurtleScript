@@ -1,19 +1,19 @@
 // Simple Color abstraction, based on Lessphic.
 define(['./constructor'], function(constructor) {
     var Color = {
-	a: 1, /* default value (fully opaque) */
-	__init__: function Color_ (r, g, b, a/*optional*/) {
+        a: 1, /* default value (fully opaque) */
+        __init__: function Color_ (r, g, b, a/*optional*/) {
             this.r = r;
             this.g = g;
             this.b = b;
-	    if (arguments.length >= 4 && a !== this.a) {
-		this.a = a;
-	    }
-	},
-	From8888: function(r8, g8, b8, a8) {
+            if (arguments.length >= 4 && a !== this.a) {
+                this.a = a;
+            }
+        },
+        From8888: function(r8, g8, b8, a8) {
             if (arguments.length < 4) { a8 = 255; }
             return Color.New(r8/255, g8/255, b8/255, a8/255);
-	},
+        },
         mixedWith: function(color, ratio/*optional*/) {
             if (ratio===undefined) { ratio = 0.5; }
             var n = 1 - ratio;
@@ -46,9 +46,9 @@ define(['./constructor'], function(constructor) {
     // this is a hack to get colors to pretty print in the javascript console
     // by making them appear to be instances of singleton classes.
     var namedColor = function(f, r, g, b) {
-	var c = Color.New(r, g, b);
-	c.constructor = f;
-	return c;
+        var c = Color.New(r, g, b);
+        c.constructor = f;
+        return c;
     };
 
     Color.white = namedColor(function white(){},   1, 1, 1);

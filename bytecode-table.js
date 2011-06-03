@@ -130,9 +130,9 @@ define(function make_bytecode_table() {
 
     // OK, return an object wrapping all this stuff.
     return {
-	__module_name__: "bytecode-table",
-	__module_init__: make_bytecode_table,
-	__module_deps__: [],
+        __module_name__: "bytecode-table",
+        __module_init__: make_bytecode_table,
+        __module_deps__: [],
 
         for_num: function(n) {
             return bytecodes_by_num[n];
