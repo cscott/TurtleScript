@@ -33,6 +33,11 @@ define(['./constructor'], function(constructor) {
         return this.x === pt.x && this.y === pt.y;
     };
     Point.isZero = function() { return this.x===0 && this.y===0; };
+
+    Point.transformedBy = function(transform) {
+        return transform.transform(this);
+    };
+
     Point.toString = function() {
             return "("+this.x+","+this.y+")";
     };

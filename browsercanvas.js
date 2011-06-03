@@ -1,6 +1,13 @@
-define(["ccanvas", "ts!events"], function(ccanvas, flapjax) {
+define(["ccanvas", "ts!events", "ts!gfx/gfx"], function(ccanvas, flapjax, gfx) {
 
 var USE_FRAME_TIMER = false;
+var USE_FAST_MATRICES = false; // off for testing, on for speed!
+
+// use fast matrix implementation from the browser
+if (WebKitCSSMatrix && USE_FAST_MATRICES) {
+    //console.log("Using fast matrices");
+    gfx.Transform.registerImpl(new WebKitCSSMatrix());
+}
 
 var initEventLoop = function(canvasId, drawFrame) {
   var canvas = ccanvas(canvasId);
