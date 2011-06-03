@@ -2,7 +2,7 @@
 define(['./constructor'], function(constructor) {
     var Color = {
 	a: 1, /* default value (fully opaque) */
-	__init__: function(r, g, b, a/*optional*/) {
+	__init__: function Color_ (r, g, b, a/*optional*/) {
             this.r = r;
             this.g = g;
             this.b = b;
@@ -43,16 +43,25 @@ define(['./constructor'], function(constructor) {
     };
     Color.New = constructor(Color);
 
-    Color.white = Color.New(1, 1, 1);
-    Color.black = Color.New(0, 0, 0);
-    Color.red   = Color.New(1, 0, 0);
-    Color.green = Color.New(0, 1, 0);
-    Color.blue  = Color.New(0, 0, 1);
-    Color.yellow= Color.New(1, 1, 0);
-    Color.magenta=Color.New(1, 0, 1);
-    Color.cyan  = Color.New(0, 1, 1);
-    Color.lightGrey = Color.New(0.75, 0.75, 0.75);
-    Color.grey      = Color.New(0.50, 0.50, 0.50);
-    Color.darkGrey  = Color.New(0.25, 0.25, 0.25);
+    // this is a hack to get colors to pretty print in the javascript console
+    // by making them appear to be instances of singleton classes.
+    var namedColor = function(f, r, g, b) {
+	var c = Color.New(r, g, b);
+	c.constructor = f;
+	return c;
+    };
+
+    Color.white = namedColor(function white(){},   1, 1, 1);
+    Color.black = namedColor(function black(){},   0, 0, 0);
+    Color.red   = namedColor(function red(){},     1, 0, 0);
+    Color.green = namedColor(function green(){},   0, 1, 0);
+    Color.blue  = namedColor(function blue(){},    0, 0, 1);
+    Color.yellow= namedColor(function yellow(){},  1, 1, 0);
+    Color.magenta=namedColor(function magenta(){}, 1, 0, 1);
+    Color.cyan  = namedColor(function cyan(){},    0, 1, 1);
+    Color.lightGrey = namedColor(function lightGrey(){}, 0.75, 0.75, 0.75);
+    Color.grey      = namedColor(function grey(){},      0.50, 0.50, 0.50);
+    Color.darkGrey  = namedColor(function darkGrey(){},  0.25, 0.25, 0.25);
+
     return Color;
 });

@@ -9,10 +9,9 @@ define(['./constructor', './Color', './Shape'], function(constructor, Color, Sha
 
     var CompositeView = {
         length: 0, // an array-like object.
-        __init__: function() {
+        __init__: function CompositeView_() {
             this.containers = []; // All Views for which I hold the contents
         },
-        New: constructor(CompositeView),
         withContainer: function(aView) {
             return CompositeView.New().addContainer(aView);
         },
@@ -48,6 +47,7 @@ define(['./constructor', './Color', './Shape'], function(constructor, Color, Sha
                 }).join(", ") + ")";
         }
     };
+    CompositeView.New = constructor(CompositeView);
 
     // ----------------------------------------------------------------
 
@@ -55,8 +55,7 @@ define(['./constructor', './Color', './Shape'], function(constructor, Color, Sha
     // fashion.  (The structure is actually be a bipartite graph, somewhat
     // more general than a simple tree-like hierarchy.)
     var ComposableView = {
-        New: constructor(ComposableView),
-        __init__: function(contents) {
+        __init__: function ComposableView_(contents) {
             // CompositeView of which I am a member and for which I
             // provide content
             this._container = null;
@@ -81,16 +80,16 @@ define(['./constructor', './Color', './Shape'], function(constructor, Color, Sha
             return "ComposableView("+this._contents.toString()+")";
         }
     };
+    ComposableView.New = constructor(ComposableView);
 
     var TransformView = {
         __proto__: ComposableView,
-        __init__: function(contents, transform) {
+        __init__: function TransformView_(contents, transform) {
             // invoke superclass constructor
             TransformView.__proto__.__init__.call(this, contents);
             this.transform = transform; // || IdentifyTransform XXXXXXXXX
             this.inverse = transform.inverted();
         },
-        New: constructor(TransformView),
 
         // XXX fill in transform methods once we define Transform module!
 
@@ -100,6 +99,7 @@ define(['./constructor', './Color', './Shape'], function(constructor, Color, Sha
                 this.transform.toString()+")";
         }
     };
+    TransformView.New = constructor(TransformView);
 
     ComposableView.transformView = function() {
         return TransformView.New().addLast(this);
@@ -115,11 +115,10 @@ define(['./constructor', './Color', './Shape'], function(constructor, Color, Sha
     // pathOn() and bounds().
     var View = {
         __proto__: ComposableView,
-        __init__: function() {
+        __init__: function View_() {
             // superclass constructor
             View.__proto__.__init__.call(this);
         },
-        New: constructor(View),
 
         // use ugly colors so we can easily tell if someone forgets to set
         // these properly in a subclass!
@@ -137,23 +136,24 @@ define(['./constructor', './Color', './Shape'], function(constructor, Color, Sha
             return "View("+this.contents().toString()+")";
         }
     };
+    View.New = constructor(View);
 
     // ----------------------------------------------------------------
 
     // A ShapedView provides its displayable path via a Shape.
     var ShapedView = {
         __proto__: View,
-        __init__: function(shape) {
+        __init__: function ShapedView_(shape) {
             // superclass constructor
             ShapedView.__proto__.__init__.call(this);
             this.shape = shape;
         },
-        New: constructor(ShapedView),
 
         toString: function() {
             return "ShapedView("+this.shape.toString()+")";
         }
     };
+    ShapedView.New = constructor(ShapedView);
 
     Shape.shapedView = function() {
         return ShapedView.New(this);

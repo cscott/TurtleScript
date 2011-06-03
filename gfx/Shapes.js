@@ -2,7 +2,7 @@
 define(["./constructor", "./Shape", "./Point"], function(constructor, Shape, Point) {
     var Rectangle = {
         __proto__: Shape,
-        __init__: function(origin, corner) {
+        __init__: function Rectangle_(origin, corner) {
             Rectangle.__proto__.__init__.call(this);
             this._origin = origin;
             this._corner = corner;
@@ -109,7 +109,7 @@ define(["./constructor", "./Shape", "./Point"], function(constructor, Shape, Poi
 
     var Polygon = {
         __proto__: Shape,
-        __init__: function() {
+        __init__: function Polygon_() {
             Polygon.__proto__.__init__.call(this);
             this.vertices = [];
             this.addAll(arguments);

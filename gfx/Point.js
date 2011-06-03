@@ -2,7 +2,7 @@
 define(['./constructor'], function(constructor) {
     var Point = { x:0, y:0 };
     Point.New = constructor(Point);
-    Point.__init__ = function(x, y) {
+    Point.__init__ = function Point_ (x, y) {
 	// allow passing a Point as first argument
 	if (typeof(x)==="object") { y=x.y; x=x.x; }
 	if (x !== 0) { this.x = x; }
