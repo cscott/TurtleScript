@@ -121,7 +121,16 @@
                 try {
                   text = TurtleScript(origText, config.TurtleScript);
                 } catch (e) {
-                    console.log("Syntax Error", e, origText.substring(e.from));
+                    if (e.from && e.to) {
+                        // find newline before 'from'
+                        var fromNL = origText.lastIndexOf('\n', e.from);
+                        var toNL = origText.indexOf('\n', e.to);
+                        if (fromNL === -1) fromNL = 0; else fromNL++;
+                        if (toNL === -1) toNL = e.to;
+                        var line = origText.substring(fromNL, toNL);
+                        console.log("Syntax Error: "+JSON.stringify(e));
+                        console.log(line);
+                    }
                     throw new Error("Could not compile: "+path);
                 }
 
