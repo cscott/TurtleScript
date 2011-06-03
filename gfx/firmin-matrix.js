@@ -1,3 +1,4 @@
+define(function() {
 /**
  *  class FirminCSSMatrix
  *
@@ -24,7 +25,7 @@
 /**
  *  new FirminCSSMatrix()
  **/
-FirminCSSMatrix = function() {
+function FirminCSSMatrix() {
     this.m11 = this.m22 = this.m33 = this.m44 = 1;
     
                this.m12 = this.m13 = this.m14 =
@@ -203,6 +204,7 @@ FirminCSSMatrix.determinant4x4 = function(m) {
  *  The 3D matrix value in the fourth row and fourth column.
  **/
 
+/* CSA removed: we don't support getters/setters (yet?) ....
 [["m11", "a"],
  ["m12", "b"],
  ["m21", "c"],
@@ -219,6 +221,7 @@ FirminCSSMatrix.determinant4x4 = function(m) {
         return this[key3d];
     });
 });
+*/
 
 /**
  *  FirminCSSMatrix#isAffine() -> Boolean
@@ -242,7 +245,7 @@ FirminCSSMatrix.prototype.isAffine = function() {
 FirminCSSMatrix.prototype.multiply = function(otherMatrix) {
     var b = this,
         a = otherMatrix,
-        c = new FirminCSSMatrix();
+        c = FirminCSSMatrix.New();
     
     c.m11 = a.m11 * b.m11 + a.m12 * b.m21 + a.m13 * b.m31 + a.m14 * b.m41;
     c.m12 = a.m11 * b.m12 + a.m12 * b.m22 + a.m13 * b.m32 + a.m14 * b.m42;
@@ -286,7 +289,7 @@ FirminCSSMatrix.prototype.isIdentityOrTranslation = function() {
  *  Returns the adjoint matrix.
  **/
 FirminCSSMatrix.prototype.adjoint = function() {
-    var result = new FirminCSSMatrix(), t = this,
+    var result = FirminCSSMatrix.New(), t = this,
         determinant3x3 = FirminCSSMatrix.determinant3x3,
         
         a1 = t.m11, b1 = t.m12, c1 = t.m13, d1 = t.m14,
@@ -327,7 +330,7 @@ FirminCSSMatrix.prototype.inverse = function() {
     var inv, det, result, i, j;
     
     if (this.isIdentityOrTranslation()) {
-        inv = new FirminCSSMatrix();
+        inv = FirminCSSMatrix.New();
         
         if (!(this.m41 === 0 && this.m42 === 0 && this.m43 === 0)) {
             inv.m41 = -this.m41;
@@ -345,12 +348,13 @@ FirminCSSMatrix.prototype.inverse = function() {
     det = FirminCSSMatrix.determinant4x4(this);
     
     // If the determinant is zero, then the inverse matrix is not unique
-    if (Math.abs(det) < 1e-8) return null;
+    if (Math.abs(det) < 1e-8) { return null; }
     
     // Scale the adjoint matrix to get the inverse
-    for (i = 1; i < 5; i++)
-        for (j = 1; j < 5; j++)
-            result[("m" + i) + j] /= det;
+    result.m11 /= det; result.m12 /= det; result.m13 /= det; result.m14 /= det;
+    result.m21 /= det; result.m22 /= det; result.m23 /= det; result.m24 /= det;
+    result.m31 /= det; result.m32 /= det; result.m33 /= det; result.m34 /= det;
+    result.m41 /= det; result.m42 /= det; result.m43 /= det; result.m44 /= det;
     
     return result;
 };
@@ -371,25 +375,25 @@ FirminCSSMatrix.prototype.inverse = function() {
 FirminCSSMatrix.prototype.rotate = function(rx, ry, rz) {
     var degreesToRadians = FirminCSSMatrix.degreesToRadians;
     
-    if (typeof rx != "number" || isNaN(rx)) rx = 0;
+    if (typeof rx !== "number" || isNaN(rx)) { rx = 0; }
     
-    if ((typeof ry != "number" || isNaN(ry)) &&
-        (typeof rz != "number" || isNaN(rz))) {
+    if ((typeof ry !== "number" || isNaN(ry)) &&
+        (typeof rz !== "number" || isNaN(rz))) {
         rz = rx;
         rx = 0;
         ry = 0;
     }
     
-    if (typeof ry != "number" || isNaN(ry)) ry = 0;
-    if (typeof rz != "number" || isNaN(rz)) rz = 0;
+    if (typeof ry !== "number" || isNaN(ry)) { ry = 0; }
+    if (typeof rz !== "number" || isNaN(rz)) { rz = 0; }
     
     rx = degreesToRadians(rx);
     ry = degreesToRadians(ry);
     rz = degreesToRadians(rz);
     
-    var tx = new FirminCSSMatrix(),
-        ty = new FirminCSSMatrix(),
-        tz = new FirminCSSMatrix(),
+    var tx = FirminCSSMatrix.New(),
+        ty = FirminCSSMatrix.New(),
+        tz = FirminCSSMatrix.New(),
         sinA, cosA, sinA2;
     
     rz /= 2;
@@ -439,13 +443,13 @@ FirminCSSMatrix.prototype.rotate = function(rx, ry, rz) {
  *  given angle around the z axis.
  **/
 FirminCSSMatrix.prototype.rotateAxisAngle = function(x, y, z, a) {
-    if (typeof x != "number" || isNaN(x)) x = 0;
-    if (typeof y != "number" || isNaN(y)) y = 0;
-    if (typeof z != "number" || isNaN(z)) z = 0;
-    if (typeof a != "number" || isNaN(a)) a = 0;
-    if (x === 0 && y === 0 && z === 0) z = 1;
+    if (typeof x !== "number" || isNaN(x)) { x = 0; }
+    if (typeof y !== "number" || isNaN(y)) { y = 0; }
+    if (typeof z !== "number" || isNaN(z)) { z = 0; }
+    if (typeof a !== "number" || isNaN(a)) { a = 0; }
+    if (x === 0 && y === 0 && z === 0) { z = 1; }
     
-    var t   = new FirminCSSMatrix(),
+    var t   = FirminCSSMatrix.New(),
         len = Math.sqrt(x * x + y * y + z * z),
         cosA, sinA, sinA2, csA, x2, y2, z2;
     
@@ -509,11 +513,11 @@ FirminCSSMatrix.prototype.rotateAxisAngle = function(x, y, z, a) {
  *  Returns the result of scaling the matrix by a given vector.
  **/
 FirminCSSMatrix.prototype.scale = function(scaleX, scaleY, scaleZ) {
-    var transform = new FirminCSSMatrix();
+    var transform = FirminCSSMatrix.New();
     
-    if (typeof scaleX != "number" || isNaN(scaleX)) scaleX = 1;
-    if (typeof scaleY != "number" || isNaN(scaleY)) scaleY = scaleX;
-    if (typeof scaleZ != "number" || isNaN(scaleZ)) scaleZ = 1;
+    if (typeof scaleX !== "number" || isNaN(scaleX)) { scaleX = 1; }
+    if (typeof scaleY !== "number" || isNaN(scaleY)) { scaleY = scaleX; }
+    if (typeof scaleZ !== "number" || isNaN(scaleZ)) { scaleZ = 1; }
     
     transform.m11 = scaleX;
     transform.m22 = scaleY;
@@ -531,11 +535,11 @@ FirminCSSMatrix.prototype.scale = function(scaleX, scaleY, scaleZ) {
  *  Returns the result of translating the matrix by a given vector.
  **/
 FirminCSSMatrix.prototype.translate = function(x, y, z) {
-    var t = new FirminCSSMatrix();
+    var t = FirminCSSMatrix.New();
     
-    if (typeof x != "number" || isNaN(x)) x = 0;
-    if (typeof y != "number" || isNaN(y)) y = 0;
-    if (typeof z != "number" || isNaN(z)) z = 0;
+    if (typeof x !== "number" || isNaN(x)) { x = 0; }
+    if (typeof y !== "number" || isNaN(y)) { y = 0; }
+    if (typeof z !== "number" || isNaN(z)) { z = 0; }
     
     t.m41 = x;
     t.m42 = y;
@@ -551,31 +555,39 @@ FirminCSSMatrix.prototype.translate = function(x, y, z) {
  *  Sets the matrix values using a string representation, such as that produced
  *  by the [[FirminCSSMatrix#toString]] method.
  **/
+/* CSA removed.... we don't support regexps (yet?)...
 FirminCSSMatrix.prototype.setMatrixValue = function(domstr) {
         domstr = domstr.trim();
     var mstr   = domstr.match(/^matrix(3d)?\(\s*(.+)\s*\)$/),
         is3d   = !!mstr[1],
-        chunks = mstr[2].split(/\s*,\s*/),
+        chunks = mstr[2].split(/\s*,\s* /),// XXX added space to end of regex
         len    = chunks.length,
-        points = new Array(len),
+        points = [],
         i, chunk;
     
-    if ((is3d && len !== 16) || !(is3d || len === 6)) return;
+    if ((is3d && len !== 16) || !(is3d || len === 6)) { return; }
     
-    for (i = 0; i < len; i++) {
+    points.length = len;
+
+    i = 0;
+    while (i < len) {
         chunk = chunks[i];
         if (chunk.match(/^-?\d+(\.\d+)?$/)) {
             points[i] = parseFloat(chunk);
-        } else return;
+        } else { return; }
+        i += 1;
     }
     
-    for (i = 0; i < len; i++) {
+    i = 0;
+    while (i < len) {
         point = is3d ?
             ("m" + (Math.floor(i / 4) + 1)) + (i % 4 + 1) :
             String.fromCharCode(i + 97); // ASCII char 97 == 'a'
         this[point] = points[i];
+        i += 1;
     }
 };
+*/
 
 /**
  *  FirminCSSMatrix#toString() -> String
@@ -588,6 +600,7 @@ FirminCSSMatrix.prototype.toString = function() {
     if (this.isAffine()) {
         prefix = "matrix(";
         points = ["a", "b", "c", "d", "e", "f"];
+        points = ["m11","m12","m21","m22","m41","m42"];//CSA HACK
     } else {
         prefix = "matrix3d(";
         points = ["m11", "m12", "m13", "m14",
@@ -600,3 +613,6 @@ FirminCSSMatrix.prototype.toString = function() {
         return self[p].toFixed(6);
     }).join(", ") + ")";
 };
+
+return FirminCSSMatrix;
+});
