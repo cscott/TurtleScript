@@ -302,6 +302,8 @@ define(["tokenize"], function make_parse(tokenize) {
     assignment("=");
     assignment("+=");
     assignment("-=");
+    assignment("*=");
+    assignment("/=");
 
     infix("?", 20, function (left) {
         this.first = left;

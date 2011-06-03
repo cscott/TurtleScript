@@ -207,7 +207,8 @@ define(["bytecode-table"], function make_bcompile(bytecode_table) {
             assert(state.current_func.stack_depth === 0, tree);
             if (tree.arity === "binary" &&
                 (tree.value === "=" || tree.value === "+=" ||
-                 tree.value === "-=" )) {
+                 tree.value === "-=" || tree.value === "*=" ||
+                 tree.value === "/=" )) {
                 // special case: optimize by not keeping final value on stack
                 dispatch[tree.arity].call(tree, this, 1/*is stmt*/);
                 assert(state.current_func.stack_depth === 0, tree);
@@ -415,6 +416,8 @@ define(["bytecode-table"], function make_bcompile(bytecode_table) {
     binary('=', assignment(null));
     binary('+=', assignment("bi_add"));
     binary('-=', assignment("bi_sub"));
+    binary('*=', assignment("bi_mul"));
+    binary('/=', assignment("bi_div"));
     binary('||', function(state) {
         // expr1 || expr2 returns expr1 if it can be converted to true;
         //                else returns expr2

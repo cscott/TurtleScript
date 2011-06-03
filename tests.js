@@ -291,6 +291,16 @@ define(["str-escape",
         };
         return foo(1,2);
     };
+    test[i+=1] = function() {
+        var a = 1, b = 2;
+        // test all of the assignment shortcut operators.
+        a += b;
+        a -= b;
+        a *= b;
+        a /= b;
+        b = a;
+        return b;
+    };
     /** Block scoping tests (don't currently work) */
     /*
     test[i+=1] = function() {

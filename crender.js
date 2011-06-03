@@ -1586,6 +1586,8 @@ define(["str-escape", "gfx/Point", "gfx/Color"], function make_crender(str_escap
     binaryr('=', 10);
     binaryr('+=', 10);
     binaryr('-=', 10);
+    binaryr('*=', 10);
+    binaryr('/=', 10);
     binaryr('||', 30);
     binaryr('&&', 35);
     binaryr('===',40);

@@ -129,6 +129,8 @@ define(["str-escape"], function make_jcompile(str_escape) {
     binaryr('=', 10);
     binaryr('+=', 10);
     binaryr('-=', 10);
+    binaryr('*=', 10);
+    binaryr('/=', 10);
     binaryr('||', 30);
     binaryr('&&', 35);
     binaryr('===',40);
