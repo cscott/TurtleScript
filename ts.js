@@ -82,8 +82,9 @@
             throw t;
         };
         function TurtleScript(text, config) {
-            var top_level_defs = "isFinite parseInt Boolean String Function "+
-                "Math now console arguments document define";
+            var top_level_defs = "isFinite parseInt isNaN "+
+                "Boolean String Function Math "+
+                "console arguments now define document";
             tree = parse(text, top_level_defs);
             // find top-level call(s) to 'define()' and hack the dependencies
             // to also use the ts! loader.

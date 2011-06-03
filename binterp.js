@@ -437,6 +437,9 @@ define(["bytecode-table", "!html-escape"], function make_binterp(bytecode_table,
             oset(result, "__proto__", prototype);
             return result;
         });
+        native_func(frame, "isNaN", function(_this_, number) {
+            return isNaN(number);
+        });
         native_func(frame, "isFinite", function(_this_, number) {
             return isFinite(number);
         });

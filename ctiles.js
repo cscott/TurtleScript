@@ -58,8 +58,9 @@ isource = tests[tests.length-2];
 
 function update_from_source(canvas, styles, isource) {
   // parse the example source
-  var top_level = "isFinite parseInt Boolean String Function Math "+
-                  "console arguments now define";
+  var top_level = "isFinite parseInt isNaN "+
+                  "Boolean String Function Math "+
+                  "console arguments now define document";
   var tree = parse(isource, top_level);
 
   // make widgets from parse tree

@@ -38,7 +38,9 @@ function do_it() {
            var result;
            source = source || '{ return 1+2; }';
            //result = tokenize(source, '=<>!+-*&|/%^', '=<>&|');
-           var tree = parse(source, "isFinite parseInt Boolean String Function Math console arguments");
+           var tree = parse(source, "isFinite parseInt isNaN "+
+                            "Boolean String Function Math "+
+                            "console arguments now define document");
            //result = tree;
            var bc = bcompile(tree);
            result = bc.decompile(0);
@@ -59,7 +61,7 @@ function do_it() {
     //isource = sources[7].replace(/module/, 'library_init');
     var fake_require =
         "var __modules__ = {};\n"+
-        "function define(name, deps, init_func) {\n"+
+        "define = function(name, deps, init_func) {\n"+
         "  function map(a, f) {\n"+
         "    var i = 0, r = [];\n"+
         "    while (i < a.length) {\n"+
@@ -70,7 +72,7 @@ function do_it() {
         "  }\n"+
         "  var d = map(deps, function(m) { return __modules__[m]; });\n"+
         "  __modules__[name] = init_func.apply(this, d);\n"+
-        "}\n";
+        "};\n";
     source = fake_require +
         tests.lookup("tokenize")+"\n"+
         tests.lookup("parse")+"\n"+
@@ -112,8 +114,9 @@ function do_it() {
        fill('source', 'Interpreted source', o, 1/*no escape*/);
    }
 
-   top_level_defs = "isFinite parseInt Boolean String Function Math now " +
-                     "console arguments document";
+   top_level_defs = "isFinite parseInt isNaN "+
+        "Boolean String Function Math "+
+        "console arguments now define document";
     tree = parse(source, top_level_defs);
     if (tree) {
         /* Raw compiled tree */

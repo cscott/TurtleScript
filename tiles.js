@@ -13,8 +13,9 @@ $(function() {
   // generate some stuff on the canvas
   var source = tests[0];
   //$("#debug").append(html_escape(source)+"\n");
-  var top_level = "isFinite parseInt Boolean String Function Math "+
-                  "console arguments now define";
+  var top_level = "isFinite parseInt isNaN "+
+                  "Boolean String Function Math "+
+                  "console arguments now define document";
   var tree = parse(source, top_level);
   //$("#debug").append(html_escape(jcompile(tree)));
   var elem = render(tree);
