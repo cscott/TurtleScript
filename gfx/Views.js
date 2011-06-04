@@ -1,5 +1,5 @@
 // The basic View hierarchy
-define(['./constructor', './Color', './Shape'], function(constructor, Color, Shape) {
+define(['./constructor', './Color', './Shape', './Shapes', './Transform'], function(constructor, Color, Shape, Shapes, Transform) {
 
     // ----------------------------------------------------------------
 
@@ -87,11 +87,36 @@ define(['./constructor', './Color', './Shape'], function(constructor, Color, Sha
         __init__: function TransformView_(contents, transform) {
             // invoke superclass constructor
             TransformView.__proto__.__init__.call(this, contents);
-            this.transform = transform; // || IdentifyTransform XXXXXXXXX
+            this.transform = transform || Transform.New();
             this.inverse = transform.inverted();
         },
 
-        // XXX fill in transform methods once we define Transform module!
+        // mutates the view
+        _setTransform: function(transform) {
+            this.transform = transform;
+            this.inverse = transform.inverted();
+        },
+
+        // mutates the view
+        translation: function(pt) {
+            this._setTransform(Transform.withTranslation(pt));
+        },
+        rotation: function(angle) {
+            this._setTransform(Transform.withRotation(angle));
+        },
+        scaling: function(pt) {
+            this._setTransform(Transform.withScaling(pt));
+        },
+
+        translateBy: function(pt) {
+            this._setTransform(this.transform.translatedBy(pt));
+        },
+        rotateBy: function(angle) {
+            this._setTransform(this.transform.rotatedBy(angle));
+        },
+        scaleBy: function(pt) {
+            this._setTransform(this.transform.scaledBy(pt));
+        },
 
         toString: function() {
             return "TransformView("+
@@ -157,6 +182,87 @@ define(['./constructor', './Color', './Shape'], function(constructor, Color, Sha
 
     Shape.shapedView = function() {
         return ShapedView.New(this);
+    };
+
+    // ----------------------------------------------------------------
+    // View drawing -- rendering Views
+
+    CompositeView.drawOn = function(canvas, clipRect) {
+        this.forEach(function(view) {
+            view.drawOn(canvas, clipRect);
+        });
+    };
+    CompositeView.pathOn = function(canvas, clipRect) {
+        this.forEach(function(view) {
+            view.pathOn(canvas, clipRect);
+        });
+    };
+    CompositeView.bounds = function() {
+        var rect = Shapes.Rectangle.zero;
+        this.forEach(function(view, i) {
+            if (i===0) { rect = view.bounds(); }
+            else { rect = rect.union(view.bounds()); }
+        });
+        return rect;
+    };
+    // ----------------------------------------------------------------
+    TransformView.drawOn = function(canvas, clipRect) {
+        canvas.withContext(this, function() {
+            canvas.transform.apply(canvas, this.transform.toABCDEF());
+            this.drawContentsOn(canvas, clipRect.boundsTransformedBy(this.inverse));
+        });
+    };
+    TransformView.bounds = function() {
+        return this.contents().bounds().boundsTransformedBy(this.transform);
+    };
+
+    // ----------------------------------------------------------------
+    View.drawOn = function(canvas, clipRect) {
+        var bounds = this.bounds();
+        if (!clipRect.intersects(bounds)) { return; }
+        if (this.fillColor) {
+            canvas.setFill(this.fillColor);
+            this.pathOn(canvas);
+            canvas.fill();
+        }
+        this.drawContentsOn(canvas, bounds.intersect(clipRect));
+	if (this.strokeColor) {
+	    if (this.strokeWidth) {
+		canvas.setStrokeWidth(this.strokeWidth);
+	    }
+	    canvas.setStroke(this.strokeColor);
+            this.pathOn(canvas);
+            canvas.stroke();
+        }
+    };
+    ComposableView.drawContentsOn = function(canvas, clipRect) {
+        // XXX some stuff about selections we're omitting
+        this.contents().drawOn(canvas, clipRect);
+    };
+
+    View.bounds = function() { return this.shape().bounds(); };
+    View.pathOn = function(canvas) { return this.shape().pathOn(canvas); };
+
+    // ----------------------------------------------------------------
+
+    ShapedView.bounds = function() { return this.shape.bounds(); };
+    ShapedView.pathOn = function(canvas) { this.shape.pathOn(canvas); };
+
+    // ----------------------------------------------------------------
+    // damage
+    ComposableView.damaged = function(rect) {
+        if (!rect) { rect = this.bounds(); }
+        this.container().damaged(rect);
+    };
+    CompositeView.damaged = function(rect) {
+        if (!rect) { rect = this.bounds(); }
+        this.containers.forEach(function(v) {
+            v.damaged(rect);
+        });
+    };
+    TransformView.damaged = function(rect) {
+        if (!rect) { rect = this.contents().bounds(); }
+        TransformView.__proto__.damaged.call(this, rect.boundsTransformedBy(this.transform));
     };
 
     // ----------------------------------------------------------------

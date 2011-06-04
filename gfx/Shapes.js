@@ -168,6 +168,9 @@ define(["./constructor", "./Shape", "./Point"], function(constructor, Shape, Poi
     Rectangle.transformedBy = function(transform) {
         return this.asPolygon().transformedBy(transform);
     };
+    Rectangle.boundsTransformedBy = function(transform) {
+        return this.transformedBy(transform).bounds();
+    };
 
     // Exports
     return {

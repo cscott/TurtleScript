@@ -84,6 +84,9 @@ var make = function(canvas_id) {
             if (typeof(x)==="object") { y=x.y; x=x.x; }
             canvas_.translate(x, y);
         },
+        transform: function(a, b, c, d, e, f) {
+            canvas_.transform(a, b, c, d, e, f);
+        },
         // drawing
         clearRect: function(x, y, w, h) {
             // fills rectangle with transparent black
@@ -127,6 +130,9 @@ var make = function(canvas_id) {
         },
         setFill: function(color) {
             canvas_.fillStyle = color.toCSS();
+        },
+        setStrokeWidth: function(width) {
+            canvas_.lineWidth = width;
         },
         setFontHeight: function(height) {
             // height should be in current drawing units

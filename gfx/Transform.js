@@ -22,6 +22,16 @@ define(['./constructor','./firmin-matrix','./Point'], function(constructor, Firm
             return "Transform("+this._transform.toString()+")";
         },
 
+        // convert to version usable by canvas
+        toABCDEF: function() {
+            return [ this._transform.m11,
+                     this._transform.m12,
+                     this._transform.m21,
+                     this._transform.m22,
+                     this._transform.m41,
+                     this._transform.m42 ];
+        },
+
         // transform a point.
         transform: function(pt) {
             var a = this._transform.m11,
