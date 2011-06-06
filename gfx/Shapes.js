@@ -115,11 +115,12 @@ define(["./Shape", "./Point"], function(Shape, Point) {
         },
         newStar: function(numVertices, innerRadius, outerRadius) {
             var star = Polygon.New();
+            var offset = -Math.PI/2; // first point is straight up
             var i = 0;
             while (i < numVertices) {
-                star.add(Point.polar(outerRadius,
+                star.add(Point.polar(outerRadius, offset +
                                      2 * Math.PI * i / numVertices));
-                star.add(Point.polar(innerRadius,
+                star.add(Point.polar(innerRadius, offset +
                                      2 * Math.PI * (i + .5) / numVertices));
                 i += 1;
             }
