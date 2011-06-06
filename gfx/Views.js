@@ -72,8 +72,14 @@ define(['./constructor', './Color', './Shape', './Shapes', './Transform'], funct
             }
             this._container = aView;
         },
-        addFirst: function(aView) { return this._contents.addFirst(aView); },
-        addLast: function(aView) { return this._contents.addLast(aView); },
+        addFirst: function(aView) {
+            this._contents.addFirst(aView);
+            return this;
+        },
+        addLast: function(aView) {
+            this._contents.addLast(aView);
+            return this;
+        },
         remove: function(aView) { return this._contents.remove(aView); },
         isEmpty: function(aView) { return this._contents.isEmpty(); },
 
@@ -88,7 +94,7 @@ define(['./constructor', './Color', './Shape', './Shapes', './Transform'], funct
             // invoke superclass constructor
             TransformView.__proto__.__init__.call(this, contents);
             this.transform = transform || Transform.New();
-            this.inverse = transform.inverted();
+            this.inverse = this.transform.inverted();
         },
 
         // mutates the view
@@ -219,15 +225,15 @@ define(['./constructor', './Color', './Shape', './Shapes', './Transform'], funct
         if (!clipRect.intersects(bounds)) { return; }
         if (this.fillColor) {
             canvas.setFill(this.fillColor);
+            canvas.beginPath();
             this.pathOn(canvas);
             canvas.fill();
         }
         this.drawContentsOn(canvas, bounds.intersect(clipRect));
-	if (this.strokeColor) {
-	    if (this.strokeWidth) {
-		canvas.setStrokeWidth(this.strokeWidth);
-	    }
-	    canvas.setStroke(this.strokeColor);
+        if (this.strokeColor && this.strokeWidth) {
+            canvas.setStrokeWidth(this.strokeWidth);
+            canvas.setStroke(this.strokeColor);
+            canvas.beginPath();
             this.pathOn(canvas);
             canvas.stroke();
         }
@@ -237,7 +243,9 @@ define(['./constructor', './Color', './Shape', './Shapes', './Transform'], funct
         this.contents().drawOn(canvas, clipRect);
     };
 
-    View.bounds = function() { return this.shape().bounds(); };
+    View.bounds = function() {
+        return this.shape().bounds().outsetBy(this.strokeWidth/2);
+    };
     View.pathOn = function(canvas) { return this.shape().pathOn(canvas); };
 
     // ----------------------------------------------------------------

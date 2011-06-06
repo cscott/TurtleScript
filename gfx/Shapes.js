@@ -62,7 +62,7 @@ define(["./Shape", "./Point"], function(Shape, Point) {
             pt = rect.corner();
             right = Math.min(pt.x, this._corner.x);
             bottom = Math.min(pt.y, this._corner.y);
-            if (left <= right && bottom <= top) {
+            if (left <= right && top <= bottom) {
                 return Rectangle.New(Point.New(left, top),
                                      Point.New(right, bottom));
             }
@@ -148,7 +148,7 @@ define(["./Shape", "./Point"], function(Shape, Point) {
             return rect;
         },
         transformedBy: function(transform) {
-            return Polygon.New(this.vertices.map(function(pt) {
+            return Polygon.New.apply(Polygon, this.vertices.map(function(pt) {
                 return pt.transformedBy(transform);
             }));
         },
