@@ -1,6 +1,7 @@
 // Single import, for convenience.
-define(['./Color', './Point','./Transform','./Shape','./Shapes', './Views'],
-       function(Color, Point, Transform, Shape, Shapes, Views) {
+define(['./Color', './Point','./Transform','./Shape','./Shapes', './Views',
+        './WorldView'],
+       function(Color, Point, Transform, Shape, Shapes, Views, WorldView) {
     var gfx = {
         Color: Color,
         Point: Point,
@@ -12,7 +13,8 @@ define(['./Color', './Point','./Transform','./Shape','./Shapes', './Views'],
         TransformView: Views.TransformView,
         View: Views.View,
         ShapedView: Views.ShapedView,
-        Transform: Transform
+        Transform: Transform,
+        WorldView: WorldView
     };
     return gfx;
 });

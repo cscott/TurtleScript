@@ -9,7 +9,7 @@ if (WebKitCSSMatrix && USE_FAST_MATRICES) {
     gfx.Transform.registerImpl(new WebKitCSSMatrix());
 }
 
-var initEventLoop = function(canvasId, drawFrame) {
+var initEventLoop = function(canvasId, setup, drawFrame) {
   var canvas = ccanvas(canvasId);
   var canvasElem = document.getElementById(canvasId);
 
@@ -116,9 +116,11 @@ var initEventLoop = function(canvasId, drawFrame) {
   // don't try to draw frames faster than the eye can see
   drawFrameE = drawFrameE.calmE(35);
   // draw frames in the future
-  drawFrameE.mapE(function(_) { drawFrame(canvas, touchB, tickB); });
+  drawFrameE.mapE(function(_) { drawFrame(touchB, tickB); });
+  // setup widget tree
+  setup(canvas);
   // draw first frame right now.
-  drawFrame(canvas, touchB, tickB);
+  drawFrame(touchB, tickB);
 };
 
     return { initEventLoop: initEventLoop };

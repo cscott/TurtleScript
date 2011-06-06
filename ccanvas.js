@@ -125,6 +125,9 @@ var make = function(canvas_id) {
         fill: function() {
             canvas_.fill();
         },
+        clip: function() {
+            canvas_.clip();
+        },
         setStroke: function(color) {
             canvas_.strokeStyle = color.toCSS();
         },
