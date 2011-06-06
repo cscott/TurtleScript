@@ -346,7 +346,7 @@ Behavior.prototype.valueNow = function() {
   return this.last;
 };
 var valueNow = function(behavior) { return behavior.valueNow(); };
-
+var constantB;
 
 Behavior.prototype.changes = function() {
   return this.underlying;
@@ -719,61 +719,52 @@ var filterRepeatsE = function(sourceE,optStart) {
 
 
 //credit Pete Hopkins
-var calmStaticE = function (triggerE, time) {
+// extensively hacked by CSA
+var calmE = function (triggerE, timeB) {
+  if (!Behavior.hasInstance(timeB)) {
+      timeB = constantB(timeB);
+  }
   var out = internalE();
+  // state
+  var lastTime = 0;
+  var towards = null;
+  var lastVal, sawMoreRecent;
+  var towardsFunc = function() {
+    towards = null;
+    if (sawMoreRecent) {
+      sendEvent(out, lastVal);
+    }
+  };
+  var timeChangedE = timeB.changes().mapE(function() {
+      return sawMoreRecent ? lastVal : doNotPropagate;
+  });
+
   return createNode(
-    [triggerE, out],
-    function() {
-      var towards = null;
-      var lastVal, sawMoreRecent;
-      var doit = function (p) {
-        if (towards === null) {
+    [triggerE, out, timeChangedE],
+    function (p) {
+        var curTime = now();
+        var left = (curTime - lastTime) - timeB.valueNow();
+        if (towards) { clearTimeout(towards); }
+        if (left >= 0) {
+          lastTime = curTime;
           sawMoreRecent = false;
           lastVal = null; // free memory
-          towards = setTimeout( function () {
-              towards = null;
-              if (sawMoreRecent) {
-                  sendEvent(out, lastVal);
-              }
-          }, time );
+          towards = setTimeout( towardsFunc, timeB.valueNow() );
           // propagate directly.
           return p;
         } else {
           // hmm, don't propagate this yet, but maybe do it later.
           sawMoreRecent = true;
           lastVal = p;
+          towards = setTimeout( towardsFunc, left );
           return doNotPropagate;
         }
-      };
-      return doit;
-    }());
+    });
 };
 
 //calmE: Event a * [Behavior] Number -> Event a
-EventStream.prototype.calmE = function(time) {
-  if (Behavior.hasInstance(time)) {
-    var out = internalE();
-    createNode(
-      [this],
-      function() {
-        var towards = null;
-        return function (p) {
-          if (towards !== null) { clearTimeout(towards); }
-          towards = setTimeout( function () {
-              towards = null;
-              sendEvent(out,p.value); }, valueNow(time));
-          return doNotPropagate;
-        };
-      }());
-    return out;
-  } else {
-    return calmStaticE(this,time);
-  }
-};
-
-
-var calmE = function(sourceE,interval) {
-  return sourceE.calmE(interval);
+EventStream.prototype.calmE = function(timeB) {
+    return calmE(this, timeB);
 };
 
 
@@ -818,7 +809,7 @@ var startsWith = function(e,init) {
 
 //TODO optionally append to objects
 //createConstantB: a -> Behavior a
-var constantB = function (val) {
+constantB = function (val) {
   return Behavior.New(internalE(), val);
 };
 
