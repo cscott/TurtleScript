@@ -11,6 +11,7 @@ define(['./constructor','./firmin-matrix','./Point'], function(constructor, Firm
             IDENTITY = CSSMatrixIdentity;
         },
 
+        New: constructor,
         __init__: function Transform_(t) {
             this._transform = t || IDENTITY;
         },
@@ -74,7 +75,6 @@ define(['./constructor','./firmin-matrix','./Point'], function(constructor, Firm
             return Transform.New(this._transform.inverse());
         }
     };
-    Transform.New = constructor(Transform);
 
     return Transform;
 });

@@ -9,6 +9,7 @@ define(['./constructor', './Color', './Shape', './Shapes', './Transform'], funct
 
     var CompositeView = {
         length: 0, // an array-like object.
+        New: constructor,
         __init__: function CompositeView_() {
             this.containers = []; // All Views for which I hold the contents
         },
@@ -47,7 +48,6 @@ define(['./constructor', './Color', './Shape', './Shapes', './Transform'], funct
                 }).join(", ") + ")";
         }
     };
-    CompositeView.New = constructor(CompositeView);
 
     // ----------------------------------------------------------------
 
@@ -55,6 +55,7 @@ define(['./constructor', './Color', './Shape', './Shapes', './Transform'], funct
     // fashion.  (The structure is actually be a bipartite graph, somewhat
     // more general than a simple tree-like hierarchy.)
     var ComposableView = {
+        New: constructor,
         __init__: function ComposableView_(contents) {
             // CompositeView of which I am a member and for which I
             // provide content
@@ -80,7 +81,6 @@ define(['./constructor', './Color', './Shape', './Shapes', './Transform'], funct
             return "ComposableView("+this._contents.toString()+")";
         }
     };
-    ComposableView.New = constructor(ComposableView);
 
     var TransformView = {
         __proto__: ComposableView,
@@ -124,7 +124,6 @@ define(['./constructor', './Color', './Shape', './Shapes', './Transform'], funct
                 this.transform.toString()+")";
         }
     };
-    TransformView.New = constructor(TransformView);
 
     ComposableView.transformView = function() {
         return TransformView.New().addLast(this);
@@ -161,7 +160,6 @@ define(['./constructor', './Color', './Shape', './Shapes', './Transform'], funct
             return "View("+this.contents().toString()+")";
         }
     };
-    View.New = constructor(View);
 
     // ----------------------------------------------------------------
 
@@ -178,7 +176,6 @@ define(['./constructor', './Color', './Shape', './Shapes', './Transform'], funct
             return "ShapedView("+this.shape.toString()+")";
         }
     };
-    ShapedView.New = constructor(ShapedView);
 
     Shape.shapedView = function() {
         return ShapedView.New(this);

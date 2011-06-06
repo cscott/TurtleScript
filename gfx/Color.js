@@ -2,6 +2,7 @@
 define(['./constructor'], function(constructor) {
     var Color = {
         a: 1, /* default value (fully opaque) */
+        New: constructor,
         __init__: function Color_ (r, g, b, a/*optional*/) {
             this.r = r;
             this.g = g;
@@ -41,7 +42,6 @@ define(['./constructor'], function(constructor) {
         },
         toString: function() { return this.toCSS(); }
     };
-    Color.New = constructor(Color);
 
     // this is a hack to get colors to pretty print in the javascript console
     // by making them appear to be instances of singleton classes.

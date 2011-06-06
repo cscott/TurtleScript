@@ -1,5 +1,5 @@
 // Rectangle, Polygon, other shapes
-define(["./constructor", "./Shape", "./Point"], function(constructor, Shape, Point) {
+define(["./Shape", "./Point"], function(Shape, Point) {
     var Rectangle = {
         __proto__: Shape,
         __init__: function Rectangle_(origin, corner) {
@@ -104,7 +104,6 @@ define(["./constructor", "./Shape", "./Point"], function(constructor, Shape, Poi
             return "Rectangle("+this.origin()+","+this.corner()+")";
         }
     };
-    Rectangle.New = constructor(Rectangle);
     Rectangle.zero = Rectangle.New(Point.zero, Point.zero);
 
     var Polygon = {
@@ -159,7 +158,6 @@ define(["./constructor", "./Shape", "./Point"], function(constructor, Shape, Poi
             }).join(', ') + ")";
         }
     };
-    Polygon.New = constructor(Polygon);
 
     Rectangle.asPolygon = function() {
         return Polygon.New(this.topLeft(), this.topRight(),

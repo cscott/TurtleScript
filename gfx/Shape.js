@@ -1,6 +1,7 @@
-define(['./constructor'], function(constructor) {
+define(['./constructor'],function(constructor) {
+    // Shape is an abstract class
     var Shape = {
-        // no New method; this is an abstract class.
+        New: constructor,
         __init__: function Shape_() { /* nothing to do */ },
 
         pathOn: function(canvas) { /* empty shape */ },
@@ -13,6 +14,5 @@ define(['./constructor'], function(constructor) {
         // helpers
         toString: function() { return "Shape"; }
     };
-    constructor(Shape); // assign 'constructor' property
     return Shape;
 });
