@@ -34,7 +34,7 @@ var make = function(canvas_id) {
         // display where we want to gain extra resolution w/o shrinking
         // everything.
         resize: function(width, height, scale) {
-            if (width === width_ && height !== height_ &&
+            if (width === width_ && height === height_ &&
                 (scale||1) === scale_) {
                 // skip resize, which will save a clearRect on the client
                 // end (since spec says we must clear the canvas whenever
