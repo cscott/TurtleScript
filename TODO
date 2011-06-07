@@ -1,3 +1,19 @@
+GUI:
+1) move events.js into gfx
+2) damage messages should be events.  attach/detach
+   damageE
+3) transform in transformview should be a behavior
+   send damage messages when transform is altered by mutators
+  (see DraggingEventHandler pointerMotionEvent)
+  (animation methods on transformView?)
+4) pump in mouse events, via mouseE methods on widgets.
+   -- just filtered version of native event streams
+   -- parent widgets should get first crack at filtering event stream
+   -- have 'handler' mechanism, such that widget can push a drag handler
+      on the top-level context and get all further events (until touchup,
+      or end of gesture)
+      event.handler() is top level handler. has activate/etc methods.
+
 Native environment:
 1) Transform BINOPs into method calls.
    the various binary() calls just become emit("invoke")
