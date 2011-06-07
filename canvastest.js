@@ -9,7 +9,7 @@ if (window.navigator.userAgent.indexOf('iPhone') != -1) {
 var canvas;
 var world;
 
-var setup = function(canvas_) {
+var setup = function(canvas_, uiEvents) {
     canvas = canvas_;
     world = gfx.WorldView.New();
     world.canvas = canvas;
@@ -23,16 +23,31 @@ var setup = function(canvas_) {
     star = star.transformView();
     star.translateBy(gfx.Point.New(100,100));
     world.addFirst(star);
+    // allow dragging the star
+    star.touchStartEvent = function(event) {
+        event.handler.beginDragging(star, event);
+    };
+    world.resizeEvent = function(event) {
+        world.damaged();
+    };
+    uiEvents.mapE(function(e) {
+        console.assert(e.name, e);
+        world.dispatchEvent(e);
+    });
+    world.damaged(); // ensure first frame draws.
 };
 
 var drawFrame = function(touchB, tickB) {
   var lastTouches = touchB.valueNow();
   var sz = canvas.size();
 
+  if (!world.damage) return;
   canvas.resize(window.innerWidth, window.innerHeight,
                 window.devicePixelRatio || 1);
-  canvas.clearRect(0,0,sz.width, sz.height);
-  world.forceToScreen();
+  canvas.clearRect(world.damage.left(), world.damage.top(),
+                   world.damage.width(), world.damage.height());
+  world.forceDamageToScreen();
+  return;
 
   canvas.setFontHeight(20);
   // XXX window.orientation is not reliable; the resize callback seems to occur

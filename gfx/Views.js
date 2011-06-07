@@ -271,6 +271,59 @@ define(['./constructor', './Color', './Shape', './Shapes', './Transform'], funct
     };
 
     // ----------------------------------------------------------------
+    // events
+    CompositeView.applyTransform = ComposableView.applyTransform =
+        function identity(pointOrShape) {
+            return pointOrShape;
+        };
+    TransformView.applyTransform = function(pointOrShape) {
+        return pointOrShape.transformedBy(this.inverse);
+    };
+
+    CompositeView.globalToLocal = function(pointOrShape) {
+        // CSA note: this seems a bit sketchy
+        return this.containers[0].globalToLocal(pointOrShape);
+    };
+    ComposableView.globalToLocal = function(pointOrShape) {
+        return this.container().globalToLocal(pointOrShape);
+    };
+    TransformView.globalToLocal = function(pointOrShape) {
+        return this.applyTransform(
+            TransformView.__proto__.globalToLocal.call(this, pointOrShape));
+    };
+
+    var fillInAtPoint = function(event, atPoint) {
+        if (!atPoint) {
+            atPoint = event.localPositions[0];
+        }
+        return atPoint;
+    };
+    ComposableView.handleEvent = function(event, atPoint) {
+        atPoint = fillInAtPoint(event, atPoint);
+        if (!this.bounds().containsPoint(atPoint)) { return null; }
+        this.contents().handleEvent(event, this.applyTransform(atPoint));
+        if (!event.handled && this[event.name]) {
+            this[event.name].call(this, event);
+        }
+        if (!event.handled) {
+            event.dispatchTo(this);
+        }
+        return event.handled;
+    };
+    CompositeView.handleEvent = function(event, atPoint) {
+        this.forEach(function(v) {
+            if (!event.handled) {
+                v.handleEvent(event, atPoint);
+            }
+            // XXX non-local return would be handy here.
+        }, this);
+        if (!event.handled) {
+            event.dispatchTo(this);
+        }
+        return event.handled;
+    };
+
+    // ----------------------------------------------------------------
 
     // exports
     return {
