@@ -120,6 +120,11 @@ var make = function(canvas_id) {
             this.closePath();
         },
         stroke: function() {
+            // simple line joins make it easier to compute stroke bounding
+            // boxes.
+            canvas_.miterLimit = 1;
+            canvas_.lineCap = "round";
+            canvas_.lineJoin = "round";
             canvas_.stroke();
         },
         fill: function() {
@@ -163,7 +168,11 @@ var make = function(canvas_id) {
         },
         measureText: function(text) {
             var metrics = canvas_.measureText(text);
-            return { width: metrics.width, height: this.fontHeight };
+            // XXX html5 canvas doesn't give us proper font metrics, boo.
+            return { width: metrics.width,
+                     height: this.fontHeight,
+                     baseline: this.fontHeight * 0.8
+                   };
         },
     };
 };

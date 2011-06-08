@@ -40,6 +40,14 @@ define(['./constructor', './Color', './Shape', './Shapes', './Transform'], funct
             return this;
         },
         forEach: Array.prototype.forEach,
+        reverseForEach: function(func, _this_) {
+            var i = this.length-1;
+            _this_ = _this_ || this;
+            while (i >= 0) {
+                func.call(_this_, this[i], i);
+                i -= 1;
+            }
+        },
         isEmpty: function() { return this.length===0; },
         toString: function() {
             return "CompositeView("+
@@ -101,27 +109,28 @@ define(['./constructor', './Color', './Shape', './Shapes', './Transform'], funct
         _setTransform: function(transform) {
             this.transform = transform;
             this.inverse = transform.inverted();
+            return this;
         },
 
         // mutates the view
         translation: function(pt) {
-            this._setTransform(Transform.withTranslation(pt));
+            return this._setTransform(Transform.withTranslation(pt));
         },
         rotation: function(angle) {
-            this._setTransform(Transform.withRotation(angle));
+            return this._setTransform(Transform.withRotation(angle));
         },
         scaling: function(pt) {
-            this._setTransform(Transform.withScaling(pt));
+            return this._setTransform(Transform.withScaling(pt));
         },
 
         translateBy: function(pt) {
-            this._setTransform(this.transform.translatedBy(pt));
+            return this._setTransform(this.transform.translatedBy(pt));
         },
         rotateBy: function(angle) {
-            this._setTransform(this.transform.rotatedBy(angle));
+            return this._setTransform(this.transform.rotatedBy(angle));
         },
         scaleBy: function(pt) {
-            this._setTransform(this.transform.scaledBy(pt));
+            return this._setTransform(this.transform.scaledBy(pt));
         },
 
         toString: function() {
@@ -243,15 +252,14 @@ define(['./constructor', './Color', './Shape', './Shapes', './Transform'], funct
         this.contents().drawOn(canvas, clipRect);
     };
 
-    View.bounds = function() {
-        return this.shape().bounds().outsetBy(this.strokeWidth/2);
-    };
-    View.pathOn = function(canvas) { return this.shape().pathOn(canvas); };
-
     // ----------------------------------------------------------------
 
-    ShapedView.bounds = function() { return this.shape.bounds(); };
-    ShapedView.pathOn = function(canvas) { this.shape.pathOn(canvas); };
+    ShapedView.bounds = function() {
+        return this.shape.bounds().outsetBy(this.strokeWidth/2);
+    };
+    ShapedView.pathOn = function(canvas) {
+        this.shape.pathOn(canvas);
+    };
 
     // ----------------------------------------------------------------
     // damage
@@ -311,7 +319,7 @@ define(['./constructor', './Color', './Shape', './Shapes', './Transform'], funct
         return event.handled;
     };
     CompositeView.handleEvent = function(event, atPoint) {
-        this.forEach(function(v) {
+        this.reverseForEach(function(v) {
             if (!event.handled) {
                 v.handleEvent(event, atPoint);
             }

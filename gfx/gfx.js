@@ -1,8 +1,8 @@
 // Single import, for convenience.
 define(['./Color', './Point','./Transform','./Shape','./Shapes', './Views',
-        './WorldView', './Events', './EventHandlers'],
+        './WorldView', './TextView', './Events', './EventHandlers'],
        function(Color, Point, Transform, Shape, Shapes, Views,
-                WorldView, Events, EventHandlers) {
+                WorldView, TextView, Events, EventHandlers) {
     var gfx = {
         Color: Color,
         Point: Point,
@@ -18,6 +18,7 @@ define(['./Color', './Point','./Transform','./Shape','./Shapes', './Views',
         TransformView: Views.TransformView,
         View: Views.View,
         ShapedView: Views.ShapedView,
+        TextView: TextView,
         WorldView: WorldView,
         // events
         Event: Events.Event,

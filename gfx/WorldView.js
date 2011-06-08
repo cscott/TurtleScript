@@ -33,11 +33,15 @@ define(['./Point', './Shapes','./Views','./EventHandlers'],
                 clipRect = this.bounds();
                 this.damage = null;
             }
+            clipRect = clipRect.expanded(); // quantize to integer coords.
             this.canvas.withContext(this, function() {
                 if (!clipRect.contains(this.bounds())) {
+                    this.canvas.beginPath();
                     clipRect.pathOn(this.canvas);
                     this.canvas.clip();
                 }
+                this.canvas.clearRect(clipRect.left(), clipRect.top(),
+                                      clipRect.width(), clipRect.height());
                 this.drawOn(this.canvas, clipRect);
             });
         },

@@ -71,8 +71,9 @@ var initEventLoop = function(canvasId, setup, drawFrame) {
 
   // notify on resize events
   window.onresize = function() {
-    var ev = gfx.ResizeEvent.New();
-    uiEvents.sendEvent(ev);
+      uiEvents.sendEvent(gfx.ResizeEvent.New(window.innerWidth,
+                                             window.innerHeight,
+                                             window.devicePixelRatio || 1));
   };
 
   // helper function
@@ -104,13 +105,11 @@ var initEventLoop = function(canvasId, setup, drawFrame) {
     drawFrameE = drawFrameE.mergeE(touchB.changes());
   }
   // don't try to draw frames faster than the eye can see
-  drawFrameE = drawFrameE.calmE(35);
+  drawFrameE = drawFrameE.calmE(35/*ms*/);
   // draw frames in the future
-  drawFrameE.mapE(function(_) { drawFrame(touchB, tickB); });
-  // draw first frame right now.
-  drawFrame(touchB, tickB);
-  // queue up resize
-  window.setTimeout(function() { uiEvents.sendEvent(gfx.ResizeEvent.New());}, 0);
+  drawFrameE.mapE(function(_) { drawFrame(); });
+  // resize/draw first frame.
+  window.onresize();
 };
 
     return { initEventLoop: initEventLoop };

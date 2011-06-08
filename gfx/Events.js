@@ -57,6 +57,12 @@ define(['./constructor'], function(constructor) {
     };
     var ResizeEvent = {
         __proto__: ConfigureEvent,
+        __init__: function ResizeEvent_(width, height, devicePixelRatio) {
+            this.width = width;
+            this.height = height;
+            this.devicePixelRatio = devicePixelRatio;
+            this.orientation = (width > height) ? "landscape" : "portrait";
+        },
         name: "resizeEvent"
     };
     var FrameEvent = {

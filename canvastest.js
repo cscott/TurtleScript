@@ -6,11 +6,9 @@ if (window.navigator.userAgent.indexOf('iPhone') != -1) {
   }
 }
 */
-var canvas;
 var world;
 
-var setup = function(canvas_, uiEvents) {
-    canvas = canvas_;
+var setup = function(canvas, uiEvents) {
     world = gfx.WorldView.New();
     world.canvas = canvas;
     world.strokeColor = gfx.Color.black;
@@ -23,73 +21,65 @@ var setup = function(canvas_, uiEvents) {
     star = star.transformView();
     star.translateBy(gfx.Point.New(100,100));
     world.addFirst(star);
+
+    // Simplest possible widget; fill entire bounding box.
+    var BB = {
+        __proto__: gfx.ComposableView,
+        bounds: function() {
+            return gfx.Rectangle.New(gfx.Point.zero,
+                                     gfx.Point.New(30,30));
+        },
+        drawOn: function(canvas, clipRect) {
+            // ignore cliprect, just draw!
+            canvas.setFill(gfx.Color.grey);
+            canvas.beginPath();
+            canvas.rect(0,0,30,30);
+            canvas.fill();
+        }
+    };
+    var bb = BB.New();
+    bb = bb.transformView();
+    bb.translateBy(gfx.Point.New(50,50));
+    bb.touchStartEvent = function(event) {
+        event.handler.beginDragging(bb, event);
+    };
+
+    // Hello, world text.
+    var str = "_abcdefghijklmnopqrstuvwxyz0123456789,'ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var hello = gfx.TextView.New(world, str);
+    hello.fontHeight = 20;
+    hello.strokeColor = gfx.Color.black;
+    hello = hello.transformView();
+    hello.translateBy(gfx.Point.New(100,100));
+    world.addLast(hello);
+    world.addLast(bb);
+
+    // size feedback
+    var sizeWidget = gfx.TextView.New(world, "x");
+    sizeWidget.fillColor = null; // transparent
+    sizeWidget.strokeColor = gfx.Color.black;
+    world.addFirst(sizeWidget.transformView().translateBy(gfx.Point.New(5,5)));
+
     // allow dragging the star
     star.touchStartEvent = function(event) {
         event.handler.beginDragging(star, event);
     };
     world.resizeEvent = function(event) {
+        canvas.resize(event.width, event.height, event.devicePixelRatio);
+        sizeWidget.text = event.width+"x"+event.height+" "+event.orientation;
         world.damaged();
     };
     uiEvents.mapE(function(e) {
         console.assert(e.name, e);
         world.dispatchEvent(e);
     });
-    world.damaged(); // ensure first frame draws.
+
+    // XXX used to put a widget at every touch to demonstrate multitouch
 };
 
-var drawFrame = function(touchB, tickB) {
-  var lastTouches = touchB.valueNow();
-  var sz = canvas.size();
-
+var drawFrame = function() {
   if (!world.damage) return;
-  canvas.resize(window.innerWidth, window.innerHeight,
-                window.devicePixelRatio || 1);
-  canvas.clearRect(world.damage.left(), world.damage.top(),
-                   world.damage.width(), world.damage.height());
   world.forceDamageToScreen();
-  return;
-
-  canvas.setFontHeight(20);
-  // XXX window.orientation is not reliable; the resize callback seems to occur
-  //     before window.orientation changes.  Just looking at the width/height
-  //     is probably better.
-  var orientation = (canvas.size().width > canvas.size().height) ?
-      "landscape" : "portrait";
-  var str = "Width: "+canvas.size().width+", "+
-            "Height: "+canvas.size().height+", "+
-            "O: "+orientation;
-  // work around iOS bug which clips text unless something *else*
-  // ensures that the invalidation rectangle is big enough.
-  var m = canvas.measureText(str);
-  canvas.setFill(gfx.Color.white);
-  canvas.beginPath();
-  canvas.rect(0.5, 0.5+m.height, 0.5+m.width, 0.5+2*m.height);
-  canvas.fill();
-
-  canvas.setFill(gfx.Color.black);
-  canvas.drawText(str, 0.5, 0.5+2*m.height);
-  canvas.drawText("Touches: "+lastTouches.length, 0.5, 0.5+3*m.height);
-
-  var amt = (tickB.valueNow() % sz.width) / sz.width; // 0-1
-  canvas.setFill(gfx.Color.New(amt,0,0,0.8));
-  canvas.beginPath();
-  canvas.rect(amt*sz.width, 0, 10, 50);
-  canvas.fill();
-
-  // draw a mark at every point
-  canvas.beginPath();
-  var size=50;
-  var i = 0;
-  while (i < lastTouches.length) {
-    /*
-    canvas.setFill(gfx.Color(amt, lastTouches[i].force, 0));
-    */
-    canvas.rect(lastTouches[i].clientX-size,
-                lastTouches[i].clientY-size,
-                size*2, size*2);
-    i+=1;
-  }
-  canvas.fill();
 };
 
 // start it up!

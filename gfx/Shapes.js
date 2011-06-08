@@ -89,6 +89,13 @@ define(["./Shape", "./Point"], function(Shape, Point) {
             return Rectangle.New(this._origin.sub(pt),
                                  this._corner.add(pt));
         },
+        expanded: function() {
+            // quantize up/down to integer coordinates.
+            return Rectangle.New(Point.New(Math.floor(this.left()),
+                                           Math.floor(this.top())),
+                                 Point.New(Math.ceil(this.right()),
+                                           Math.ceil(this.bottom())));
+        },
         encompassing: function(pt) {
             return this.containsPoint(pt) ? this :
                 Rectangle.New(Point.New(Math.min(this._origin.x, pt.x),
