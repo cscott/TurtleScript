@@ -4,7 +4,8 @@ var USE_FRAME_TIMER = false;
 var USE_FAST_MATRICES = false; // off for testing, on for speed!
 
 // use fast matrix implementation from the browser
-if (WebKitCSSMatrix && USE_FAST_MATRICES) {
+if ('WebKitCSSMatrix' in window && 'm11' in new WebKitCSSMatrix() &&
+    USE_FAST_MATRICES) {
     //console.log("Using fast matrices");
     gfx.Transform.registerImpl(new WebKitCSSMatrix());
 }
