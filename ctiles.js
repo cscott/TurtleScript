@@ -29,6 +29,8 @@ add_demo('Standard library', tests[8]);
 add_demo('Event library', tests[7]);
 add_demo('Test suite', tests[9]);
 
+add_demo('IDC2012', "function fact(n) { if (n<=1) {return 1;} return n*fact(n-1); } console.log(\"5!=\", fact(5));");
+
 var isource = "";
 isource = tests[tests.length-2];
 //isource='{console=2+3;return this;}';

@@ -13,7 +13,7 @@ var styles = {
    literalColor: Color.From8888(139, 34, 82), // string literals
    semiColor: Color.From8888(0, 0, 0, 76),// semicolon
    tileColor: Color.From8888(253, 250, 235),
-   tileOutlineColor: Color.From8888(255, 204, 106, 125),
+   tileOutlineColor: Color.From8888(0,0,0,125),//(255, 204, 106, 125),
    yadaColor: Color.From8888(249, 250, 215, 0), // background of ... expr
    stmtColor: Color.From8888(253, 250, 215),
    tileCornerRadius: 4,
