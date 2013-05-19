@@ -14,6 +14,41 @@ GUI:
       or end of gesture)
       event.handler() is top level handler. has activate/etc methods.
 
+eventsE = ..
+
+while (true) {
+  md = yield eventsE.waitFor(function(e) { return e.isMouseDown(); });
+  // or...
+  // while (!(yield eventsE.next()).isMouseDown())
+  //     /* ignore */;
+  mu = yield beginDragging(this, eventsE);
+  this.doDrop(md, mu);
+}
+
+widget.childDamage = mergeE(|c| in children, c.damageE)
+widget.damageE = mergeE(widget.childDamage.map(function(rect) { return rect.transformedBy.... }), widget.extraDamage);
+extraDamage = widget.clicked.mapE(function(e){return DamageEvent(this.bounds())})
+mapE(this.handleE)
+
+mapE(function(e) {
+ if (f(e)) {
+    yield g(e); // same timestamp as e
+    yield h(e);
+ }
+})
+reactor.loop(function(eventStream) {
+  e = yield eventStream.next();
+  this.handle(e);
+});
+this.damaged = { this.damageStream.emit(new DamageEvent(this.bounds())); }
+damagereactor = reactor.loop(function() {
+   promises = children.map(function(c) { return c.damageStream.next(); });
+   d = yield getOne(promises);
+   this.emit(new DamageEvent(d.transformedBy(x)));
+})
+
+
+
 Native environment:
 1) Transform BINOPs into method calls.
    the various binary() calls just become emit("invoke")
