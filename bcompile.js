@@ -129,6 +129,7 @@ define(["bytecode-table"], function make_bcompile(bytecode_table) {
             var i = 0;
             encode_uint(out, str.length);
             while (i < str.length) {
+                // note that we are outputting characters in UTF16
                 encode_uint(out, str.charCodeAt(i));
                 i += 1;
             }
