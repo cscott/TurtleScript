@@ -18,7 +18,7 @@ requirejs(['./bytecode-table'], function(bytecode_table) {
     console.log('');
 
     // emit Op enumeration
-    console.log('enum Op {');
+    console.log('pub enum Op {');
     bops.forEach(function(bc, i) {
         console.log('  Op_' + bc.name + ' = ' + i + comma(i));
     });
@@ -27,21 +27,21 @@ requirejs(['./bytecode-table'], function(bytecode_table) {
 
     // emit args function
     console.log('impl Op {');
-    console.log('  fn args(&self) -> uint {');
+    console.log('  pub fn args(&self) -> uint {');
     console.log('    match *self {');
     bops.forEach(function(bc, i) {
         console.log('      Op_' + bc.name + ' => ' + bc.args + comma(i));
     });
     console.log('    }');
     console.log('  }');
-    console.log('  fn stackpush(&self) -> uint {');
+    console.log('  pub fn stackpush(&self) -> uint {');
     console.log('    match *self {');
     bops.forEach(function(bc, i) {
         console.log('      Op_' + bc.name + ' => ' + bc.stackpush() + comma(i));
     });
     console.log('    }');
     console.log('  }');
-    console.log('  fn stackpop(&self, args: &[int]) -> uint {');
+    console.log('  pub fn stackpop(&self, args: &[int]) -> uint {');
     console.log('    match *self {');
     bops.forEach(function(bc, i) {
         var stackpop = bc.stackpop();
@@ -52,7 +52,7 @@ requirejs(['./bytecode-table'], function(bytecode_table) {
     });
     console.log('    }');
     console.log('  }');
-    console.log('  fn new_from_int(val: int) -> Op {');
+    console.log('  pub fn new_from_uint(val: uint) -> Op {');
     console.log('    match val {');
     bops.forEach(function(bc, i) {
         console.log('      ' + i + ' => Op_' + bc.name + ',');
@@ -73,7 +73,7 @@ requirejs(['./bytecode-table'], function(bytecode_table) {
     console.log('#[test]');
     console.log('fn test_cast() {');
     console.log('  let op1a = Op_push_literal;');
-    console.log('  let op1b = Op::new_from_int(1);');
+    console.log('  let op1b = Op::new_from_uint(1);');
     console.log('  assert!((op1a as int) == 1);');
     console.log('  assert!((op1b as int) == 1);');
     console.log('}');
