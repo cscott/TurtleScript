@@ -233,7 +233,7 @@ define(["bytecode-table", "!html-escape"], function make_binterp(bytecode_table,
         if (func === null || typeof(func) !== "object" ||
             func.type !== "function") {
             // XXX: throw wrapped TypeError
-            Object.Throw("Not a function at "+this.stack.pc);
+            Object.Throw("Not a function at "+this.pc);
         }
         // "native code"
         if (func.type === "function" && func.native_code) {
