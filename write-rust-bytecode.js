@@ -51,8 +51,8 @@ requirejs(['./parse', './bcompile', './bytecode-table', './tests'], function(par
         "return __modules__['compile_from_source']; }\n";
 
     // XXX hack for initial tests
-    source = "{ console.log('Hello,', 'world!'); }";
-    source = "{ var fib=function(n){return (n<2)?1:fib(n-1)+fib(n-2);}; return fib(10); }";
+    //source = "{ console.log('Hello,', 'world!'); }";
+    //source = "{ var fib=function(n){return (n<2)?1:fib(n-1)+fib(n-2);}; return fib(10); }";
 
     var compile_from_source = make_compile_from_source(parse, bcompile);
     var bc = compile_from_source(source);
