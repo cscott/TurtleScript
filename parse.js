@@ -17,11 +17,19 @@ define(["tokenize"], function make_parse(tokenize) {
         return this;
     };
 
+    var error = function(obj, message, t) {
+        t = t || obj;
+        t.name = "Syntax Error";
+        t.message = message;
+        //console.log(t);
+        Object.Throw(t);
+    };
+
     var original_scope = {
         define: function (n) {
             var t = this.def[n.value];
             if (typeof t === "object") {
-                n.error(t.reserved ? "Already reserved." : "Already defined.");
+                error(n, t.reserved ? "Already reserved." : "Already defined.");
             }
             this.def[n.value] = n;
             n.reserved = false;
@@ -59,7 +67,7 @@ define(["tokenize"], function make_parse(tokenize) {
                     return;
                 }
                 if (t.arity === "name") {
-                    n.error("Already defined.");
+                    error(n, "Already defined.");
                 }
             }
             this.def[n.value] = n;
@@ -79,7 +87,7 @@ define(["tokenize"], function make_parse(tokenize) {
     var advance = function (id) {
         var a, o, t, v;
         if (id && token.id !== id) {
-            token.error("Expected '" + id + "'.");
+            error(token, "Expected '" + id + "'.");
         }
         if (token_nr >= tokens.length) {
             token = symbol_table["(end)"];
@@ -94,13 +102,13 @@ define(["tokenize"], function make_parse(tokenize) {
         } else if (a === "operator") {
             o = symbol_table[v];
             if (!o) {
-                t.error("Unknown operator.");
+                error(t, "Unknown operator.");
             }
         } else if (a === "string" || a ===  "number") {
             o = symbol_table["(literal)"];
             a = "literal";
         } else {
-            t.error("Unexpected token.");
+            error(t, "Unexpected token.");
         }
         token = Object.create(o);
         token.from  = t.from;
@@ -136,7 +144,7 @@ define(["tokenize"], function make_parse(tokenize) {
             v = expression(0);
             if ((!v.assignment) && v.id !== "(" &&
                 !(v.arity === 'function' && v.name)) {
-                v.error("Bad expression statement.");
+                error(v, "Bad expression statement.");
             }
             if (!(v.arity === 'function' && v.name && token.id !== ';')) {
                 // trailing semicolon optional for named functions.
@@ -185,10 +193,10 @@ define(["tokenize"], function make_parse(tokenize) {
 
     var original_symbol = {
         nud: function () {
-            this.error("Undefined.");
+            error(this, "Undefined.");
         },
         led: function (left) {
-            this.error("Missing operator.");
+            error(this, "Missing operator.");
         }
     };
 
@@ -245,7 +253,7 @@ define(["tokenize"], function make_parse(tokenize) {
     var assignment = function (id) {
         return infixr(id, 10, function (left) {
             if (left.id !== "." && left.id !== "[" && left.arity !== "name") {
-                left.error("Bad lvalue.");
+                error(left, "Bad lvalue.");
             }
             this.first = left;
             this.second = expression(9);
@@ -333,7 +341,7 @@ define(["tokenize"], function make_parse(tokenize) {
     infix(".", 80, function (left) {
         this.first = left;
         if (token.arity !== "name") {
-            token.error("Expected a property name.");
+            error(token, "Expected a property name.");
         }
         token.arity = "literal";
         this.second = token;
@@ -364,7 +372,7 @@ define(["tokenize"], function make_parse(tokenize) {
             if (left.arity !== "function" &&
                     left.arity !== "name" && left.id !== "(" &&
                     left.id !== "&&" && left.id !== "||" && left.id !== "?") {
-                left.error("Expected a variable name.");
+                error(left, "Expected a variable name.");
             }
         }
         if (token.id !== ")") {
@@ -409,7 +417,7 @@ define(["tokenize"], function make_parse(tokenize) {
         if (token.id !== ")") {
             while (true) {
                 if (token.arity !== "name") {
-                    token.error("Expected a parameter name.");
+                    error(token, "Expected a parameter name.");
                 }
                 scope.define(token);
                 a.push(token);
@@ -453,7 +461,7 @@ define(["tokenize"], function make_parse(tokenize) {
             while (true) {
                 n = token;
                 if (n.arity !== "name" && n.arity !== "literal") {
-                    token.error("Bad property name.");
+                    error(token, "Bad property name.");
                 }
                 advance();
                 advance(":");
@@ -489,7 +497,7 @@ define(["tokenize"], function make_parse(tokenize) {
         while (true) {
             n = token;
             if (n.arity !== "name") {
-                n.error("Expected a new variable name.");
+                error(n, "Expected a new variable name.");
             }
             scope.define(n);
             // CSA: record 'var' as a statement
@@ -538,7 +546,7 @@ define(["tokenize"], function make_parse(tokenize) {
         }
         advance(";");
         if (token.id !== "}") {
-            token.error("Unreachable statement.");
+            error(token, "Unreachable statement.");
         }
         this.arity = "statement";
         return [ this ];
@@ -547,7 +555,7 @@ define(["tokenize"], function make_parse(tokenize) {
     stmt("break", function () {
         advance(";");
         if (token.id !== "}") {
-            token.error("Unreachable statement.");
+            error(token, "Unreachable statement.");
         }
         this.arity = "statement";
         return [ this ];
