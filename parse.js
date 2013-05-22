@@ -589,8 +589,59 @@ define(["tokenize"], function make_parse(tokenize) {
         scope.pop();
         return s;
     };
+    var parse_repl = function(state, source, top_level, debug) {
+        DEBUG = debug;
+        var TOKEN_PREFIX = '=<>!+-*&|/%^', TOKEN_SUFFIX = '=<>&|';
+        var old_scope = scope;
+        if (state) {
+            scope = state.scope;
+        } else {
+            new_scope();
+            if (top_level) {
+                top_level = tokenize(top_level);
+                var i = 0;
+                while (i < top_level.length) {
+                    scope.define(top_level[i]);
+                    i+=1;
+                }
+            }
+        }
+        var nstate = { scope: scope };
+        var repl_tokens = tokenize(source, TOKEN_PREFIX, TOKEN_SUFFIX);
+        // try to parse as an expression
+        var tree;
+        Object.Try(this, function() {
+            tokens = repl_tokens;
+            token_nr = 0;
+            advance();
+            var e = expression(0);
+            advance("(end)");
+            tree = [{
+                value: "return",
+                arity: "statement",
+                first: e
+            }];
+            nstate.scope = scope;
+        }, function (ee) { // catch(ee)
+            //console.log("FAILED PARSING AS EXPRESSION", ee);
+            repl_tokens = tokenize(source, TOKEN_PREFIX, TOKEN_SUFFIX);
+        });
+        if (!tree) {
+            // try to parse as a statement
+            tokens = repl_tokens;
+            token_nr = 0;
+            advance();
+            var s = statements();
+            advance("(end)");
+            tree = s;
+            nstate.scope = scope;
+        }
+        scope = old_scope;
+        return { state: nstate, tree: tree };
+    };
     parse.__module_name__ = "parse";
     parse.__module_init__ = make_parse;
     parse.__module_deps__ = ["tokenize"];
+    parse.repl = parse_repl;
     return parse;
 });
