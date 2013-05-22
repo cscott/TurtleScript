@@ -32,7 +32,7 @@ define(["bytecode-table"], function make_bcompile(bytecode_table) {
     var assert = function(b, obj) {
         if (!b) {
             console.log("ASSERTION FAILURE", obj);
-            Object.error("Assertion failure", obj);
+            console.assert(false);
         }
     };
 

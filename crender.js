@@ -1469,7 +1469,7 @@ define(["str-escape", "gfx/Point", "gfx/Color"], function make_crender(str_escap
     var assert = function(b, obj) {
         if (!b) {
             console.log('ASSERTION FAILURE', obj);
-            Object.error("Assertion failure", obj);
+            console.assert(false);
         }
     };
 

@@ -9,7 +9,7 @@ define(["str-escape","!html-escape"], function make_render(str_escape, html_esca
     var indentation, prec_stack = [ 0 ];
 
     var assert = function(b, obj) {
-        if (!b) { Object.error("Assertion failure", obj); }
+        if (!b) { console.assert(b, "Assertion failure", obj); }
     };
 
     // helper function for delimiter-joined lists
