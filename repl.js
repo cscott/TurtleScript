@@ -32,16 +32,29 @@ requirejs(['./extensions', './parse', './bcompile', './binterp'], function(_, pa
     var frame = binterp.make_top_level_frame(null);
     rl.on('line', function(line) {
         source += line;
-        var rv = parse.repl(state, source, TOP_LEVEL);
+        var rv;
+        try {
+            rv = parse.repl(state, source, TOP_LEVEL);
+        } catch (err) {
+            rl.setPrompt('... ');
+            rl.prompt();
+            return;
+        }
         state = rv.state;
         var bc = bcompile(rv.tree);
         var result = binterp.binterp(bc, 0, frame);
         console.log(result);
-        //console.log(JSON.stringify(frame));
-        source = ''; // XXX we'd only clear if parser didn't want more
-        //result = tree;
-        //var bc = compile_from_source(prefix);
+
+        source = '';
+        rl.setPrompt('> ');
         rl.prompt();
+    }).on('SIGINT', function() {
+        console.log('^C');
+        source = '';
+        rl.setPrompt('> ');
+        rl.prompt();
+        // Simulate ctrl+u to delete the line written previously
+        rl.write(null, {ctrl: true, name: 'u'});
     }).on('close', function() {
         console.log('exit');
         console.log('goodbye!');
