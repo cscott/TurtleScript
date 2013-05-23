@@ -50,6 +50,7 @@ requirejs(['./parse', './bcompile', './bytecode-table', './tests'], function(par
         cfs_source + '\n' +
         "return __modules__['compile_from_source']; }\n";
 
+    //console.log(source);
     // XXX hack for initial tests
     //source = "{ console.log('Hello,', 'world!'); }";
     //source = "{ var fib=function(n){return (n<2)?1:fib(n-1)+fib(n-2);}; return fib(10); }";
@@ -96,6 +97,7 @@ requirejs(['./parse', './bcompile', './bytecode-table', './tests'], function(par
         console.log('    max_stack: ' + f.max_stack + ',');
         console.log('    bytecode: ~[');
         for (var j=0; j<f.bytecode.length; ) {
+            var pc = j;
             var bc = bytecode_table.for_num(f.bytecode[j]);
             var a = f.bytecode.slice(j, j+=bc.args+1);
             a = a.map(function(b) {
@@ -105,7 +107,7 @@ requirejs(['./parse', './bcompile', './bytecode-table', './tests'], function(par
             var b = a.slice(1);
             a = a.join(', ') + ((j < f.bytecode.length) ? ',' : '');
             b = bc.name + ( b.length ? ( '(' + b.join(',') + ')' ) : '' );
-            console.log('      ' + a + '\t// ' + b);
+            console.log('      ' + a + '\t// ' + pc + ': ' + b);
         }
         console.log('    ]');
         console.log('  });');
