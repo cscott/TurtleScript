@@ -127,7 +127,7 @@ requirejs(['./parse', './bcompile', './bytecode-table', './tests'], function(par
         if (typeof(lv) === "number" ) {
             str = lv.toString() + 'f64';
             if (isNaN(lv)) { str = 'f64::NaN'; }
-            if (!isFinite(lv)) { str = 'f64::infinity'; }
+            else if (!isFinite(lv)) { str = lv > 0 ? 'f64::infinity' : 'f64::neg_infinity'; }
             str = "JsNumber(" + str + ")";
         } else if (typeof(lv) === "string") {
             str = "JsVal::from_str(" + rust_esc(lv) + ")";
