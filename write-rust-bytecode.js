@@ -23,7 +23,7 @@ requirejs(['./parse', './bcompile', './bytecode-table', './tests'], function(par
         "  __modules__[name] = init_func.apply(this, d);\n"+
         "};\n";
     var make_compile_from_source = function(parse, bcompile) {
-       return function (source) {
+        return function (source, as_object) {
            var result;
            source = source || '{ return 1+2; }';
            //result = tokenize(source, '=<>!+-*&|/%^', '=<>&|');
@@ -32,7 +32,7 @@ requirejs(['./parse', './bcompile', './bytecode-table', './tests'], function(par
                             "console arguments now define document");
            //result = tree;
            var bc = bcompile(tree);
-           result = bc;
+           result = as_object ? bc : bc.encode();
            return result;
        };
     };
@@ -56,7 +56,7 @@ requirejs(['./parse', './bcompile', './bytecode-table', './tests'], function(par
     //source = "{ var fib=function(n){return (n<2)?1:fib(n-1)+fib(n-2);}; return fib(10); }";
 
     var compile_from_source = make_compile_from_source(parse, bcompile);
-    var bc = compile_from_source(source);
+    var bc = compile_from_source(source, true/*as object*/);
 
     var rust_esc = function(str) {
         // escape string for rust -- note UTF-16 to UCS4 conversion.
