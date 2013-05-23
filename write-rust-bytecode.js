@@ -23,18 +23,26 @@ requirejs(['./parse', './bcompile', './bytecode-table', './tests'], function(par
         "  __modules__[name] = init_func.apply(this, d);\n"+
         "};\n";
     var make_compile_from_source = function(parse, bcompile) {
-        return function (source, as_object) {
-           var result;
+       var TOP_LEVEL = "isFinite parseInt isNaN "+
+            "Boolean String Function Math "+
+            "console arguments now define document";
+       var compile_from_source = function (source, as_object) {
            source = source || '{ return 1+2; }';
-           //result = tokenize(source, '=<>!+-*&|/%^', '=<>&|');
-           var tree = parse(source, "isFinite parseInt isNaN "+
-                            "Boolean String Function Math "+
-                            "console arguments now define document");
+           var tree = parse(source, TOP_LEVEL);
            //result = tree;
            var bc = bcompile(tree);
-           result = as_object ? bc : bc.encode();
+           var result = as_object ? bc : bc.encode();
            return result;
        };
+       compile_from_source.make_repl = function() {
+           var state = null;
+           return function(source) {
+               var rv = parse.repl(state, source, TOP_LEVEL);
+               state = rv.state;
+               return bcompile(rv.tree).encode();
+           };
+       };
+       return compile_from_source;
     };
     var cfs_source = make_compile_from_source.toSource ?
         make_compile_from_source.toSource() :
