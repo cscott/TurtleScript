@@ -599,6 +599,22 @@ define(["bytecode-table", "!html-escape"], function make_binterp(bytecode_table,
             this.length -= 1;
             return last;
         };
+        Array.prototype.join = function(sep) {
+            // xxx call internal toObject on this
+            var len = this.length;
+            // we call internal toString on sep (by adding '')
+            if (sep === undefined) { sep = ','; } else { sep = '' + sep; }
+            var k = 0;
+            var result = '';
+            while (k < len) {
+                var elem = this[k];
+                if (elem!==undefined && elem!==null) {
+                    result += elem;
+                }
+                k += 1;
+            }
+            return result;
+        };
         Array.prototype.concat = function() {
             var result = [], i, j;
             // start by cloning 'this'
@@ -729,6 +745,13 @@ define(["bytecode-table", "!html-escape"], function make_binterp(bytecode_table,
             result += "() { [native code] }";
             return result;
         };
+        // define toString() in terms of valueOf() for some types
+        Boolean.prototype.toString = function() {
+            return Boolean.prototype.valueOf.call(this) ? "true" : "false";
+        };
+        String.prototype.toString = String.prototype.valueOf;
+        Number.prototype.toLocaleString = Number.prototype.toString;
+
         // Support for branchless bytecode (see Chambers et al, OOPSLA '89)
         true["while"] = function(_this_, cond, body) {
             body.call(_this_);

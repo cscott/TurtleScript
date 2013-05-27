@@ -7,7 +7,7 @@ requirejs.config({
 
 requirejs.define('timeouts', { setTimeout: null, clearTimeout: null });
 
-requirejs(['./parse', './bcompile', './bytecode-table', './tests'], function(parse, bcompile, bytecode_table, tests) {
+requirejs(['./parse', './bcompile', './bytecode-table', './tests', './extensions'], function(parse, bcompile, bytecode_table, tests) {
     var fake_require =
         "var __modules__ = {};\n"+
         "define = function(name, deps, init_func) {\n"+
@@ -24,7 +24,7 @@ requirejs(['./parse', './bcompile', './bytecode-table', './tests'], function(par
         "};\n";
     var make_compile_from_source = function(parse, bcompile) {
        var TOP_LEVEL = "isFinite parseInt isNaN "+
-            "Boolean String Function Math "+
+            "Boolean String Function Math Number "+
             "console arguments now define document";
        var compile_from_source = function (source, as_object) {
            source = source || '{ return 1+2; }';
@@ -56,6 +56,9 @@ requirejs(['./parse', './bcompile', './bytecode-table', './tests'], function(par
         tests.lookup("bytecode-table")+"\n"+
         tests.lookup("bcompile")+"\n"+
         cfs_source + '\n' +
+        //"var test_nan = function() { return NaN; };\n" +
+        //"var test_inf = function() { return Infinity; };\n" +
+        //"var test_neg_inf = function() { return -Infinity; };\n" +
         "return __modules__['compile_from_source']; }\n";
 
     //console.log(source);
