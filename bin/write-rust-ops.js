@@ -1,8 +1,11 @@
 #!/usr/bin/env node
+// Node CLI to write out the opcode mapping from bytecode-table.js
+// as a Rust module.
 var requirejs = require('requirejs');
 
 requirejs.config({
-    nodeRequire: require
+    nodeRequire: require,
+    baseUrl: __dirname + '/..'
 });
 
 requirejs(['./bytecode-table'], function(bytecode_table) {

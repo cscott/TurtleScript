@@ -1,9 +1,12 @@
 #!/usr/bin/env node
+// Node shell to run the tokenize/parse/bcompile/binterp pipeline as a
+// TurtleScript REPL.
 var requirejs = require('requirejs');
 var readline = require('readline');
 
 requirejs.config({
-    nodeRequire: require
+    nodeRequire: require,
+    baseUrl: __dirname + '/..'
 });
 
 // set up some global context

@@ -1,8 +1,11 @@
 #!/usr/bin/env node
+// Node CLI to write bytecode for TurtleScript parser, bytecode compiler,
+// startup code and standard library, as a Rust module.
 var requirejs = require('requirejs');
 
 requirejs.config({
-    nodeRequire: require
+    nodeRequire: require,
+    baseUrl: __dirname + '/..'
 });
 
 requirejs.define('timeouts', { setTimeout: null, clearTimeout: null });
