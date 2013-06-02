@@ -107,24 +107,36 @@ define(function make_tokenize() { function tokenize (_this_, prefix, suffix, DEB
             if (c === '.') {
                 str = '';
             } else {
-            str = c;
-            i += 1;
+                str = c;
+                i += 1;
+
+// handle hexadecimal constants [CSA]
+                c = _this_.charAt(i);
+                var isHex = (str==='0' && c==='x');
+                if (isHex) {
+                    str += c;
+                    i += 1;
+                }
 
 // Look for more digits.
 
-            while (true) {
-                c = _this_.charAt(i);
-                if (c < '0' || c > '9') {
-                    break;
+                while (true) {
+                    c = _this_.charAt(i);
+                    if (c < '0' || c > '9') {
+                        if (!( isHex &&
+                              ( (c >= 'a' && c <= 'f') ||
+                                (c >= 'A' && c <= 'F') ))) {
+                            break;
+                        }
+                    }
+                    i += 1;
+                    str += c;
                 }
-                i += 1;
-                str += c;
-            }
             }
 
 // Look for a decimal fraction part.
 
-            if (c === '.') {
+            if (c === '.' && !isHex) {
                 i += 1;
                 str += c;
                 while (true) {
@@ -139,7 +151,7 @@ define(function make_tokenize() { function tokenize (_this_, prefix, suffix, DEB
 
 // Look for an exponent part.
 
-            if (c === 'e' || c === 'E') {
+            if ((c === 'e' || c === 'E') && !isHex) {
                 i += 1;
                 str += c;
                 c = _this_.charAt(i);
@@ -174,7 +186,9 @@ define(function make_tokenize() { function tokenize (_this_, prefix, suffix, DEB
 
             n = 1 * str;
             if (isFinite(n)) {
-                result.push(make('number', n));
+                var t = make('number', n);
+                t.base = isHex ? 16 : 10;
+                result.push(t);
             } else {
                 error(make('number', str), "Bad number");
             }
