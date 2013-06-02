@@ -31,6 +31,14 @@ define(function make_tokenize() { function tokenize (_this_, prefix, suffix, DEB
 
     var result = [];            // An array to hold the results.
 
+    var error = function(obj, message, t) {
+        t = t || obj;
+        t.name = "Syntax Error";
+        if (t.from || t.to) { message += ' ['+t.from+'-'+t.to+']'; }
+        t.message = message;
+        Object.Throw(t);
+    };
+
     var make = function (type, value) {
 
 // Make a token object.
@@ -141,7 +149,7 @@ define(function make_tokenize() { function tokenize (_this_, prefix, suffix, DEB
                     c = _this_.charAt(i);
                 }
                 if (c < '0' || c > '9') {
-                    make('number', str).error("Bad exponent");
+                    error(make('number', str), "Bad exponent");
                 }
                 while (true) {
                     i += 1;
@@ -158,7 +166,7 @@ define(function make_tokenize() { function tokenize (_this_, prefix, suffix, DEB
             if (c >= 'a' && c <= 'z') {
                 str += c;
                 i += 1;
-                make('number', str).error("Bad number");
+                error(make('number', str), "Bad number");
             }
 
 // Convert the string value to a number. If it is finite, then it is a good
@@ -168,7 +176,7 @@ define(function make_tokenize() { function tokenize (_this_, prefix, suffix, DEB
             if (isFinite(n)) {
                 result.push(make('number', n));
             } else {
-                make('number', str).error("Bad number");
+                error(make('number', str), "Bad number");
             }
 
 // string
@@ -180,9 +188,10 @@ define(function make_tokenize() { function tokenize (_this_, prefix, suffix, DEB
             while (true) {
                 c = _this_.charAt(i);
                 if (c < ' ') {
-                    make('string', str).error(c === '\n' || c === '\r' || c === '' ?
-                        "Unterminated string." :
-                        "Control character in string.", make('', str));
+                    error(make('string', str),
+                          c === '\n' || c === '\r' || c === '' ?
+                          "Unterminated string." :
+                          "Control character in string."/*, make('', str)*/);
                 }
 
 // Look for the closing quote.
@@ -196,7 +205,7 @@ define(function make_tokenize() { function tokenize (_this_, prefix, suffix, DEB
                 if (c === '\\') {
                     i += 1;
                     if (i >= length) {
-                        make('string', str).error("Unterminated string");
+                        error(make('string', str), "Unterminated string");
                     }
                     c = _this_.charAt(i);
                     if (c === 'b') {
@@ -211,11 +220,11 @@ define(function make_tokenize() { function tokenize (_this_, prefix, suffix, DEB
                         c = '\t';
                     } else if (c === 'u') {
                         if (i >= length) {
-                            make('string', str).error("Unterminated string");
+                            error(make('string', str), "Unterminated string");
                         }
                         c = parseInt(_this_.substring(i + 1, i + 1 + 4), 16);
                         if (!isFinite(c) || c < 0) {
-                            make('string', str).error("Unterminated string");
+                            error(make('string', str), "Unterminated string");
                         }
                         c = String.fromCharCode(c);
                         i += 4;

@@ -20,8 +20,9 @@ define(["tokenize"], function make_parse(tokenize) {
     var error = function(obj, message, t) {
         t = t || obj;
         t.name = "Syntax Error";
+        if (t.from || t.to) { message += ' ['+t.from+'-'+t.to+']'; }
         t.message = message;
-        //console.log(t);
+        //console.warn(JSON.stringify(t));
         Object.Throw(t);
     };
 
@@ -610,6 +611,8 @@ define(["tokenize"], function make_parse(tokenize) {
         var repl_tokens = tokenize(source, TOKEN_PREFIX, TOKEN_SUFFIX);
         // try to parse as an expression
         var tree;
+        // xxx if exception is thrown (ie, for "var f = function() {}" w/ no
+        //     trailing semi) we need to reset scope so that f is not defined.
         Object.Try(this, function() {
             tokens = repl_tokens;
             token_nr = 0;
