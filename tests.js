@@ -325,7 +325,7 @@ define(["str-escape",
     };
     */
 
-    var test_source = [], j=0, test_map = {};
+    var test_source = [], j=0, test_map = {}, test_names = [];
     while (j <= i) {
         test_source[j] = "define(";
         if (test[j].__module_name__) {
@@ -344,12 +344,17 @@ define(["str-escape",
         test_source[j] += ");";
         if (test[j].__module_name__) {
             test_map[test[j].__module_name__] = test_source[j];
+            test_names[j] = test[j].__module_name__;
         }
         j+=1;
     }
     // add an accessor method to the test_source array
     test_source.lookup = function(name) {
         return test_map[name];
+    };
+    // add an accessor method to the test_names array
+    test_source.getName = function(idx) {
+        return test_names[idx];
     };
     return test_source;
 });

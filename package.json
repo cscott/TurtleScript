@@ -1,0 +1,29 @@
+{
+    "name": "turtlescript",
+    "description": "TurtleScript is JavaScript with simplified syntax, for pedagogy",
+    "homepage": "http://turtlescript.github.cscott.net",
+    "main": "nodemain.js",
+    "repository": {
+	"type": "git",
+	"url": "https://github.com/cscott/turtlescript.git"
+    },
+    "license": "MIT/GPLv2",
+    "bin": {
+	"turtlescript": "./bin/repl.js"
+    },
+    "directories": {
+	"test": "test"
+    },
+    "dependencies": {
+	"requirejs": "~2.1.6"
+    },
+    "devDependencies": {
+	"mocha": "~1.9.0",
+	"docco": "~0.6.2"
+    },
+    "scripts": {
+	"test": "mocha -R spec"
+    },
+    "amd": {},
+    "volo": {}
+}
