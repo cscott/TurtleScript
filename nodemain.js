@@ -26,6 +26,8 @@ module.exports = Object.create(null);
  'asm-llvm',
  // FRS-style event system
  'events', 'eventtests',
+ // top-level declarations suitable for compiling TurtleScript modules
+ 'top-level',
  // a collection of interesting TurtleScript test cases
  'tests'].forEach(function(m) {
      module.exports[m.replace('-','_')] = requirejs('./'+m);

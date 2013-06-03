@@ -9,16 +9,13 @@ requirejs.config({
 
 requirejs.define('timeouts', { setTimeout: null, clearTimeout: null });
 
-requirejs(['./extensions', './asm-llvm', './parse'], function(_, asm_llvm, parse) {
+requirejs(['./extensions', './asm-llvm', './parse', './jcompile', './top-level'], function(_, asm_llvm, parse, jcompile, top_level) {
 
-    var TOP_LEVEL = "isFinite parseInt parseFloat isNaN "+
-        "Boolean String Function Math Number "+
-        "JSON RegExp SyntaxError "+
-        "console arguments now define document";
     // verify that asm-llvm is valid turtlescript
     var asm_llvm_source = fs.readFileSync(__dirname + '/../asm-llvm.js',
                                           'utf8');
-    var tree = parse(asm_llvm_source, TOP_LEVEL);
+    var tree = parse(asm_llvm_source, top_level);
+    jcompile(tree); // verify parse tree
 
     // okay, compile the input file.
     if (process.argv.length < 3) {

@@ -12,21 +12,7 @@ requirejs.config({
 // set up some global context
 requirejs.define('timeouts', { setTimeout: null, clearTimeout: null });
 
-requirejs(['./extensions', './parse', './bcompile', './binterp'], function(_, parse, bcompile, binterp) {
-    var compile_from_source = function (source) {
-        var result;
-        source = source || '{ return 1+2; }';
-        //result = tokenize(source, '=<>!+-*&|/%^', '=<>&|');
-        var tree = parse(source, "isFinite parseInt isNaN "+
-                         "Boolean String Function Math "+
-                         "console arguments now define document");
-        //result = tree;
-        return bcompile(tree);
-    };
-    var TOP_LEVEL = "isFinite parseInt isNaN "+
-        "Boolean String Function Math "+
-        "console arguments now define document";
-
+requirejs(['./extensions', './parse', './bcompile', './binterp', './top-level'], function(_, parse, bcompile, binterp, top_level) {
     var rl = readline.createInterface(process.stdin, process.stdout);
     rl.setPrompt('> ');
     rl.prompt();
@@ -37,7 +23,7 @@ requirejs(['./extensions', './parse', './bcompile', './binterp'], function(_, pa
         source += line;
         var rv;
         try {
-            rv = parse.repl(state, source, TOP_LEVEL);
+            rv = parse.repl(state, source, top_level);
         } catch (err) {
             rl.setPrompt('... ');
             rl.prompt();

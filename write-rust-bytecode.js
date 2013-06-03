@@ -1,7 +1,7 @@
 // Utility to write bytecode for TurtleScript parser, bytecode compiler,
 // startup code and standard library, as a Rust module.
 // Run it under node with the CLI in bin/write-rust-bytecode.js
-define(['./parse', './bcompile', './bytecode-table', './tests', './extensions'], function(parse, bcompile, bytecode_table, tests) {
+define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escape', './tests', './extensions'], function(parse, bcompile, bytecode_table, top_level, str_escape, tests) {
     var fake_require =
         "var __modules__ = {};\n"+
         "define = function(name, deps, init_func) {\n"+
@@ -16,10 +16,7 @@ define(['./parse', './bcompile', './bytecode-table', './tests', './extensions'],
         "  var d = map(deps, function(m) { return __modules__[m]; });\n"+
         "  __modules__[name] = init_func.apply(this, d);\n"+
         "};\n";
-    var make_compile_from_source = function(parse, bcompile) {
-       var TOP_LEVEL = "isFinite parseInt isNaN "+
-            "Boolean String Function Math Number "+
-            "console arguments now define document";
+    var make_compile_from_source = function(parse, bcompile, TOP_LEVEL) {
        var compile_from_source = function (source, as_object) {
            source = source || '{ return 1+2; }';
            var tree = parse(source, TOP_LEVEL);
@@ -41,14 +38,17 @@ define(['./parse', './bcompile', './bytecode-table', './tests', './extensions'],
     var cfs_source = make_compile_from_source.toSource ?
         make_compile_from_source.toSource() :
         make_compile_from_source.toString();
-    cfs_source = 'define("compile_from_source", ["parse","bcompile"], '+
-        cfs_source + ');\n';
+    cfs_source = 'define("compile_from_source", ["parse","bcompile","top-level"], '+
+        cfs_source + ');';
+    var top_level_source = 'define("top-level", [], function() { return ' +
+        str_escape(top_level) + '; });';
     source = '{' + fake_require +
         tests.lookup("stdlib")+"\n"+
         tests.lookup("tokenize")+"\n"+
         tests.lookup("parse")+"\n"+
         tests.lookup("bytecode-table")+"\n"+
         tests.lookup("bcompile")+"\n"+
+        top_level_source+"\n"+
         cfs_source + '\n' +
         //"var test_nan = function() { return NaN; };\n" +
         //"var test_inf = function() { return Infinity; };\n" +
@@ -60,7 +60,7 @@ define(['./parse', './bcompile', './bytecode-table', './tests', './extensions'],
     //source = "{ console.log('Hello,', 'world!'); }";
     //source = "{ var fib=function(n){return (n<2)?1:fib(n-1)+fib(n-2);}; return fib(10); }";
 
-    var compile_from_source = make_compile_from_source(parse, bcompile);
+    var compile_from_source = make_compile_from_source(parse, bcompile, top_level);
     var bc = compile_from_source(source, true/*as object*/);
 
     var rust_esc = function(str) {
