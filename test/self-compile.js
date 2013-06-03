@@ -5,9 +5,7 @@ var turtlescript = require('../');
 
 describe('Verify that modules are written in valid TurtleScript:', function(){
     turtlescript.tests.forEach(function(test, idx) {
-        var name = turtlescript.tests.getName(idx);
-        name = name ? ("'" + name + "'") : '<test case '+idx+'>';
-        describe(name, function() {
+        describe(turtlescript.tests.getName(idx), function() {
             var tree;
             it('should correctly parse.', function() {
                 tree = turtlescript.parse(test, turtlescript.top_level);

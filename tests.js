@@ -27,7 +27,9 @@ define(["str-escape",
         test[i+=1] = make_tests;
     }
     // now some ad-hoc test cases.  Phrased as functions so they can be
-    // syntax-checked, etc.
+    // syntax-checked, etc.  'autotest' functions should return 'true'
+    // on a successful evaluation.
+    var autotest = function(f) { f.autotest=true; return f; };
     test[i+=1] = function() {
         // find bug sharing no-arg and arg return tokens
         // (when you do token.reserve() it makes the current syntree
@@ -58,9 +60,10 @@ define(["str-escape",
     test[i+=1] = function() {
         var x = 1+2*3, y = (1+2)*3, z=null; z(x, y); z[x] = y;
     };
-    test[i+=1] = function() {
+    test[i+=1] = autotest(function() {
         var a = 1+2*3, b = (1+2)*3, c=1+2+3-4-5, d=1+2+3-(4-5);
-    };
+        return (a===7) && (b===9) && (c===-3) && (d===7);
+    });
     test[i+=1] = function(i, j, k, l, m, n, o) {
         // precedence tests
        var a = i + j ? k + l : m + n;
@@ -93,7 +96,7 @@ define(["str-escape",
         console.log(c);
         return c;
     };
-    test[i+=1] = function() {
+    test[i+=1] = autotest(function() {
        var x = { g: 1 };
        var y = Object.create(x);
        console.log(x.g, y.g);
@@ -102,13 +105,13 @@ define(["str-escape",
        console.log(x.g, y.g);
        y.g = 3;
        console.log(x.g, y.g);
-       return (x.g===2 && y.g===3) ? "success" : "FAILURE";
-    };
+       return (x.g===2 && y.g===3);
+    });
     test[i+=1] = function(x) {
         /* parsing 'expression statements' */
         (function() {})();
     };
-    test[i+=1] = function() {
+    test[i+=1] = autotest(function() {
         /* scoping */
         var a = 1;
         (function() {
@@ -123,9 +126,9 @@ define(["str-escape",
             console.log(a);
         })();
         console.log(a);
-        return (a===2) ? "success" : "FAILURE";
-    };
-    test[i+=1] = function() {
+        return (a===2);
+    });
+    test[i+=1] = autotest(function() {
         /* Doing w/o branches */
         true["while"] = function(_this_, cond, body) {
             body.call(_this_);
@@ -176,14 +179,14 @@ define(["str-escape",
         c().ifElse(this, a1, a2);
         c()["while"](this, c, b);
         c().ifElse(this, a1, a2);
-        return (i === 3) ? "success" : "FAILURE";
-    };
-    test[i+=1] = function() {
+        return (i === 3);
+    });
+    test[i+=1] = autotest(function() {
         /* Functions should have a 'length' field. */
         function foo(a, b, c) { return a+b+c; }
-        return foo.length;
-    };
-    test[i+=1] = function() {
+        return foo.length === 3;
+    });
+    test[i+=1] = autotest(function() {
         /* Test Function.bind */
         function f() {
             return Array.prototype.concat.apply([ this ], arguments);
@@ -200,14 +203,14 @@ define(["str-escape",
         if (!check(nthis, f.bind(nthis, 0, 1)(2))) { return false; }
         if (!check(nthis, f.bind(nthis, 0, 1, 2)())) { return false; }
         return true;
-    };
-    test[i+=1] = function() {
+    });
+    test[i+=1] = autotest(function() {
         if ("  xy z  ".trim() !== "xy z") { return false; }
         if ("".trim().length !== 0) { return false; }
         if ("    \t ".trim().length !== 0) { return false; }
         return true;
-    };
-    test[i+=1] = function() {
+    });
+    test[i+=1] = autotest(function() {
         var a = [ 1, 2 ];
         a.push(3, 4);
         a.pop();
@@ -219,15 +222,15 @@ define(["str-escape",
         if (!(a.length === 0 && !a[0])) { return false; }
         if (a.join() !== "") { return false; }
         return true;
-    };
-    test[i+=1] = function() {
+    });
+    test[i+=1] = autotest(function() {
         // more array method tests
         var s = "";
         [1, 2, 3, 4].map(function(x) { return x*2; }).forEach(function(e, i){
             s += [i, e].join(',') + " ";
         });
-        return s;
-    };
+        return s === '0,2 1,4 2,6 3,8 ';
+    });
     test[i+=1] = function() {
         // test 'new' and 'instanceof'
         function Foo(arg) { this.foo = arg; }
@@ -245,13 +248,13 @@ define(["str-escape",
         s += " "+Bar2.hasInstance(b)+" "+Foo2.hasInstance(b);
         return s;
     };
-    test[i+=1] = function() {
+    test[i+=1] = autotest(function() {
         // very basic Uint8Array support.
         var uarr = Object.newUint8Array(256);
         uarr[0] = 255;
         uarr[0] += 1;
         return (uarr.length===256) && (uarr[0] === 0);
-    };
+    });
     /* NOT YET IMPLEMENTED.
     test[i+=1] = function() {
         // Typed Array support.
@@ -326,11 +329,12 @@ define(["str-escape",
     */
 
     var test_source = [], j=0, test_map = {}, test_names = [];
+    var autotests = [];
     while (j <= i) {
         test_source[j] = "define(";
-        if (test[j].__module_name__) {
-            test_source[j] += str_escape(test[j].__module_name__)+",";
-        }
+        var name = 'test_case_' + j;
+        if (test[j].__module_name__) { name = test[j].__module_name__; }
+        test_source[j] += str_escape(name)+",";
         var d = test[j].__module_deps__ || [];
         test_source[j] += "["+d.map(str_escape).join(",") + "],";
         var f = test[j].__module_init__ ? test[j].__module_init__ : test[j];
@@ -342,10 +346,9 @@ define(["str-escape",
             test_source[j] += "; }";
         }
         test_source[j] += ");";
-        if (test[j].__module_name__) {
-            test_map[test[j].__module_name__] = test_source[j];
-            test_names[j] = test[j].__module_name__;
-        }
+        test_map[name] = test_source[j];
+        test_names[j] = name;
+        if (test[j].autotest) { autotests[j] = true; }
         j+=1;
     }
     // add an accessor method to the test_source array
@@ -356,5 +359,7 @@ define(["str-escape",
     test_source.getName = function(idx) {
         return test_names[idx];
     };
+    // get at the list of executable test cases
+    test_source.isExecutable = function(idx) { return !!autotests[idx]; };
     return test_source;
 });

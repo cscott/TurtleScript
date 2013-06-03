@@ -29,7 +29,8 @@ module.exports = Object.create(null);
  // top-level declarations suitable for compiling TurtleScript modules
  'top-level',
  // a collection of interesting TurtleScript test cases
- 'tests'].forEach(function(m) {
+ 'tests'
+].forEach(function(m) {
      module.exports[m.replace('-','_')] = requirejs('./'+m);
  });
 
