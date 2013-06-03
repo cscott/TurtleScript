@@ -6,7 +6,7 @@
 
 // C. Scott Ananian
 // 2011-05-11
-define(["bytecode-table", "!html-escape"], function make_binterp(bytecode_table, html_escape) {
+define(["bytecode-table"/*, "!html-escape"*/], function make_binterp(bytecode_table, html_escape) {
     var mkstate = function(parent, frame, module, func_id) {
         return {
             // Main interpreter state.
@@ -45,6 +45,9 @@ define(["bytecode-table", "!html-escape"], function make_binterp(bytecode_table,
     MyFalse.value = false;
 
     var MyMath = Object.create(MyObject);
+
+    // Basic TypedArray support
+    var MyUint8Array = Object.create(MyObject);
 
     var interpret = function(state) {
         var op = bytecode_table.for_num(state.bytecode[state.pc]);
@@ -138,10 +141,10 @@ define(["bytecode-table", "!html-escape"], function make_binterp(bytecode_table,
             }
             return MyNumber[SLOT_PREFIX+name];
         }
-        if (typeof(obj)==="object" && obj!==null && obj.buffer) {
+        if (typeof(obj)==="object" && obj!==null && obj.array) {
             // very basic TypedArray support
             if (name === "length" || isFinite(1 * name)) {
-                return obj[name];
+                return obj.array[name];
             }
         }
         return obj[SLOT_PREFIX+name];
@@ -195,7 +198,7 @@ define(["bytecode-table", "!html-escape"], function make_binterp(bytecode_table,
         if (typeof(obj)==="boolean") {
             obj = obj ? MyTrue : MyFalse;
         }
-        if (typeof(obj)==="object" && obj.buffer) {
+        if (typeof(obj)==="object" && obj.array) {
             // very basic TypedArray support
             if (isFinite(1 * name)) {
                 obj[1*name] = nval;
@@ -437,6 +440,9 @@ define(["bytecode-table", "!html-escape"], function make_binterp(bytecode_table,
             oset(result, "__proto__", prototype);
             return result;
         });
+        native_func(my_ObjectCons, "Delete", function(_this_, obj, propname) {
+            Object.Delete(obj, SLOT_PREFIX+propname);
+        });
         native_func(frame, "isNaN", function(_this_, number) {
             return isNaN(number);
         });
@@ -471,8 +477,10 @@ define(["bytecode-table", "!html-escape"], function make_binterp(bytecode_table,
         });
         // *Very* basic TypedArray support
         native_func(my_ObjectCons, "newUint8Array", function(_this_, size) {
+            var my_typedarray = Object.create(MyUint8Array);
             // newUint8Array defined in global.js; uses 'new'
-            return Object.newUint8Array(size);
+            my_typedarray.array = Object.newUint8Array(size);
+            return my_typedarray;
         });
 
         // XXX: We're not quite handling the "this" argument correctly.
