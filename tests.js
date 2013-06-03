@@ -2,12 +2,12 @@
 define(["str-escape",
         // these are just imported to make test cases out of them
         "tokenize", "parse", "jcompile", "crender", "bytecode-table",
-        "bcompile", "binterp", "events"],
+        "bcompile", "binterp", "events", "asm-llvm"],
        function make_tests(str_escape,
                            tokenize, parse, jcompile, crender, bytecode_table,
-                           bcompile, binterp, events) {
+                           bcompile, binterp, events, asm_llvm) {
     var deps = ["str-escape", "tokenize", "parse", "jcompile", "crender",
-                 "bytecode-table", "bcompile", "binterp", "events"];
+                "bytecode-table", "bcompile", "binterp", "events", "asm-llvm"];
     var test=[], i=1/* skip str_escape */;
     // first tests are our own source code, from the arguments.
     while (i < arguments.length) {
