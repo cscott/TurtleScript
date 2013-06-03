@@ -24,6 +24,10 @@ Function.prototype.New = function() {
     }
     return object;
 };
+// some special constructors behave differently
+RegExp.New = function(re, flags) { return new RegExp(re, flags); };
+Function.New = function(args, source) { return new Function(args, source); };
+
 // This replaces the 'instanceof' operator.
 Function.prototype.hasInstance = function(obj) {
     // a proper definition of this can be written in simplified JS, but
