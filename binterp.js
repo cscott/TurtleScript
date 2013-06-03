@@ -786,6 +786,19 @@ define(["bytecode-table"/*, "!html-escape"*/], function make_binterp(bytecode_ta
         }
         return TOP.stack.pop();
     };
+    var invoke = function(func, this_value, args) {
+        var my_arguments = Object.create(MyArray);
+        args.forEach(function(v, i) {
+            my_arguments[SLOT_PREFIX+i] = v;
+        });
+        my_arguments[SLOT_PREFIX+"length"] = args.length;
+        var nframe = Object.create(func.parent_frame);
+        nframe[SLOT_PREFIX+"__proto__"] = func.parent_frame;
+        nframe[SLOT_PREFIX+"arguments"] = my_arguments;
+        nframe[SLOT_PREFIX+"this"] = this_value;
+        // go for it!
+        return binterp(func.module, func.func_id, nframe);
+    };
     return {
         __module_name__: "binterp",
         __module_init__: make_binterp,
@@ -793,6 +806,7 @@ define(["bytecode-table"/*, "!html-escape"*/], function make_binterp(bytecode_ta
 
         binterp: binterp,
         make_top_level_frame: make_top_level_frame,
-        library_init: library_init
+        library_init: library_init,
+        invoke: invoke
     };
 });
