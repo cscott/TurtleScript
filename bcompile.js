@@ -526,10 +526,17 @@ define(["bytecode-table"], function make_bcompile(bytecode_table) {
     });
     ternary("(", function(state) {
         // version of method call which sets 'this'
-        assert(this.second.arity==='literal', this.second);
         state.bcompile_expr(this.first); // this will be 'this'
         state.emit("dup");
-        state.emit("get_slot_direct_check", state.literal(this.second.value));
+        if (this.second.arity==='literal' &&
+            typeof(this.second.value)==='string') {
+            state.emit("get_slot_direct_check",
+                       state.literal(this.second.value));
+        } else {
+            // invocation via []
+            state.bcompile_expr(this.second);
+            state.emit("get_slot_indirect");
+        }
         state.emit("swap");
         // now order is "<top> this function".  Push arguments.
         this.third.forEach(function(e, i) {

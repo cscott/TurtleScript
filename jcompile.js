@@ -177,11 +177,18 @@ define(["str-escape"], function make_jcompile(str_escape) {
                 jcompile(this.third);
         });
     ternary("(", 80, function() {
-            // precedence is 80, same as . and '(')
-            assert(this.second.arity==='literal', this.second);
-            return jcompile(this.first) + "." + this.second.value + "(" +
-                gather(this.third, ", ", with_prec(0, jcompile)) + ")";
-        });
+        // precedence is 80, same as . and '(')
+        var result = jcompile(this.first);
+        if (this.second.arity==='literal' &&
+            typeof(this.second.value)==='string') {
+            result += '.' + this.second.value;
+        } else {
+            result += '[' + jcompile(this.second) + ']';
+        }
+        result +=
+            "(" + gather(this.third, ", ", with_prec(0, jcompile)) + ")";
+        return result;
+    });
 
     // Statements
     dispatch.statement = function() {

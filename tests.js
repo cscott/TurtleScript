@@ -231,6 +231,40 @@ define(["str-escape",
         });
         return s === '0,2 1,4 2,6 3,8 ';
     });
+    test[i+=1] = autotest(function() {
+        // three-operand call
+        var foo = function() { return this.bar('baz'); };
+        // more unusual forms of three-operand call; 'this' is still set.
+        var bar1 = function(bat) { return bat[0](42); };
+        var bar2 = function(bat, i) { return bat[i](42); };
+        // make proper parsing testable by invoking the functions
+        var r1 = foo.call({bar: function(x) { return x; }});
+        if (r1 !== 'baz') { return false; }
+        var r2 = bar1([function(x) { return x; }]);
+        if (r2 !== 42) { return false; }
+        var r3 = bar2([function(x) { return x; }], 0);
+        if (r3 !== 42) { return false; }
+        return true;
+    });
+    test[i+=1] = autotest(function() {
+        // check that 'this' is set correctly for various three-operand
+        // call types.
+        var foo = {
+            answer: 42,
+            bar: function() { return this.answer; }
+        };
+        if (foo.bar() !== 42) { return false; }
+        if (foo['bar']() !== 42) { return false; }
+        var barr = 'bar';
+        if (foo[barr]() !== 42) { return false; }
+        // arrays, too.
+        var bar = [ foo.bar ];
+        bar.answer = 0x42;
+        if (bar[0]() !== 0x42) { return false; }
+        var i = 0;
+        if (bar[i]() !== 0x42) { return false; }
+        return true;
+    });
     test[i+=1] = function() {
         // test 'new' and 'instanceof'
         function Foo(arg) { this.foo = arg; }
