@@ -157,6 +157,13 @@ define([], function asm_llvm() {
         });
         return result;
     };
+    var tableToString = function() {
+        return '(' + this.base.toString() + ')[' + this.size + ']';
+    };
+    Type.Table = function(functype, size) {
+        var t = functype.derive('Table', { table: true, base: functype });
+        return t.derive(size, { size: size, toString: tableToString });
+    };
 
     // Quick self-test for the type system.  Ensure that identical types
     // created at two different times still compare ===.
@@ -171,6 +178,14 @@ define([], function asm_llvm() {
         console.assert(sqrt1[0][0]===Type.Double);
         console.assert(Type.Arrow([],Type.Double).toString() === '()->double');
         console.assert(sqrt1.toString() === '[(double)->double]');
+
+        // table types
+        var t1 = Type.Table(sqrt1[0], 16);
+        var t2 = Type.Table(sqrt2[0], 16);
+        console.assert(t1 === t2);
+        console.assert(t1.table);
+        console.assert(t1.size === 16);
+        console.assert(t1.toString() === '((double)->double)[16]');
     };
     test_types();
 
