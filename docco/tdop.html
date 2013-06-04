@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>tdop.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="asm-llvm.html">
+                asm-llvm.js
+              </a>
+            
+              
+              <a class="source" href="bcompile.html">
+                bcompile.js
+              </a>
+            
+              
+              <a class="source" href="binterp.html">
+                binterp.js
+              </a>
+            
+              
+              <a class="source" href="browsercanvas.html">
+                browsercanvas.js
+              </a>
+            
+              
+              <a class="source" href="bytecode-table.html">
+                bytecode-table.js
+              </a>
+            
+              
+              <a class="source" href="canvastest.html">
+                canvastest.js
+              </a>
+            
+              
+              <a class="source" href="ccanvas.html">
+                ccanvas.js
+              </a>
+            
+              
+              <a class="source" href="crender-styles.html">
+                crender-styles.js
+              </a>
+            
+              
+              <a class="source" href="crender.html">
+                crender.js
+              </a>
+            
+              
+              <a class="source" href="ctiles.html">
+                ctiles.js
+              </a>
+            
+              
+              <a class="source" href="events.html">
+                events.js
+              </a>
+            
+              
+              <a class="source" href="eventtests.html">
+                eventtests.js
+              </a>
+            
+              
+              <a class="source" href="extensions.html">
+                extensions.js
+              </a>
+            
+              
+              <a class="source" href="global-es5.html">
+                global-es5.js
+              </a>
+            
+              
+              <a class="source" href="global.html">
+                global.js
+              </a>
+            
+              
+              <a class="source" href="html-escape.html">
+                html-escape.js
+              </a>
+            
+              
+              <a class="source" href="jcompile.html">
+                jcompile.js
+              </a>
+            
+              
+              <a class="source" href="json2.html">
+                json2.js
+              </a>
+            
+              
+              <a class="source" href="nodemain.html">
+                nodemain.js
+              </a>
+            
+              
+              <a class="source" href="parse.html">
+                parse.js
+              </a>
+            
+              
+              <a class="source" href="render.html">
+                render.js
+              </a>
+            
+              
+              <a class="source" href="render2.html">
+                render2.js
+              </a>
+            
+              
+              <a class="source" href="require.html">
+                require.js
+              </a>
+            
+              
+              <a class="source" href="stdlib.html">
+                stdlib.js
+              </a>
+            
+              
+              <a class="source" href="str-escape.html">
+                str-escape.js
+              </a>
+            
+              
+              <a class="source" href="tdop.html">
+                tdop.js
+              </a>
+            
+              
+              <a class="source" href="tests.html">
+                tests.js
+              </a>
+            
+              
+              <a class="source" href="tiles.html">
+                tiles.js
+              </a>
+            
+              
+              <a class="source" href="tokenize.html">
+                tokenize.js
+              </a>
+            
+              
+              <a class="source" href="top-level.html">
+                top-level.js
+              </a>
+            
+              
+              <a class="source" href="ts.html">
+                ts.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-bytecode.html">
+                write-rust-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-ops.html">
+                write-rust-ops.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>tdop.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>Source for the <code>tdop.html</code> demonstration page.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>define([<span class="string">"html-escape"</span>, <span class="string">"json2"</span>, <span class="string">"ts!parse"</span>, <span class="string">"ts!bcompile"</span>, <span class="string">"ts!binterp"</span>, <span class="string">"ts!stdlib"</span>, <span class="string">"ts!top-level"</span>, <span class="string">"ts!tests"</span>], <span class="keyword">function</span>(html_escape, JSON, parse, bcompile, binterp, stdlib, top_level, tests) {
+
+<span class="comment">/*jslint evil: true */</span>
+
+<span class="comment">/*members create, error, message, name, prototype, stringify, toSource,
+    toString, write
+*/</span>
+
+<span class="comment">/*global JSON, make_parse, parse, source, tree */</span>
+
+<span class="keyword">var</span> CATCH_ERRORS = <span class="literal">false</span>;
+<span class="keyword">var</span> SHOW_SOURCE = <span class="literal">true</span>;
+<span class="keyword">var</span> PRINT_TREE = <span class="literal">false</span>;
+<span class="keyword">var</span> PRINT_JCOMPILE = <span class="literal">false</span>;
+<span class="keyword">var</span> PRINT_RAW_BYTECODE = <span class="literal">false</span>;
+<span class="keyword">var</span> PRINT_ENCODED_BYTECODE = <span class="literal">true</span>;
+
+<span class="function"><span class="keyword">function</span> <span class="title">fill</span><span class="params">(elem_id, h1, contents, no_escape)</span> {</span>
+  <span class="keyword">if</span> (!no_escape) contents = html_escape(contents);
+  elem = document.getElementById(elem_id);
+  elem.innerHTML = <span class="string">"&lt;h1&gt;"</span> + h1 + <span class="string">"&lt;/h1&gt;\n"</span> + contents;
+}
+
+<span class="function"><span class="keyword">function</span> <span class="title">do_it</span><span class="params">()</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>We are going to make the compiler/interpreter compile itself.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> make_self_test = <span class="keyword">function</span>(parse, bcompile, top_level) {
+       <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="params">(source)</span> {</span>
+           <span class="keyword">var</span> result;
+           source = source || <span class="string">'{ return 1+2; }'</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>result = tokenize(source, &#39;=&lt;&gt;!+-*&amp;|/%^&#39;, &#39;=&lt;&gt;&amp;|&#39;);</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>           <span class="keyword">var</span> tree = parse(source, top_level);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>result = tree;</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>           <span class="keyword">var</span> bc = bcompile(tree);
+           result = bc.decompile(<span class="number">0</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>result = bc.encode().join();
+console.log(result);</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>           <span class="keyword">return</span> result;
+       };
+    };
+    define(<span class="string">"self_test"</span>, [<span class="string">"parse"</span>, <span class="string">"bcompile"</span>, <span class="string">"top-level"</span>], make_self_test);
+    <span class="keyword">var</span> self_test_source = make_self_test.toSource ?
+        make_self_test.toSource() : make_self_test.toString();
+    self_test_source = <span class="string">'define("self_test", ["parse","bcompile","top-level"], '</span>+
+        self_test_source + <span class="string">');\n'</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>combine sources</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> isource = <span class="string">'{ return 2+3; }'</span>; <span class="comment">// input to interpreted version of compiler</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>isource = &#39;var f = function() { };&#39;;
+isource = sources[7].replace(/module/, &#39;library_init&#39;);</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> fake_require =
+        <span class="string">"var __modules__ = {};\n"</span>+
+        <span class="string">"define = function(name, deps, init_func) {\n"</span>+
+        <span class="string">"  var d = deps.map(function(m) { return __modules__[m]; });\n"</span>+
+        <span class="string">"  __modules__[name] = init_func.apply(this, d);\n"</span>+
+        <span class="string">"};"</span>;
+    <span class="keyword">var</span> top_level_source = <span class="string">'define("top-level", [], '</span>+
+        <span class="string">'function() { return '</span>+JSON.stringify(top_level)+<span class="string">'; });'</span>;
+    <span class="keyword">var</span> source = <span class="string">'{\n'</span>+
+        stdlib.source()+<span class="string">'\n'</span>+
+        fake_require+<span class="string">'\n'</span>+
+        tests.lookup(<span class="string">"tokenize"</span>)+<span class="string">"\n"</span>+
+        tests.lookup(<span class="string">"parse"</span>)+<span class="string">"\n"</span>+
+        tests.lookup(<span class="string">"bytecode-table"</span>)+<span class="string">"\n"</span>+
+        tests.lookup(<span class="string">"bcompile"</span>)+<span class="string">"\n"</span>+
+        tests.lookup(<span class="string">"binterp"</span>)+<span class="string">"\n"</span>+
+        top_level_source+<span class="string">"\n"</span>+
+        self_test_source+<span class="string">"\n"</span>+
+        <span class="string">"return __modules__['self_test'](arguments[0]); }\n"</span>;
+
+    <span class="keyword">if</span> (<span class="number">0</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>HACK to run specific test cases</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    test_case = tests[<span class="number">29</span>].replace(<span class="regexp">/^define\([^,]+,/</span>, <span class="string">"define('self_test',"</span>);
+    source = <span class="string">'{\n'</span> + stdlib.source() + <span class="string">'\n'</span> + fake_require + <span class="string">'\n'</span> +
+            test_case + <span class="string">"\n"</span>+
+            <span class="string">"return __modules__['self_test'](arguments[0]); }\n"</span>;
+        console.log(source);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>END HACK</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    }
+
+    <span class="keyword">if</span> (<span class="number">1</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>for use comparing the output of the interpreter with the
+output of the javascript code run directly.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>       eval(<span class="string">"function self_test() {"</span>+source+<span class="string">"}"</span>);
+       eresult = self_test(isource);
+       <span class="keyword">if</span> (<span class="keyword">typeof</span>(eresult) != <span class="string">"string"</span>) eresult = <span class="string">""</span>+JSON.stringify(eresult);
+       fill(<span class="string">'expected-result'</span>, <span class="string">'Expected result'</span>, eresult);
+    }
+
+    <span class="keyword">if</span> (SHOW_SOURCE) {
+       sl = source.split(<span class="regexp">/\n/</span>);
+       ci = <span class="number">0</span>;
+       o = <span class="string">"&lt;pre&gt;"</span>;
+       <span class="keyword">for</span> (j=<span class="number">0</span>; j &lt; sl.length; j++) {
+          o += ci+<span class="string">": "</span>+html_escape(sl[j])+<span class="string">"\n"</span>;
+          ci += sl[j].length + <span class="number">1</span>;
+       }
+       o += <span class="string">"&lt;/pre&gt;"</span>;
+       fill(<span class="string">'source'</span>, <span class="string">'Interpreted source'</span>, o, <span class="number">1</span><span class="comment">/*no escape*/</span>);
+   }
+
+    tree = parse(source, top_level);
+    <span class="keyword">if</span> (tree) {
+        <span class="comment">/* Raw compiled tree */</span>
+        <span class="keyword">if</span> (PRINT_TREE) {
+           fill(<span class="string">'parse-tree'</span>, <span class="string">'Parse tree'</span>,
+            JSON.stringify(tree, [<span class="string">'key'</span>, <span class="string">'name'</span>, <span class="string">'message'</span>,
+            <span class="string">'value'</span>, <span class="string">'arity'</span>, <span class="string">'first'</span>, <span class="string">'second'</span>, <span class="string">'third'</span>, <span class="string">'fourth'</span>], <span class="number">4</span>));
+        }
+
+        <span class="comment">/* Pretty-printed to eval'able javascript */</span>
+        <span class="keyword">if</span> (PRINT_JCOMPILE) {
+           fill(<span class="string">'jcompile'</span>, <span class="string">'Recompiled to JavaScript'</span>, jcompile(tree));
+        }
+
+        <span class="comment">/* Bytecode compiled (raw) */</span>
+        bc = bcompile(tree);
+        <span class="keyword">if</span> (PRINT_RAW_BYTECODE) {
+            fill(<span class="string">'raw-bytecode'</span>, <span class="string">'Raw Bytecode File Contents'</span>,
+                 JSON.stringify(bc, [<span class="string">'functions'</span>, <span class="string">'literals'</span>, <span class="string">'id'</span>, <span class="string">'nargs'</span>,
+                                     <span class="string">'bytecode'</span>, <span class="string">'label'</span>], <span class="number">4</span>));
+        }
+        <span class="keyword">if</span> (PRINT_ENCODED_BYTECODE) {
+            <span class="keyword">var</span> out_file = bc.encode();
+            fill(<span class="string">'encoded-bytecode'</span>, <span class="string">'Encoded Bytecode'</span>, out_file.length+<span class="string">" "</span>+
+             JSON.stringify(out_file));
+        }
+
+        <span class="comment">/* Pretty-printed bytecode */</span>
+        b = <span class="string">"&lt;p&gt;Index: "</span>;
+        <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;bc.functions.length; i++) {
+          <span class="keyword">var</span> f = bc.functions[i];
+          b+= <span class="string">"&lt;a href='#bc-"</span>+i+<span class="string">"'&gt;"</span>;
+          b+= html_escape((f.name) ? f.name : (<span class="string">"&lt;#"</span>+i+<span class="string">"&gt;"</span>));
+          b+= <span class="string">"&lt;/a&gt; "</span>;
+        }
+        b += <span class="string">"&lt;/p&gt;"</span>;
+        <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;bc.functions.length; i++) {
+          <span class="keyword">var</span> f = bc.functions[i];
+          b += <span class="string">"&lt;h2&gt;&lt;a id='bc-"</span>+i+<span class="string">"'&gt;Function #"</span>+f.id;
+          <span class="keyword">if</span> (f.name) b += <span class="string">" "</span>+html_escape(f.name);
+          b += <span class="string">"&lt;/a&gt;"</span>;
+          b += <span class="string">" ("</span>+f.nargs+<span class="string">" args; max stack depth="</span>+f.max_stack+<span class="string">")&lt;/h2&gt;\n"</span>;
+          b += <span class="string">"&lt;pre&gt;"</span>+html_escape(bc.decompile(f.id))+<span class="string">"&lt;/pre&gt;"</span>;
+        }
+        fill(<span class="string">'bytecode'</span>, <span class="string">'Compiled Bytecode'</span>, b, <span class="number">1</span><span class="comment">/*no escape*/</span>);
+
+        <span class="comment">/* Interpreter test! */</span>
+        frame = binterp.make_top_level_frame.call(<span class="comment">/*this: */</span>{<span class="comment">/*this*/</span>} ,
+                                                  <span class="comment">/* args:*/</span> isource);
+        result = binterp.binterp(bc, <span class="number">0</span>, frame);
+        fill(<span class="string">'isource'</span>, <span class="string">'Input to interpreted compiler'</span>, isource);
+        <span class="keyword">if</span> (<span class="keyword">typeof</span>(result) != <span class="string">"string"</span>) result = <span class="string">""</span>+JSON.stringify(result);
+        fill(<span class="string">'result'</span>, <span class="string">'Result from interpreter'</span>, result);
+   }
+}
+
+<span class="keyword">if</span> (!CATCH_ERRORS) {
+    do_it();
+} <span class="keyword">else</span> {
+    <span class="keyword">try</span> {
+        do_it();
+    } <span class="keyword">catch</span> (e) {
+        fill(<span class="string">'errors'</span>, <span class="string">'Error!'</span>,
+             JSON.stringify(e, [<span class="string">'name'</span>, <span class="string">'message'</span>, <span class="string">'from'</span>, <span class="string">'to'</span>,
+                                          <span class="string">'key'</span>, <span class="string">'value'</span>, <span class="string">'arity'</span>, <span class="string">'first'</span>,
+                                          <span class="string">'second'</span>, <span class="string">'third'</span>, <span class="string">'fourth'</span>], <span class="number">4</span>));
+    }
+}
+
+
+});</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

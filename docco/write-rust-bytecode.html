@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>write-rust-bytecode.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="asm-llvm.html">
+                asm-llvm.js
+              </a>
+            
+              
+              <a class="source" href="bcompile.html">
+                bcompile.js
+              </a>
+            
+              
+              <a class="source" href="binterp.html">
+                binterp.js
+              </a>
+            
+              
+              <a class="source" href="browsercanvas.html">
+                browsercanvas.js
+              </a>
+            
+              
+              <a class="source" href="bytecode-table.html">
+                bytecode-table.js
+              </a>
+            
+              
+              <a class="source" href="canvastest.html">
+                canvastest.js
+              </a>
+            
+              
+              <a class="source" href="ccanvas.html">
+                ccanvas.js
+              </a>
+            
+              
+              <a class="source" href="crender-styles.html">
+                crender-styles.js
+              </a>
+            
+              
+              <a class="source" href="crender.html">
+                crender.js
+              </a>
+            
+              
+              <a class="source" href="ctiles.html">
+                ctiles.js
+              </a>
+            
+              
+              <a class="source" href="events.html">
+                events.js
+              </a>
+            
+              
+              <a class="source" href="eventtests.html">
+                eventtests.js
+              </a>
+            
+              
+              <a class="source" href="extensions.html">
+                extensions.js
+              </a>
+            
+              
+              <a class="source" href="global-es5.html">
+                global-es5.js
+              </a>
+            
+              
+              <a class="source" href="global.html">
+                global.js
+              </a>
+            
+              
+              <a class="source" href="html-escape.html">
+                html-escape.js
+              </a>
+            
+              
+              <a class="source" href="jcompile.html">
+                jcompile.js
+              </a>
+            
+              
+              <a class="source" href="json2.html">
+                json2.js
+              </a>
+            
+              
+              <a class="source" href="nodemain.html">
+                nodemain.js
+              </a>
+            
+              
+              <a class="source" href="parse.html">
+                parse.js
+              </a>
+            
+              
+              <a class="source" href="render.html">
+                render.js
+              </a>
+            
+              
+              <a class="source" href="render2.html">
+                render2.js
+              </a>
+            
+              
+              <a class="source" href="require.html">
+                require.js
+              </a>
+            
+              
+              <a class="source" href="stdlib.html">
+                stdlib.js
+              </a>
+            
+              
+              <a class="source" href="str-escape.html">
+                str-escape.js
+              </a>
+            
+              
+              <a class="source" href="tdop.html">
+                tdop.js
+              </a>
+            
+              
+              <a class="source" href="tests.html">
+                tests.js
+              </a>
+            
+              
+              <a class="source" href="tiles.html">
+                tiles.js
+              </a>
+            
+              
+              <a class="source" href="tokenize.html">
+                tokenize.js
+              </a>
+            
+              
+              <a class="source" href="top-level.html">
+                top-level.js
+              </a>
+            
+              
+              <a class="source" href="ts.html">
+                ts.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-bytecode.html">
+                write-rust-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-ops.html">
+                write-rust-ops.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>write-rust-bytecode.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>Utility to write bytecode for TurtleScript parser, bytecode compiler,
+startup code and standard library, as a Rust module.</p>
+<p>Run it under <code>node</code> with the CLI in <code>bin/write-rust-bytecode.js</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>define([<span class="string">'./parse'</span>, <span class="string">'./bcompile'</span>, <span class="string">'./bytecode-table'</span>, <span class="string">'./top-level'</span>, <span class="string">'./str-escape'</span>, <span class="string">'./tests'</span>, <span class="string">'./stdlib'</span>, <span class="string">'./extensions'</span>], <span class="keyword">function</span>(parse, bcompile, bytecode_table, top_level, str_escape, tests, stdlib) {
+    <span class="keyword">var</span> fake_require =
+        <span class="string">"var __modules__ = {};\n"</span>+
+        <span class="string">"define = function(name, deps, init_func) {\n"</span>+
+        <span class="string">"  var d = deps.map(function(m) { return __modules__[m]; });\n"</span>+
+        <span class="string">"  __modules__[name] = init_func.apply(this, d);\n"</span>+
+        <span class="string">"};\n"</span>;
+    <span class="keyword">var</span> make_compile_from_source = <span class="keyword">function</span>(parse, bcompile, TOP_LEVEL) {
+       <span class="keyword">var</span> compile_from_source = <span class="function"><span class="keyword">function</span> <span class="params">(source, as_object)</span> {</span>
+           source = source || <span class="string">'{ return 1+2; }'</span>;
+           <span class="keyword">var</span> tree = parse(source, TOP_LEVEL);
+           <span class="keyword">var</span> bc = bcompile(tree);
+           <span class="keyword">var</span> result = as_object ? bc : bc.encode();
+           <span class="keyword">return</span> result;
+       };
+       compile_from_source.make_repl = <span class="keyword">function</span>() {
+           <span class="keyword">var</span> state = <span class="literal">null</span>;
+           <span class="keyword">return</span> <span class="keyword">function</span>(source) {
+               <span class="keyword">var</span> rv = parse.repl(state, source, TOP_LEVEL);
+               state = rv.state;
+               <span class="keyword">return</span> bcompile(rv.tree).encode();
+           };
+       };
+       <span class="keyword">return</span> compile_from_source;
+    };
+    <span class="keyword">var</span> cfs_source = make_compile_from_source.toSource ?
+        make_compile_from_source.toSource() :
+        make_compile_from_source.toString();
+    cfs_source = <span class="string">'define("compile_from_source", ["parse","bcompile","top-level"], '</span>+
+        cfs_source + <span class="string">');'</span>;
+    <span class="keyword">var</span> top_level_source = <span class="string">'define("top-level", [], function() { return '</span> +
+        str_escape(top_level) + <span class="string">'; });'</span>;
+    <span class="keyword">var</span> source = <span class="string">'{\n'</span>+
+        stdlib.source()+<span class="string">'\n'</span>+
+        fake_require +
+        tests.lookup(<span class="string">"tokenize"</span>)+<span class="string">"\n"</span>+
+        tests.lookup(<span class="string">"parse"</span>)+<span class="string">"\n"</span>+
+        tests.lookup(<span class="string">"bytecode-table"</span>)+<span class="string">"\n"</span>+
+        tests.lookup(<span class="string">"bcompile"</span>)+<span class="string">"\n"</span>+
+        top_level_source+<span class="string">"\n"</span>+
+        cfs_source + <span class="string">'\n'</span> +
+        <span class="comment">/*
+        "var test_nan = function() { return NaN; };\n" +
+        "var test_inf = function() { return Infinity; };\n" +
+        "var test_neg_inf = function() { return -Infinity; };\n" +
+        */</span>
+        <span class="string">"return __modules__['compile_from_source']; }\n"</span>;
+
+    <span class="comment">/* XXX Hacks for initial tests:
+    source = "{ console.log('Hello,', 'world!'); }";
+    source = "{ var fib=function(n){return (n&lt;2)?1:fib(n-1)+fib(n-2);}; return fib(10); }";
+    */</span>
+
+    <span class="keyword">var</span> compile_from_source = make_compile_from_source(parse, bcompile, top_level);
+    <span class="keyword">var</span> bc = compile_from_source(source, <span class="literal">true</span><span class="comment">/*as object*/</span>);
+
+    <span class="keyword">var</span> rust_esc = <span class="keyword">function</span>(str) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Escape string for Rust -- note UTF-16 to UCS4 conversion.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> re = <span class="regexp">/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^A-Za-z0-9_ !#-\/:-@\[\]^`{|}~]/g</span>;
+        <span class="keyword">return</span> <span class="string">'"'</span> + str.replace(re, <span class="keyword">function</span>(c) {
+            <span class="keyword">var</span> code = c.charCodeAt(<span class="number">0</span>);
+            <span class="keyword">if</span> (c.length===<span class="number">2</span>) {
+                <span class="keyword">var</span> next = c.charCodeAt(<span class="number">1</span>);
+                code = ((code - <span class="number">0xD800</span>) * <span class="number">0x400</span>) +
+                    (next - <span class="number">0xDC00</span>) + <span class="number">0x10000</span>;
+            }
+            c = code.toString(<span class="number">16</span>);
+            <span class="keyword">while</span> (c.length &lt; <span class="number">2</span>) { c = <span class="string">'0'</span> + c; }
+            <span class="keyword">if</span> (c.length === <span class="number">2</span>) { <span class="keyword">return</span> <span class="string">"\\x"</span> + c; }
+            <span class="keyword">while</span> (c.length &lt; <span class="number">4</span>) { c = <span class="string">'0'</span> + c; }
+            <span class="keyword">if</span> (c.length === <span class="number">4</span>) { <span class="keyword">return</span> <span class="string">"\\u"</span> + c; }
+            <span class="keyword">while</span> (c.length &lt; <span class="number">8</span>) { c = <span class="string">'0'</span> + c; }
+            <span class="keyword">return</span> <span class="string">"\\U"</span> + c;
+        }) + <span class="string">'"'</span>;
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <h2>Output module functions.</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    console.log(<span class="string">'// generated by TurtleScript write-rust-bytecode.js'</span>);
+    console.log(<span class="string">'#[allow(unused_imports)];'</span>);
+    console.log(<span class="string">'use function::Function;'</span>);
+    console.log(<span class="string">'use object::{JsVal,JsNumber,JsBool,JsUndefined,JsNull};'</span>);
+    <span class="comment">/*
+    console.log('// test: '+rust_esc('abc\uD800\uDC00def\ng')); // test UTF16
+    */</span>
+    console.log(<span class="string">''</span>);
+    console.log(<span class="string">'pub fn init(functions: &amp;mut ~[@Function], literals: &amp;mut ~[JsVal]) {'</span>);
+    console.log(<span class="string">'  // functions'</span>);
+    bc.functions.forEach(<span class="keyword">function</span>(f, i) {
+        <span class="keyword">var</span> name = f.name ? (<span class="string">' // '</span>+JSON.stringify(f.name)) : <span class="string">''</span>;
+        console.log(<span class="string">'  vec::push(functions, @Function {'</span> + name);
+        name = f.name ? (<span class="string">'Some(~'</span>+rust_esc(f.name)+<span class="string">')'</span>) : <span class="string">'None'</span>;
+        console.log(<span class="string">'    name: '</span> + name + <span class="string">','</span>);
+        console.log(<span class="string">'    id: '</span> + f.id + <span class="string">','</span>);
+        console.log(<span class="string">'    nargs: '</span> + f.nargs + <span class="string">','</span>);
+        console.log(<span class="string">'    max_stack: '</span> + f.max_stack + <span class="string">','</span>);
+        console.log(<span class="string">'    bytecode: ~['</span>);
+        <span class="keyword">var</span> j = <span class="number">0</span>;
+        <span class="keyword">while</span> (j &lt; f.bytecode.length) {
+            <span class="keyword">var</span> pc = j;
+            <span class="keyword">var</span> bc = bytecode_table.for_num(f.bytecode[j]);
+            <span class="keyword">var</span> a = f.bytecode.slice(j, j+=bc.args+<span class="number">1</span>);
+            a = a.map(<span class="keyword">function</span>(b) {
+                <span class="keyword">if</span> (<span class="keyword">typeof</span>(b) !== <span class="string">'number'</span>) { b = b.label; }
+                <span class="keyword">return</span> <span class="string">''</span>+b;
+            });
+            <span class="keyword">var</span> b = a.slice(<span class="number">1</span>);
+            a = a.join(<span class="string">', '</span>) + ((j &lt; f.bytecode.length) ? <span class="string">','</span> : <span class="string">''</span>);
+            b = bc.name + ( b.length ? ( <span class="string">'('</span> + b.join(<span class="string">','</span>) + <span class="string">')'</span> ) : <span class="string">''</span> );
+            console.log(<span class="string">'      '</span> + a + <span class="string">'\t// '</span> + pc + <span class="string">': '</span> + b);
+        }
+        console.log(<span class="string">'    ]'</span>);
+        console.log(<span class="string">'  });'</span>);
+    });
+    console.log(<span class="string">''</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <h2>Output module literals.</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    console.log(<span class="string">'  // literals'</span>);
+    bc.literals.forEach(<span class="keyword">function</span>(lv, i) {
+        <span class="keyword">var</span> str;
+        <span class="keyword">if</span> (<span class="keyword">typeof</span>(lv) === <span class="string">"number"</span> ) {
+            str = lv.toString() + <span class="string">'f64'</span>;
+            <span class="keyword">if</span> (isNaN(lv)) { str = <span class="string">'f64::NaN'</span>; }
+            <span class="keyword">else</span> <span class="keyword">if</span> (!isFinite(lv)) { str = lv &gt; <span class="number">0</span> ? <span class="string">'f64::infinity'</span> : <span class="string">'f64::neg_infinity'</span>; }
+            str = <span class="string">"JsNumber("</span> + str + <span class="string">")"</span>;
+        } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span>(lv) === <span class="string">"string"</span>) {
+            str = <span class="string">"JsVal::from_str("</span> + rust_esc(lv) + <span class="string">")"</span>;
+        } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span>(lv) === <span class="string">"boolean"</span>) {
+            str = <span class="string">"JsBool("</span> + (lv ? <span class="string">"true"</span> : <span class="string">"false"</span>) + <span class="string">")"</span>;
+        } <span class="keyword">else</span> <span class="keyword">if</span> (lv === <span class="literal">null</span>) {
+            str = <span class="string">"JsNull"</span>;
+        } <span class="keyword">else</span> <span class="keyword">if</span> (lv === <span class="literal">undefined</span>) {
+            str = <span class="string">"JsUndefined"</span>;
+        } <span class="keyword">else</span> {
+            console.assert(<span class="literal">false</span>);
+        }
+        console.log(<span class="string">'  vec::push(literals, '</span>+str+<span class="string">');\t// '</span>+i);
+    });
+    console.log(<span class="string">'}'</span>);
+    <span class="comment">/* XXX for a static array, we could also do:
+         static functions : &amp;'static[Function] = &amp;[];
+    */</span>
+});</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

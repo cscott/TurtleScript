@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>ctiles.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="asm-llvm.html">
+                asm-llvm.js
+              </a>
+            
+              
+              <a class="source" href="bcompile.html">
+                bcompile.js
+              </a>
+            
+              
+              <a class="source" href="binterp.html">
+                binterp.js
+              </a>
+            
+              
+              <a class="source" href="browsercanvas.html">
+                browsercanvas.js
+              </a>
+            
+              
+              <a class="source" href="bytecode-table.html">
+                bytecode-table.js
+              </a>
+            
+              
+              <a class="source" href="canvastest.html">
+                canvastest.js
+              </a>
+            
+              
+              <a class="source" href="ccanvas.html">
+                ccanvas.js
+              </a>
+            
+              
+              <a class="source" href="crender-styles.html">
+                crender-styles.js
+              </a>
+            
+              
+              <a class="source" href="crender.html">
+                crender.js
+              </a>
+            
+              
+              <a class="source" href="ctiles.html">
+                ctiles.js
+              </a>
+            
+              
+              <a class="source" href="events.html">
+                events.js
+              </a>
+            
+              
+              <a class="source" href="eventtests.html">
+                eventtests.js
+              </a>
+            
+              
+              <a class="source" href="extensions.html">
+                extensions.js
+              </a>
+            
+              
+              <a class="source" href="global-es5.html">
+                global-es5.js
+              </a>
+            
+              
+              <a class="source" href="global.html">
+                global.js
+              </a>
+            
+              
+              <a class="source" href="html-escape.html">
+                html-escape.js
+              </a>
+            
+              
+              <a class="source" href="jcompile.html">
+                jcompile.js
+              </a>
+            
+              
+              <a class="source" href="json2.html">
+                json2.js
+              </a>
+            
+              
+              <a class="source" href="nodemain.html">
+                nodemain.js
+              </a>
+            
+              
+              <a class="source" href="parse.html">
+                parse.js
+              </a>
+            
+              
+              <a class="source" href="render.html">
+                render.js
+              </a>
+            
+              
+              <a class="source" href="render2.html">
+                render2.js
+              </a>
+            
+              
+              <a class="source" href="require.html">
+                require.js
+              </a>
+            
+              
+              <a class="source" href="stdlib.html">
+                stdlib.js
+              </a>
+            
+              
+              <a class="source" href="str-escape.html">
+                str-escape.js
+              </a>
+            
+              
+              <a class="source" href="tdop.html">
+                tdop.js
+              </a>
+            
+              
+              <a class="source" href="tests.html">
+                tests.js
+              </a>
+            
+              
+              <a class="source" href="tiles.html">
+                tiles.js
+              </a>
+            
+              
+              <a class="source" href="tokenize.html">
+                tokenize.js
+              </a>
+            
+              
+              <a class="source" href="top-level.html">
+                top-level.js
+              </a>
+            
+              
+              <a class="source" href="ts.html">
+                ts.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-bytecode.html">
+                write-rust-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-ops.html">
+                write-rust-ops.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>ctiles.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>define([<span class="string">"ts!parse"</span>, <span class="string">"ccanvas"</span>, <span class="string">"ts!crender"</span>, <span class="string">"ts!crender-styles"</span>, <span class="string">"ts!tests"</span>, <span class="string">"ts!top-level"</span>], <span class="keyword">function</span>(parse, ccanvas, crender, crender_styles, tests, top_level) {
+<span class="keyword">var</span> SCALE = <span class="number">1</span>; <span class="comment">// change to (eg) 2 to enlarge the rendering</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>set up the canvas styles</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> demos=[];
+<span class="function"><span class="keyword">function</span> <span class="title">add_demo</span><span class="params">(title, source)</span> {</span>
+  demos.push({title:title, source: source});
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>a collection of various bits of code used for testing different widgets</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>add_demo(<span class="string">'Hello, world'</span>, <span class="string">'console.log("Hello, world!");'</span>);
+add_demo(<span class="string">'JS tokenizer'</span>, tests.lookup(<span class="string">'tokenize'</span>));
+add_demo(<span class="string">'JS parser'</span>, tests.lookup(<span class="string">'parse'</span>));
+add_demo(<span class="string">'JS compiler'</span>, tests.lookup(<span class="string">'jcompile'</span>));
+add_demo(<span class="string">'Tile renderer'</span>, tests.lookup(<span class="string">'crender'</span>));
+add_demo(<span class="string">'Bytecode table'</span>, tests.lookup(<span class="string">'bytecode-table'</span>));
+add_demo(<span class="string">'Bytecode compiler'</span>, tests.lookup(<span class="string">'bcompile'</span>));
+add_demo(<span class="string">'Bytecode interpreter'</span>, tests.lookup(<span class="string">'binterp'</span>));
+add_demo(<span class="string">'Standard library'</span>, tests.lookup(<span class="string">'stdlib'</span>));
+add_demo(<span class="string">'Event library'</span>, tests.lookup(<span class="string">'events'</span>));
+add_demo(<span class="string">'Test suite'</span>, tests.lookup(<span class="string">'tests'</span>));
+
+add_demo(<span class="string">'IDC2012'</span>, <span class="string">"function fact(n) { if (n&lt;=1) {return 1;} return n*fact(n-1); } console.log(\"5!=\", fact(5));"</span>);
+
+<span class="keyword">var</span> isource = <span class="string">""</span>;
+isource = tests[tests.length-<span class="number">2</span>];</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>isource=&#39;{console=2+3;return this;}&#39;;
+isource=&#39;var a,b=&quot;test\n&quot;,c,d,e;console=typeof !3;while(!2&amp;&amp;3||4) {console=2<em>3/4;var z;break;} console=console; function foo (y) {return false;}&#39;;
+isource = tests[0].replace(/module/,&#39;make_tests&#39;);
+isource = &#39;var a = 1 + 2;&#39;;
+isource = &quot;function foo() { while(true) { return 3; } };&quot;;
+isource = &quot;console = 1 + 2 + 3 + 4 + 5;&quot;;
+isource += &quot;console = !3 + !function(x) { return function(){}; };&quot;;
+isource += &quot;console = 3 - 4 + 5 - function(x) { return function(){}; };&quot;;
+isource += &quot;console = (3 + function (x) { return x; }) + function(){};&quot;;
+isource += &quot;console = function(x) { /</em>return x;<em>/ };&quot;;
+isource += &quot;console = !1 + 2 </em> 3;&quot;;
+isource += &quot;console = !function (x) { return x; } + function(){};&quot;;
+isource = &quot;while (function(x) { return x; }+(true)) { return false; }&quot;;
+isource += &quot;if (function(x) { return x; }+(true)) { return false; } else { return true; }&quot;;
+isource += &quot;var a = console.log(function() { },3);&quot;;
+isource += &quot;console(1, 2, 3+4);console(1,function(a,b){},3,function(c,d){});console[function(e,f){}]=1;&quot;;
+isource = &quot;function foo(a) { return a(a,function(){}); }; function bar(b){}&quot;;
+isource = tests[0];
+isource = tests[1];
+isource = &quot;console.a = console.b(2, function() { }, 3);&quot;;
+isource += &quot;console.log(1, console.log(2, function(){}), 3);&quot;;
+isource += &quot;console.log(1, console.log(2, function(){}), function(){});&quot;;
+isource = &quot;console = { foo: &#39;bar&#39;, bat: {}, console:console };&quot;;
+add_demo(&#39;Extra demo&#39;, isource);</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">update_from_source</span><span class="params">(canvas, styles, isource)</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>parse the example source</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> tree = parse(isource, top_level);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>make widgets from parse tree</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> widget = crender(tree);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>lay them out on the canvas</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  widget.layout(canvas, styles, {margin: <span class="number">0</span>, lineHeight: <span class="number">0</span>});</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>resize the canvas appropriately
+(chrome seems to have trouble w/ enormous canvases, so limit reasonably)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  canvas.resize(Math.min(widget.bbox.width(), <span class="number">8000</span>)+<span class="number">10</span>,
+                Math.min(widget.bbox.height(), <span class="number">30000</span>)+<span class="number">10</span>, SCALE);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>wrap in withContext to undo the effects of the &#39;translate&#39;</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  canvas.withContext({}, <span class="keyword">function</span>() {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>canvas coordinates are pixels, so a 1px line straddles two pixels.
+offset coordinates by 0.5,0.5 to get the 1px lines to be sharp</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    canvas.translate(<span class="number">4.5</span>,<span class="number">4.5</span>);
+    widget.draw();
+  });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>done!</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>}
+
+<span class="keyword">var</span> canvas;
+
+<span class="function"><span class="keyword">function</span> <span class="title">emit_demo_links</span><span class="params">()</span> {</span>
+  <span class="keyword">var</span> src = <span class="string">""</span>;
+  demos.forEach(<span class="keyword">function</span>(item, idx) {
+    <span class="keyword">if</span> (idx !== <span class="number">0</span>) src += <span class="string">' | '</span>;
+    src += <span class="string">'&lt;'</span>+<span class="string">'a href="#" id="demo'</span>+idx+<span class="string">'"&gt;'</span>+item.title+<span class="string">'&lt;'</span>+<span class="string">'/a&gt;'</span>;
+  });
+  document.getElementById(<span class="string">'demos'</span>).innerHTML = src;
+  demos.forEach(<span class="keyword">function</span>(item, idx) {
+    <span class="keyword">var</span> elem = document.getElementById(<span class="string">'demo'</span>+idx);
+    elem.onclick = <span class="keyword">function</span>() {
+       update_from_source(canvas, crender_styles, item.source);
+    };
+  });
+}
+
+canvas = ccanvas(<span class="string">'canvas'</span>);
+emit_demo_links();
+update_from_source(canvas, crender_styles, demos[<span class="number">0</span>].source);
+
+});</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

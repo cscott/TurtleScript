@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>tests.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="asm-llvm.html">
+                asm-llvm.js
+              </a>
+            
+              
+              <a class="source" href="bcompile.html">
+                bcompile.js
+              </a>
+            
+              
+              <a class="source" href="binterp.html">
+                binterp.js
+              </a>
+            
+              
+              <a class="source" href="browsercanvas.html">
+                browsercanvas.js
+              </a>
+            
+              
+              <a class="source" href="bytecode-table.html">
+                bytecode-table.js
+              </a>
+            
+              
+              <a class="source" href="canvastest.html">
+                canvastest.js
+              </a>
+            
+              
+              <a class="source" href="ccanvas.html">
+                ccanvas.js
+              </a>
+            
+              
+              <a class="source" href="crender-styles.html">
+                crender-styles.js
+              </a>
+            
+              
+              <a class="source" href="crender.html">
+                crender.js
+              </a>
+            
+              
+              <a class="source" href="ctiles.html">
+                ctiles.js
+              </a>
+            
+              
+              <a class="source" href="events.html">
+                events.js
+              </a>
+            
+              
+              <a class="source" href="eventtests.html">
+                eventtests.js
+              </a>
+            
+              
+              <a class="source" href="extensions.html">
+                extensions.js
+              </a>
+            
+              
+              <a class="source" href="global-es5.html">
+                global-es5.js
+              </a>
+            
+              
+              <a class="source" href="global.html">
+                global.js
+              </a>
+            
+              
+              <a class="source" href="html-escape.html">
+                html-escape.js
+              </a>
+            
+              
+              <a class="source" href="jcompile.html">
+                jcompile.js
+              </a>
+            
+              
+              <a class="source" href="json2.html">
+                json2.js
+              </a>
+            
+              
+              <a class="source" href="nodemain.html">
+                nodemain.js
+              </a>
+            
+              
+              <a class="source" href="parse.html">
+                parse.js
+              </a>
+            
+              
+              <a class="source" href="render.html">
+                render.js
+              </a>
+            
+              
+              <a class="source" href="render2.html">
+                render2.js
+              </a>
+            
+              
+              <a class="source" href="require.html">
+                require.js
+              </a>
+            
+              
+              <a class="source" href="stdlib.html">
+                stdlib.js
+              </a>
+            
+              
+              <a class="source" href="str-escape.html">
+                str-escape.js
+              </a>
+            
+              
+              <a class="source" href="tdop.html">
+                tdop.js
+              </a>
+            
+              
+              <a class="source" href="tests.html">
+                tests.js
+              </a>
+            
+              
+              <a class="source" href="tiles.html">
+                tiles.js
+              </a>
+            
+              
+              <a class="source" href="tokenize.html">
+                tokenize.js
+              </a>
+            
+              
+              <a class="source" href="top-level.html">
+                top-level.js
+              </a>
+            
+              
+              <a class="source" href="ts.html">
+                ts.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-bytecode.html">
+                write-rust-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-ops.html">
+                write-rust-ops.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>tests.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>A collection of interesting test cases.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>define([<span class="string">"str-escape"</span>,
+        <span class="comment">/* These modules are just imported to make test cases out of them. */</span>
+        <span class="string">"tokenize"</span>, <span class="string">"parse"</span>, <span class="string">"jcompile"</span>, <span class="string">"crender"</span>, <span class="string">"bytecode-table"</span>,
+        <span class="string">"bcompile"</span>, <span class="string">"binterp"</span>, <span class="string">"stdlib"</span>, <span class="string">"events"</span>, <span class="string">"asm-llvm"</span>],
+       <span class="function"><span class="keyword">function</span> <span class="title">make_tests</span><span class="params">(str_escape,
+                           tokenize, parse, jcompile, crender, bytecode_table,
+                           bcompile, binterp, stdlib, events, asm_llvm)</span> {</span>
+    <span class="keyword">var</span> deps = [<span class="string">"str-escape"</span>,
+                <span class="string">"tokenize"</span>, <span class="string">"parse"</span>, <span class="string">"jcompile"</span>, <span class="string">"crender"</span>, <span class="string">"bytecode-table"</span>,
+                <span class="string">"bcompile"</span>, <span class="string">"binterp"</span>, <span class="string">"stdlib"</span>, <span class="string">"events"</span>, <span class="string">"asm-llvm"</span>];
+    <span class="keyword">var</span> test=[], i=<span class="number">1</span><span class="comment">/* skip str_escape */</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>The first tests are our own source code, from the module arguments.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">while</span> (i &lt; arguments.length) {
+        test[i-<span class="number">1</span>] = arguments[i];
+        test[i-<span class="number">1</span>].__module_name__ = deps[i]; <span class="comment">// hack</span>
+        i += <span class="number">1</span>;
+    }
+    i -= <span class="number">2</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>The next test case is this function itself.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span> (make_tests) {
+        make_tests.__module_name__ = <span class="string">"tests"</span>;
+        make_tests.__module_deps__ = deps;
+        make_tests.__module_init__ = make_tests;
+        test[i+=<span class="number">1</span>] = make_tests;
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Now some ad-hoc test cases.  These are phrased as functions so they can
+be syntax-checked, etc.  <code>autotest()</code> functions should return <code>true</code>
+on a successful evaluation.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> autotest = <span class="keyword">function</span>(f) { f.autotest=<span class="literal">true</span>; <span class="keyword">return</span> f; };
+    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Find bug sharing no-arg and arg return tokens.
+When you do token.reserve() it makes the current syntree
+node the prototype for future return statements.  This can
+result in circular structures unless you always define this.first.
+Otherwise it gets inherited from the parent, and thus might
+contain itself! (as in the following example)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> assignment = <span class="keyword">function</span>() {
+            <span class="keyword">return</span> <span class="keyword">function</span>() {
+                <span class="keyword">return</span>;
+            };
+        };
+        <span class="keyword">return</span> assignment;
+    };
+    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {
+        <span class="comment">/* comment test */</span>
+        <span class="keyword">var</span> x = <span class="number">1</span>; x = x + <span class="number">1</span>;
+        <span class="keyword">return</span> x;
+    };
+    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {
+        <span class="keyword">var</span> x = { a: <span class="number">1</span>, b: <span class="string">'two'</span>, c: x+<span class="number">2</span> }; <span class="keyword">var</span> y = [ <span class="number">1</span>, <span class="string">'two'</span>, <span class="number">3</span>, x ];
+        <span class="keyword">return</span> y.length;
+    };
+    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {
+        <span class="keyword">var</span> a = <span class="literal">true</span>, b=<span class="literal">false</span>, c=<span class="literal">null</span>, d=<span class="literal">NaN</span>, e=Object, f=Array, g=<span class="keyword">this</span>;
+        <span class="keyword">return</span> d.toString();
+    };
+    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {
+        <span class="keyword">var</span> x = <span class="number">1</span>+<span class="number">2</span>*<span class="number">3</span>, y = (<span class="number">1</span>+<span class="number">2</span>)*<span class="number">3</span>, z=<span class="literal">null</span>; z(x, y); z[x] = y;
+    };
+    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {
+        <span class="keyword">var</span> a = <span class="number">1</span>+<span class="number">2</span>*<span class="number">3</span>, b = (<span class="number">1</span>+<span class="number">2</span>)*<span class="number">3</span>, c=<span class="number">1</span>+<span class="number">2</span>+<span class="number">3</span>-<span class="number">4</span>-<span class="number">5</span>, d=<span class="number">1</span>+<span class="number">2</span>+<span class="number">3</span>-(<span class="number">4</span>-<span class="number">5</span>);
+        <span class="keyword">return</span> (a===<span class="number">7</span>) &amp;&amp; (b===<span class="number">9</span>) &amp;&amp; (c===-<span class="number">3</span>) &amp;&amp; (d===<span class="number">7</span>);
+    });
+    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>(i, j, k, l, m, n, o) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Precedence tests.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>       <span class="keyword">var</span> a = i + j ? k + l : m + n;
+       <span class="keyword">var</span> b = i + (j ? k + l : m) + n;
+       <span class="keyword">var</span> c = i ? (j ? k : l) : (m ? n : o);
+       <span class="keyword">var</span> d = i + j * k, e = (i + j) * k, f=i+j+k-l-m, g=i+j+k-(l-m);
+       <span class="keyword">var</span> h = i - -j;
+       a = -(j.foo);
+       b = (-k).foo;
+       c = -j + a;
+       d = -(j + a);
+       e = a.bar.foo.bat;
+       f = a[b+c];
+       <span class="keyword">return</span> a+b+c+d+e+f+g+h;
+    };
+    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>(x) {
+        <span class="keyword">if</span> (x) { x += <span class="number">1</span>; } <span class="keyword">else</span> { x += <span class="number">2</span>; }
+        <span class="keyword">return</span> x;
+    };
+    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>(x) {
+        <span class="keyword">if</span> (x) { x += <span class="number">1</span>; } <span class="keyword">else</span> <span class="keyword">if</span> (!x) { x += <span class="number">2</span>; } <span class="keyword">else</span> { x+= <span class="number">3</span>; }
+        <span class="keyword">return</span> x;
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <h2>Interpreter tests</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {
+        <span class="keyword">var</span> a = [];
+        <span class="keyword">var</span> b = a.push(<span class="string">'a'</span>, [<span class="number">1</span>, <span class="number">2</span>]);
+        console.log(a, b);
+        <span class="keyword">var</span> c = a.concat(b+<span class="number">1</span>, [<span class="number">4</span>, <span class="number">5</span>], <span class="number">6</span>, [[<span class="number">7</span>,<span class="number">8</span>]]);
+        console.log(c);
+        <span class="keyword">return</span> c;
+    };
+    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {
+       <span class="keyword">var</span> x = { g: <span class="number">1</span> };
+       <span class="keyword">var</span> y = Object.create(x);
+       console.log(x.g, y.g);
+       console.log(x.hasOwnProperty(<span class="string">'g'</span>), y.hasOwnProperty(<span class="string">'g'</span>));
+       x.g = <span class="number">2</span>;
+       console.log(x.g, y.g);
+       y.g = <span class="number">3</span>;
+       console.log(x.g, y.g);
+       <span class="keyword">return</span> (x.g===<span class="number">2</span> &amp;&amp; y.g===<span class="number">3</span>);
+    });
+    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>(x) {
+        <span class="comment">/* parsing 'expression statements' */</span>
+        (<span class="keyword">function</span>() {})();
+    };
+    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {
+        <span class="comment">/* scoping */</span>
+        <span class="keyword">var</span> a = <span class="number">1</span>;
+        (<span class="keyword">function</span>() {
+            console.log(a);
+            a = <span class="number">2</span>;
+            console.log(a);
+            (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+                console.log(a);
+                <span class="keyword">var</span> a = <span class="number">3</span>;
+                console.log(a);
+            })();
+            console.log(a);
+        })();
+        console.log(a);
+        <span class="keyword">return</span> (a===<span class="number">2</span>);
+    });
+    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {
+        <span class="comment">/* Doing w/o branches */</span>
+        <span class="literal">true</span>[<span class="string">"while"</span>] = <span class="keyword">function</span>(_this_, cond, body) {
+            body.call(_this_);
+            cond.call(_this_)[<span class="string">"while"</span>](_this_, cond, body);
+        };
+        <span class="literal">false</span>[<span class="string">"while"</span>] = <span class="keyword">function</span>(_this_, cond, body) {
+            <span class="comment">/* no op */</span>
+        };
+        <span class="literal">true</span>[<span class="string">"ifElse"</span>] = <span class="keyword">function</span>(_this_, ifTrue, ifFalse) {
+            <span class="keyword">return</span> ifTrue.call(_this_);
+        };
+        <span class="literal">false</span>[<span class="string">"ifElse"</span>] = <span class="keyword">function</span>(_this_, ifTrue, ifFalse) {
+            <span class="keyword">return</span> ifFalse.call(_this_);
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>The above don&#39;t actually work, because properties added to
+&quot;true&quot; and &quot;false&quot; disappear.  But this ought to work as a kludge:
+(even though it&#39;s not truely object-oriented)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        Boolean.prototype[<span class="string">"while"</span>] = <span class="keyword">function</span>(_this_, cond, body) {
+            console.log(<span class="string">"Boolean.while fallback"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Strange: === gives the wrong value. == works, because (I think)
+it coerces to string, like the below.  ! also does the wrong
+thing.  Hm!</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (<span class="keyword">this</span>.toString() === <span class="string">"false"</span>) { <span class="keyword">return</span>; }
+            body.call(_this_);
+            <span class="keyword">var</span> cc = cond.call(_this_);
+            cc[<span class="string">"while"</span>](_this_, cond, body);
+        };
+        Boolean.prototype[<span class="string">"ifElse"</span>] = <span class="keyword">function</span>(_this_, ifTrue, ifFalse) {
+            console.log(<span class="string">"Boolean.ifElse fallback"</span>);
+            <span class="keyword">if</span> (<span class="keyword">this</span>.toString() === <span class="string">"false"</span>) {
+                <span class="keyword">return</span> ifFalse.call(_this_);
+            } <span class="keyword">else</span> {
+                <span class="keyword">return</span> ifTrue.call(_this_);
+            }
+        };
+        <span class="keyword">var</span> i = <span class="number">0</span>;
+        <span class="keyword">var</span> c = <span class="keyword">function</span>() { <span class="keyword">return</span> (i &lt; <span class="number">3</span>); };
+        <span class="keyword">var</span> b = <span class="keyword">function</span>() { console.log(i); i += <span class="number">1</span>; };
+
+        <span class="keyword">var</span> a1 = <span class="keyword">function</span>() { console.log(<span class="string">"a1"</span>); };
+        <span class="keyword">var</span> a2 = <span class="keyword">function</span>() { console.log(<span class="string">"a2"</span>); };
+
+        <span class="comment">/*
+        console.log("true.while", true.while, "false.while", false.while,
+                    "true.ifElse", true.ifElse, "false.ifElse", false.ifElse);
+        console.log("this", this, "a1", a1, "a2", a2);
+        */</span>
+        c().ifElse(<span class="keyword">this</span>, a1, a2);
+        c()[<span class="string">"while"</span>](<span class="keyword">this</span>, c, b);
+        c().ifElse(<span class="keyword">this</span>, a1, a2);
+        <span class="keyword">return</span> (i === <span class="number">3</span>);
+    });
+    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {
+        <span class="comment">/* Functions should have a 'length' field. */</span>
+        <span class="function"><span class="keyword">function</span> <span class="title">foo</span><span class="params">(a, b, c)</span> {</span> <span class="keyword">return</span> a+b+c; }
+        <span class="keyword">return</span> foo.length === <span class="number">3</span>;
+    });
+    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {
+        <span class="comment">/* Test Function.bind */</span>
+        <span class="function"><span class="keyword">function</span> <span class="title">f</span><span class="params">()</span> {</span>
+            <span class="keyword">return</span> Array.prototype.concat.apply([ <span class="keyword">this</span> ], arguments);
+        }
+        <span class="function"><span class="keyword">function</span> <span class="title">check</span><span class="params">(_this_, r)</span> {</span>
+            console.log(r);
+            <span class="keyword">return</span> ((r.length === <span class="number">4</span>) &amp;&amp; (r[<span class="number">0</span>] === _this_) &amp;&amp;
+                    (r[<span class="number">1</span>] === <span class="number">0</span>) &amp;&amp; (r[<span class="number">2</span>] === <span class="number">1</span>) &amp;&amp; (r[<span class="number">3</span>] === <span class="number">2</span>));
+        }
+        <span class="keyword">if</span> (!check(<span class="keyword">this</span>, f.bind()(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>))) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">var</span> nthis = { _this_: <span class="literal">true</span> };
+        <span class="keyword">if</span> (!check(nthis, f.bind(nthis)(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>))) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">if</span> (!check(nthis, f.bind(nthis, <span class="number">0</span>)(<span class="number">1</span>, <span class="number">2</span>))) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">if</span> (!check(nthis, f.bind(nthis, <span class="number">0</span>, <span class="number">1</span>)(<span class="number">2</span>))) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">if</span> (!check(nthis, f.bind(nthis, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>)())) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">return</span> <span class="literal">true</span>;
+    });
+    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {
+        <span class="keyword">if</span> (<span class="string">"  xy z  "</span>.trim() !== <span class="string">"xy z"</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">if</span> (<span class="string">""</span>.trim().length !== <span class="number">0</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">if</span> (<span class="string">"    \t "</span>.trim().length !== <span class="number">0</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">return</span> <span class="literal">true</span>;
+    });
+    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {
+        <span class="keyword">var</span> a = [ <span class="number">1</span>, <span class="number">2</span> ];
+        a.push(<span class="number">3</span>, <span class="number">4</span>);
+        a.pop();
+        console.log(a);
+        <span class="keyword">if</span> (!(a.length === <span class="number">3</span> &amp;&amp; !a[<span class="number">3</span>])) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">if</span> (a.join() !== <span class="string">"1,2,3"</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">if</span> (a.join(<span class="string">' '</span>) !== <span class="string">"1 2 3"</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        a.pop(); a.pop(); a.pop(); a.pop();
+        <span class="keyword">if</span> (!(a.length === <span class="number">0</span> &amp;&amp; !a[<span class="number">0</span>])) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">if</span> (a.join() !== <span class="string">""</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">return</span> <span class="literal">true</span>;
+    });
+    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>More array method tests.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> s = <span class="string">""</span>;
+        [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>].map(<span class="keyword">function</span>(x) { <span class="keyword">return</span> x*<span class="number">2</span>; }).forEach(<span class="keyword">function</span>(e, i){
+            s += [i, e].join(<span class="string">','</span>) + <span class="string">" "</span>;
+        });
+        <span class="keyword">return</span> s === <span class="string">'0,2 1,4 2,6 3,8 '</span>;
+    });
+    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Three-operand call.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> foo = <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.bar(<span class="string">'baz'</span>); };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>More unusual forms of three-operand call; &#39;this&#39; is still set.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> bar1 = <span class="keyword">function</span>(bat) { <span class="keyword">return</span> bat[<span class="number">0</span>](<span class="number">42</span>); };
+        <span class="keyword">var</span> bar2 = <span class="keyword">function</span>(bat, i) { <span class="keyword">return</span> bat[i](<span class="number">42</span>); };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Make proper parsing auto-testable by invoking the defined functions.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> r1 = foo.call({bar: <span class="keyword">function</span>(x) { <span class="keyword">return</span> x; }});
+        <span class="keyword">if</span> (r1 !== <span class="string">'baz'</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">var</span> r2 = bar1([<span class="keyword">function</span>(x) { <span class="keyword">return</span> x; }]);
+        <span class="keyword">if</span> (r2 !== <span class="number">42</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">var</span> r3 = bar2([<span class="keyword">function</span>(x) { <span class="keyword">return</span> x; }], <span class="number">0</span>);
+        <span class="keyword">if</span> (r3 !== <span class="number">42</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">return</span> <span class="literal">true</span>;
+    });
+    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>Check that <code>this</code> is set correctly for various three-operand
+call types.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> foo = {
+            answer: <span class="number">42</span>,
+            bar: <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.answer; }
+        };
+        <span class="keyword">if</span> (foo.bar() !== <span class="number">42</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">if</span> (foo[<span class="string">'bar'</span>]() !== <span class="number">42</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">var</span> barr = <span class="string">'bar'</span>;
+        <span class="keyword">if</span> (foo[barr]() !== <span class="number">42</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>arrays, too.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> bar = [ foo.bar ];
+        bar.answer = <span class="number">0x42</span>;
+        <span class="keyword">if</span> (bar[<span class="number">0</span>]() !== <span class="number">0x42</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">var</span> i = <span class="number">0</span>;
+        <span class="keyword">if</span> (bar[i]() !== <span class="number">0x42</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">return</span> <span class="literal">true</span>;
+    });
+    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>Test <code>new</code> and <code>instanceof</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="function"><span class="keyword">function</span> <span class="title">Foo</span><span class="params">(arg)</span> {</span> <span class="keyword">this</span>.foo = arg; }
+        Foo.prototype = {};
+        <span class="keyword">var</span> f = Foo.New(<span class="string">'foo'</span>);
+        <span class="function"><span class="keyword">function</span> <span class="title">Bar</span><span class="params">(x, y)</span> {</span> <span class="keyword">this</span>.bar = x+y; }
+        Bar.prototype = f;
+        <span class="keyword">var</span> b = Bar.New(<span class="number">3</span>, <span class="number">4</span>);
+        <span class="keyword">var</span> s = <span class="string">"Hey! "</span>+b.foo+<span class="string">" "</span>+b.bar;
+        s += <span class="string">" "</span>+Bar.hasInstance(b)+<span class="string">" "</span>+Foo.hasInstance(b);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>hasInstance should still work on bound functions
+XXX: chrome v8 appears to implement this incorrectly.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> Foo2 = Foo.bind();
+        <span class="keyword">var</span> Bar2 = Bar.bind(f, <span class="number">1</span>, <span class="number">2</span>);
+        s += <span class="string">" "</span>+Bar2.hasInstance(b)+<span class="string">" "</span>+Foo2.hasInstance(b);
+        <span class="keyword">return</span> s;
+    };
+    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>Very basic <code>Uint8Array</code> support.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> uarr = Object.newUint8Array(<span class="number">256</span>);
+        uarr[<span class="number">0</span>] = <span class="number">255</span>;
+        uarr[<span class="number">0</span>] += <span class="number">1</span>;
+        <span class="keyword">return</span> (uarr.length===<span class="number">256</span>) &amp;&amp; (uarr[<span class="number">0</span>] === <span class="number">0</span>);
+    });
+    <span class="comment">/* NOT YET IMPLEMENTED.
+    test[i+=1] = function() {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>Typed Array support.
+see <a href="http://www.khronos.org/registry/typedarray/specs/latest/">http://www.khronos.org/registry/typedarray/specs/latest/</a></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> f32s = <span class="keyword">new</span> Float32Array(<span class="number">128</span>);
+        <span class="keyword">var</span> i = <span class="number">0</span>;
+        <span class="keyword">while</span> (i &lt; <span class="number">128</span>) {
+            <span class="keyword">var</span> sub_f32s = f32s.subarray(i, i+<span class="number">8</span>);
+            <span class="keyword">var</span> j = <span class="number">0</span>;
+            <span class="keyword">while</span> (j &lt; <span class="number">8</span>) {
+                sub_f32s[j] = j;
+                j += <span class="number">1</span>;
+            }
+            i += <span class="number">8</span>;
+        }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>Now look at the backing storage as a Uint8Array</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        var u8s = new Uint8Array(f32s.buffer);
+        return u8s.length===512 &amp;&amp; u8s[510]===224 &amp;&amp; u8s[511]===64;
+    };
+    */</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <h2>Tile-generation tests</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {
+        <span class="keyword">var</span> c = <span class="number">1</span>+<span class="number">2</span>;
+        <span class="keyword">return</span> c;
+    };
+    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {
+        <span class="function"><span class="keyword">function</span> <span class="title">foo</span><span class="params">(a, b)</span> {</span>
+            <span class="keyword">var</span> c, d = { key: <span class="string">"va\"'lue"</span> };
+            c = b;
+            <span class="keyword">while</span> (<span class="number">1</span>) {
+                <span class="keyword">break</span>;
+            }
+            {
+                c+=<span class="number">1</span>;
+            }
+            <span class="keyword">return</span> a+b;
+        };
+        <span class="keyword">return</span> foo(<span class="number">1</span>,<span class="number">2</span>);
+    };
+    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {
+        <span class="keyword">var</span> a = <span class="number">1</span>, b = <span class="number">2</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>test all of the assignment shortcut operators.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        a += b;
+        a -= b;
+        a *= b;
+        a /= b;
+        b = a;
+        <span class="keyword">return</span> b;
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <h2>Block scoping tests (don&#39;t currently work)</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="comment">/*
+    test[i+=1] = function() {
+        var x = 3, z;
+        {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>XXX: test of block scoping.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> x = <span class="number">4</span> + z;
+            x+=<span class="number">1</span>;
+        }
+        <span class="keyword">while</span> (x) {
+            x+=<span class="number">1</span>;
+            <span class="keyword">break</span>;
+        }
+    };
+    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {
+        <span class="keyword">var</span> x = <span class="number">1</span>, z = <span class="number">2</span>; x += <span class="number">1</span>; <span class="keyword">var</span> y, p=<span class="number">4</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>XXX: test of block scoping.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        {
+            var x = 3;
+        }
+        if (x) { var y = 2; }
+    };
+    */
+
+    var test_source = [], j=0, test_map = {}, test_names = [];
+    var autotests = [];
+    while (j &lt;= i) {
+        test_source[j] = "define(";
+        var name = 'test_case_' + j;
+        if (test[j].__module_name__) { name = test[j].__module_name__; }
+        test_source[j] += str_escape(name)+",";
+        var d = test[j].__module_deps__ || [];
+        test_source[j] += "["+d.map(str_escape).join(",") + "],";
+        var f = test[j].__module_init__ ? test[j].__module_init__ : test[j];
+        if (!test[j].__module_name__) {
+            test_source[j] += "function() { return ";
+        }
+        test_source[j] += f.toSource ? f.toSource() : f.toString();
+        if (!test[j].__module_name__) {
+            test_source[j] += "; }";
+        }
+        test_source[j] += ");";
+        test_map[name] = test_source[j];
+        test_names[j] = name;
+        if (test[j].autotest) { autotests[j] = true; }
+        j+=1;
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <p>Add an accessor method to the <code>test_source</code> array.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    test_source.lookup = <span class="keyword">function</span>(name) {
+        <span class="keyword">return</span> test_map[name];
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <p>Add an accessor method to the <code>test_names</code> array.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    test_source.getName = <span class="keyword">function</span>(idx) {
+        <span class="keyword">return</span> test_names[idx];
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <p>Get at the list of executable test cases.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    test_source.isExecutable = <span class="keyword">function</span>(idx) { <span class="keyword">return</span> !!autotests[idx]; };
+    <span class="keyword">return</span> test_source;
+});</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

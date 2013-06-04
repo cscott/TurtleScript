@@ -1,0 +1,425 @@
+GUI:
+1) move events.js into gfx
+2) damage messages should be events.  attach/detach
+   damageE
+3) transform in transformview should be a behavior
+   send damage messages when transform is altered by mutators
+  (see DraggingEventHandler pointerMotionEvent)
+  (animation methods on transformView?)
+4) pump in mouse events, via mouseE methods on widgets.
+   -- just filtered version of native event streams
+   -- parent widgets should get first crack at filtering event stream
+   -- have 'handler' mechanism, such that widget can push a drag handler
+      on the top-level context and get all further events (until touchup,
+      or end of gesture)
+      event.handler() is top level handler. has activate/etc methods.
+
+eventsE = ..
+
+while (true) {
+  md = yield eventsE.waitFor(function(e) { return e.isMouseDown(); });
+  // or...
+  // while (!(yield eventsE.next()).isMouseDown())
+  //     /* ignore */;
+  mu = yield beginDragging(this, eventsE);
+  this.doDrop(md, mu);
+}
+
+widget.childDamage = mergeE(|c| in children, c.damageE)
+widget.damageE = mergeE(widget.childDamage.map(function(rect) { return rect.transformedBy.... }), widget.extraDamage);
+extraDamage = widget.clicked.mapE(function(e){return DamageEvent(this.bounds())})
+mapE(this.handleE)
+
+mapE(function(e) {
+ if (f(e)) {
+    yield g(e); // same timestamp as e
+    yield h(e);
+ }
+})
+reactor.loop(function(eventStream) {
+  e = yield eventStream.next();
+  this.handle(e);
+});
+this.damaged = { this.damageStream.emit(new DamageEvent(this.bounds())); }
+damagereactor = reactor.loop(function() {
+   promises = children.map(function(c) { return c.damageStream.next(); });
+   d = yield getOne(promises);
+   this.emit(new DamageEvent(d.transformedBy(x)));
+})
+
+
+
+Native environment:
+1) Transform BINOPs into method calls.
+   the various binary() calls just become emit("invoke")
+   tricky part is just making sure that method lookup/dispatch works on
+   primitives
+2) Once this works, removing jmps should be straightforward, because
+   the dispatch to booleans will work.
+   --> need to add a Function.prototype.return() method which will
+       return from a particular function, so that:
+         function foo(bar) {
+            if (bar) { return 3; }
+            return 4;
+         }
+       can be desugared into:
+         function foo(bar) {
+            bar.ifElse(function() { foo.return(3); }, function() {});
+            return 4; // or foo.return(4)
+         }
+       XXX: should really be a method of the frame object?  Otherwise
+       recursive invocations of foo could get confused?  Maybe not
+       an actual problem; returning from the innermost foo might always
+       be the right thing.  Think about this:
+
+         function foo(f) {
+            if (random()) foo(function() { foo.return(f()); });
+            return 3;
+         }
+      So really it should be $frame.return(3).
+3) Get rid of get_slot/set_slot variants & support getters/setters
+   -> get_getter / get_setter
+    along with primitive functions to get/set particular slots
+    --> careful, primitive bytecode never fetches a setter unless it's
+        about to set a slot (so we can ensure the slot exists), but the
+        Object.__lookup_setter__ method is
+        different.
+   This is just a method call: map.getGetter/map.getSetter; constant propagation
+   should handle the result -- which is a function which can then be invoked
+   w/ no args to yield the result. (what should 'this' be set to?)
+4) Write lower-level interpreter, which manipulates an object model
+   in an ArrayBuffer.
+    ->> reimplement primitive functions
+    ->> primitives to "Load Tag", "Load Float From Tagged", etc.
+    ->> in portable javascript, load as int, mutate, push back to arraybuffer
+        load as float/int/whatever
+        but implemented more efficiently in native code.
+    ->> interacts w/ garbage collector below.
+5) Bind canvas to a native runtime.  NaCl?
+6) REPL loop?
+   Maybe build this w/ the tile demo, so that you see a tile representation
+   of current frame (including bound method bodies) and you can type commands
+   at a prompt to update the frame/compute results. (This involves making
+   something which translates from binterp's internal representation to a
+   NewObjectWidget widget tree.  We'll also need to keep source code and/or
+   widget trees for compiled functions and/or link a binterp function ID
+   with the corresponding widget tree.
+
+Language/parser:
+1) Preserve comments
+2) Preserve newlines, including "extra space" between statements.
+   ==> every newline should be recorded somewhere -- on the token preceding it?
+   ==> can we compress strings of newlines together, so that 'presence of
+       newline' is just a boolean, or do we actually need to count them?
+       We should probably count them initially; we can always choose to
+       ignore that in the tile representation at a later stage.
+3) Add 'yada yada yada' operator for real.
+
+Tiles: (tasks in order:)
+1) Add rendering of tiles to SJS source.
+1b) move parenthesization from crender into widget display?
+2) Add basic 'pick' functionality.
+3) Allow dragging widgets (but not actual editing yet)
+4) Allow drag and drop / real tree editing (but not editing/creating names yet)
+5) Click to edit literals, incl name literals
+6) name literal browser?  object browser?
+
+Use SpiderMonkey tagged value representation:
+http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation/
+See also https://bugzilla.mozilla.org/show_bug.cgi?id=549143
+
+Trick is that we can't manipulate an untagged value directly, because
+the different NaN's aren't represented.  That's fine: just load the tag
+(top 32 bits) as a uint32_t before loading the address.  On 64-bit
+platforms we steal a couple of upper bits of the address; it's probably
+best to limit ourselves to 52 bits, which is the largest int which can
+be stored in the double precision javascript native format anyway.
+(x86_64 is limited to 48 bits anyway)
+
+On x86-32, "normal" NaN is 0xFFF8 0000 0000 0000 (msb = 1 ==> quiet NaN)
+               +Infinity = 0x7FF0 0000 0000 0000
+               -Infinity = 0xFFF0 0000 0000 0000
+  bits 63-51 (13 bits) set to 1.
+  sign = 1, exponent = 0x7FF, high bit of fraction is set. (quiet NaN)
+  probably want tag values to be signalling NaN for easier debugging,
+  but that complicates discrimination
+
+  So pointer values are:
+    0xFFF4 pppp pppp pppp  (AND with 0x0003 FFFF FFFF FFFF)
+  (or on 32-bit architectures, just use lower 32 bit value)
+  IS_DBL = MSint32 u< 0xFFF4 0000
+  
+  Tag values borrowed from
+      http://hg.mozilla.org/tracemonkey/annotate/9c869e64ee26/js/src/jsval.h
+  Types:
+     0xFFFF = object (48 bits)
+     0xFFFE = null (so >= 0xFFFE means "object or null")
+     0xFFFD = string
+     0xFFFC = "magic" -- look for more details elsewhere?
+     0xFFFB = boolean
+     0xFFFA = undefined
+     0xFFF9 = int (so < 0xFFFA 00000 means "number")
+     0xFFF8 <= double
+
+   Do we want to distinguish arrays and objects?  Or else just treat
+   arrays as having special getters/setters for integer args?
+   (and a special 'typeof' method)
+   Note that x86_64 requires bit 47 of an object to be zero.
+
+
+   double load_double (uint64_t *memory, uint48_t addr) {
+       assert(memory[addr] <= 0xFFF8 0000 0000 0000);
+       return INT64_TO_DOUBLE(memory[addr]);
+   }
+   void *map_for_value(uint64_t *memory, uint48_t addr) {
+       void *maps[] = { pointer_map, boolean_map, int_map, ...etc.. };
+       uint64_t val = memory[addr];
+       uint64_t tag = tag & 0xFFFF 0000 0000 0000;
+       if (tag == 0xFFFF 0000 0000 0000) {
+          /* dereference obj for map. assumed to be object pointer! */
+          return *((void*) (val - tag)) & 0x0000 FFFF FFFF FFFF;
+       }
+       else return maps[(tag >> 48) & 0xF];
+   }
+
+In JavaScript, where we can't directly represent the 64-bit integer quantity:
+
+   function load_double(memory /*a DataView*/, addr) {
+      assert(memory.getUint32(addr+1, true/*little endian*/) <= 0xFFF80000);
+      return memory.getFloat64(addr, true/*little endian*/);
+   }
+   function map_for_value(memory, addr) {
+      maps = [ pointer_map, boolean_map, int_map, ...etc... ];
+      tag = memory.getUint32(addr+1, true) & 0xFFFF0000;
+      if (tag === 0xFFFF0000) {
+         /* dereference obj for map, assumed to be object pointer. */
+         /* Note that we're limiting ourselves to a 32-bit address space */
+         return memory.getUint32(memory.getUint32(addr,true), true);
+      }
+      // a primitive type.
+      return maps[(tag >> 48) & 0xF];
+   }
+
+Note that efficient compilation of these primitives requires us to
+identify memory.getUint32 as a constant reference to an internal primitive.
+
+Getters and setters are recorded in the map.
+
+// note that map uses the same format as an object, and so we can make a
+// 'map map' which describes the map as a 1st-class JS object.
+struct map {
+   next_map
+   obj alloc'ed length // w/ empty space
+   array alloc'ed length // negative for "not an array"
+   doubly-linked list of functions to invalidate if map changes
+   list of derived maps (array of weak pointers?)
+   slot_count (getters/setter don't count for object_length)
+   is_shared (only one object w/ this map?)
+   // negative offsets (fields of the map) above this point
+-->constant map map pointer (also ARRAY_SENTINEL)
+   slot_count*SLOT_SIZE // slot count, in place where we'd expect array length
+   struct {
+      interned_string_name
+      properties  // "enumerable", "writable", "configurable",
+                  // "is getter set" (getter is JS value, expose it),
+		  // "is setter set" (setter is JS value, expose it)
+      getter_func
+      setter_func // = special IMMUTABLE_SETTER for !writable fields
+      dependency // doubly-linked list of things to invalidate if slot value changes (for constant getters?) [DON'T USE THIS?]
+   } slots[num];
+   ARRAY_END_SENTINEL (0xFFFC xxx1)
+}
+
+First assignment to an slot we assume that it's a constant.
+Only change map property to "not constant" on second assignment.
+(This makes a new map, oh well).
+Note that __proto__ is "just another field" in the map, and so will
+(almost always!) be a constant.
+
+ie, when we first execute
+  foo.bar = 5;
+we take a transition that adds a new 'constant' field bar.
+If this map already existed and the constant for bar doesn't match,
+we immediately take the transition to 'non-constant field bar'.
+We *don't* make a new 'constant w/ value 6' field, because then
+all objects with field bar would have different maps (which we don't want).
+
+When compiling, if we see a getter for a constant field, we can immediately
+execute the getter and substitute its value (after adding a dependency to the
+map).  Note that JS getters will be constants, but we won't be able (in
+general) to execute them and continue the constant propagation.
+
+object fields are stored at negative offsets. (including array length)
+array fields are stored at positive offsets.
+there's a sentinel value stored at the end of an array (0xFFFC something);
+this indicates to the object scanner that it should reverse the search to
+find the map
+
+function objects have a MAGIC 'code' field.  Otherwise are normal objects.
+getter_func / setter_func are created automagically for all
+"load from constant offset"
+
+////////////////
+
+Optimizing array loads.
+Special "numeric string" subclass.  This is used for strings which can be
+parsed as uint32 numbers (ie, valid array indices).  Easy to test, just need
+to look at first 10 digits.  If length > 10, or any of first 10 characters is
+not a digit, then it's not a "numeric string". (Note that negative integers
+are not "numeric strings" -- you can set/get them, but they are treated as
+strings, do not update length, etc.
+This lets us use "ordinary" type dispatch optimization to handle arrays
+as a special case (even if the args are strings!).  Something like:
+
+// simulating multiple dispatch
+arraymap.getGetter = function(field) { return field.arrayGetter(map); }
+NumericString.arrayGetter = function(map) {
+  // this function creation and its subsequent invocation should be
+  // inlined.
+  return function(obj) { return memory.get(obj + this.asInt() * 8); }
+};
+String.arrayGetter = function(map) {
+  // again, inlineable.
+  return map.normalFieldLookup(this);
+};
+
+this might require recognizing function(x){....}(y)
+as a special case (the function object doesn't escape) and directly
+inlining the code -- but I don't think so; i think this desugars to
+a normal invocation of a constant function; the only tricky think is
+recognizing that the inner function's frame doesn't escape and so
+propagating its values and skipping its creation.
+
+////////////////
+
+PURE JAVASCRIPT IMPLEMENTATION OF A COPYING GARBAGE COLLECTOR.
+
+// CHENEY'S ALGORITHM.
+// assumes all roots are (untagged) objects
+// a variant uses a tagged stack, where we start by scanning the stack
+// and looking at the tags
+
+// frame pointers for GC itself should probably be first things allocated
+// in tospace -- or else allocated in a separate stack altogether.
+// (if allocated in tospace, the scanning should start *after* then,
+// since all pointers in the GC's frame have already been forwarded.)
+var is_from = false;
+collect_garbage(memory, roots) {
+  var half = memory.length / 2;
+  var i;
+
+  function is_object_sentinel(lsb, msb) {
+    return msb === MAGIC_TAG && ((lsb & 7) === 0);
+  }
+  function is_array_sentinel(lsb, msb) {
+    return msb === MAGIC_TAG && ((lsb & 7) === 1);
+  }
+  function is_array_end_sentinel(lsb, msb) {
+    return msb === MAGIC_TAG && ((lsb & 7) === 2);
+  }
+
+  var to_addr; // bottom of to-space
+  function copy(obj_addr) {
+    val valLSB = memory.getUint32(obj_addr, true);
+    var valMSB = memory.getUint32(obj_addr+4, true);
+    // look at map pointer to determine if this is an array.
+    assert(is_object_sentinel(valLSB, valMSB) ||
+           is_array_sentinel(valLSB, valMSB));
+    if (in_to_space(map_addr)) {
+       return valLSB; // already copied; return new pointer.
+    }
+    if (is_array_sentinel(valLSB, valMSB)) {
+       var map_addr = valLSB & (~7);
+       // we only need to consult the map for arrays.
+       var alloc_array_len = memory.getUint32(map_addr - ARRAY_LENGTH_FIELD,true);
+       var alloc_array_tag = memory.getUint32(map_addr - ARRAY_LENGTH_FIELD + 4,true);
+       assert(alloc_array_tag != 0xFFFF FFFF); // this ought to be an array
+
+       // adjust pointer forward to start of array
+       obj_addr += arr_alloc_len+8/*extra 8 === length field*/;
+       // now obj_addr should point to the ARRAY_END_SENTINEL.
+       assert(is_array_end_sentinel(memory.getUint32(obj_addr, true),
+                                memory.getUint32(obj_addr+4, true)));
+       // copy the array portion over to the to-space
+       do {
+         memory.setUint32(to_addr, valLSB, true);
+	 memory.setUint32(to_addr+4, valMSB, true);
+	 to_addr -= 8; obj_addr -= 8;
+         valMSB = memory.getUint32(obj_addr+4, true);
+         valLSB = memory.getUint32(obj_addr, true);
+       } while (!is_array_sentinel(valLSB, valMSB));
+    }
+    // copy object mark / map pointer
+    memory.setUint32(to_addr, valLSB, true);
+    memory.setUint32(to_addr+4, valMSB, true);
+    // leave forwarding pointer.
+    // (we can tell this is a forwarding pointer, and not a normal map
+    //  pointer, because it points into to-space)
+    var forwarded = to_addr;
+    memory.setUint32(obj_addr, forwaded, true);
+    memory.setUint32(obj_addr+4, MAGIC_TAG);
+    to_addr -= 8; obj_addr -= 8;
+    // keep copying until we find the next object mark or array sentinel
+    while (true) {
+      valMSB = memory.getUint32(obj_addr+4, true);
+      valLSB = memory.getUint32(obj_addr, true);
+      if (is_object_sentinel(valLSB, valMSB) ||
+          is_array_sentinel(valLSB, valMSB))
+         break;
+      memory.setUint32(to_addr, valLSB, true);
+      memory.setUint32(to_addr+4, valMSB, true);
+      to_addr -= 8; obj_addr -= 8;
+    }
+    return forwarded; // done!
+  }
+
+  // start with roots, copy those into to-space
+  to_space = TOP_OF_TOSPACE;
+  for (i=0; i<roots.length; i++) {
+    roots[i] = copy(roots[i]);
+  }
+  // ok, now scan objects in to-space and copy them over.
+  for (i = TOP_OF_TOSPACE - 8; i > to_space; i -= 8) {
+      valMSB = memory.getUint32(i+4, true);
+      valLSB = memory.getUint32(i, true);
+      // is this a pointer?
+      if (valMSB === OBJECT_TAG) {
+          valLSB = copy(val_LSB);
+          memory.setUint32(i, valLSB, true);
+      } else if (valMSB === MAGIC_TAG) {
+          var tag = (valLSB & 7);
+          if (tag === 0) {
+            // object map pointer.
+            valLSB = copy(val_LSB);
+            memory.setUint32(i, valLSB, true);
+          } else if (tag === 1) {
+            // array map pointer.
+            valLSB = copy(val_LSB & ~7);
+            memory.setUint32(i, valLSB | 1, true);
+          }
+      }
+  }
+  // scan once more to finalize weak pointers.
+  for (i = TOP_OF_TOSPACE - 8; i > to_space; i -= 8) {
+      valMSB = memory.getUint32(i+4, true);
+      valLSB = memory.getUint32(i, true);
+      if (valMSB !== MAGIC_TAG)
+        continue;
+      var tag = (valLSB & 7);
+      if (tag !== 2)
+        continue;
+      // weak pointer.  has it been forwarded?
+      valLSB = valLSB & ~7; // mask out tag
+      assert(in_from_space(valLSB));
+      val fwd = memory.getUint32(valLSB, true);
+      if (in_to_space(fwd)) {
+         // ok, forwarded.  update ptr
+         memory.setUint32(i, fwd | 2, true);
+      } else {
+         // not forwarded; clear.
+         memory.setUint32(i, 0, true);
+         memory.setUint32(i+4, NULL_TAG, true);
+      }
+  }
+  // to_space is now the "top of memory", swap from and to spaces.
+}

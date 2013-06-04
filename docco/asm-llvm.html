@@ -1,0 +1,2495 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>asm-llvm.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="asm-llvm.html">
+                asm-llvm.js
+              </a>
+            
+              
+              <a class="source" href="bcompile.html">
+                bcompile.js
+              </a>
+            
+              
+              <a class="source" href="binterp.html">
+                binterp.js
+              </a>
+            
+              
+              <a class="source" href="browsercanvas.html">
+                browsercanvas.js
+              </a>
+            
+              
+              <a class="source" href="bytecode-table.html">
+                bytecode-table.js
+              </a>
+            
+              
+              <a class="source" href="canvastest.html">
+                canvastest.js
+              </a>
+            
+              
+              <a class="source" href="ccanvas.html">
+                ccanvas.js
+              </a>
+            
+              
+              <a class="source" href="crender-styles.html">
+                crender-styles.js
+              </a>
+            
+              
+              <a class="source" href="crender.html">
+                crender.js
+              </a>
+            
+              
+              <a class="source" href="ctiles.html">
+                ctiles.js
+              </a>
+            
+              
+              <a class="source" href="events.html">
+                events.js
+              </a>
+            
+              
+              <a class="source" href="eventtests.html">
+                eventtests.js
+              </a>
+            
+              
+              <a class="source" href="extensions.html">
+                extensions.js
+              </a>
+            
+              
+              <a class="source" href="global-es5.html">
+                global-es5.js
+              </a>
+            
+              
+              <a class="source" href="global.html">
+                global.js
+              </a>
+            
+              
+              <a class="source" href="html-escape.html">
+                html-escape.js
+              </a>
+            
+              
+              <a class="source" href="jcompile.html">
+                jcompile.js
+              </a>
+            
+              
+              <a class="source" href="json2.html">
+                json2.js
+              </a>
+            
+              
+              <a class="source" href="nodemain.html">
+                nodemain.js
+              </a>
+            
+              
+              <a class="source" href="parse.html">
+                parse.js
+              </a>
+            
+              
+              <a class="source" href="render.html">
+                render.js
+              </a>
+            
+              
+              <a class="source" href="render2.html">
+                render2.js
+              </a>
+            
+              
+              <a class="source" href="require.html">
+                require.js
+              </a>
+            
+              
+              <a class="source" href="stdlib.html">
+                stdlib.js
+              </a>
+            
+              
+              <a class="source" href="str-escape.html">
+                str-escape.js
+              </a>
+            
+              
+              <a class="source" href="tdop.html">
+                tdop.js
+              </a>
+            
+              
+              <a class="source" href="tests.html">
+                tests.js
+              </a>
+            
+              
+              <a class="source" href="tiles.html">
+                tiles.js
+              </a>
+            
+              
+              <a class="source" href="tokenize.html">
+                tokenize.js
+              </a>
+            
+              
+              <a class="source" href="top-level.html">
+                top-level.js
+              </a>
+            
+              
+              <a class="source" href="ts.html">
+                ts.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-bytecode.html">
+                write-rust-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-ops.html">
+                write-rust-ops.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>asm-llvm.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p><code>asm-llvm.js</code> is a parser for <a href="http://asmjs.org">asm.js</a> written
+in <a href="http://github.com/cscott/turtlescript">TurtleScript</a>, a
+syntactically-simplified JavaScript.  It is written by
+C. Scott Ananian and released under an MIT license.</p>
+<p>The parser is based on the tiny, fast
+<a href="http://marijnhaverbeke.nl/acorn/">acorn parser</a>
+of Marijn Haverbeke, which in turn borrowed from
+<a href="http://esprima.org">Esprima</a> by Ariya Hidayat.</p>
+<p>Copyright (c) 2013 C. Scott Ananian</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>define([], <span class="function"><span class="keyword">function</span> <span class="title">asm_llvm</span><span class="params">()</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>The module object.
+(This is used by <code>tests.js</code> to recreate the module source.)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> module = {
+        __module_name__: <span class="string">"asm-llvm"</span>,
+        __module_init__: asm_llvm,
+        __module_deps__: []
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <h2>Type system</h2>
+<p>Set up the <a href="http://asmjs.org/spec/latest/#types">type system of asm.js</a>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> Type = {
+        _id: <span class="number">0</span>,
+        _derived: {},
+        subtypes: []
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>We do hash-consing of <code>Type</code> objects so that we have a singleton object
+representing every unique type, no matter how it was derived.
+The basis is <code>Type.derive()</code>, which creates one <code>Type</code> object from
+another.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    Type.derive = (<span class="keyword">function</span>() {
+        <span class="keyword">var</span> id = <span class="number">1</span>;
+        <span class="keyword">return</span> <span class="keyword">function</span>(spec, properties) {
+            <span class="keyword">var</span> ty = <span class="keyword">this</span>._derived[spec];
+            <span class="keyword">if</span> (ty) { <span class="keyword">return</span> ty; }
+            ty = <span class="keyword">this</span>._derived[spec] = Object.create(<span class="keyword">this</span>);
+            ty._id = id; id += <span class="number">1</span>;
+            ty._derived = [];
+            Object.keys(properties || {}).forEach(<span class="keyword">function</span>(k) {
+                ty[k] = properties[k];
+            });
+            <span class="keyword">return</span> ty;
+        };
+    })();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>The top-level internal types (which do not escape, and are not
+a subtype of any other type) are &quot;doublish&quot; and &quot;intish&quot;.</p>
+<p>Intish represents the result of a JavaScript integer operation
+that must be coerced back to an integer with an explicit
+coercion.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    Type.Intish = Type.derive(<span class="string">"intish"</span>, { value: <span class="literal">true</span> });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Similar to intish, the doublish type represents operations that
+are expected to produce a double but may produce additional
+junk that must be coerced back to a number.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    Type.Doublish = Type.derive(<span class="string">"doublish"</span>, { value: <span class="literal">true</span> });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Void is the type of functions that are not supposed to return any
+useful value.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    Type.Void = Type.derive(<span class="string">"void"</span>, { value: <span class="literal">true</span> });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>The other internal (non-escaping) types are &#39;unknown&#39; and &#39;int&#39;.
+The unknown type represents a value returned from an FFI call.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    Type.Unknown = Type.derive(<span class="string">"unknown"</span>, {
+        value: <span class="literal">true</span>,
+        subtypes: [Type.Doublish, Type.Intish]
+    });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>The int type is the type of 32-bit integers where the
+signedness is not known.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    Type.Int = Type.derive(<span class="string">"int"</span>, {
+        value: <span class="literal">true</span>,
+        subtypes: [Type.Intish]
+    });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>The rest of the value types can escape into non-asm.js code.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    Type.Extern = Type.derive(<span class="string">"extern"</span>, { value: <span class="literal">true</span> });
+    Type.Double = Type.derive(<span class="string">"double"</span>, {
+        value: <span class="literal">true</span>,
+        subtypes: [Type.Doublish, Type.Extern]
+    });
+    Type.Signed = Type.derive(<span class="string">"signed"</span>, {
+        value: <span class="literal">true</span>,
+        subtypes: [Type.Extern, Type.Int]
+    });
+    Type.Unsigned = Type.derive(<span class="string">"unsigned"</span>, {
+        value: <span class="literal">true</span>,
+        subtypes: [Type.Extern, Type.Int]
+    });
+    Type.Fixnum = Type.derive(<span class="string">"fixnum"</span>, {
+        value: <span class="literal">true</span>,
+        subtypes: [Type.Signed, Type.Unsigned]
+    });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Global (non-value) types.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    Type.ArrayBufferView = Type.derive(<span class="string">"ArrayBufferView"</span>);
+    Type.Function = Type.derive(<span class="string">"Function"</span>);
+    Type.IntNArray = <span class="keyword">function</span>(n) {
+        <span class="keyword">return</span> Type.ArrayBufferView.derive(<span class="string">'Int'</span> + n + <span class="string">'Array'</span>);
+    };
+    Type.UintNArray = <span class="keyword">function</span>(n) {
+        <span class="keyword">return</span> Type.ArrayBufferView.derive(<span class="string">'Uint'</span> + n + <span class="string">'Array'</span>);
+    };
+    Type.FloatNArray = <span class="keyword">function</span>(n) {
+        <span class="keyword">return</span> Type.ArrayBufferView.derive(<span class="string">'Float'</span> + n + <span class="string">'Array'</span>);
+    };
+    Type.FunctionType = <span class="keyword">function</span>(argtypes, rettype) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>We derive a function type starting from the return type, and
+proceeding to the argument types in order.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> result = rettype.derive(<span class="string">'()-&gt;'</span>, {
+            <span class="string">'function'</span>: <span class="literal">true</span>,
+            rettype: rettype,
+            numargs: <span class="number">0</span>
+        });
+        argtypes.forEach(<span class="keyword">function</span>(ty, idx) {
+            <span class="keyword">var</span> param = { numargs: (idx+<span class="number">1</span>) }; param[idx] = ty;
+            result = result.derive(ty._id, param);
+        });
+        <span class="keyword">return</span> result;
+    };
+    Type.FunctionTypes = <span class="keyword">function</span>(functiontypes) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Sort the function types by id, to make a canonical ordering,
+then derive the <code>FunctionTypes</code> type.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        functiontypes.sort(<span class="keyword">function</span>(a,b) { <span class="keyword">return</span> a._id - b._id; });
+        <span class="keyword">var</span> result = Type.derive(<span class="string">'FunctionTypes'</span>, {
+            functiontypes: <span class="literal">true</span>,
+            numtypes: <span class="number">0</span>
+        });
+        functiontypes.forEach(<span class="keyword">function</span>(ty, idx) {
+            <span class="keyword">var</span> param = { numtypes: (idx+<span class="number">1</span>) }; param[idx] = ty;
+            result = result.derive(ty._id, param);
+        });
+        <span class="keyword">return</span> result;
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>Quick self-test for the type system.  Ensure that identical types
+created at two different times still compare ===.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> test_types = <span class="keyword">function</span>() {
+        <span class="keyword">var</span> sqrt1 = Type.FunctionTypes([Type.FunctionType([Type.Double],Type.Double)]);
+        <span class="keyword">var</span> sqrt2 = Type.FunctionTypes([Type.FunctionType([Type.Double],Type.Double)]);
+        console.assert(sqrt1 === sqrt2);
+        console.assert(sqrt1.functiontypes);
+        console.assert(sqrt1.numtypes===<span class="number">1</span>);
+        console.assert(sqrt1[<span class="number">0</span>][<span class="string">'function'</span>]);
+        console.assert(sqrt1[<span class="number">0</span>].numargs===<span class="number">1</span>);
+        console.assert(sqrt1[<span class="number">0</span>][<span class="number">0</span>]===Type.Double);
+    };
+    test_types();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>Some functions will have alternate implementations in a
+TurtleScript environment -- for example, we&#39;ll try to avoid
+using regular expressions and dynamic eval.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> runningInTS = <span class="literal">false</span>; <span class="comment">// XXX replace with an appropriate dynamic test</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>Here we start borrowing liberally from acorn!
+We move the token types into module context, since they are
+(for all practical purposes) constants.</p>
+<h2>Token types</h2>
+<p>The assignment of fine-grained, information-carrying type objects
+allows the tokenizer to store the information it has about a
+token in a way that is very cheap for the parser to look up.</p>
+<p>All token type variables start with an underscore, to make them
+easy to recognize.</p>
+<p>These are the general types. The <code>type</code> property is only used to
+make them recognizeable when debugging.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> _num = {type: <span class="string">"num"</span>};
+    <span class="keyword">var</span> _regexp = {type: <span class="string">"regexp"</span>};
+    <span class="keyword">var</span> _string = {type: <span class="string">"string"</span>};
+    <span class="keyword">var</span> _name = {type: <span class="string">"name"</span>};
+    <span class="keyword">var</span> _eof = {type: <span class="string">"eof"</span>};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>Keyword tokens. The <code>keyword</code> property (also used in keyword-like
+operators) indicates that the token originated from an
+identifier-like word, which is used when parsing property names.</p>
+<p>The <code>beforeExpr</code> property is used to disambiguate between regular
+expressions and divisions. It is set on all token types that can
+be followed by an expression (thus, a slash after them would be a
+regular expression).</p>
+<p><code>isLoop</code> marks a keyword as starting a loop, which is important
+to know when parsing a label, in order to allow or disallow
+continue jumps to that label.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> _<span class="keyword">break</span> = {keyword: <span class="string">"break"</span>};
+    <span class="keyword">var</span> _<span class="keyword">case</span> = {keyword: <span class="string">"case"</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _<span class="keyword">catch</span> = {keyword: <span class="string">"catch"</span>};
+    <span class="keyword">var</span> _<span class="keyword">continue</span> = {keyword: <span class="string">"continue"</span>};
+    <span class="keyword">var</span> _debugger = {keyword: <span class="string">"debugger"</span>};
+    <span class="keyword">var</span> _<span class="keyword">default</span> = {keyword: <span class="string">"default"</span>};
+    <span class="keyword">var</span> _<span class="keyword">do</span> = {keyword: <span class="string">"do"</span>, isLoop: <span class="literal">true</span>};
+    <span class="keyword">var</span> _<span class="keyword">else</span> = {keyword: <span class="string">"else"</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _<span class="keyword">finally</span> = {keyword: <span class="string">"finally"</span>};
+    <span class="keyword">var</span> _<span class="keyword">for</span> = {keyword: <span class="string">"for"</span>, isLoop: <span class="literal">true</span>};
+    <span class="keyword">var</span> _<span class="keyword">function</span> = {keyword: <span class="string">"function"</span>};
+    <span class="keyword">var</span> _<span class="keyword">if</span> = {keyword: <span class="string">"if"</span>};
+    <span class="keyword">var</span> _<span class="keyword">return</span> = {keyword: <span class="string">"return"</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _<span class="keyword">switch</span> = {keyword: <span class="string">"switch"</span>};
+    <span class="keyword">var</span> _<span class="keyword">throw</span> = {keyword: <span class="string">"throw"</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _<span class="keyword">try</span> = {keyword: <span class="string">"try"</span>};
+    <span class="keyword">var</span> _<span class="keyword">var</span> = {keyword: <span class="string">"var"</span>};
+    <span class="keyword">var</span> _<span class="keyword">while</span> = {keyword: <span class="string">"while"</span>, isLoop: <span class="literal">true</span>};
+    <span class="keyword">var</span> _<span class="keyword">with</span> = {keyword: <span class="string">"with"</span>};
+    <span class="keyword">var</span> _<span class="keyword">new</span> = {keyword: <span class="string">"new"</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _<span class="keyword">this</span> = {keyword: <span class="string">"this"</span>};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>The keywords that denote values.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> _<span class="literal">null</span> = {keyword: <span class="string">"null"</span>, atomValue: <span class="literal">null</span>};
+    <span class="keyword">var</span> _<span class="literal">true</span> = {keyword: <span class="string">"true"</span>, atomValue: <span class="literal">true</span>};
+    <span class="keyword">var</span> _<span class="literal">false</span> = {keyword: <span class="string">"false"</span>, atomValue: <span class="literal">false</span>};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>Some keywords are treated as regular operators. <code>in</code> sometimes
+(when parsing <code>for</code>) needs to be tested against specifically, so
+we assign a variable name to it for quick comparing.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> _<span class="keyword">in</span> = {keyword: <span class="string">"in"</span>, binop: <span class="number">7</span>, beforeExpr: <span class="literal">true</span>};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>Map keyword names to token types.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> keywordTypes = {
+        <span class="string">"break"</span>: _<span class="keyword">break</span>, <span class="string">"case"</span>: _<span class="keyword">case</span>, <span class="string">"catch"</span>: _<span class="keyword">catch</span>,
+        <span class="string">"continue"</span>: _<span class="keyword">continue</span>, <span class="string">"debugger"</span>: _debugger, <span class="string">"default"</span>: _<span class="keyword">default</span>,
+        <span class="string">"do"</span>: _<span class="keyword">do</span>, <span class="string">"else"</span>: _<span class="keyword">else</span>, <span class="string">"finally"</span>: _<span class="keyword">finally</span>, <span class="string">"for"</span>: _<span class="keyword">for</span>,
+        <span class="string">"function"</span>: _<span class="keyword">function</span>, <span class="string">"if"</span>: _<span class="keyword">if</span>, <span class="string">"return"</span>: _<span class="keyword">return</span>,
+        <span class="string">"switch"</span>: _<span class="keyword">switch</span>, <span class="string">"throw"</span>: _<span class="keyword">throw</span>, <span class="string">"try"</span>: _<span class="keyword">try</span>, <span class="string">"var"</span>: _<span class="keyword">var</span>,
+        <span class="string">"while"</span>: _<span class="keyword">while</span>, <span class="string">"with"</span>: _<span class="keyword">with</span>, <span class="string">"null"</span>: _<span class="literal">null</span>, <span class="string">"true"</span>: _<span class="literal">true</span>,
+        <span class="string">"false"</span>: _<span class="literal">false</span>, <span class="string">"new"</span>: _<span class="keyword">new</span>, <span class="string">"in"</span>: _<span class="keyword">in</span>,
+        <span class="string">"instanceof"</span>: {keyword: <span class="string">"instanceof"</span>, binop: <span class="number">7</span>, beforeExpr: <span class="literal">true</span>},
+        <span class="string">"this"</span>: _<span class="keyword">this</span>,
+        <span class="string">"typeof"</span>: {keyword: <span class="string">"typeof"</span>, prefix: <span class="literal">true</span>, beforeExpr: <span class="literal">true</span>},
+        <span class="string">"void"</span>: {keyword: <span class="string">"void"</span>, prefix: <span class="literal">true</span>, beforeExpr: <span class="literal">true</span>},
+        <span class="string">"delete"</span>: {keyword: <span class="string">"delete"</span>, prefix: <span class="literal">true</span>, beforeExpr: <span class="literal">true</span>}
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>Punctuation token types. Again, the <code>type</code> property is purely for
+debugging.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> _bracketL = {type: <span class="string">"["</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _bracketR = {type: <span class="string">"]"</span>};
+    <span class="keyword">var</span> _braceL = {type: <span class="string">"{"</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _braceR = {type: <span class="string">"}"</span>};
+    <span class="keyword">var</span> _parenL = {type: <span class="string">"("</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _parenR = {type: <span class="string">")"</span>};
+    <span class="keyword">var</span> _comma = {type: <span class="string">","</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _semi = {type: <span class="string">";"</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _colon = {type: <span class="string">":"</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _dot = {type: <span class="string">"."</span>};
+    <span class="keyword">var</span> _question = {type: <span class="string">"?"</span>, beforeExpr: <span class="literal">true</span>};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>Operators. These carry several kinds of properties to help the
+parser use them properly (the presence of these properties is
+what categorizes them as operators).</p>
+<p><code>binop</code>, when present, specifies that this operator is a binary
+operator, and will refer to its precedence.</p>
+<p><code>prefix</code> and <code>postfix</code> mark the operator as a prefix or postfix
+unary operator. <code>isUpdate</code> specifies that the node produced by
+the operator should be of type UpdateExpression rather than
+simply UnaryExpression (<code>++</code> and <code>--</code>).</p>
+<p><code>isAssign</code> marks all of <code>=</code>, <code>+=</code>, <code>-=</code> etcetera, which act as
+binary operators with a very low precedence, that should result
+in AssignmentExpression nodes.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> _slash = {binop: <span class="number">10</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _eq = {isAssign: <span class="literal">true</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _assign = {isAssign: <span class="literal">true</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _plusmin = {binop: <span class="number">9</span>, prefix: <span class="literal">true</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _incdec = {postfix: <span class="literal">true</span>, prefix: <span class="literal">true</span>, isUpdate: <span class="literal">true</span>};
+    <span class="keyword">var</span> _prefix = {prefix: <span class="literal">true</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _bin1 = {binop: <span class="number">1</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _bin2 = {binop: <span class="number">2</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _bin3 = {binop: <span class="number">3</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _bin4 = {binop: <span class="number">4</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _bin5 = {binop: <span class="number">5</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _bin6 = {binop: <span class="number">6</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _bin7 = {binop: <span class="number">7</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _bin8 = {binop: <span class="number">8</span>, beforeExpr: <span class="literal">true</span>};
+    <span class="keyword">var</span> _bin10 = {binop: <span class="number">10</span>, beforeExpr: <span class="literal">true</span>};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>Provide access to the token types for external users of the
+tokenizer.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    module.tokTypes = {
+        bracketL: _bracketL, bracketR: _bracketR, braceL: _braceL,
+        braceR: _braceR, parenL: _parenL, parenR: _parenR, comma: _comma,
+        semi: _semi, colon: _colon, dot: _dot, question: _question,
+        slash: _slash, eq: _eq, name: _name, eof: _eof, num: _num,
+        regexp: _regexp, string: _string
+    };
+    Object.keys(keywordTypes).forEach(<span class="keyword">function</span>(kw) {
+        module.tokTypes[kw] = keywordTypes[kw];
+    });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>This is a trick taken from Esprima. It turns out that, on
+non-Chrome browsers, to check whether a string is in a set, a
+predicate containing a big ugly <code>switch</code> statement is faster than
+a regular expression, and on Chrome the two are about on par.
+This function uses <code>eval</code> (non-lexical) to produce such a
+predicate from a space-separated string of words.</p>
+<p>It starts by sorting the words by length.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> makePredicate = <span class="keyword">function</span>(words) {
+        words = words.split(<span class="string">" "</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>When running under TurtleScript, substitute a much simpler
+implementation (for now at least).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (runningInTS) {
+            <span class="keyword">return</span> <span class="keyword">function</span>(str) { <span class="keyword">return</span> words.indexOf(str) &gt;= <span class="number">0</span>; };
+        }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <p>Otherwise, do the optimized code generation!</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> f = <span class="string">""</span>, cats = [];
+        <span class="keyword">var</span> i = <span class="number">0</span>;
+        <span class="keyword">while</span> (i &lt; words.length) {
+            <span class="keyword">var</span> j = <span class="number">0</span>;
+            <span class="keyword">while</span> (j &lt; cats.length) {
+                <span class="keyword">if</span> (cats[j][<span class="number">0</span>].length === words[i].length) {
+                    cats[j].push(words[i]);
+                    <span class="keyword">break</span>;
+                }
+                j += <span class="number">1</span>;
+            }
+            <span class="keyword">if</span> (j === cats.length) {
+                cats.push([words[i]]);
+            }
+            i += <span class="number">1</span>;
+        }
+        <span class="keyword">var</span> compareTo = <span class="keyword">function</span>(arr) {
+            <span class="keyword">if</span> (arr.length === <span class="number">1</span>) {
+                <span class="keyword">return</span> f += <span class="string">"return str === "</span> + JSON.stringify(arr[<span class="number">0</span>]) + <span class="string">";"</span>;
+            }
+            f += <span class="string">"switch(str){"</span>;
+            arr.forEach(<span class="keyword">function</span>(c) {
+                f += <span class="string">"case "</span> + JSON.stringify(c) + <span class="string">":"</span>;
+            });
+            f += <span class="string">"return true}return false;"</span>;
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <p>When there are more than three length categories, an outer
+switch first dispatches on the lengths, to save on comparisons.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (cats.length &gt; <span class="number">3</span>) {
+            cats.sort(<span class="keyword">function</span>(a, b) {<span class="keyword">return</span> b.length - a.length;});
+            f += <span class="string">"switch(str.length){"</span>;
+            cats.forEach(<span class="keyword">function</span>(cat) {
+                f += <span class="string">"case "</span> + cat[<span class="number">0</span>].length + <span class="string">":"</span>;
+                compareTo(cat);
+            });
+            f += <span class="string">"}"</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <p>Otherwise, simply generate a flat <code>switch</code> statement.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        } <span class="keyword">else</span> {
+            compareTo(words);
+        }
+        <span class="keyword">return</span> Function.New(<span class="string">"str"</span>, f);
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              <p>The ECMAScript 3 reserved word list.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> isReservedWord3 = makePredicate(<span class="string">"abstract boolean byte char class double enum export extends final float goto implements import int interface long native package private protected public short static super synchronized throws transient volatile"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-30">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-30">&#182;</a>
+              </div>
+              <p>ECMAScript 5 reserved words.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> isReservedWord5 = makePredicate(<span class="string">"class enum extends super const export import"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-31">&#182;</a>
+              </div>
+              <p>The additional reserved words in strict mode.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> isStrictReservedWord = makePredicate(<span class="string">"implements interface let package private protected public static yield"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-32">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-32">&#182;</a>
+              </div>
+              <p>The forbidden variable names in strict mode.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> isStrictBadIdWord = makePredicate(<span class="string">"eval arguments"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-33">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-33">&#182;</a>
+              </div>
+              <p>And the keywords.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> isKeyword = makePredicate(<span class="string">"break case catch continue debugger default do else finally for function if return switch throw try var while with null true false instanceof typeof void delete new in this"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-34">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-34">&#182;</a>
+              </div>
+              <h2>Character categories</h2>
+<p>Big ugly regular expressions that match characters in the
+whitespace, identifier, and identifier-start categories. These
+are only applied when a character is found to actually have a
+code point above 128.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> nonASCIIwhitespace = RegExp.New(<span class="string">"[\u1680\u180e\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]"</span>);
+    <span class="keyword">var</span> nonASCIIidentifierStartChars = <span class="string">"\xaa\xb5\xba\xc0-\xd6\xd8-\xf6\xf8-\u02c1\u02c6-\u02d1\u02e0-\u02e4\u02ec\u02ee\u0370-\u0374\u0376\u0377\u037a-\u037d\u0386\u0388-\u038a\u038c\u038e-\u03a1\u03a3-\u03f5\u03f7-\u0481\u048a-\u0527\u0531-\u0556\u0559\u0561-\u0587\u05d0-\u05ea\u05f0-\u05f2\u0620-\u064a\u066e\u066f\u0671-\u06d3\u06d5\u06e5\u06e6\u06ee\u06ef\u06fa-\u06fc\u06ff\u0710\u0712-\u072f\u074d-\u07a5\u07b1\u07ca-\u07ea\u07f4\u07f5\u07fa\u0800-\u0815\u081a\u0824\u0828\u0840-\u0858\u08a0\u08a2-\u08ac\u0904-\u0939\u093d\u0950\u0958-\u0961\u0971-\u0977\u0979-\u097f\u0985-\u098c\u098f\u0990\u0993-\u09a8\u09aa-\u09b0\u09b2\u09b6-\u09b9\u09bd\u09ce\u09dc\u09dd\u09df-\u09e1\u09f0\u09f1\u0a05-\u0a0a\u0a0f\u0a10\u0a13-\u0a28\u0a2a-\u0a30\u0a32\u0a33\u0a35\u0a36\u0a38\u0a39\u0a59-\u0a5c\u0a5e\u0a72-\u0a74\u0a85-\u0a8d\u0a8f-\u0a91\u0a93-\u0aa8\u0aaa-\u0ab0\u0ab2\u0ab3\u0ab5-\u0ab9\u0abd\u0ad0\u0ae0\u0ae1\u0b05-\u0b0c\u0b0f\u0b10\u0b13-\u0b28\u0b2a-\u0b30\u0b32\u0b33\u0b35-\u0b39\u0b3d\u0b5c\u0b5d\u0b5f-\u0b61\u0b71\u0b83\u0b85-\u0b8a\u0b8e-\u0b90\u0b92-\u0b95\u0b99\u0b9a\u0b9c\u0b9e\u0b9f\u0ba3\u0ba4\u0ba8-\u0baa\u0bae-\u0bb9\u0bd0\u0c05-\u0c0c\u0c0e-\u0c10\u0c12-\u0c28\u0c2a-\u0c33\u0c35-\u0c39\u0c3d\u0c58\u0c59\u0c60\u0c61\u0c85-\u0c8c\u0c8e-\u0c90\u0c92-\u0ca8\u0caa-\u0cb3\u0cb5-\u0cb9\u0cbd\u0cde\u0ce0\u0ce1\u0cf1\u0cf2\u0d05-\u0d0c\u0d0e-\u0d10\u0d12-\u0d3a\u0d3d\u0d4e\u0d60\u0d61\u0d7a-\u0d7f\u0d85-\u0d96\u0d9a-\u0db1\u0db3-\u0dbb\u0dbd\u0dc0-\u0dc6\u0e01-\u0e30\u0e32\u0e33\u0e40-\u0e46\u0e81\u0e82\u0e84\u0e87\u0e88\u0e8a\u0e8d\u0e94-\u0e97\u0e99-\u0e9f\u0ea1-\u0ea3\u0ea5\u0ea7\u0eaa\u0eab\u0ead-\u0eb0\u0eb2\u0eb3\u0ebd\u0ec0-\u0ec4\u0ec6\u0edc-\u0edf\u0f00\u0f40-\u0f47\u0f49-\u0f6c\u0f88-\u0f8c\u1000-\u102a\u103f\u1050-\u1055\u105a-\u105d\u1061\u1065\u1066\u106e-\u1070\u1075-\u1081\u108e\u10a0-\u10c5\u10c7\u10cd\u10d0-\u10fa\u10fc-\u1248\u124a-\u124d\u1250-\u1256\u1258\u125a-\u125d\u1260-\u1288\u128a-\u128d\u1290-\u12b0\u12b2-\u12b5\u12b8-\u12be\u12c0\u12c2-\u12c5\u12c8-\u12d6\u12d8-\u1310\u1312-\u1315\u1318-\u135a\u1380-\u138f\u13a0-\u13f4\u1401-\u166c\u166f-\u167f\u1681-\u169a\u16a0-\u16ea\u16ee-\u16f0\u1700-\u170c\u170e-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176c\u176e-\u1770\u1780-\u17b3\u17d7\u17dc\u1820-\u1877\u1880-\u18a8\u18aa\u18b0-\u18f5\u1900-\u191c\u1950-\u196d\u1970-\u1974\u1980-\u19ab\u19c1-\u19c7\u1a00-\u1a16\u1a20-\u1a54\u1aa7\u1b05-\u1b33\u1b45-\u1b4b\u1b83-\u1ba0\u1bae\u1baf\u1bba-\u1be5\u1c00-\u1c23\u1c4d-\u1c4f\u1c5a-\u1c7d\u1ce9-\u1cec\u1cee-\u1cf1\u1cf5\u1cf6\u1d00-\u1dbf\u1e00-\u1f15\u1f18-\u1f1d\u1f20-\u1f45\u1f48-\u1f4d\u1f50-\u1f57\u1f59\u1f5b\u1f5d\u1f5f-\u1f7d\u1f80-\u1fb4\u1fb6-\u1fbc\u1fbe\u1fc2-\u1fc4\u1fc6-\u1fcc\u1fd0-\u1fd3\u1fd6-\u1fdb\u1fe0-\u1fec\u1ff2-\u1ff4\u1ff6-\u1ffc\u2071\u207f\u2090-\u209c\u2102\u2107\u210a-\u2113\u2115\u2119-\u211d\u2124\u2126\u2128\u212a-\u212d\u212f-\u2139\u213c-\u213f\u2145-\u2149\u214e\u2160-\u2188\u2c00-\u2c2e\u2c30-\u2c5e\u2c60-\u2ce4\u2ceb-\u2cee\u2cf2\u2cf3\u2d00-\u2d25\u2d27\u2d2d\u2d30-\u2d67\u2d6f\u2d80-\u2d96\u2da0-\u2da6\u2da8-\u2dae\u2db0-\u2db6\u2db8-\u2dbe\u2dc0-\u2dc6\u2dc8-\u2dce\u2dd0-\u2dd6\u2dd8-\u2dde\u2e2f\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303c\u3041-\u3096\u309d-\u309f\u30a1-\u30fa\u30fc-\u30ff\u3105-\u312d\u3131-\u318e\u31a0-\u31ba\u31f0-\u31ff\u3400-\u4db5\u4e00-\u9fcc\ua000-\ua48c\ua4d0-\ua4fd\ua500-\ua60c\ua610-\ua61f\ua62a\ua62b\ua640-\ua66e\ua67f-\ua697\ua6a0-\ua6ef\ua717-\ua71f\ua722-\ua788\ua78b-\ua78e\ua790-\ua793\ua7a0-\ua7aa\ua7f8-\ua801\ua803-\ua805\ua807-\ua80a\ua80c-\ua822\ua840-\ua873\ua882-\ua8b3\ua8f2-\ua8f7\ua8fb\ua90a-\ua925\ua930-\ua946\ua960-\ua97c\ua984-\ua9b2\ua9cf\uaa00-\uaa28\uaa40-\uaa42\uaa44-\uaa4b\uaa60-\uaa76\uaa7a\uaa80-\uaaaf\uaab1\uaab5\uaab6\uaab9-\uaabd\uaac0\uaac2\uaadb-\uaadd\uaae0-\uaaea\uaaf2-\uaaf4\uab01-\uab06\uab09-\uab0e\uab11-\uab16\uab20-\uab26\uab28-\uab2e\uabc0-\uabe2\uac00-\ud7a3\ud7b0-\ud7c6\ud7cb-\ud7fb\uf900-\ufa6d\ufa70-\ufad9\ufb00-\ufb06\ufb13-\ufb17\ufb1d\ufb1f-\ufb28\ufb2a-\ufb36\ufb38-\ufb3c\ufb3e\ufb40\ufb41\ufb43\ufb44\ufb46-\ufbb1\ufbd3-\ufd3d\ufd50-\ufd8f\ufd92-\ufdc7\ufdf0-\ufdfb\ufe70-\ufe74\ufe76-\ufefc\uff21-\uff3a\uff41-\uff5a\uff66-\uffbe\uffc2-\uffc7\uffca-\uffcf\uffd2-\uffd7\uffda-\uffdc"</span>;
+    <span class="keyword">var</span> nonASCIIidentifierChars = <span class="string">"\u0300-\u036f\u0483-\u0487\u0591-\u05bd\u05bf\u05c1\u05c2\u05c4\u05c5\u05c7\u0610-\u061a\u0620-\u0649\u0672-\u06d3\u06e7-\u06e8\u06fb-\u06fc\u0730-\u074a\u0800-\u0814\u081b-\u0823\u0825-\u0827\u0829-\u082d\u0840-\u0857\u08e4-\u08fe\u0900-\u0903\u093a-\u093c\u093e-\u094f\u0951-\u0957\u0962-\u0963\u0966-\u096f\u0981-\u0983\u09bc\u09be-\u09c4\u09c7\u09c8\u09d7\u09df-\u09e0\u0a01-\u0a03\u0a3c\u0a3e-\u0a42\u0a47\u0a48\u0a4b-\u0a4d\u0a51\u0a66-\u0a71\u0a75\u0a81-\u0a83\u0abc\u0abe-\u0ac5\u0ac7-\u0ac9\u0acb-\u0acd\u0ae2-\u0ae3\u0ae6-\u0aef\u0b01-\u0b03\u0b3c\u0b3e-\u0b44\u0b47\u0b48\u0b4b-\u0b4d\u0b56\u0b57\u0b5f-\u0b60\u0b66-\u0b6f\u0b82\u0bbe-\u0bc2\u0bc6-\u0bc8\u0bca-\u0bcd\u0bd7\u0be6-\u0bef\u0c01-\u0c03\u0c46-\u0c48\u0c4a-\u0c4d\u0c55\u0c56\u0c62-\u0c63\u0c66-\u0c6f\u0c82\u0c83\u0cbc\u0cbe-\u0cc4\u0cc6-\u0cc8\u0cca-\u0ccd\u0cd5\u0cd6\u0ce2-\u0ce3\u0ce6-\u0cef\u0d02\u0d03\u0d46-\u0d48\u0d57\u0d62-\u0d63\u0d66-\u0d6f\u0d82\u0d83\u0dca\u0dcf-\u0dd4\u0dd6\u0dd8-\u0ddf\u0df2\u0df3\u0e34-\u0e3a\u0e40-\u0e45\u0e50-\u0e59\u0eb4-\u0eb9\u0ec8-\u0ecd\u0ed0-\u0ed9\u0f18\u0f19\u0f20-\u0f29\u0f35\u0f37\u0f39\u0f41-\u0f47\u0f71-\u0f84\u0f86-\u0f87\u0f8d-\u0f97\u0f99-\u0fbc\u0fc6\u1000-\u1029\u1040-\u1049\u1067-\u106d\u1071-\u1074\u1082-\u108d\u108f-\u109d\u135d-\u135f\u170e-\u1710\u1720-\u1730\u1740-\u1750\u1772\u1773\u1780-\u17b2\u17dd\u17e0-\u17e9\u180b-\u180d\u1810-\u1819\u1920-\u192b\u1930-\u193b\u1951-\u196d\u19b0-\u19c0\u19c8-\u19c9\u19d0-\u19d9\u1a00-\u1a15\u1a20-\u1a53\u1a60-\u1a7c\u1a7f-\u1a89\u1a90-\u1a99\u1b46-\u1b4b\u1b50-\u1b59\u1b6b-\u1b73\u1bb0-\u1bb9\u1be6-\u1bf3\u1c00-\u1c22\u1c40-\u1c49\u1c5b-\u1c7d\u1cd0-\u1cd2\u1d00-\u1dbe\u1e01-\u1f15\u200c\u200d\u203f\u2040\u2054\u20d0-\u20dc\u20e1\u20e5-\u20f0\u2d81-\u2d96\u2de0-\u2dff\u3021-\u3028\u3099\u309a\ua640-\ua66d\ua674-\ua67d\ua69f\ua6f0-\ua6f1\ua7f8-\ua800\ua806\ua80b\ua823-\ua827\ua880-\ua881\ua8b4-\ua8c4\ua8d0-\ua8d9\ua8f3-\ua8f7\ua900-\ua909\ua926-\ua92d\ua930-\ua945\ua980-\ua983\ua9b3-\ua9c0\uaa00-\uaa27\uaa40-\uaa41\uaa4c-\uaa4d\uaa50-\uaa59\uaa7b\uaae0-\uaae9\uaaf2-\uaaf3\uabc0-\uabe1\uabec\uabed\uabf0-\uabf9\ufb20-\ufb28\ufe00-\ufe0f\ufe20-\ufe26\ufe33\ufe34\ufe4d-\ufe4f\uff10-\uff19\uff3f"</span>;
+    <span class="keyword">var</span> nonASCIIidentifierStart = RegExp.New(<span class="string">"["</span> + nonASCIIidentifierStartChars + <span class="string">"]"</span>);
+    <span class="keyword">var</span> nonASCIIidentifier = RegExp.New(<span class="string">"["</span> + nonASCIIidentifierStartChars + nonASCIIidentifierChars + <span class="string">"]"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-35">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-35">&#182;</a>
+              </div>
+              <p>Valid RegExp flags.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> validRegExpFlags = RegExp.New(<span class="string">"^[gmsiy]*$"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-36">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-36">&#182;</a>
+              </div>
+              <p>Whether a single character denotes a newline.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> newline = RegExp.New(<span class="string">"[\n\r\u2028\u2029]"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-37">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-37">&#182;</a>
+              </div>
+              <p>Matches a whole line break (where CRLF is considered a single
+line break). Used to count lines.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> lineBreak = RegExp.New(<span class="string">"\r\n|[\n\r\u2028\u2029]"</span>, <span class="string">"g"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-38">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-38">&#182;</a>
+              </div>
+              <p>Test whether a given character code starts an identifier.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> isIdentifierStart = module.isIdentifierStart = <span class="keyword">function</span>(code) {
+        <span class="keyword">if</span> (code &lt; <span class="number">65</span>) { <span class="keyword">return</span> code === <span class="number">36</span>; }
+        <span class="keyword">if</span> (code &lt; <span class="number">91</span>) { <span class="keyword">return</span> <span class="literal">true</span>; }
+        <span class="keyword">if</span> (code &lt; <span class="number">97</span>) { <span class="keyword">return</span> code === <span class="number">95</span>; }
+        <span class="keyword">if</span> (code &lt; <span class="number">123</span>) { <span class="keyword">return</span> <span class="literal">true</span>; }
+        <span class="keyword">return</span> code &gt;= <span class="number">0xaa</span> &amp;&amp;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-39">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-39">&#182;</a>
+              </div>
+              <p>Don&#39;t use the regexp if we&#39;re running under TurtleScript.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            (!runningInTS) &amp;&amp;
+            nonASCIIidentifierStart.test(String.fromCharCode(code));
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-40">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-40">&#182;</a>
+              </div>
+              <p>Test whether a given character is part of an identifier.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> isIdentifierChar = module.isIdentifierChar = <span class="keyword">function</span>(code) {
+        <span class="keyword">if</span> (code &lt; <span class="number">48</span>) { <span class="keyword">return</span> code === <span class="number">36</span>; }
+        <span class="keyword">if</span> (code &lt; <span class="number">58</span>) { <span class="keyword">return</span> <span class="literal">true</span>; }
+        <span class="keyword">if</span> (code &lt; <span class="number">65</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        <span class="keyword">if</span> (code &lt; <span class="number">91</span>) { <span class="keyword">return</span> <span class="literal">true</span>; }
+        <span class="keyword">if</span> (code &lt; <span class="number">97</span>) { <span class="keyword">return</span> code === <span class="number">95</span>; }
+        <span class="keyword">if</span> (code &lt; <span class="number">123</span>) { <span class="keyword">return</span> <span class="literal">true</span>; }
+        <span class="keyword">return</span> code &gt;= <span class="number">0xaa</span> &amp;&amp;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-41">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-41">&#182;</a>
+              </div>
+              <p>Don&#39;t use the regexp if we&#39;re running under TurtleScript.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            (!runningInTS) &amp;&amp;
+            nonASCIIidentifier.test(String.fromCharCode(code));
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-42">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-42">&#182;</a>
+              </div>
+              <h2>Tokenizer</h2>
+<p>Let&#39;s start with the tokenizer.  Unlike acorn, we
+encapsulate the tokenizer state so that it is re-entrant.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> Tokenizer = <span class="keyword">function</span>() {
+
+        <span class="keyword">var</span> options, input, inputLen, sourceFile;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-43">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-43">&#182;</a>
+              </div>
+              <p>A second optional argument can be given to further configure
+the parser process. These options are recognized:</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> defaultOptions = <span class="keyword">this</span>.defaultOptions = {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-44">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-44">&#182;</a>
+              </div>
+              <p><code>ecmaVersion</code> indicates the ECMAScript version to
+parse. Must be either 3 or 5. This influences support
+for strict mode, the set of reserved words, and support
+for getters and setter.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            ecmaVersion: <span class="number">5</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-45">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-45">&#182;</a>
+              </div>
+              <p>Turn on <code>strictSemicolons</code> to prevent the parser from doing
+automatic semicolon insertion.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            strictSemicolons: <span class="literal">false</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-46">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-46">&#182;</a>
+              </div>
+              <p>When <code>allowTrailingCommas</code> is false, the parser will not allow
+trailing commas in array and object literals.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            allowTrailingCommas: <span class="literal">true</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-47">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-47">&#182;</a>
+              </div>
+              <p>By default, reserved words are not enforced. Enable
+<code>forbidReserved</code> to enforce them.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            forbidReserved: <span class="literal">false</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-48">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-48">&#182;</a>
+              </div>
+              <p>When <code>locations</code> is on, <code>loc</code> properties holding objects with
+<code>start</code> and <code>end</code> properties in <code>{line, column}</code> form (with
+line being 1-based and column 0-based) will be attached to the
+nodes.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            locations: <span class="literal">false</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-49">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-49">&#182;</a>
+              </div>
+              <p>A function can be passed as <code>onComment</code> option, which will
+cause Acorn to call that function with <code>(block, text, start,
+end)</code> parameters whenever a comment is skipped. <code>block</code> is a
+boolean indicating whether this is a block (<code>/* */</code>) comment,
+<code>text</code> is the content of the comment, and <code>start</code> and <code>end</code> are
+character offsets that denote the start and end of the comment.
+When the <code>locations</code> option is on, two more parameters are
+passed, the full <code>{line, column}</code> locations of the start and
+end of the comments.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            onComment: <span class="literal">null</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-50">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-50">&#182;</a>
+              </div>
+              <p>Nodes have their start and end characters offsets recorded in
+<code>start</code> and <code>end</code> properties (directly on the node, rather than
+the <code>loc</code> object, which holds line/column data. To also add a
+<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=745678">semi-standardized</a> <code>range</code> property holding a <code>[start,
+end]</code> array with the same numbers, set the <code>ranges</code> option to
+<code>true</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            ranges: <span class="literal">false</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-51">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-51">&#182;</a>
+              </div>
+              <p>It is possible to parse multiple files into a single AST by
+passing the tree produced by parsing the first file as
+<code>program</code> option in subsequent parses. This will add the
+toplevel forms of the parsed file to the <code>Program</code> (top) node
+of an existing parse tree.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            program: <span class="literal">null</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-52">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-52">&#182;</a>
+              </div>
+              <p>When <code>location</code> is on, you can pass this to record the source
+file in every node&#39;s <code>loc</code> object.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            sourceFile: <span class="literal">null</span>
+        };
+
+        <span class="keyword">var</span> setOptions = <span class="keyword">function</span>(opts) {
+            options = opts || {};
+            Object.keys(defaultOptions).forEach(<span class="keyword">function</span>(opt) {
+                <span class="keyword">if</span> (!options.hasOwnProperty(opt)) {
+                    options[opt] = defaultOptions[opt];
+                }
+            });
+            sourceFile = options.sourceFile || <span class="literal">null</span>;
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-53">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-53">&#182;</a>
+              </div>
+              <p>State is kept in variables local to the Tokenizer. We already saw the
+<code>options</code>, <code>input</code>, and <code>inputLen</code> variables above.</p>
+<p>The current position of the tokenizer in the input.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> tokPos;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-54">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-54">&#182;</a>
+              </div>
+              <p>The start and end offsets of the current token.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> tokStart, tokEnd;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-55">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-55">&#182;</a>
+              </div>
+              <p>When <code>options.locations</code> is true, these hold objects
+containing the tokens start and end line/column pairs.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> tokStartLoc, tokEndLoc;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-56">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-56">&#182;</a>
+              </div>
+              <p>The type and value of the current token. Token types are objects,
+named by variables against which they can be compared, and
+holding properties that describe them (indicating, for example,
+the precedence of an infix operator, and the original name of a
+keyword token). The kind of value that&#39;s held in <code>tokVal</code> depends
+on the type of the token. For literals, it is the literal value,
+for operators, the operator name, and so on.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> tokType, tokVal;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-57">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-57">&#182;</a>
+              </div>
+              <p>Interal state for the tokenizer. To distinguish between division
+operators and regular expressions, it remembers whether the last
+token was one that is allowed to be followed by an expression.
+(If it is, a slash is probably a regexp, if it isn&#39;t it&#39;s a
+division operator. See the <code>parseStatement</code> function for a
+caveat.)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> tokRegexpAllowed;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-58">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-58">&#182;</a>
+              </div>
+              <p>When <code>options.locations</code> is true, these are used to keep
+track of the current line, and know when a new line has been
+entered.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> tokCurLine, tokLineStart;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-59">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-59">&#182;</a>
+              </div>
+              <p>These store the position of the previous token, which is useful
+when finishing a node and assigning its <code>end</code> position.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> lastStart, lastEnd, lastEndLoc;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-60">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-60">&#182;</a>
+              </div>
+              <p>This is the parser&#39;s state. <code>inFunction</code> is used to reject
+<code>return</code> statements outside of functions, <code>labels</code> to verify that
+<code>break</code> and <code>continue</code> have somewhere to jump to, and <code>strict</code>
+indicates whether strict mode is on.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> inFunction, labels, strict;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-61">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-61">&#182;</a>
+              </div>
+              <p>The <code>getLineInfo</code> function is mostly useful when the
+<code>locations</code> option is off (for performance reasons) and you
+want to find the line/column position for a given character
+offset. <code>input</code> should be the code string that the offset refers
+into.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> getLineInfo = <span class="keyword">this</span>.getLineInfo = <span class="keyword">function</span>(input, offset) {
+            <span class="keyword">var</span> line = <span class="number">1</span>, cur = <span class="number">0</span>;
+            <span class="keyword">while</span> (<span class="literal">true</span>) {
+                lineBreak.lastIndex = cur;
+                <span class="keyword">var</span> match = lineBreak.exec(input);
+                <span class="keyword">if</span> (match &amp;&amp; match.index &lt; offset) {
+                    line += <span class="number">1</span>;
+                    cur = match.index + match[<span class="number">0</span>].length;
+                } <span class="keyword">else</span> { <span class="keyword">break</span>; }
+            }
+            <span class="keyword">return</span> {line: line, column: offset - cur};
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-62">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-62">&#182;</a>
+              </div>
+              <p>Forward declarations.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> skipSpace;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-63">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-63">&#182;</a>
+              </div>
+              <p>Acorn is organized as a tokenizer and a recursive-descent parser.
+The <code>tokenize</code> export provides an interface to the tokenizer.
+For asm-llvm.js, we sacrificed a little bit of performance
+in order to properly encapsulate the tokenizer.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> initTokenState, readToken;
+
+        <span class="keyword">this</span>.tokenize = <span class="keyword">function</span>(inpt, opts) {
+            input = String(inpt); inputLen = input.length;
+            setOptions(opts);
+            initTokenState();
+
+            <span class="keyword">var</span> t = {};
+            <span class="keyword">var</span> getToken = <span class="keyword">function</span>(forceRegexp) {
+                readToken(forceRegexp);
+                t.start = tokStart; t.end = tokEnd;
+                t.startLoc = tokStartLoc; t.endLoc = tokEndLoc;
+                t.type = tokType; t.value = tokVal;
+                <span class="keyword">return</span> t;
+            };
+            getToken.jumpTo = <span class="keyword">function</span>(pos, reAllowed) {
+                tokPos = pos;
+                <span class="keyword">if</span> (options.locations) {
+                    tokCurLine = tokLineStart = lineBreak.lastIndex = <span class="number">0</span>;
+                    <span class="keyword">var</span> match;
+                    <span class="keyword">while</span> ((match = lineBreak.exec(input)) &amp;&amp; match.index &lt; pos) {
+                        tokCurLine += <span class="number">1</span>;
+                        tokLineStart = match.index + match[<span class="number">0</span>].length;
+                    }
+                }
+                <span class="keyword">var</span> ch = input.charAt(pos - <span class="number">1</span>);
+                tokRegexpAllowed = reAllowed;
+                skipSpace();
+            };
+            <span class="keyword">return</span> getToken;
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-64">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-64">&#182;</a>
+              </div>
+              <p>This function is used to raise exceptions on parse errors. It
+takes an offset integer (into the current <code>input</code>) to indicate
+the location of the error, attaches the position to the end
+of the error message, and then raises a <code>SyntaxError</code> with that
+message.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> raise = <span class="function"><span class="keyword">function</span> <span class="params">(pos, message)</span> {</span>
+            <span class="keyword">var</span> loc = getLineInfo(input, pos);
+            message += <span class="string">" ("</span> + loc.line + <span class="string">":"</span> + loc.column + <span class="string">")"</span>;
+            <span class="keyword">var</span> err = SyntaxError.New(message);
+            err.pos = pos; err.loc = loc; err.raisedAt = tokPos;
+            Object.Throw(err);
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-65">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-65">&#182;</a>
+              </div>
+              <p>These are used when <code>options.locations</code> is on, for the
+<code>tokStartLoc</code> and <code>tokEndLoc</code> properties.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> line_loc_t = <span class="keyword">function</span>() {
+            <span class="keyword">this</span>.line = tokCurLine;
+            <span class="keyword">this</span>.column = tokPos - tokLineStart;
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-66">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-66">&#182;</a>
+              </div>
+              <p>Reset the token state. Used at the start of a parse.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        initTokenState = <span class="keyword">function</span>() {
+            tokCurLine = <span class="number">1</span>;
+            tokPos = tokLineStart = <span class="number">0</span>;
+            tokRegexpAllowed = <span class="literal">true</span>;
+            skipSpace();
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-67">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-67">&#182;</a>
+              </div>
+              <p>Called at the end of every token. Sets <code>tokEnd</code>, <code>tokVal</code>, and
+<code>tokRegexpAllowed</code>, and skips the space after the token, so that
+the next one&#39;s <code>tokStart</code> will point at the right position.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> finishToken = <span class="keyword">function</span>(type, val) {
+            tokEnd = tokPos;
+            <span class="keyword">if</span> (options.locations) { tokEndLoc = line_loc_t.New(); }
+            tokType = type;
+            skipSpace();
+            tokVal = val;
+            tokRegexpAllowed = type.beforeExpr;
+        };
+
+        <span class="keyword">var</span> skipBlockComment = <span class="keyword">function</span>() {
+            <span class="keyword">var</span> startLoc = options.onComment &amp;&amp; options.locations &amp;&amp; line_loc_t.New();
+            <span class="keyword">var</span> start = tokPos, end = input.indexOf(<span class="string">"*/"</span>, tokPos += <span class="number">2</span>);
+            <span class="keyword">if</span> (end === -<span class="number">1</span>) { raise(tokPos - <span class="number">2</span>, <span class="string">"Unterminated comment"</span>); }
+            tokPos = end + <span class="number">2</span>;
+            <span class="keyword">if</span> (options.locations) {
+                lineBreak.lastIndex = start;
+                <span class="keyword">var</span> match;
+                <span class="keyword">while</span> ((match = lineBreak.exec(input)) &amp;&amp; match.index &lt; tokPos) {
+                    tokCurLine += <span class="number">1</span>;
+                    tokLineStart = match.index + match[<span class="number">0</span>].length;
+                }
+            }
+            <span class="keyword">if</span> (options.onComment) {
+                options.onComment(<span class="literal">true</span>, input.slice(start + <span class="number">2</span>, end), start, tokPos,
+                                  startLoc, options.locations &amp;&amp; line_loc_t.New());
+            }
+        };
+
+        <span class="keyword">var</span> skipLineComment = <span class="keyword">function</span>() {
+            <span class="keyword">var</span> start = tokPos;
+            <span class="keyword">var</span> startLoc = options.onComment &amp;&amp; options.locations &amp;&amp; line_loc_t.New();
+            <span class="keyword">var</span> ch = input.charCodeAt(tokPos+=<span class="number">2</span>);
+            <span class="keyword">while</span> (tokPos &lt; inputLen &amp;&amp; ch !== <span class="number">10</span> &amp;&amp; ch !== <span class="number">13</span> &amp;&amp; ch !== <span class="number">8232</span> &amp;&amp; ch !== <span class="number">8329</span>) {
+                tokPos += <span class="number">1</span>;
+                ch = input.charCodeAt(tokPos);
+            }
+            <span class="keyword">if</span> (options.onComment) {
+                options.onComment(<span class="literal">false</span>, input.slice(start + <span class="number">2</span>, tokPos), start, tokPos,
+                                  startLoc, options.locations &amp;&amp; line_loc_t.New());
+            }
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-68">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-68">&#182;</a>
+              </div>
+              <p>Called at the start of the parse and after every token. Skips
+whitespace and comments, and.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        skipSpace = <span class="keyword">function</span>() {
+            <span class="keyword">while</span> (tokPos &lt; inputLen) {
+                <span class="keyword">var</span> ch = input.charCodeAt(tokPos);
+                <span class="keyword">var</span> next;
+                <span class="keyword">if</span> (ch === <span class="number">32</span>) { <span class="comment">// ' '</span>
+                    tokPos += <span class="number">1</span>;
+                } <span class="keyword">else</span> <span class="keyword">if</span>(ch === <span class="number">13</span>) {
+                    tokPos += <span class="number">1</span>;
+                    next = input.charCodeAt(tokPos);
+                    <span class="keyword">if</span>(next === <span class="number">10</span>) {
+                        tokPos += <span class="number">1</span>;
+                    }
+                    <span class="keyword">if</span>(options.locations) {
+                        tokCurLine += <span class="number">1</span>;
+                        tokLineStart = tokPos;
+                    }
+                } <span class="keyword">else</span> <span class="keyword">if</span> (ch === <span class="number">10</span>) {
+                    tokPos += <span class="number">1</span>;
+                    tokCurLine += <span class="number">1</span>;
+                    tokLineStart = tokPos;
+                } <span class="keyword">else</span> <span class="keyword">if</span>(ch &lt; <span class="number">14</span> &amp;&amp; ch &gt; <span class="number">8</span>) {
+                    tokPos += <span class="number">1</span>;
+                } <span class="keyword">else</span> <span class="keyword">if</span> (ch === <span class="number">47</span>) { <span class="comment">// '/'</span>
+                    next = input.charCodeAt(tokPos+<span class="number">1</span>);
+                    <span class="keyword">if</span> (next === <span class="number">42</span>) { <span class="comment">// '*'</span>
+                        skipBlockComment();
+                    } <span class="keyword">else</span> <span class="keyword">if</span> (next === <span class="number">47</span>) { <span class="comment">// '/'</span>
+                        skipLineComment();
+                    } <span class="keyword">else</span> { <span class="keyword">break</span>; }
+                } <span class="keyword">else</span> <span class="keyword">if</span> ((ch &lt; <span class="number">14</span> &amp;&amp; ch &gt; <span class="number">8</span>) || ch === <span class="number">32</span> || ch === <span class="number">160</span>) { <span class="comment">// ' ', '\xa0'</span>
+                    tokPos += <span class="number">1</span>;
+                } <span class="keyword">else</span> <span class="keyword">if</span> (ch &gt;= <span class="number">5760</span> &amp;&amp;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-69">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-69">&#182;</a>
+              </div>
+              <p>Don&#39;t use the regexp if we&#39;re running under
+TurtleScript.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                           (!options.runningInTS) &amp;&amp;
+                           nonASCIIwhitespace.test(String.fromCharCode(ch))) {
+                    tokPos += <span class="number">1</span>;
+                } <span class="keyword">else</span> {
+                    <span class="keyword">break</span>;
+                }
+            }
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-70">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h3">
+                <a class="pilcrow" href="#section-70">&#182;</a>
+              </div>
+              <h3>Token reading</h3>
+<p>This is the function that is called to fetch the next token. It
+is somewhat obscure, because it works in character codes rather
+than characters, and because operator parsing has been inlined
+into it.</p>
+<p>All in the name of speed.</p>
+<p>The <code>forceRegexp</code> parameter is used in the one case where the
+<code>tokRegexpAllowed</code> trick does not work. See <code>parseStatement</code>.</p>
+<p>Forward declarations.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> readNumber, readHexNumber, readRegexp, readString;
+        <span class="keyword">var</span> readWord, readWord1, finishOp;
+
+        <span class="keyword">var</span> readToken_dot = <span class="keyword">function</span>() {
+            <span class="keyword">var</span> next = input.charCodeAt(tokPos+<span class="number">1</span>);
+            <span class="keyword">if</span> (next &gt;= <span class="number">48</span> &amp;&amp; next &lt;= <span class="number">57</span>) { <span class="keyword">return</span> readNumber(<span class="literal">true</span>); }
+            tokPos += <span class="number">1</span>;
+            <span class="keyword">return</span> finishToken(_dot);
+        };
+
+        <span class="keyword">var</span> readToken_slash = <span class="keyword">function</span>() { <span class="comment">// '/'</span>
+            <span class="keyword">var</span> next = input.charCodeAt(tokPos+<span class="number">1</span>);
+            <span class="keyword">if</span> (tokRegexpAllowed) { tokPos += <span class="number">1</span>; <span class="keyword">return</span> readRegexp(); }
+            <span class="keyword">if</span> (next === <span class="number">61</span>) { <span class="keyword">return</span> finishOp(_assign, <span class="number">2</span>); }
+            <span class="keyword">return</span> finishOp(_slash, <span class="number">1</span>);
+        };
+
+        <span class="keyword">var</span> readToken_mult_modulo = <span class="keyword">function</span>() { <span class="comment">// '%*'</span>
+            <span class="keyword">var</span> next = input.charCodeAt(tokPos+<span class="number">1</span>);
+            <span class="keyword">if</span> (next === <span class="number">61</span>) { <span class="keyword">return</span> finishOp(_assign, <span class="number">2</span>); }
+            <span class="keyword">return</span> finishOp(_bin10, <span class="number">1</span>);
+        };
+
+        <span class="keyword">var</span> readToken_pipe_amp = <span class="keyword">function</span>(code) { <span class="comment">// '|&amp;'</span>
+            <span class="keyword">var</span> next = input.charCodeAt(tokPos+<span class="number">1</span>);
+            <span class="keyword">if</span> (next === code) {
+                <span class="keyword">return</span> finishOp(code === <span class="number">124</span> ? _bin1 : _bin2, <span class="number">2</span>);
+            }
+            <span class="keyword">if</span> (next === <span class="number">61</span>) { <span class="keyword">return</span> finishOp(_assign, <span class="number">2</span>); }
+            <span class="keyword">return</span> finishOp(code === <span class="number">124</span> ? _bin3 : _bin5, <span class="number">1</span>);
+        };
+
+        <span class="keyword">var</span> readToken_caret = <span class="keyword">function</span>() { <span class="comment">// '^'</span>
+            <span class="keyword">var</span> next = input.charCodeAt(tokPos+<span class="number">1</span>);
+            <span class="keyword">if</span> (next === <span class="number">61</span>) { <span class="keyword">return</span> finishOp(_assign, <span class="number">2</span>); }
+            <span class="keyword">return</span> finishOp(_bin4, <span class="number">1</span>);
+        };
+
+        <span class="keyword">var</span> readToken_plus_min = <span class="keyword">function</span>(code) { <span class="comment">// '+-'</span>
+            <span class="keyword">var</span> next = input.charCodeAt(tokPos+<span class="number">1</span>);
+            <span class="keyword">if</span> (next === code) { <span class="keyword">return</span> finishOp(_incdec, <span class="number">2</span>); }
+            <span class="keyword">if</span> (next === <span class="number">61</span>) { <span class="keyword">return</span> finishOp(_assign, <span class="number">2</span>); }
+            <span class="keyword">return</span> finishOp(_plusmin, <span class="number">1</span>);
+        };
+
+        <span class="keyword">var</span> readToken_lt_gt = <span class="keyword">function</span>(code) { <span class="comment">// '&lt;&gt;'</span>
+            <span class="keyword">var</span> next = input.charCodeAt(tokPos+<span class="number">1</span>);
+            <span class="keyword">var</span> size = <span class="number">1</span>;
+            <span class="keyword">if</span> (next === code) {
+                size = code === <span class="number">62</span> &amp;&amp; input.charCodeAt(tokPos+<span class="number">2</span>) === <span class="number">62</span> ? <span class="number">3</span> : <span class="number">2</span>;
+                <span class="keyword">if</span> (input.charCodeAt(tokPos + size) === <span class="number">61</span>) {
+                    <span class="keyword">return</span> finishOp(_assign, size + <span class="number">1</span>);
+                }
+                <span class="keyword">return</span> finishOp(_bin8, size);
+            }
+            <span class="keyword">if</span> (next === <span class="number">61</span>) {
+                size = input.charCodeAt(tokPos+<span class="number">2</span>) === <span class="number">61</span> ? <span class="number">3</span> : <span class="number">2</span>;
+            }
+            <span class="keyword">return</span> finishOp(_bin7, size);
+        };
+
+        <span class="keyword">var</span> readToken_eq_excl = <span class="keyword">function</span>(code) { <span class="comment">// '=!'</span>
+            <span class="keyword">var</span> next = input.charCodeAt(tokPos+<span class="number">1</span>);
+            <span class="keyword">if</span> (next === <span class="number">61</span>) {
+                <span class="keyword">return</span> finishOp(_bin6, input.charCodeAt(tokPos+<span class="number">2</span>) === <span class="number">61</span> ? <span class="number">3</span> : <span class="number">2</span>);
+            }
+            <span class="keyword">return</span> finishOp(code === <span class="number">61</span> ? _eq : _prefix, <span class="number">1</span>);
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-71">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-71">&#182;</a>
+              </div>
+              <p>This is a switch statement in the original acorn tokenizer.
+We don&#39;t support the &#39;switch&#39; syntax in TurtleScript, so use
+an equivalent (but maybe slightly slower) table-of-functions.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> tokenFromCodeTable = (<span class="keyword">function</span>() {
+            <span class="keyword">var</span> table = [];
+            <span class="keyword">var</span> defaultAction = <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="literal">false</span>; };
+            <span class="keyword">while</span> (table.length &lt; <span class="number">128</span>) {
+                table[table.length] = defaultAction;
+            }
+            <span class="keyword">return</span> table;
+        })();
+
+        <span class="keyword">var</span> getTokenFromCode = <span class="keyword">function</span>(code) {
+            <span class="keyword">return</span> (code &lt; tokenFromCodeTable.length) ?
+                tokenFromCodeTable[code](code) : <span class="literal">false</span>;
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-72">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-72">&#182;</a>
+              </div>
+              <p>The interpretation of a dot depends on whether it is followed
+by a digit.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        tokenFromCodeTable[<span class="number">46</span>] = <span class="comment">// '.'</span>
+            <span class="keyword">function</span>() { <span class="keyword">return</span> readToken_dot(); };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-73">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-73">&#182;</a>
+              </div>
+              <p>Punctuation tokens.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        tokenFromCodeTable[<span class="number">40</span>] =
+            <span class="keyword">function</span>() { tokPos += <span class="number">1</span>; <span class="keyword">return</span> finishToken(_parenL); };
+        tokenFromCodeTable[<span class="number">41</span>] =
+            <span class="keyword">function</span>() { tokPos += <span class="number">1</span>; <span class="keyword">return</span> finishToken(_parenR); };
+        tokenFromCodeTable[<span class="number">59</span>] =
+            <span class="keyword">function</span>() { tokPos += <span class="number">1</span>; <span class="keyword">return</span> finishToken(_semi); };
+        tokenFromCodeTable[<span class="number">44</span>] =
+            <span class="keyword">function</span>() { tokPos += <span class="number">1</span>; <span class="keyword">return</span> finishToken(_comma); };
+        tokenFromCodeTable[<span class="number">91</span>] =
+            <span class="keyword">function</span>() { tokPos += <span class="number">1</span>; <span class="keyword">return</span> finishToken(_bracketL); };
+        tokenFromCodeTable[<span class="number">93</span>] =
+            <span class="keyword">function</span>() { tokPos += <span class="number">1</span>; <span class="keyword">return</span> finishToken(_bracketR); };
+        tokenFromCodeTable[<span class="number">123</span>] =
+            <span class="keyword">function</span>() { tokPos += <span class="number">1</span>; <span class="keyword">return</span> finishToken(_braceL); };
+        tokenFromCodeTable[<span class="number">125</span>] =
+            <span class="keyword">function</span>() { tokPos += <span class="number">1</span>; <span class="keyword">return</span> finishToken(_braceR); };
+        tokenFromCodeTable[<span class="number">58</span>] =
+            <span class="keyword">function</span>() { tokPos += <span class="number">1</span>; <span class="keyword">return</span> finishToken(_colon); };
+        tokenFromCodeTable[<span class="number">63</span>] =
+            <span class="keyword">function</span>() { tokPos += <span class="number">1</span>; <span class="keyword">return</span> finishToken(_question); };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-74">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-74">&#182;</a>
+              </div>
+              <p>&#39;0x&#39; is a hexadecimal number.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        tokenFromCodeTable[<span class="number">48</span>] = <span class="comment">// '0'</span>
+            <span class="keyword">function</span>() {
+                <span class="keyword">var</span> next = input.charCodeAt(tokPos+<span class="number">1</span>);
+                <span class="keyword">if</span> (next === <span class="number">120</span> || next === <span class="number">88</span>) { <span class="keyword">return</span> readHexNumber(); }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-75">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-75">&#182;</a>
+              </div>
+              <p>Anything else beginning with a digit is an integer, octal
+number, or float.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">return</span> readNumber(<span class="literal">false</span>);
+            };
+        tokenFromCodeTable[<span class="number">49</span>] = tokenFromCodeTable[<span class="number">50</span>] =
+            tokenFromCodeTable[<span class="number">51</span>] = tokenFromCodeTable[<span class="number">52</span>] =
+            tokenFromCodeTable[<span class="number">53</span>] = tokenFromCodeTable[<span class="number">54</span>] =
+            tokenFromCodeTable[<span class="number">55</span>] = tokenFromCodeTable[<span class="number">56</span>] =
+            tokenFromCodeTable[<span class="number">57</span>] = <span class="comment">// 1-9</span>
+            <span class="keyword">function</span>() { <span class="keyword">return</span> readNumber(<span class="literal">false</span>); };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-76">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-76">&#182;</a>
+              </div>
+              <p>Quotes produce strings.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        tokenFromCodeTable[<span class="number">34</span>] = tokenFromCodeTable[<span class="number">39</span>] = <span class="comment">// '"', "'"</span>
+            <span class="keyword">function</span>(code) { <span class="keyword">return</span> readString(code); };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-77">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-77">&#182;</a>
+              </div>
+              <p>Operators are parsed inline in tiny state machines. &#39;=&#39; (61) is
+often referred to. <code>finishOp</code> simply skips the amount of
+characters it is given as second argument, and returns a token
+of the type given by its first argument.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        tokenFromCodeTable[<span class="number">47</span>] = <span class="comment">// '/'</span>
+            <span class="keyword">function</span>() { <span class="keyword">return</span> readToken_slash(); };
+
+        tokenFromCodeTable[<span class="number">37</span>] = tokenFromCodeTable[<span class="number">42</span>] = <span class="comment">// '%*'</span>
+            <span class="keyword">function</span>() { <span class="keyword">return</span> readToken_mult_modulo(); };
+
+        tokenFromCodeTable[<span class="number">124</span>] = tokenFromCodeTable[<span class="number">38</span>] = <span class="comment">// '|&amp;'</span>
+            <span class="keyword">function</span>(code) { <span class="keyword">return</span> readToken_pipe_amp(code); };
+
+        tokenFromCodeTable[<span class="number">94</span>] = <span class="comment">// '^'</span>
+            <span class="keyword">function</span>() { <span class="keyword">return</span> readToken_caret(); };
+
+        tokenFromCodeTable[<span class="number">43</span>] = tokenFromCodeTable[<span class="number">45</span>] = <span class="comment">// '+-'</span>
+            <span class="keyword">function</span>(code) { <span class="keyword">return</span> readToken_plus_min(code); };
+
+        tokenFromCodeTable[<span class="number">60</span>] = tokenFromCodeTable[<span class="number">62</span>] = <span class="comment">// '&lt;&gt;'</span>
+            <span class="keyword">function</span>(code) { <span class="keyword">return</span> readToken_lt_gt(code); };
+
+        tokenFromCodeTable[<span class="number">61</span>] = tokenFromCodeTable[<span class="number">33</span>] = <span class="comment">// '=!'</span>
+            <span class="keyword">function</span>(code) { <span class="keyword">return</span> readToken_eq_excl(code); };
+
+        tokenFromCodeTable[<span class="number">126</span>] = <span class="comment">// '~'</span>
+            <span class="keyword">function</span>() { <span class="keyword">return</span> finishOp(_prefix, <span class="number">1</span>); };
+
+
+        readToken = <span class="keyword">function</span>(forceRegexp) {
+            <span class="keyword">if</span> (!forceRegexp) { tokStart = tokPos; }
+            <span class="keyword">else</span> { tokPos = tokStart + <span class="number">1</span>; }
+            <span class="keyword">if</span> (options.locations) { tokStartLoc = line_loc_t.New(); }
+            <span class="keyword">if</span> (forceRegexp) { <span class="keyword">return</span> readRegexp(); }
+            <span class="keyword">if</span> (tokPos &gt;= inputLen) { <span class="keyword">return</span> finishToken(_eof); }
+
+            <span class="keyword">var</span> code = input.charCodeAt(tokPos);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-78">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-78">&#182;</a>
+              </div>
+              <p>Identifier or keyword. &#39;\uXXXX&#39; sequences are allowed in
+identifiers, so &#39;\&#39; also dispatches to that.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (isIdentifierStart(code) || code === <span class="number">92</span> <span class="comment">/* '\' */</span>) {
+                <span class="keyword">return</span> readWord();
+            }
+
+            <span class="keyword">var</span> tok = getTokenFromCode(code);
+
+            <span class="keyword">if</span> (tok === <span class="literal">false</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-79">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-79">&#182;</a>
+              </div>
+              <p>If we are here, we either found a non-ASCII identifier
+character, or something that&#39;s entirely disallowed.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> ch = String.fromCharCode(code);
+                <span class="keyword">if</span> (ch === <span class="string">"\\"</span> ||</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-80">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-80">&#182;</a>
+              </div>
+              <p>Don&#39;t use the regexp if we&#39;re running under TurtleScript.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    ((!options.runningInTS) &amp;&amp;
+                     nonASCIIidentifierStart.test(ch))) {
+                    <span class="keyword">return</span> readWord();
+                }
+                raise(tokPos, <span class="string">"Unexpected character '"</span> + ch + <span class="string">"'"</span>);
+            }
+            <span class="keyword">return</span> tok;
+        };
+
+        finishOp = <span class="keyword">function</span>(type, size) {
+            <span class="keyword">var</span> str = input.slice(tokPos, tokPos + size);
+            tokPos += size;
+            finishToken(type, str);
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-81">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-81">&#182;</a>
+              </div>
+              <p>Parse a regular expression. Some context-awareness is necessary,
+since a &#39;/&#39; inside a &#39;[]&#39; set does not end the expression.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        readRegexp = <span class="keyword">function</span>() {
+            <span class="keyword">var</span> escaped, inClass, start = tokPos;
+            <span class="keyword">while</span> (<span class="literal">true</span>) {
+                <span class="keyword">if</span> (tokPos &gt;= inputLen) {
+                    raise(start, <span class="string">"Unterminated regular expression"</span>);
+                }
+                <span class="keyword">var</span> ch = input.charAt(tokPos);
+                <span class="keyword">if</span> (newline.test(ch)) {
+                    raise(start, <span class="string">"Unterminated regular expression"</span>);
+                }
+                <span class="keyword">if</span> (!escaped) {
+                    <span class="keyword">if</span> (ch === <span class="string">"["</span>) { inClass = <span class="literal">true</span>; }
+                    <span class="keyword">else</span> <span class="keyword">if</span> (ch === <span class="string">"]"</span> &amp;&amp; inClass) { inClass = <span class="literal">false</span>; }
+                    <span class="keyword">else</span> <span class="keyword">if</span> (ch === <span class="string">"/"</span> &amp;&amp; !inClass) { <span class="keyword">break</span>; }
+                    escaped = ch === <span class="string">"\\"</span>;
+                } <span class="keyword">else</span> { escaped = <span class="literal">false</span>; }
+                tokPos += <span class="number">1</span>;
+            }
+            <span class="keyword">var</span> content = input.slice(start, tokPos);
+            tokPos += <span class="number">1</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-82">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-82">&#182;</a>
+              </div>
+              <p>Need to use <code>readWord1</code> because &#39;\uXXXX&#39; sequences are allowed
+here (don&#39;t ask).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> mods = readWord1();
+            <span class="keyword">if</span> (mods &amp;&amp; (!runningInTS) &amp;&amp; !validRegExpFlags.test(mods)) {
+                raise(start, <span class="string">"Invalid regexp flag"</span>);
+            }
+            <span class="keyword">return</span> finishToken(_regexp, RegExp.New(content, mods));
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-83">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-83">&#182;</a>
+              </div>
+              <p>Read an integer in the given radix. Return null if zero digits
+were read, the integer value otherwise. When <code>len</code> is given, this
+will return <code>null</code> unless the integer has exactly <code>len</code> digits.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> readInt = <span class="keyword">function</span>(radix, len) {
+            <span class="keyword">var</span> start = tokPos, total = <span class="number">0</span>;
+            <span class="keyword">var</span> i = <span class="number">0</span>, e = (len === <span class="literal">undefined</span>) ? <span class="literal">Infinity</span> : len;
+            <span class="keyword">while</span> (i &lt; e) {
+                <span class="keyword">var</span> code = input.charCodeAt(tokPos), val;
+                <span class="keyword">if</span> (code &gt;= <span class="number">97</span>) { val = code - <span class="number">97</span> + <span class="number">10</span>; } <span class="comment">// a</span>
+                <span class="keyword">else</span> <span class="keyword">if</span> (code &gt;= <span class="number">65</span>) { val = code - <span class="number">65</span> + <span class="number">10</span>; } <span class="comment">// A</span>
+                <span class="keyword">else</span> <span class="keyword">if</span> (code &gt;= <span class="number">48</span> &amp;&amp; code &lt;= <span class="number">57</span>) { val = code - <span class="number">48</span>; } <span class="comment">// 0-9</span>
+                <span class="keyword">else</span> { val = <span class="literal">Infinity</span>; }
+                <span class="keyword">if</span> (val &gt;= radix) { <span class="keyword">break</span>; }
+                tokPos += <span class="number">1</span>;
+                total = total * radix + val;
+                i += <span class="number">1</span>;
+            }
+            <span class="keyword">if</span> (tokPos === start ||
+                (len !== <span class="literal">undefined</span> &amp;&amp; tokPos - start !== len)) {
+                <span class="keyword">return</span> <span class="literal">null</span>;
+            }
+
+            <span class="keyword">return</span> total;
+        };
+
+        readHexNumber = <span class="keyword">function</span>() {
+            tokPos += <span class="number">2</span>; <span class="comment">// 0x</span>
+            <span class="keyword">var</span> val = readInt(<span class="number">16</span>);
+            <span class="keyword">if</span> (val === <span class="literal">null</span>) {
+                raise(tokStart + <span class="number">2</span>, <span class="string">"Expected hexadecimal number"</span>);
+            }
+            <span class="keyword">if</span> (isIdentifierStart(input.charCodeAt(tokPos))) {
+                raise(tokPos, <span class="string">"Identifier directly after number"</span>);
+            }
+            <span class="keyword">return</span> finishToken(_num, val);
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-84">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-84">&#182;</a>
+              </div>
+              <p>Read an integer, octal integer, or floating-point number.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        readNumber = <span class="keyword">function</span>(startsWithDot) {
+            <span class="keyword">var</span> start = tokPos, isFloat = <span class="literal">false</span>, octal = input.charCodeAt(tokPos) === <span class="number">48</span>;
+            <span class="keyword">if</span> (!startsWithDot &amp;&amp; readInt(<span class="number">10</span>) === <span class="literal">null</span>) {
+                raise(start, <span class="string">"Invalid number"</span>);
+            }
+            <span class="keyword">if</span> (input.charCodeAt(tokPos) === <span class="number">46</span>) {
+                tokPos += <span class="number">1</span>;
+                readInt(<span class="number">10</span>);
+                isFloat = <span class="literal">true</span>;
+            }
+            <span class="keyword">var</span> next = input.charCodeAt(tokPos);
+            <span class="keyword">if</span> (next === <span class="number">69</span> || next === <span class="number">101</span>) { <span class="comment">// 'eE'</span>
+                tokPos += <span class="number">1</span>;
+                next = input.charCodeAt(tokPos);
+                <span class="keyword">if</span> (next === <span class="number">43</span> || next === <span class="number">45</span>) { tokPos += <span class="number">1</span>; } <span class="comment">// '+-'</span>
+                <span class="keyword">if</span> (readInt(<span class="number">10</span>) === <span class="literal">null</span>) { raise(start, <span class="string">"Invalid number"</span>); }
+                isFloat = <span class="literal">true</span>;
+            }
+            <span class="keyword">if</span> (isIdentifierStart(input.charCodeAt(tokPos))) {
+                raise(tokPos, <span class="string">"Identifier directly after number"</span>);
+            }
+
+            <span class="keyword">var</span> str = input.slice(start, tokPos), val;
+            <span class="keyword">if</span> (isFloat) { val = parseFloat(str); }
+            <span class="keyword">else</span> <span class="keyword">if</span> (!octal || str.length === <span class="number">1</span>) { val = parseInt(str, <span class="number">10</span>); }
+            <span class="keyword">else</span> <span class="keyword">if</span> (str.indexOf(<span class="string">'8'</span>) &gt;= <span class="number">0</span> || str.indexOf(<span class="string">'9'</span>) &gt;= <span class="number">0</span> || strict) {
+                raise(start, <span class="string">"Invalid number"</span>);
+            }
+            <span class="keyword">else</span> { val = parseInt(str, <span class="number">8</span>); }
+            <span class="keyword">return</span> finishToken(_num, val);
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-85">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-85">&#182;</a>
+              </div>
+              <p>Used to read character escape sequences (&#39;\x&#39;, &#39;\u&#39;, &#39;\U&#39;).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> readHexChar = <span class="keyword">function</span>(len) {
+            <span class="keyword">var</span> n = readInt(<span class="number">16</span>, len);
+            <span class="keyword">if</span> (n === <span class="literal">null</span>) {
+                raise(tokStart, <span class="string">"Bad character escape sequence"</span>);
+            }
+            <span class="keyword">return</span> n;
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-86">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-86">&#182;</a>
+              </div>
+              <p>Read a string value, interpreting backslash-escapes.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        readString = <span class="keyword">function</span>(quote) {
+            tokPos += <span class="number">1</span>;
+            <span class="keyword">var</span> out = <span class="string">""</span>;
+            <span class="keyword">while</span> (<span class="literal">true</span>) {
+                <span class="keyword">if</span> (tokPos &gt;= inputLen) {
+                    raise(tokStart, <span class="string">"Unterminated string constant"</span>);
+                }
+                <span class="keyword">var</span> ch = input.charCodeAt(tokPos);
+                <span class="keyword">if</span> (ch === quote) {
+                    tokPos += <span class="number">1</span>;
+                    <span class="keyword">return</span> finishToken(_string, out);
+                }
+                <span class="keyword">if</span> (ch === <span class="number">92</span>) { <span class="comment">// '\'</span>
+                    tokPos += <span class="number">1</span>;
+                    ch = input.charCodeAt(tokPos);
+                    <span class="keyword">var</span> octalStop = <span class="number">0</span>, octal = <span class="literal">null</span>;
+                    <span class="keyword">while</span> (octalStop &lt; <span class="number">3</span> &amp;&amp;
+                           ch &gt;= <span class="number">0x30</span> <span class="comment">/* '0' */</span> &amp;&amp; ch &lt;= <span class="number">0x37</span> <span class="comment">/* '7' */</span>) {
+                        octalStop += <span class="number">1</span>;
+                        ch = input.charCodeAt(tokPos + octalStop);
+                    }
+                    <span class="keyword">if</span> (octalStop) {
+                        octal = input.slice(tokPos, tokPos + octalStop);
+                        ch = input.charCodeAt(tokPos);
+                    }
+                    <span class="keyword">while</span> (octal &amp;&amp; parseInt(octal, <span class="number">8</span>) &gt; <span class="number">255</span>) {
+                        octal = octal.slice(<span class="number">0</span>, octal.length - <span class="number">1</span>);
+                    }
+                    <span class="keyword">if</span> (octal === <span class="string">"0"</span>) { octal = <span class="literal">null</span>; }
+                    tokPos += <span class="number">1</span>;
+                    <span class="keyword">if</span> (octal) {
+                        <span class="keyword">if</span> (strict) {
+                            raise(tokPos - <span class="number">2</span>, <span class="string">"Octal literal in strict mode"</span>);
+                        }
+                        out += String.fromCharCode(parseInt(octal, <span class="number">8</span>));
+                        tokPos += octal.length - <span class="number">1</span>;
+                    } <span class="keyword">else</span> {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-87">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-87">&#182;</a>
+              </div>
+              <p>This was a switch statement in acorn; we turned it
+into a binary search tree of ifs instead.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                        <span class="keyword">if</span> (ch &lt; <span class="number">110</span>) { <span class="comment">// 10,13,48,85,98,102</span>
+                            <span class="keyword">if</span> (ch &lt; <span class="number">85</span>) { <span class="comment">// 10,13,48</span>
+                                <span class="keyword">if</span> (ch===<span class="number">10</span> || ch===<span class="number">13</span>) { <span class="comment">// '\r' or '\n'</span>
+                                    <span class="keyword">if</span> (ch===<span class="number">13</span>) {
+                                        <span class="keyword">if</span> (input.charCodeAt(tokPos) === <span class="number">10</span>) {
+                                            tokPos += <span class="number">1</span>; <span class="comment">// '\r\n'</span>
+                                        }
+                                    }
+                                    <span class="keyword">if</span> (options.locations) {
+                                        tokLineStart = tokPos; tokCurLine += <span class="number">1</span>;
+                                    }
+                                } <span class="keyword">else</span> <span class="keyword">if</span> (ch === <span class="number">48</span>) {
+                                    out += <span class="string">"\0"</span>; <span class="keyword">break</span>; <span class="comment">// 0 -&gt; '\0'</span>
+                                } <span class="keyword">else</span> { <span class="comment">// default case</span>
+                                    out += String.fromCharCode(ch);
+                                }
+                            } <span class="keyword">else</span> { <span class="comment">// 85,98,102</span>
+                                <span class="keyword">if</span> (ch === <span class="number">85</span>) { <span class="comment">// 'U'</span>
+                                    out += String.fromCharCode(readHexChar(<span class="number">8</span>));
+                                } <span class="keyword">else</span> <span class="keyword">if</span> (ch === <span class="number">98</span>) { <span class="comment">// 'b' -&gt; '\b'</span>
+                                    out += <span class="string">"\b"</span>;
+                                } <span class="keyword">else</span> <span class="keyword">if</span> (ch === <span class="number">102</span>) { <span class="comment">// 'f' -&gt; '\f'</span>
+                                    out += <span class="string">"\f"</span>;
+                                } <span class="keyword">else</span> { <span class="comment">// default case</span>
+                                    out += String.fromCharCode(ch);
+                                }
+                            }
+                        } <span class="keyword">else</span> { <span class="comment">// 110,114,116,117,118,120</span>
+                            <span class="keyword">if</span> (ch &lt; <span class="number">117</span>) { <span class="comment">// 110,114,116</span>
+                                <span class="keyword">if</span> (ch===<span class="number">110</span>) { <span class="comment">// 'n' -&gt; '\n'</span>
+                                    out += <span class="string">"\n"</span>;
+                                } <span class="keyword">else</span> <span class="keyword">if</span> (ch === <span class="number">114</span>) { <span class="comment">// 'r' -&gt; '\r'</span>
+                                    out += <span class="string">"\r"</span>;
+                                } <span class="keyword">else</span> <span class="keyword">if</span> (ch === <span class="number">116</span>) { <span class="comment">// 't' -&gt; '\t'</span>
+                                    out += <span class="string">"\t"</span>;
+                                } <span class="keyword">else</span> { <span class="comment">// default case</span>
+                                    out += String.fromCharCode(ch);
+                                }
+                            } <span class="keyword">else</span> { <span class="comment">// 117,118,120</span>
+                                <span class="keyword">if</span> (ch===<span class="number">117</span>) { <span class="comment">// 'u'</span>
+                                    out += String.fromCharCode(readHexChar(<span class="number">4</span>));
+                                } <span class="keyword">else</span> <span class="keyword">if</span> (ch===<span class="number">118</span>) { <span class="comment">// 'v' -&gt; '\u000b'</span>
+                                    out += <span class="string">"\u000b"</span>;
+                                } <span class="keyword">else</span> <span class="keyword">if</span> (ch===<span class="number">120</span>) { <span class="comment">// 'x'</span>
+                                    out += String.fromCharCode(readHexChar(<span class="number">2</span>));
+                                } <span class="keyword">else</span> { <span class="comment">// default case</span>
+                                    out += String.fromCharCode(ch);
+                                }
+                            }
+                        }
+                    }
+                } <span class="keyword">else</span> {
+                    <span class="keyword">if</span> (ch === <span class="number">13</span> || ch === <span class="number">10</span> || ch === <span class="number">8232</span> || ch === <span class="number">8329</span>) {
+                        raise(tokStart, <span class="string">"Unterminated string constant"</span>);
+                    }
+                    out += String.fromCharCode(ch); <span class="comment">// '\'</span>
+                    tokPos += <span class="number">1</span>;
+                }
+            }
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-88">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-88">&#182;</a>
+              </div>
+              <p>Used to signal to callers of <code>readWord1</code> whether the word
+contained any escape sequences. This is needed because words with
+escape sequences must not be interpreted as keywords.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> containsEsc;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-89">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-89">&#182;</a>
+              </div>
+              <p>Read an identifier, and return it as a string. Sets <code>containsEsc</code>
+to whether the word contained a &#39;\u&#39; escape.</p>
+<p>Only builds up the word character-by-character when it actually
+containeds an escape, as a micro-optimization.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        readWord1 = <span class="keyword">function</span>() {
+            containsEsc = <span class="literal">false</span>;
+            <span class="keyword">var</span> word, first = <span class="literal">true</span>, start = tokPos;
+            <span class="keyword">while</span> (<span class="literal">true</span>) {
+                <span class="keyword">var</span> ch = input.charCodeAt(tokPos);
+                <span class="keyword">if</span> (isIdentifierChar(ch)) {
+                    <span class="keyword">if</span> (containsEsc) { word += input.charAt(tokPos); }
+                    tokPos += <span class="number">1</span>;
+                } <span class="keyword">else</span> <span class="keyword">if</span> (ch === <span class="number">92</span>) { <span class="comment">// "\"</span>
+                    <span class="keyword">if</span> (!containsEsc) { word = input.slice(start, tokPos); }
+                    containsEsc = <span class="literal">true</span>;
+                    tokPos += <span class="number">1</span>;
+                    <span class="keyword">if</span> (input.charCodeAt(tokPos) !== <span class="number">117</span>) { <span class="comment">// "u"</span>
+                        raise(tokPos, <span class="string">"Expecting Unicode escape sequence \\uXXXX"</span>);
+                    }
+                    tokPos += <span class="number">1</span>;
+                    <span class="keyword">var</span> esc = readHexChar(<span class="number">4</span>);
+                    <span class="keyword">var</span> escStr = String.fromCharCode(esc);
+                    <span class="keyword">if</span> (!escStr) {raise(tokPos - <span class="number">1</span>, <span class="string">"Invalid Unicode escape"</span>);}
+                    <span class="keyword">if</span> (!(first ? isIdentifierStart(esc) : isIdentifierChar(esc))) {
+                        raise(tokPos - <span class="number">4</span>, <span class="string">"Invalid Unicode escape"</span>);
+                    }
+                    word += escStr;
+                } <span class="keyword">else</span> {
+                    <span class="keyword">break</span>;
+                }
+                first = <span class="literal">false</span>;
+            }
+            <span class="keyword">return</span> containsEsc ? word : input.slice(start, tokPos);
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-90">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-90">&#182;</a>
+              </div>
+              <p>Read an identifier or keyword token. Will check for reserved
+words when necessary.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        readWord = <span class="keyword">function</span>() {
+            <span class="keyword">var</span> word = readWord1();
+            <span class="keyword">var</span> type = _name;
+            <span class="keyword">if</span> (!containsEsc) {
+                <span class="keyword">if</span> (isKeyword(word)) { type = keywordTypes[word]; }
+                <span class="keyword">else</span> <span class="keyword">if</span> (options.forbidReserved &amp;&amp;
+                         (options.ecmaVersion === <span class="number">3</span> ? isReservedWord3 : isReservedWord5)(word) ||
+                         strict &amp;&amp; isStrictReservedWord(word)) {
+                    raise(tokStart, <span class="string">"The keyword '"</span> + word + <span class="string">"' is reserved"</span>);
+                }
+            }
+            <span class="keyword">return</span> finishToken(type, word);
+        };
+
+    };
+
+    <span class="keyword">var</span> compile = module.compile = <span class="keyword">function</span>(source, debug) {
+        <span class="keyword">var</span> t = Tokenizer.New().tokenize(source, { debug: !!debug });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-91">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-91">&#182;</a>
+              </div>
+              <p>xxx</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    };
+
+    <span class="keyword">return</span> module;
+});</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head><title>JavaScript Tile Demo</title></head>
+
+<body>
+<h1>JavaScript Tile Demo</h1>
+<!-- now include all our javascript -->
+<script type="text/javascript" src="./global.js"></script>
+<script type="text/javascript" src="./global-es5.js"></script>
+<script type="text/javascript" src="./extensions.js"></script>
+<script type="text/javascript" data-main="ctiles.js"
+        src="require.js"></script>
+<script type="text/javascript">
+define("timeouts", { setTimeout: window.setTimeout,
+                     clearTimeout: window.clearTimeout });
+</script>
+<!-- ok, some selectors for various demos -->
+<p>Click on a link to display the source code for that function:</p>
+<p id="demos"></p>
+<!-- and finally: the canvas! -->
+<canvas id="canvas" width="100" height="100"></canvas>
+</body> </html>

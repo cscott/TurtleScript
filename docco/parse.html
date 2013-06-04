@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>parse.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="asm-llvm.html">
+                asm-llvm.js
+              </a>
+            
+              
+              <a class="source" href="bcompile.html">
+                bcompile.js
+              </a>
+            
+              
+              <a class="source" href="binterp.html">
+                binterp.js
+              </a>
+            
+              
+              <a class="source" href="browsercanvas.html">
+                browsercanvas.js
+              </a>
+            
+              
+              <a class="source" href="bytecode-table.html">
+                bytecode-table.js
+              </a>
+            
+              
+              <a class="source" href="canvastest.html">
+                canvastest.js
+              </a>
+            
+              
+              <a class="source" href="ccanvas.html">
+                ccanvas.js
+              </a>
+            
+              
+              <a class="source" href="crender-styles.html">
+                crender-styles.js
+              </a>
+            
+              
+              <a class="source" href="crender.html">
+                crender.js
+              </a>
+            
+              
+              <a class="source" href="ctiles.html">
+                ctiles.js
+              </a>
+            
+              
+              <a class="source" href="events.html">
+                events.js
+              </a>
+            
+              
+              <a class="source" href="eventtests.html">
+                eventtests.js
+              </a>
+            
+              
+              <a class="source" href="extensions.html">
+                extensions.js
+              </a>
+            
+              
+              <a class="source" href="global-es5.html">
+                global-es5.js
+              </a>
+            
+              
+              <a class="source" href="global.html">
+                global.js
+              </a>
+            
+              
+              <a class="source" href="html-escape.html">
+                html-escape.js
+              </a>
+            
+              
+              <a class="source" href="jcompile.html">
+                jcompile.js
+              </a>
+            
+              
+              <a class="source" href="json2.html">
+                json2.js
+              </a>
+            
+              
+              <a class="source" href="nodemain.html">
+                nodemain.js
+              </a>
+            
+              
+              <a class="source" href="parse.html">
+                parse.js
+              </a>
+            
+              
+              <a class="source" href="render.html">
+                render.js
+              </a>
+            
+              
+              <a class="source" href="render2.html">
+                render2.js
+              </a>
+            
+              
+              <a class="source" href="require.html">
+                require.js
+              </a>
+            
+              
+              <a class="source" href="stdlib.html">
+                stdlib.js
+              </a>
+            
+              
+              <a class="source" href="str-escape.html">
+                str-escape.js
+              </a>
+            
+              
+              <a class="source" href="tdop.html">
+                tdop.js
+              </a>
+            
+              
+              <a class="source" href="tests.html">
+                tests.js
+              </a>
+            
+              
+              <a class="source" href="tiles.html">
+                tiles.js
+              </a>
+            
+              
+              <a class="source" href="tokenize.html">
+                tokenize.js
+              </a>
+            
+              
+              <a class="source" href="top-level.html">
+                top-level.js
+              </a>
+            
+              
+              <a class="source" href="ts.html">
+                ts.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-bytecode.html">
+                write-rust-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-ops.html">
+                write-rust-ops.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h1">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1>parse.js</h1>
+<p>Parser for Simplified JavaScript written in Simplified JavaScript.</p>
+<p>From
+<a href="http://javascript.crockford.com/tdop/index.html">Top Down Operator Precedence</a>
+by Douglas Crockford
+2008-07-07.</p>
+<p>Modified by C. Scott Ananian.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>define([<span class="string">"tokenize"</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_parse</span><span class="params">(tokenize)</span> {</span>
+    <span class="keyword">var</span> DEBUG;
+    <span class="keyword">var</span> scope;
+    <span class="keyword">var</span> symbol_table = {};
+    <span class="keyword">var</span> token;
+    <span class="keyword">var</span> tokens;
+    <span class="keyword">var</span> token_nr;
+
+    <span class="keyword">var</span> itself = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        <span class="keyword">return</span> <span class="keyword">this</span>;
+    };
+
+    <span class="keyword">var</span> error = <span class="keyword">function</span>(obj, message, t) {
+        t = t || obj;
+        t.name = <span class="string">"Syntax Error"</span>;
+        <span class="keyword">if</span> (t.from || t.to) { message += <span class="string">' ['</span>+t.from+<span class="string">'-'</span>+t.to+<span class="string">']'</span>; }
+        t.message = message;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>console.warn(JSON.stringify(t));</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        Object.Throw(t);
+    };
+
+    <span class="keyword">var</span> original_scope = {
+        define: <span class="function"><span class="keyword">function</span> <span class="params">(n)</span> {</span>
+            <span class="keyword">var</span> t = <span class="keyword">this</span>.def[n.value];
+            <span class="keyword">if</span> (<span class="keyword">typeof</span> t === <span class="string">"object"</span>) {
+                error(n, t.reserved ? <span class="string">"Already reserved."</span> : <span class="string">"Already defined."</span>);
+            }
+            <span class="keyword">this</span>.def[n.value] = n;
+            n.reserved = <span class="literal">false</span>;
+            n.nud      = itself;
+            n.led      = <span class="literal">null</span>;
+            n.std      = <span class="literal">null</span>;
+            n.lbp      = <span class="number">0</span>;
+            n.scope    = scope;
+            <span class="keyword">return</span> n;
+        },
+        find: <span class="function"><span class="keyword">function</span> <span class="params">(n)</span> {</span>
+            <span class="keyword">var</span> e = <span class="keyword">this</span>, o;
+            <span class="keyword">while</span> (<span class="literal">true</span>) {
+                o = e.def.hasOwnProperty(n) ? e.def[n] : <span class="literal">null</span>;
+                <span class="keyword">if</span> (o) {
+                    <span class="keyword">return</span> o;
+                }
+                e = e.parent;
+                <span class="keyword">if</span> (!e) {
+                    <span class="keyword">return</span> symbol_table[symbol_table.hasOwnProperty(n) ?
+                        n : <span class="string">"(name)"</span>];
+                }
+            }
+        },
+        pop: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+            scope = <span class="keyword">this</span>.parent;
+        },
+        reserve: <span class="function"><span class="keyword">function</span> <span class="params">(n)</span> {</span>
+            <span class="keyword">if</span> (n.arity !== <span class="string">"name"</span> || n.reserved) {
+                <span class="keyword">return</span>;
+            }
+            <span class="keyword">var</span> t = <span class="keyword">this</span>.def.hasOwnProperty(n.value) ? <span class="keyword">this</span>.def[n.value] : <span class="literal">null</span>;
+            <span class="keyword">if</span> (t) {
+                <span class="keyword">if</span> (t.reserved) {
+                    <span class="keyword">return</span>;
+                }
+                <span class="keyword">if</span> (t.arity === <span class="string">"name"</span>) {
+                    error(n, <span class="string">"Already defined."</span>);
+                }
+            }
+            <span class="keyword">this</span>.def[n.value] = n;
+            n.reserved = <span class="literal">true</span>;
+        }
+    };
+
+    <span class="keyword">var</span> new_scope = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        <span class="keyword">var</span> s = scope;
+        scope = Object.create(original_scope);
+        scope.def = {};
+        scope.parent = s;
+        scope.level = s ? (s.level+<span class="number">1</span>) : <span class="number">0</span>;
+        <span class="keyword">return</span> scope;
+    };
+
+    <span class="keyword">var</span> advance = <span class="function"><span class="keyword">function</span> <span class="params">(id)</span> {</span>
+        <span class="keyword">var</span> a, o, t, v;
+        <span class="keyword">if</span> (id &amp;&amp; token.id !== id) {
+            error(token, <span class="string">"Expected '"</span> + id + <span class="string">"'."</span>);
+        }
+        <span class="keyword">if</span> (token_nr &gt;= tokens.length) {
+            token = symbol_table[<span class="string">"(end)"</span>];
+            <span class="keyword">return</span>;
+        }
+        t = tokens[token_nr];
+        token_nr += <span class="number">1</span>;
+        v = t.value;
+        a = t.type;
+        <span class="keyword">if</span> (a === <span class="string">"name"</span>) {
+            o = scope.find(v);
+        } <span class="keyword">else</span> <span class="keyword">if</span> (a === <span class="string">"operator"</span>) {
+            o = symbol_table[v];
+            <span class="keyword">if</span> (!o) {
+                error(t, <span class="string">"Unknown operator."</span>);
+            }
+        } <span class="keyword">else</span> <span class="keyword">if</span> (a === <span class="string">"string"</span> || a ===  <span class="string">"number"</span>) {
+            o = symbol_table[<span class="string">"(literal)"</span>];
+            a = <span class="string">"literal"</span>;
+        } <span class="keyword">else</span> {
+            error(t, <span class="string">"Unexpected token."</span>);
+        }
+        token = Object.create(o);
+        token.from  = t.from;
+        token.to    = t.to;
+        token.value = v;
+        token.arity = a;
+        <span class="keyword">return</span> token;
+    };
+
+    <span class="keyword">var</span> expression = <span class="function"><span class="keyword">function</span> <span class="params">(rbp)</span> {</span>
+        <span class="keyword">var</span> left;
+        <span class="keyword">var</span> t = token;
+        advance();
+        left = t.nud();
+        <span class="keyword">while</span> (rbp &lt; token.lbp) {
+            t = token;
+            advance();
+            left = t.led(left);
+        }
+        <span class="keyword">return</span> left;
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>CSA: statement also always returns an array, since some statements
+are desugared on parsing.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> statement = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        <span class="keyword">var</span> n = token, v;
+
+        <span class="keyword">if</span> (n.std) {
+            advance();
+            scope.reserve(n);
+            <span class="keyword">return</span> n.std();
+        } <span class="keyword">else</span> {
+            v = expression(<span class="number">0</span>);
+            <span class="keyword">if</span> ((!v.assignment) &amp;&amp; v.id !== <span class="string">"("</span> &amp;&amp;
+                !(v.arity === <span class="string">'function'</span> &amp;&amp; v.name)) {
+                error(v, <span class="string">"Bad expression statement."</span>);
+            }
+            <span class="keyword">if</span> (!(v.arity === <span class="string">'function'</span> &amp;&amp; v.name &amp;&amp; token.id !== <span class="string">';'</span>)) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>trailing semicolon optional for named functions.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                advance(<span class="string">";"</span>);
+            }
+        }
+        <span class="keyword">return</span> v ? [ v ] : <span class="literal">null</span>;
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>CSA: hoist all declarations in a block to the top.
+XXX should hoist vars declared in named functions, too?</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> hoist_var = <span class="keyword">function</span>(stmt_list) {
+        <span class="keyword">var</span> v = [], s = [], i = <span class="number">0</span>;
+        <span class="keyword">while</span> (i &lt; stmt_list.length) {
+            <span class="keyword">if</span> (stmt_list[i].value === <span class="string">"var"</span>) {
+                v.push(stmt_list[i]);
+            } <span class="keyword">else</span> {
+                s.push(stmt_list[i]);
+            }
+            i += <span class="number">1</span>;
+        }
+        <span class="keyword">return</span> v.concat(s);
+    };
+
+    <span class="keyword">var</span> statements = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        <span class="keyword">var</span> a = [], s;
+        <span class="keyword">while</span> (<span class="literal">true</span>) {
+            <span class="keyword">if</span> (token.id === <span class="string">"}"</span> || token.id === <span class="string">"(end)"</span>) {
+                <span class="keyword">break</span>;
+            }
+            s = statement();
+            <span class="keyword">if</span> (s) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>CSA: a statement doesn&#39;t make a new block context</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                a.push.apply(a, s);
+            }
+        }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>CSA: statements() should always return a list, with hoisted vars.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">return</span> hoist_var(a);
+    };
+
+    <span class="keyword">var</span> block = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        <span class="keyword">var</span> t = token;
+        advance(<span class="string">"{"</span>);
+        <span class="keyword">return</span> t.std();
+    };
+
+    <span class="keyword">var</span> original_symbol = {
+        nud: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+            error(<span class="keyword">this</span>, <span class="string">"Undefined."</span>);
+        },
+        led: <span class="function"><span class="keyword">function</span> <span class="params">(left)</span> {</span>
+            error(<span class="keyword">this</span>, <span class="string">"Missing operator."</span>);
+        }
+    };
+
+    <span class="keyword">var</span> symbol = <span class="function"><span class="keyword">function</span> <span class="params">(id, bp)</span> {</span>
+        <span class="keyword">var</span> s = symbol_table.hasOwnProperty(id) ? symbol_table[id] : <span class="literal">null</span>;
+        bp = bp || <span class="number">0</span>;
+        <span class="keyword">if</span> (s) {
+            <span class="keyword">if</span> (bp &gt;= s.lbp) {
+                s.lbp = bp;
+            }
+        } <span class="keyword">else</span> {
+            s = Object.create(original_symbol);
+            s.id = s.value = id;
+            s.lbp = bp;
+            symbol_table[id] = s;
+        }
+        <span class="keyword">return</span> s;
+    };
+
+    <span class="keyword">var</span> constant = <span class="function"><span class="keyword">function</span> <span class="params">(s, v)</span> {</span>
+        <span class="keyword">var</span> x = symbol(s);
+        x.nud = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+            scope.reserve(<span class="keyword">this</span>);
+            <span class="keyword">this</span>.value = symbol_table[<span class="keyword">this</span>.id].value;
+            <span class="keyword">this</span>.arity = <span class="string">"literal"</span>;
+            <span class="keyword">return</span> <span class="keyword">this</span>;
+        };
+        x.value = v;
+        <span class="keyword">return</span> x;
+    };
+
+    <span class="keyword">var</span> infix = <span class="function"><span class="keyword">function</span> <span class="params">(id, bp, led)</span> {</span>
+        <span class="keyword">var</span> s = symbol(id, bp);
+        s.led = led || <span class="function"><span class="keyword">function</span> <span class="params">(left)</span> {</span>
+            <span class="keyword">this</span>.first = left;
+            <span class="keyword">this</span>.second = expression(bp);
+            <span class="keyword">this</span>.arity = <span class="string">"binary"</span>;
+            <span class="keyword">return</span> <span class="keyword">this</span>;
+        };
+        <span class="keyword">return</span> s;
+    };
+
+    <span class="keyword">var</span> infixr = <span class="function"><span class="keyword">function</span> <span class="params">(id, bp, led)</span> {</span>
+        <span class="keyword">var</span> s = symbol(id, bp);
+        s.led = led || <span class="function"><span class="keyword">function</span> <span class="params">(left)</span> {</span>
+            <span class="keyword">this</span>.first = left;
+            <span class="keyword">this</span>.second = expression(bp - <span class="number">1</span>);
+            <span class="keyword">this</span>.arity = <span class="string">"binary"</span>;
+            <span class="keyword">return</span> <span class="keyword">this</span>;
+        };
+        <span class="keyword">return</span> s;
+    };
+
+    <span class="keyword">var</span> assignment = <span class="function"><span class="keyword">function</span> <span class="params">(id)</span> {</span>
+        <span class="keyword">return</span> infixr(id, <span class="number">10</span>, <span class="function"><span class="keyword">function</span> <span class="params">(left)</span> {</span>
+            <span class="keyword">if</span> (left.id !== <span class="string">"."</span> &amp;&amp; left.id !== <span class="string">"["</span> &amp;&amp; left.arity !== <span class="string">"name"</span>) {
+                error(left, <span class="string">"Bad lvalue."</span>);
+            }
+            <span class="keyword">this</span>.first = left;
+            <span class="keyword">this</span>.second = expression(<span class="number">9</span>);
+            <span class="keyword">this</span>.assignment = <span class="literal">true</span>;
+            <span class="keyword">this</span>.arity = <span class="string">"binary"</span>;
+            <span class="keyword">return</span> <span class="keyword">this</span>;
+        });
+    };
+
+    <span class="keyword">var</span> prefix = <span class="function"><span class="keyword">function</span> <span class="params">(id, nud)</span> {</span>
+        <span class="keyword">var</span> s = symbol(id);
+        s.nud = nud || <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+            scope.reserve(<span class="keyword">this</span>);
+            <span class="keyword">this</span>.first = expression(<span class="number">70</span>);
+            <span class="keyword">this</span>.arity = <span class="string">"unary"</span>;
+            <span class="keyword">return</span> <span class="keyword">this</span>;
+        };
+        <span class="keyword">return</span> s;
+    };
+
+    <span class="keyword">var</span> stmt = <span class="function"><span class="keyword">function</span> <span class="params">(s, f)</span> {</span>
+        <span class="keyword">var</span> x = symbol(s);
+        x.std = f;
+        <span class="keyword">return</span> x;
+    };
+
+    symbol(<span class="string">"(end)"</span>);
+    symbol(<span class="string">"(name)"</span>);
+    symbol(<span class="string">":"</span>);
+    symbol(<span class="string">";"</span>);
+    symbol(<span class="string">")"</span>);
+    symbol(<span class="string">"]"</span>);
+    symbol(<span class="string">"}"</span>);
+    symbol(<span class="string">","</span>);
+    symbol(<span class="string">"else"</span>);
+
+    constant(<span class="string">"true"</span>, <span class="literal">true</span>);
+    constant(<span class="string">"false"</span>, <span class="literal">false</span>);
+    constant(<span class="string">"null"</span>, <span class="literal">null</span>);
+    constant(<span class="string">"undefined"</span>, <span class="literal">undefined</span>);
+    constant(<span class="string">"NaN"</span>, <span class="literal">NaN</span>);
+    constant(<span class="string">"Infinity"</span>, <span class="literal">Infinity</span>);
+    constant(<span class="string">"Object"</span>, {});
+    constant(<span class="string">"Array"</span>, []);
+
+    symbol(<span class="string">"(literal)"</span>).nud = itself;
+
+    symbol(<span class="string">"this"</span>).nud = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        scope.reserve(<span class="keyword">this</span>);
+        <span class="keyword">this</span>.arity = <span class="string">"this"</span>;
+        <span class="keyword">return</span> <span class="keyword">this</span>;
+    };
+
+    assignment(<span class="string">"="</span>);
+    assignment(<span class="string">"+="</span>);
+    assignment(<span class="string">"-="</span>);
+    assignment(<span class="string">"*="</span>);
+    assignment(<span class="string">"/="</span>);
+
+    infix(<span class="string">"?"</span>, <span class="number">20</span>, <span class="function"><span class="keyword">function</span> <span class="params">(left)</span> {</span>
+        <span class="keyword">this</span>.first = left;
+        <span class="keyword">this</span>.second = expression(<span class="number">0</span>);
+        advance(<span class="string">":"</span>);
+        <span class="keyword">this</span>.third = expression(<span class="number">0</span>);
+        <span class="keyword">this</span>.arity = <span class="string">"ternary"</span>;
+        <span class="keyword">return</span> <span class="keyword">this</span>;
+    });
+
+    infixr(<span class="string">"||"</span>, <span class="number">30</span>);
+    infixr(<span class="string">"&amp;&amp;"</span>, <span class="number">35</span>);
+
+    infixr(<span class="string">"==="</span>, <span class="number">40</span>);
+    infixr(<span class="string">"!=="</span>, <span class="number">40</span>);
+    infixr(<span class="string">"&lt;"</span>, <span class="number">45</span>);
+    infixr(<span class="string">"&lt;="</span>, <span class="number">45</span>);
+    infixr(<span class="string">"&gt;"</span>, <span class="number">45</span>);
+    infixr(<span class="string">"&gt;="</span>, <span class="number">45</span>);
+
+    infix(<span class="string">"+"</span>, <span class="number">50</span>);
+    infix(<span class="string">"-"</span>, <span class="number">50</span>);
+
+    infix(<span class="string">"*"</span>, <span class="number">60</span>);
+    infix(<span class="string">"/"</span>, <span class="number">60</span>);
+
+    infix(<span class="string">"."</span>, <span class="number">80</span>, <span class="function"><span class="keyword">function</span> <span class="params">(left)</span> {</span>
+        <span class="keyword">this</span>.first = left;
+        <span class="keyword">if</span> (token.arity !== <span class="string">"name"</span>) {
+            error(token, <span class="string">"Expected a property name."</span>);
+        }
+        token.arity = <span class="string">"literal"</span>;
+        <span class="keyword">this</span>.second = token;
+        <span class="keyword">this</span>.arity = <span class="string">"binary"</span>;
+        advance();
+        <span class="keyword">return</span> <span class="keyword">this</span>;
+    });
+
+    infix(<span class="string">"["</span>, <span class="number">80</span>, <span class="function"><span class="keyword">function</span> <span class="params">(left)</span> {</span>
+        <span class="keyword">this</span>.first = left;
+        <span class="keyword">this</span>.second = expression(<span class="number">0</span>);
+        <span class="keyword">this</span>.arity = <span class="string">"binary"</span>;
+        advance(<span class="string">"]"</span>);
+        <span class="keyword">return</span> <span class="keyword">this</span>;
+    });
+
+    infix(<span class="string">"("</span>, <span class="number">75</span>, <span class="function"><span class="keyword">function</span> <span class="params">(left)</span> {</span>
+        <span class="keyword">var</span> a = [];
+        <span class="keyword">if</span> (left.id === <span class="string">"."</span> || left.id === <span class="string">"["</span>) {
+            <span class="keyword">this</span>.arity = <span class="string">"ternary"</span>;
+            <span class="keyword">this</span>.first = left.first;
+            <span class="keyword">this</span>.second = left.second;
+            <span class="keyword">this</span>.third = a;
+        } <span class="keyword">else</span> {
+            <span class="keyword">this</span>.arity = <span class="string">"binary"</span>;
+            <span class="keyword">this</span>.first = left;
+            <span class="keyword">this</span>.second = a;
+            <span class="keyword">if</span> (left.arity !== <span class="string">"function"</span> &amp;&amp;
+                    left.arity !== <span class="string">"name"</span> &amp;&amp; left.id !== <span class="string">"("</span> &amp;&amp;
+                    left.id !== <span class="string">"&amp;&amp;"</span> &amp;&amp; left.id !== <span class="string">"||"</span> &amp;&amp; left.id !== <span class="string">"?"</span>) {
+                error(left, <span class="string">"Expected a variable name."</span>);
+            }
+        }
+        <span class="keyword">if</span> (token.id !== <span class="string">")"</span>) {
+            <span class="keyword">while</span> (<span class="literal">true</span>)  {
+                a.push(expression(<span class="number">0</span>));
+                <span class="keyword">if</span> (token.id !== <span class="string">","</span>) {
+                    <span class="keyword">break</span>;
+                }
+                advance(<span class="string">","</span>);
+            }
+        }
+        advance(<span class="string">")"</span>);
+        <span class="keyword">return</span> <span class="keyword">this</span>;
+    });
+
+
+    prefix(<span class="string">"!"</span>);
+    prefix(<span class="string">"-"</span>);
+    prefix(<span class="string">"typeof"</span>);
+
+    prefix(<span class="string">"("</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        <span class="keyword">var</span> e = expression(<span class="number">0</span>);
+        advance(<span class="string">")"</span>);
+        <span class="keyword">return</span> e;
+    });
+
+    prefix(<span class="string">"function"</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        <span class="keyword">var</span> a = [];
+        <span class="keyword">if</span> (token.arity === <span class="string">"name"</span>) {
+            scope.define(token);
+            <span class="keyword">this</span>.name = token.value;
+            <span class="keyword">this</span>.scope = scope;
+            advance();
+        } <span class="keyword">else</span> {
+            <span class="keyword">this</span>.name = <span class="literal">null</span>;
+        }
+        new_scope();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>&#39;arguments&#39; is defined inside every function.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        scope.define({ value: <span class="string">"arguments"</span>, arity: <span class="string">"name"</span> });
+
+        advance(<span class="string">"("</span>);
+        <span class="keyword">if</span> (token.id !== <span class="string">")"</span>) {
+            <span class="keyword">while</span> (<span class="literal">true</span>) {
+                <span class="keyword">if</span> (token.arity !== <span class="string">"name"</span>) {
+                    error(token, <span class="string">"Expected a parameter name."</span>);
+                }
+                scope.define(token);
+                a.push(token);
+                advance();
+                <span class="keyword">if</span> (token.id !== <span class="string">","</span>) {
+                    <span class="keyword">break</span>;
+                }
+                advance(<span class="string">","</span>);
+            }
+        }
+        <span class="keyword">this</span>.first = a;
+        advance(<span class="string">")"</span>);
+        advance(<span class="string">"{"</span>);
+        <span class="keyword">this</span>.second = statements();
+        advance(<span class="string">"}"</span>);
+        <span class="keyword">this</span>.arity = <span class="string">"function"</span>;
+        scope.pop();
+        <span class="keyword">return</span> <span class="keyword">this</span>;
+    });
+
+    prefix(<span class="string">"["</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        <span class="keyword">var</span> a = [];
+        <span class="keyword">if</span> (token.id !== <span class="string">"]"</span>) {
+            <span class="keyword">while</span> (<span class="literal">true</span>) {
+                a.push(expression(<span class="number">0</span>));
+                <span class="keyword">if</span> (token.id !== <span class="string">","</span>) {
+                    <span class="keyword">break</span>;
+                }
+                advance(<span class="string">","</span>);
+            }
+        }
+        advance(<span class="string">"]"</span>);
+        <span class="keyword">this</span>.first = a;
+        <span class="keyword">this</span>.arity = <span class="string">"unary"</span>;
+        <span class="keyword">return</span> <span class="keyword">this</span>;
+    });
+
+    prefix(<span class="string">"{"</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        <span class="keyword">var</span> a = [], n, v;
+        <span class="keyword">if</span> (token.id !== <span class="string">"}"</span>) {
+            <span class="keyword">while</span> (<span class="literal">true</span>) {
+                n = token;
+                <span class="keyword">if</span> (n.arity !== <span class="string">"name"</span> &amp;&amp; n.arity !== <span class="string">"literal"</span>) {
+                    error(token, <span class="string">"Bad property name."</span>);
+                }
+                advance();
+                advance(<span class="string">":"</span>);
+                v = expression(<span class="number">0</span>);
+                v.key = n.value;
+                a.push(v);
+                <span class="keyword">if</span> (token.id !== <span class="string">","</span>) {
+                    <span class="keyword">break</span>;
+                }
+                advance(<span class="string">","</span>);
+            }
+        }
+        advance(<span class="string">"}"</span>);
+        <span class="keyword">this</span>.first = a;
+        <span class="keyword">this</span>.arity = <span class="string">"unary"</span>;
+        <span class="keyword">return</span> <span class="keyword">this</span>;
+    });
+
+
+    stmt(<span class="string">"{"</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>XXX: implement proper block scope by creating a new function
+     here: { var x; ... } -&gt; (function() { var x; ... })();
+new_scope();//XXX</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> a = statements();
+        advance(<span class="string">"}"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>scope.pop();//XXX
+CSA: make block structure (scope) explicit in the parse tree</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">return</span> [ { value: <span class="string">"block"</span>, arity: <span class="string">"statement"</span>, first: a } ];
+    });
+
+    stmt(<span class="string">"var"</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        <span class="keyword">var</span> a = [], n, t, v;
+        <span class="keyword">while</span> (<span class="literal">true</span>) {
+            n = token;
+            <span class="keyword">if</span> (n.arity !== <span class="string">"name"</span>) {
+                error(n, <span class="string">"Expected a new variable name."</span>);
+            }
+            scope.define(n);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>CSA: record &#39;var&#39; as a statement</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            v = { value: <span class="string">"var"</span>, arity: <span class="string">"statement"</span>, first: n };
+            a.push(v);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>END CSA</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            advance();
+            <span class="keyword">if</span> (token.id === <span class="string">"="</span>) {
+                t = token;
+                advance(<span class="string">"="</span>);
+                t.first = n;
+                t.second = expression(<span class="number">0</span>);
+                t.arity = <span class="string">"binary"</span>;
+                a.push(t);
+            }
+            <span class="keyword">if</span> (token.id !== <span class="string">","</span>) {
+                <span class="keyword">break</span>;
+            }
+            advance(<span class="string">","</span>);
+        }
+        advance(<span class="string">";"</span>);
+        <span class="keyword">return</span> a; <span class="comment">// a list of statements, but not a block</span>
+    });
+
+    stmt(<span class="string">"if"</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        advance(<span class="string">"("</span>);
+        <span class="keyword">this</span>.first = expression(<span class="number">0</span>);
+        advance(<span class="string">")"</span>);
+        <span class="keyword">this</span>.second = block()[<span class="number">0</span>];
+        <span class="keyword">if</span> (token.id === <span class="string">"else"</span>) {
+            scope.reserve(token);
+            advance(<span class="string">"else"</span>);
+            <span class="keyword">this</span>.third = token.id === <span class="string">"if"</span> ? { value: <span class="string">"block"</span>, arity: <span class="string">"statement"</span>, first: statement() } : block()[<span class="number">0</span>];
+        } <span class="keyword">else</span> {
+            <span class="keyword">this</span>.third = <span class="literal">null</span>;
+        }
+        <span class="keyword">this</span>.arity = <span class="string">"statement"</span>;
+        <span class="keyword">return</span> [ <span class="keyword">this</span> ];
+    });
+
+    stmt(<span class="string">"return"</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        <span class="keyword">if</span> (token.id !== <span class="string">";"</span>) {
+            <span class="keyword">this</span>.first = expression(<span class="number">0</span>);
+        } <span class="keyword">else</span> {
+            <span class="keyword">this</span>.first = <span class="literal">null</span>;
+        }
+        advance(<span class="string">";"</span>);
+        <span class="keyword">if</span> (token.id !== <span class="string">"}"</span>) {
+            error(token, <span class="string">"Unreachable statement."</span>);
+        }
+        <span class="keyword">this</span>.arity = <span class="string">"statement"</span>;
+        <span class="keyword">return</span> [ <span class="keyword">this</span> ];
+    });
+
+    stmt(<span class="string">"break"</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        advance(<span class="string">";"</span>);
+        <span class="keyword">if</span> (token.id !== <span class="string">"}"</span>) {
+            error(token, <span class="string">"Unreachable statement."</span>);
+        }
+        <span class="keyword">this</span>.arity = <span class="string">"statement"</span>;
+        <span class="keyword">return</span> [ <span class="keyword">this</span> ];
+    });
+
+    stmt(<span class="string">"while"</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        advance(<span class="string">"("</span>);
+        <span class="keyword">this</span>.first = expression(<span class="number">0</span>);
+        advance(<span class="string">")"</span>);
+        <span class="keyword">this</span>.second = block()[<span class="number">0</span>];
+        <span class="keyword">this</span>.arity = <span class="string">"statement"</span>;
+        <span class="keyword">return</span> [ <span class="keyword">this</span> ];
+    });
+
+    <span class="keyword">var</span> parse = <span class="function"><span class="keyword">function</span> <span class="params">(source, top_level, debug)</span> {</span>
+        DEBUG = debug;
+        tokens = tokenize(source, <span class="string">'=&lt;&gt;!+-*&amp;|/%^'</span>, <span class="string">'=&lt;&gt;&amp;|'</span>);
+        token_nr = <span class="number">0</span>;
+        new_scope();
+        <span class="keyword">if</span> (top_level) {
+            top_level = tokenize(top_level);
+            <span class="keyword">var</span> i = <span class="number">0</span>;
+            <span class="keyword">while</span> (i &lt; top_level.length) {
+                scope.define(top_level[i]);
+                i+=<span class="number">1</span>;
+            }
+        }
+        advance();
+        <span class="keyword">var</span> s = statements();
+        advance(<span class="string">"(end)"</span>);
+        scope.pop();
+        <span class="keyword">return</span> s;
+    };
+    <span class="keyword">var</span> parse_repl = <span class="keyword">function</span>(state, source, top_level, debug) {
+        DEBUG = debug;
+        <span class="keyword">var</span> TOKEN_PREFIX = <span class="string">'=&lt;&gt;!+-*&amp;|/%^'</span>, TOKEN_SUFFIX = <span class="string">'=&lt;&gt;&amp;|'</span>;
+        <span class="keyword">var</span> old_scope = scope;
+        <span class="keyword">if</span> (state) {
+            scope = state.scope;
+        } <span class="keyword">else</span> {
+            new_scope();
+            <span class="keyword">if</span> (top_level) {
+                top_level = tokenize(top_level);
+                <span class="keyword">var</span> i = <span class="number">0</span>;
+                <span class="keyword">while</span> (i &lt; top_level.length) {
+                    scope.define(top_level[i]);
+                    i+=<span class="number">1</span>;
+                }
+            }
+        }
+        <span class="keyword">var</span> nstate = { scope: scope };
+        <span class="keyword">var</span> repl_tokens = tokenize(source, TOKEN_PREFIX, TOKEN_SUFFIX);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>try to parse as an expression</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> tree;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>xxx if exception is thrown (ie, for &quot;var f = function() {}&quot; w/ no
+    trailing semi) we need to reset scope so that f is not defined.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        Object.Try(<span class="keyword">this</span>, <span class="keyword">function</span>() {
+            tokens = repl_tokens;
+            token_nr = <span class="number">0</span>;
+            advance();
+            <span class="keyword">var</span> e = expression(<span class="number">0</span>);
+            advance(<span class="string">"(end)"</span>);
+            tree = [{
+                value: <span class="string">"return"</span>,
+                arity: <span class="string">"statement"</span>,
+                first: e
+            }];
+            nstate.scope = scope;
+        }, <span class="function"><span class="keyword">function</span> <span class="params">(ee)</span> {</span> <span class="comment">// catch(ee)</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>console.log(&quot;FAILED PARSING AS EXPRESSION&quot;, ee);</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            repl_tokens = tokenize(source, TOKEN_PREFIX, TOKEN_SUFFIX);
+        });
+        <span class="keyword">if</span> (!tree) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>try to parse as a statement</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            tokens = repl_tokens;
+            token_nr = <span class="number">0</span>;
+            advance();
+            <span class="keyword">var</span> s = statements();
+            advance(<span class="string">"(end)"</span>);
+            tree = s;
+            nstate.scope = scope;
+        }
+        scope = old_scope;
+        <span class="keyword">return</span> { state: nstate, tree: tree };
+    };
+    parse.__module_name__ = <span class="string">"parse"</span>;
+    parse.__module_init__ = make_parse;
+    parse.__module_deps__ = [<span class="string">"tokenize"</span>];
+    parse.repl = parse_repl;
+    <span class="keyword">return</span> parse;
+});</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

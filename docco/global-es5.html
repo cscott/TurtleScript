@@ -1,0 +1,1868 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>global-es5.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="asm-llvm.html">
+                asm-llvm.js
+              </a>
+            
+              
+              <a class="source" href="bcompile.html">
+                bcompile.js
+              </a>
+            
+              
+              <a class="source" href="binterp.html">
+                binterp.js
+              </a>
+            
+              
+              <a class="source" href="browsercanvas.html">
+                browsercanvas.js
+              </a>
+            
+              
+              <a class="source" href="bytecode-table.html">
+                bytecode-table.js
+              </a>
+            
+              
+              <a class="source" href="canvastest.html">
+                canvastest.js
+              </a>
+            
+              
+              <a class="source" href="ccanvas.html">
+                ccanvas.js
+              </a>
+            
+              
+              <a class="source" href="crender-styles.html">
+                crender-styles.js
+              </a>
+            
+              
+              <a class="source" href="crender.html">
+                crender.js
+              </a>
+            
+              
+              <a class="source" href="ctiles.html">
+                ctiles.js
+              </a>
+            
+              
+              <a class="source" href="events.html">
+                events.js
+              </a>
+            
+              
+              <a class="source" href="eventtests.html">
+                eventtests.js
+              </a>
+            
+              
+              <a class="source" href="extensions.html">
+                extensions.js
+              </a>
+            
+              
+              <a class="source" href="global-es5.html">
+                global-es5.js
+              </a>
+            
+              
+              <a class="source" href="global.html">
+                global.js
+              </a>
+            
+              
+              <a class="source" href="html-escape.html">
+                html-escape.js
+              </a>
+            
+              
+              <a class="source" href="jcompile.html">
+                jcompile.js
+              </a>
+            
+              
+              <a class="source" href="json2.html">
+                json2.js
+              </a>
+            
+              
+              <a class="source" href="nodemain.html">
+                nodemain.js
+              </a>
+            
+              
+              <a class="source" href="parse.html">
+                parse.js
+              </a>
+            
+              
+              <a class="source" href="render.html">
+                render.js
+              </a>
+            
+              
+              <a class="source" href="render2.html">
+                render2.js
+              </a>
+            
+              
+              <a class="source" href="require.html">
+                require.js
+              </a>
+            
+              
+              <a class="source" href="stdlib.html">
+                stdlib.js
+              </a>
+            
+              
+              <a class="source" href="str-escape.html">
+                str-escape.js
+              </a>
+            
+              
+              <a class="source" href="tdop.html">
+                tdop.js
+              </a>
+            
+              
+              <a class="source" href="tests.html">
+                tests.js
+              </a>
+            
+              
+              <a class="source" href="tiles.html">
+                tiles.js
+              </a>
+            
+              
+              <a class="source" href="tokenize.html">
+                tokenize.js
+              </a>
+            
+              
+              <a class="source" href="top-level.html">
+                top-level.js
+              </a>
+            
+              
+              <a class="source" href="ts.html">
+                ts.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-bytecode.html">
+                write-rust-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-ops.html">
+                write-rust-ops.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>global-es5.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+<span class="comment">/*! -- kriskowal Kris Kowal Copyright (C) 2009-2010 MIT License
+    -- tlrobinson Tom Robinson
+   dantman Daniel Friesen
+*/</span>
+
+<span class="comment">/*!
+    Copyright (c) 2009, 280 North Inc. http://280north.com/
+    MIT License. http://github.com/280north/narwhal/blob/master/README.md
+*/</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Brings an environment as close to ECMAScript 5 compliance
+as is possible with the facilities of erstwhile engines.</p>
+<p>ES5 Draft
+<a href="http://www.ecma-international.org/publications/files/drafts/tc39-2009-050.pdf">http://www.ecma-international.org/publications/files/drafts/tc39-2009-050.pdf</a></p>
+<p>NOTE: this is a draft, and as such, the URL is subject to change.  If the
+link is broken, check in the parent directory for the latest TC39 PDF.
+<a href="http://www.ecma-international.org/publications/files/drafts/">http://www.ecma-international.org/publications/files/drafts/</a></p>
+<p>Previous ES5 Draft
+<a href="http://www.ecma-international.org/publications/files/drafts/tc39-2009-025.pdf">http://www.ecma-international.org/publications/files/drafts/tc39-2009-025.pdf</a>
+This is a broken link to the previous draft of ES5 on which most of the
+numbered specification references and quotes herein were taken.  Updating
+these references and quotes to reflect the new document would be a welcome
+volunteer project.</p>
+<h1>Array</h1>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>ES5 15.4.3.2</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Array.isArray) {
+    Array.isArray = <span class="keyword">function</span>(obj) {
+        <span class="keyword">return</span> Object.prototype.toString.call(obj) == <span class="string">"[object Array]"</span>;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>ES5 15.4.4.18</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Array.prototype.forEach) {
+    Array.prototype.forEach =  <span class="keyword">function</span>(block, thisObject) {
+        <span class="keyword">var</span> len = <span class="keyword">this</span>.length &gt;&gt;&gt; <span class="number">0</span>;
+        <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; len; i++) {
+            <span class="keyword">if</span> (i <span class="keyword">in</span> <span class="keyword">this</span>) {
+                block.call(thisObject, <span class="keyword">this</span>[i], i, <span class="keyword">this</span>);
+            }
+        }
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>ES5 15.4.4.19
+<a href="https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/map">https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/map</a></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Array.prototype.map) {
+    Array.prototype.map = <span class="keyword">function</span>(fun <span class="comment">/*, thisp*/</span>) {
+        <span class="keyword">var</span> len = <span class="keyword">this</span>.length &gt;&gt;&gt; <span class="number">0</span>;
+        <span class="keyword">if</span> (<span class="keyword">typeof</span> fun != <span class="string">"function"</span>)
+          <span class="keyword">throw</span> <span class="keyword">new</span> TypeError();
+
+        <span class="keyword">var</span> res = <span class="keyword">new</span> Array(len);
+        <span class="keyword">var</span> thisp = arguments[<span class="number">1</span>];
+        <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; len; i++) {
+            <span class="keyword">if</span> (i <span class="keyword">in</span> <span class="keyword">this</span>)
+                res[i] = fun.call(thisp, <span class="keyword">this</span>[i], i, <span class="keyword">this</span>);
+        }
+
+        <span class="keyword">return</span> res;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>ES5 15.4.4.20</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Array.prototype.filter) {
+    Array.prototype.filter = <span class="function"><span class="keyword">function</span> <span class="params">(block <span class="comment">/*, thisp */</span>)</span> {</span>
+        <span class="keyword">var</span> values = [];
+        <span class="keyword">var</span> thisp = arguments[<span class="number">1</span>];
+        <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="keyword">this</span>.length; i++)
+            <span class="keyword">if</span> (block.call(thisp, <span class="keyword">this</span>[i]))
+                values.push(<span class="keyword">this</span>[i]);
+        <span class="keyword">return</span> values;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>ES5 15.4.4.16</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Array.prototype.every) {
+    Array.prototype.every = <span class="function"><span class="keyword">function</span> <span class="params">(block <span class="comment">/*, thisp */</span>)</span> {</span>
+        <span class="keyword">var</span> thisp = arguments[<span class="number">1</span>];
+        <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="keyword">this</span>.length; i++)
+            <span class="keyword">if</span> (!block.call(thisp, <span class="keyword">this</span>[i]))
+                <span class="keyword">return</span> <span class="literal">false</span>;
+        <span class="keyword">return</span> <span class="literal">true</span>;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>ES5 15.4.4.17</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Array.prototype.some) {
+    Array.prototype.some = <span class="function"><span class="keyword">function</span> <span class="params">(block <span class="comment">/*, thisp */</span>)</span> {</span>
+        <span class="keyword">var</span> thisp = arguments[<span class="number">1</span>];
+        <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="keyword">this</span>.length; i++)
+            <span class="keyword">if</span> (block.call(thisp, <span class="keyword">this</span>[i]))
+                <span class="keyword">return</span> <span class="literal">true</span>;
+        <span class="keyword">return</span> <span class="literal">false</span>;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>ES5 15.4.4.21
+<a href="https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/reduce">https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/reduce</a></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Array.prototype.reduce) {
+    Array.prototype.reduce = <span class="keyword">function</span>(fun <span class="comment">/*, initial*/</span>) {
+        <span class="keyword">var</span> len = <span class="keyword">this</span>.length &gt;&gt;&gt; <span class="number">0</span>;
+        <span class="keyword">if</span> (<span class="keyword">typeof</span> fun != <span class="string">"function"</span>)
+            <span class="keyword">throw</span> <span class="keyword">new</span> TypeError();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>no value to return if no initial value and an empty array</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (len == <span class="number">0</span> &amp;&amp; arguments.length == <span class="number">1</span>)
+            <span class="keyword">throw</span> <span class="keyword">new</span> TypeError();
+
+        <span class="keyword">var</span> i = <span class="number">0</span>;
+        <span class="keyword">if</span> (arguments.length &gt;= <span class="number">2</span>) {
+            <span class="keyword">var</span> rv = arguments[<span class="number">1</span>];
+        } <span class="keyword">else</span> {
+            <span class="keyword">do</span> {
+                <span class="keyword">if</span> (i <span class="keyword">in</span> <span class="keyword">this</span>) {
+                    rv = <span class="keyword">this</span>[i++];
+                    <span class="keyword">break</span>;
+                }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>if array contains no values, no initial value to return</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (++i &gt;= len)
+                    <span class="keyword">throw</span> <span class="keyword">new</span> TypeError();
+            } <span class="keyword">while</span> (<span class="literal">true</span>);
+        }
+
+        <span class="keyword">for</span> (; i &lt; len; i++) {
+            <span class="keyword">if</span> (i <span class="keyword">in</span> <span class="keyword">this</span>)
+                rv = fun.call(<span class="literal">null</span>, rv, <span class="keyword">this</span>[i], i, <span class="keyword">this</span>);
+        }
+
+        <span class="keyword">return</span> rv;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>ES5 15.4.4.22
+<a href="https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/reduceRight">https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/reduceRight</a></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Array.prototype.reduceRight) {
+    Array.prototype.reduceRight = <span class="keyword">function</span>(fun <span class="comment">/*, initial*/</span>) {
+        <span class="keyword">var</span> len = <span class="keyword">this</span>.length &gt;&gt;&gt; <span class="number">0</span>;
+        <span class="keyword">if</span> (<span class="keyword">typeof</span> fun != <span class="string">"function"</span>)
+            <span class="keyword">throw</span> <span class="keyword">new</span> TypeError();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>no value to return if no initial value, empty array</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (len == <span class="number">0</span> &amp;&amp; arguments.length == <span class="number">1</span>)
+            <span class="keyword">throw</span> <span class="keyword">new</span> TypeError();
+
+        <span class="keyword">var</span> i = len - <span class="number">1</span>;
+        <span class="keyword">if</span> (arguments.length &gt;= <span class="number">2</span>) {
+            <span class="keyword">var</span> rv = arguments[<span class="number">1</span>];
+        } <span class="keyword">else</span> {
+            <span class="keyword">do</span> {
+                <span class="keyword">if</span> (i <span class="keyword">in</span> <span class="keyword">this</span>) {
+                    rv = <span class="keyword">this</span>[i--];
+                    <span class="keyword">break</span>;
+                }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>if array contains no values, no initial value to return</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (--i &lt; <span class="number">0</span>)
+                    <span class="keyword">throw</span> <span class="keyword">new</span> TypeError();
+            } <span class="keyword">while</span> (<span class="literal">true</span>);
+        }
+
+        <span class="keyword">for</span> (; i &gt;= <span class="number">0</span>; i--) {
+            <span class="keyword">if</span> (i <span class="keyword">in</span> <span class="keyword">this</span>)
+                rv = fun.call(<span class="literal">null</span>, rv, <span class="keyword">this</span>[i], i, <span class="keyword">this</span>);
+        }
+
+        <span class="keyword">return</span> rv;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>ES5 15.4.4.14</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Array.prototype.indexOf) {
+    Array.prototype.indexOf = <span class="function"><span class="keyword">function</span> <span class="params">(value <span class="comment">/*, fromIndex */</span> )</span> {</span>
+        <span class="keyword">var</span> length = <span class="keyword">this</span>.length;
+        <span class="keyword">if</span> (!length)
+            <span class="keyword">return</span> -<span class="number">1</span>;
+        <span class="keyword">var</span> i = arguments[<span class="number">1</span>] || <span class="number">0</span>;
+        <span class="keyword">if</span> (i &gt;= length)
+            <span class="keyword">return</span> -<span class="number">1</span>;
+        <span class="keyword">if</span> (i &lt; <span class="number">0</span>)
+            i += length;
+        <span class="keyword">for</span> (; i &lt; length; i++) {
+            <span class="keyword">if</span> (!Object.prototype.hasOwnProperty.call(<span class="keyword">this</span>, i))
+                <span class="keyword">continue</span>;
+            <span class="keyword">if</span> (value === <span class="keyword">this</span>[i])
+                <span class="keyword">return</span> i;
+        }
+        <span class="keyword">return</span> -<span class="number">1</span>;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>ES5 15.4.4.15</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Array.prototype.lastIndexOf) {
+    Array.prototype.lastIndexOf = <span class="function"><span class="keyword">function</span> <span class="params">(value <span class="comment">/*, fromIndex */</span>)</span> {</span>
+        <span class="keyword">var</span> length = <span class="keyword">this</span>.length;
+        <span class="keyword">if</span> (!length)
+            <span class="keyword">return</span> -<span class="number">1</span>;
+        <span class="keyword">var</span> i = arguments[<span class="number">1</span>] || length;
+        <span class="keyword">if</span> (i &lt; <span class="number">0</span>)
+            i += length;
+        i = Math.min(i, length - <span class="number">1</span>);
+        <span class="keyword">for</span> (; i &gt;= <span class="number">0</span>; i--) {
+            <span class="keyword">if</span> (!Object.prototype.hasOwnProperty.call(<span class="keyword">this</span>, i))
+                <span class="keyword">continue</span>;
+            <span class="keyword">if</span> (value === <span class="keyword">this</span>[i])
+                <span class="keyword">return</span> i;
+        }
+        <span class="keyword">return</span> -<span class="number">1</span>;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h1">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <h1>Object</h1>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>ES5 15.2.3.2</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Object.getPrototypeOf) {
+    Object.getPrototypeOf = <span class="function"><span class="keyword">function</span> <span class="params">(object)</span> {</span>
+        <span class="keyword">return</span> object.__proto__;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>or undefined if not available in this engine</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>ES5 15.2.3.3</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Object.getOwnPropertyDescriptor) {
+    Object.getOwnPropertyDescriptor = <span class="function"><span class="keyword">function</span> <span class="params">(object)</span> {</span>
+        <span class="keyword">return</span> {}; <span class="comment">// XXX</span>
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>ES5 15.2.3.4</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Object.getOwnPropertyNames) {
+    Object.getOwnPropertyNames = <span class="function"><span class="keyword">function</span> <span class="params">(object)</span> {</span>
+        <span class="keyword">return</span> Object.keys(object);
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>ES5 15.2.3.5</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Object.create) {
+    Object.create = <span class="keyword">function</span>(prototype, properties) {
+        <span class="keyword">if</span> (<span class="keyword">typeof</span> prototype != <span class="string">"object"</span> || prototype === <span class="literal">null</span>)
+            <span class="keyword">throw</span> <span class="keyword">new</span> TypeError(<span class="string">"typeof prototype["</span>+(<span class="keyword">typeof</span> prototype)+<span class="string">"] != 'object'"</span>);
+        <span class="function"><span class="keyword">function</span> <span class="title">Type</span><span class="params">()</span> {</span>};
+        Type.prototype = prototype;
+        <span class="keyword">var</span> object = <span class="keyword">new</span> Type();
+        <span class="keyword">if</span> (<span class="keyword">typeof</span> properties !== <span class="string">"undefined"</span>)
+            Object.defineProperties(object, properties);
+        <span class="keyword">return</span> object;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>ES5 15.2.3.6</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Object.defineProperty) {
+    Object.defineProperty = <span class="keyword">function</span>(object, property, descriptor) {
+        <span class="keyword">var</span> has = Object.prototype.hasOwnProperty;
+        <span class="keyword">if</span> (<span class="keyword">typeof</span> descriptor == <span class="string">"object"</span> &amp;&amp; object.__defineGetter__) {
+            <span class="keyword">if</span> (has.call(descriptor, <span class="string">"value"</span>)) {
+                <span class="keyword">if</span> (!object.__lookupGetter__(property) &amp;&amp; !object.__lookupSetter__(property))</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>data property defined and no pre-existing accessors</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    object[property] = descriptor.value;
+                <span class="keyword">if</span> (has.call(descriptor, <span class="string">"get"</span>) || has.call(descriptor, <span class="string">"set"</span>))</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>descriptor has a value property but accessor already exists</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    <span class="keyword">throw</span> <span class="keyword">new</span> TypeError(<span class="string">"Object doesn't support this action"</span>);
+            }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <p>fail silently if &quot;writable&quot;, &quot;enumerable&quot;, or &quot;configurable&quot;
+are requested but not supported</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="comment">/*</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <p>alternate approach:</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            if ( // can't implement these features; allow false but not true
+                !(has.call(descriptor, "writable") ? descriptor.writable : true) ||
+                !(has.call(descriptor, "enumerable") ? descriptor.enumerable : true) ||
+                !(has.call(descriptor, "configurable") ? descriptor.configurable : true)
+            )
+                throw new RangeError(
+                    "This implementation of Object.defineProperty does not " +
+                    "support configurable, enumerable, or writable."
+                );
+            */
+            else if (typeof descriptor.get == "function")
+                object.__defineGetter__(property, descriptor.get);
+            if (typeof descriptor.set == "function")
+                object.__defineSetter__(property, descriptor.set);
+        }
+        return object;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <p>ES5 15.2.3.7</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Object.defineProperties) {
+    Object.defineProperties = <span class="keyword">function</span>(object, properties) {
+        <span class="keyword">for</span> (<span class="keyword">var</span> property <span class="keyword">in</span> properties) {
+            <span class="keyword">if</span> (Object.prototype.hasOwnProperty.call(properties, property))
+                Object.defineProperty(object, property, properties[property]);
+        }
+        <span class="keyword">return</span> object;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              <p>ES5 15.2.3.8</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Object.seal) {
+    Object.seal = <span class="function"><span class="keyword">function</span> <span class="params">(object)</span> {</span>
+        <span class="keyword">return</span> object;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-30">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-30">&#182;</a>
+              </div>
+              <p>ES5 15.2.3.9</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">try</span> {
+<span class="keyword">if</span> (!Object.freeze) {
+    Object.freeze = <span class="function"><span class="keyword">function</span> <span class="params">(object)</span> {</span>
+        <span class="keyword">return</span> object;
+    };
+} <span class="keyword">else</span> <span class="keyword">if</span> (require(<span class="string">"./engine"</span>).engine.indexOf(<span class="string">"rhino"</span>) &gt;= <span class="number">0</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-31">&#182;</a>
+              </div>
+              <p>TODO feature-detect
+XXX workaround for a Rhino bug.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> freeze = Object.freeze;
+    Object.freeze = <span class="function"><span class="keyword">function</span> <span class="params">(object)</span> {</span>
+        <span class="keyword">if</span> (<span class="keyword">typeof</span> object == <span class="string">"function"</span>) {
+            <span class="keyword">return</span> object;
+        } <span class="keyword">else</span> {
+            <span class="keyword">return</span> freeze(object);
+        }
+    };
+}
+} <span class="keyword">catch</span>(e) { <span class="comment">/* require('engine') often fails */</span> }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-32">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-32">&#182;</a>
+              </div>
+              <p>ES5 15.2.3.10</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Object.preventExtensions) {
+    Object.preventExtensions = <span class="function"><span class="keyword">function</span> <span class="params">(object)</span> {</span>
+        <span class="keyword">return</span> object;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-33">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-33">&#182;</a>
+              </div>
+              <p>ES5 15.2.3.11</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Object.isSealed) {
+    Object.isSealed = <span class="function"><span class="keyword">function</span> <span class="params">(object)</span> {</span>
+        <span class="keyword">return</span> <span class="literal">false</span>;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-34">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-34">&#182;</a>
+              </div>
+              <p>ES5 15.2.3.12</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Object.isFrozen) {
+    Object.isFrozen = <span class="function"><span class="keyword">function</span> <span class="params">(object)</span> {</span>
+        <span class="keyword">return</span> <span class="literal">false</span>;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-35">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-35">&#182;</a>
+              </div>
+              <p>ES5 15.2.3.13</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Object.isExtensible) {
+    Object.isExtensible = <span class="function"><span class="keyword">function</span> <span class="params">(object)</span> {</span>
+        <span class="keyword">return</span> <span class="literal">true</span>;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-36">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-36">&#182;</a>
+              </div>
+              <p>ES5 15.2.3.14</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Object.keys) {
+    Object.keys = <span class="function"><span class="keyword">function</span> <span class="params">(object)</span> {</span>
+        <span class="keyword">var</span> keys = [];
+        <span class="keyword">for</span> (<span class="keyword">var</span> name <span class="keyword">in</span> object) {
+            <span class="keyword">if</span> (Object.prototype.hasOwnProperty.call(object, name)) {
+                keys.push(name);
+            }
+        }
+        <span class="keyword">return</span> keys;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-37">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h1">
+                <a class="pilcrow" href="#section-37">&#182;</a>
+              </div>
+              <h1>Date</h1>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-38">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-38">&#182;</a>
+              </div>
+              <p>ES5 15.9.5.43
+Format a Date object as a string according to a subset of the ISO-8601 standard.
+Useful in Atom, among other things.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Date.prototype.toISOString) {
+    Date.prototype.toISOString = <span class="keyword">function</span>() {
+        <span class="keyword">return</span> (
+            <span class="keyword">this</span>.getFullYear() + <span class="string">"-"</span> +
+            (<span class="keyword">this</span>.getMonth() + <span class="number">1</span>) + <span class="string">"-"</span> +
+            <span class="keyword">this</span>.getDate() + <span class="string">"T"</span> +
+            <span class="keyword">this</span>.getHours() + <span class="string">":"</span> +
+            <span class="keyword">this</span>.getMinutes() + <span class="string">":"</span> +
+            <span class="keyword">this</span>.getSeconds() + <span class="string">"Z"</span>
+        );
+    }
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-39">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-39">&#182;</a>
+              </div>
+              <p>ES5 15.9.4.4</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Date.now) {
+    Date.now = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        <span class="keyword">return</span> <span class="keyword">new</span> Date().getTime();
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-40">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-40">&#182;</a>
+              </div>
+              <p>ES5 15.9.5.44</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!Date.prototype.toJSON) {
+    Date.prototype.toJSON = <span class="function"><span class="keyword">function</span> <span class="params">(key)</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-41">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-41">&#182;</a>
+              </div>
+              <p>This function provides a String representation of a Date object for
+use by JSON.stringify (15.12.3). When the toJSON method is called
+with argument key, the following steps are taken:</p>
+<ol>
+<li>Let O be the result of calling ToObject, giving it the this
+value as its argument.</li>
+<li>Let tv be ToPrimitive(O, hint Number).</li>
+<li>If tv is a Number and is not finite, return null.
+XXX</li>
+<li>Let toISO be the result of calling the [[Get]] internal method of
+O with argument &quot;toISOString&quot;.</li>
+<li>If IsCallable(toISO) is false, throw a TypeError exception.</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span>.toISOString != <span class="string">"function"</span>)
+            <span class="keyword">throw</span> <span class="keyword">new</span> TypeError();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-42">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-42">&#182;</a>
+              </div>
+              <ol>
+<li>Return the result of calling the [[Call]] internal method of
+toISO with O as the this value and an empty argument list.</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">return</span> <span class="keyword">this</span>.toISOString();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-43">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-43">&#182;</a>
+              </div>
+              <p>NOTE 1 The argument is ignored.</p>
+<p>NOTE 2 The toJSON function is intentionally generic; it does not
+require that its this value be a Date object. Therefore, it can be
+transferred to other kinds of objects for use as a method. However,
+it does require that any such object have a toISOString method. An
+object is free to use the argument key to filter its
+stringification.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-44">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-44">&#182;</a>
+              </div>
+              <p>15.9.4.2 Date.parse (string)
+15.9.1.15 Date Time String Format
+Date.parse
+based on work shared by Daniel Friesen (dantman)
+<a href="http://gist.github.com/303249">http://gist.github.com/303249</a></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (isNaN(Date.parse(<span class="string">"T00:00"</span>))) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-45">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-45">&#182;</a>
+              </div>
+              <p>XXX global assignment won&#39;t work in embeddings that use
+an alternate object for the context.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    Date = (<span class="keyword">function</span>(NativeDate) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-46">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-46">&#182;</a>
+              </div>
+              <p>Date.length === 7</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> Date = <span class="keyword">function</span>(Y, M, D, h, m, s, ms) {
+            <span class="keyword">var</span> length = arguments.length;
+            <span class="keyword">if</span> (<span class="keyword">this</span> <span class="keyword">instanceof</span> NativeDate) {
+                <span class="keyword">var</span> date = length === <span class="number">1</span> &amp;&amp; String(Y) === Y ? <span class="comment">// isString(Y)</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-47">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-47">&#182;</a>
+              </div>
+              <p>We explicitly pass it through parse:</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    <span class="keyword">new</span> NativeDate(Date.parse(Y)) :</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-48">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-48">&#182;</a>
+              </div>
+              <p>We have to manually make calls depending on argument
+length here</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    length &gt;= <span class="number">7</span> ? <span class="keyword">new</span> NativeDate(Y, M, D, h, m, s, ms) :
+                    length &gt;= <span class="number">6</span> ? <span class="keyword">new</span> NativeDate(Y, M, D, h, m, s) :
+                    length &gt;= <span class="number">5</span> ? <span class="keyword">new</span> NativeDate(Y, M, D, h, m) :
+                    length &gt;= <span class="number">4</span> ? <span class="keyword">new</span> NativeDate(Y, M, D, h) :
+                    length &gt;= <span class="number">3</span> ? <span class="keyword">new</span> NativeDate(Y, M, D) :
+                    length &gt;= <span class="number">2</span> ? <span class="keyword">new</span> NativeDate(Y, M) :
+                    length &gt;= <span class="number">1</span> ? <span class="keyword">new</span> NativeDate(Y) :
+                                  <span class="keyword">new</span> NativeDate();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-49">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-49">&#182;</a>
+              </div>
+              <p>Prevent mixups with unfixed Date object</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                date.constructor = Date;
+                <span class="keyword">return</span> date;
+            }
+            <span class="keyword">return</span> NativeDate.apply(<span class="keyword">this</span>, arguments);
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-50">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-50">&#182;</a>
+              </div>
+              <p>15.9.1.15 Date Time String Format</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> isoDateExpression = <span class="keyword">new</span> RegExp(<span class="string">"^"</span> +
+            <span class="string">"(?:"</span> + <span class="comment">// optional year-month-day</span>
+                <span class="string">"("</span> + <span class="comment">// year capture</span>
+                    <span class="string">"(?:[+-]\\d\\d)?"</span> + <span class="comment">// 15.9.1.15.1 Extended years</span>
+                    <span class="string">"\\d\\d\\d\\d"</span> + <span class="comment">// four-digit year</span>
+                <span class="string">")"</span> +
+                <span class="string">"(?:-"</span> + <span class="comment">// optional month-day</span>
+                    <span class="string">"(\\d\\d)"</span> + <span class="comment">// month capture</span>
+                    <span class="string">"(?:-"</span> + <span class="comment">// optional day</span>
+                        <span class="string">"(\\d\\d)"</span> + <span class="comment">// day capture</span>
+                    <span class="string">")?"</span> +
+                <span class="string">")?"</span> +
+            <span class="string">")?"</span> +
+            <span class="string">"(?:T"</span> + <span class="comment">// hour:minute:second.subsecond</span>
+                <span class="string">"(\\d\\d)"</span> + <span class="comment">// hour capture</span>
+                <span class="string">":(\\d\\d)"</span> + <span class="comment">// minute capture</span>
+                <span class="string">"(?::"</span> + <span class="comment">// optional :second.subsecond</span>
+                    <span class="string">"(\\d\\d)"</span> + <span class="comment">// second capture</span>
+                    <span class="string">"(?:\\.(\\d\\d\\d))?"</span> + <span class="comment">// milisecond capture</span>
+                <span class="string">")?"</span> +
+            <span class="string">")?"</span> +
+            <span class="string">"(?:"</span> + <span class="comment">// time zone</span>
+                <span class="string">"Z|"</span> + <span class="comment">// UTC capture</span>
+                <span class="string">"([+-])(\\d\\d):(\\d\\d)"</span> + <span class="comment">// timezone offset</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-51">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-51">&#182;</a>
+              </div>
+              <p>capture sign, hour, minute</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="string">")?"</span> +
+        <span class="string">"$"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-52">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-52">&#182;</a>
+              </div>
+              <p>Copy any custom methods a 3rd party library may have added</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> NativeDate)
+            Date[key] = NativeDate[key];</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-53">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-53">&#182;</a>
+              </div>
+              <p>Copy &quot;native&quot; methods explicitly; they may be non-enumerable</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        Date.now = NativeDate.now;
+        Date.UTC = NativeDate.UTC;
+        Date.prototype = NativeDate.prototype;
+        Date.prototype.constructor = Date;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-54">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-54">&#182;</a>
+              </div>
+              <p>Upgrade Date.parse to handle the ISO dates we use
+TODO review specification to ascertain whether it is
+necessary to implement partial ISO date strings.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        Date.parse = <span class="keyword">function</span>(string) {
+            <span class="keyword">var</span> match = isoDateExpression.exec(string);
+            <span class="keyword">if</span> (match) {
+                match.shift(); <span class="comment">// kill match[0], the full match</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-55">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-55">&#182;</a>
+              </div>
+              <p>recognize times without dates before normalizing the
+numeric values, for later use</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> timeOnly = match[<span class="number">0</span>] === <span class="literal">undefined</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-56">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-56">&#182;</a>
+              </div>
+              <p>parse numerics</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-57">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-57">&#182;</a>
+              </div>
+              <p>skip + or - for the timezone offset</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    <span class="keyword">if</span> (i === <span class="number">7</span>)
+                        <span class="keyword">continue</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-58">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-58">&#182;</a>
+              </div>
+              <p>Note: parseInt would read 0-prefix numbers as
+octal.  Number constructor or unary + work better
+here:</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    match[i] = +(match[i] || (i &lt; <span class="number">3</span> ? <span class="number">1</span> : <span class="number">0</span>));</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-59">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-59">&#182;</a>
+              </div>
+              <p>match[1] is the month. Months are 0-11 in JavaScript
+Date objects, but 1-12 in ISO notation, so we
+decrement.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    <span class="keyword">if</span> (i === <span class="number">1</span>)
+                        match[i]--;
+                }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-60">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-60">&#182;</a>
+              </div>
+              <p>if no year-month-date is provided, return a milisecond
+quantity instead of a UTC date number value.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (timeOnly)
+                    <span class="keyword">return</span> ((match[<span class="number">3</span>] * <span class="number">60</span> + match[<span class="number">4</span>]) * <span class="number">60</span> + match[<span class="number">5</span>]) * <span class="number">1000</span> + match[<span class="number">6</span>];</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-61">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-61">&#182;</a>
+              </div>
+              <p>account for an explicit time zone offset if provided</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> offset = (match[<span class="number">8</span>] * <span class="number">60</span> + match[<span class="number">9</span>]) * <span class="number">60</span> * <span class="number">1000</span>;
+                <span class="keyword">if</span> (match[<span class="number">6</span>] === <span class="string">"-"</span>)
+                    offset = -offset;
+
+                <span class="keyword">return</span> NativeDate.UTC.apply(<span class="keyword">this</span>, match.slice(<span class="number">0</span>, <span class="number">7</span>)) + offset;
+            }
+            <span class="keyword">return</span> NativeDate.parse.apply(<span class="keyword">this</span>, arguments);
+        };
+
+        <span class="keyword">return</span> Date;
+    })(Date);
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-62">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h1">
+                <a class="pilcrow" href="#section-62">&#182;</a>
+              </div>
+              <h1>Function</h1>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-63">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-63">&#182;</a>
+              </div>
+              <p>ES-5 15.3.4.5
+<a href="http://www.ecma-international.org/publications/files/drafts/tc39-2009-025.pdf">http://www.ecma-international.org/publications/files/drafts/tc39-2009-025.pdf</a></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> slice = Array.prototype.slice;
+<span class="keyword">if</span> (!Function.prototype.bind) {
+    Function.prototype.bind = <span class="function"><span class="keyword">function</span> <span class="params">(that)</span> {</span> <span class="comment">// .length is 1</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-64">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-64">&#182;</a>
+              </div>
+              <ol>
+<li>Let Target be the this value.</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> target = <span class="keyword">this</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-65">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-65">&#182;</a>
+              </div>
+              <ol>
+<li>If IsCallable(Target) is false, throw a TypeError exception.
+XXX this gets pretty close, for all intents and purposes, letting
+some duck-types slide</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (<span class="keyword">typeof</span> target.apply != <span class="string">"function"</span> || <span class="keyword">typeof</span> target.call != <span class="string">"function"</span>)
+            <span class="keyword">return</span> <span class="keyword">new</span> TypeError();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-66">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-66">&#182;</a>
+              </div>
+              <ol>
+<li>Let A be a new (possibly empty) internal list of all of the
+argument values provided after thisArg (arg1, arg2 etc), in order.</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> args = slice.call(arguments);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-67">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-67">&#182;</a>
+              </div>
+              <ol>
+<li>Let F be a new native ECMAScript object.</li>
+<li>Set the [[Prototype]] internal property of F to the standard
+built-in Function prototype object as specified in 15.3.3.1.</li>
+<li>Set the [[Call]] internal property of F as described in
+15.3.4.5.1.</li>
+<li>Set the [[Construct]] internal property of F as described in
+15.3.4.5.2.</li>
+<li>Set the [[HasInstance]] internal property of F as described in
+15.3.4.5.3.</li>
+<li>The [[Scope]] internal property of F is unused and need not
+exist.</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> bound = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+
+            <span class="keyword">if</span> (<span class="keyword">this</span> <span class="keyword">instanceof</span> bound) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-68">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-68">&#182;</a>
+              </div>
+              <p>15.3.4.5.2 [[Construct]]
+When the [[Construct]] internal method of a function object,
+F that was created using the bind function is called with a
+list of arguments ExtraArgs the following steps are taken:
+1. Let target be the value of F&#39;s [[TargetFunction]]
+  internal property.
+2. If target has no [[Construct]] internal method, a
+  TypeError exception is thrown.
+3. Let boundArgs be the value of F&#39;s [[BoundArgs]] internal
+  property.
+4. Let args be a new list containing the same values as the
+  list boundArgs in the same order followed by the same
+  values as the list ExtraArgs in the same order.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> self = Object.create(target.prototype);
+                target.apply(self, args.concat(slice.call(arguments)));
+                <span class="keyword">return</span> self;
+
+            } <span class="keyword">else</span> {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-69">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-69">&#182;</a>
+              </div>
+              <p>15.3.4.5.1 [[Call]]
+When the [[Call]] internal method of a function object, F,
+which was created using the bind function is called with a
+this value and a list of arguments ExtraArgs the following
+steps are taken:
+1. Let boundArgs be the value of F&#39;s [[BoundArgs]] internal
+  property.
+2. Let boundThis be the value of F&#39;s [[BoundThis]] internal
+  property.
+3. Let target be the value of F&#39;s [[TargetFunction]] internal
+  property.
+4. Let args be a new list containing the same values as the list
+  boundArgs in the same order followed by the same values as
+  the list ExtraArgs in the same order. 5.  Return the
+  result of calling the [[Call]] internal method of target
+  providing boundThis as the this value and providing args
+  as the arguments.</p>
+<p>equiv: target.call(this, ...boundArgs, ...args)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">return</span> target.call.apply(
+                    target,
+                    args.concat(slice.call(arguments))
+                );
+
+            }
+
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-70">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-70">&#182;</a>
+              </div>
+              <ol>
+<li>Set the [[TargetFunction]] internal property of F to Target.
+extra:</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        bound.bound = target;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-71">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-71">&#182;</a>
+              </div>
+              <ol>
+<li>Set the [[BoundThis]] internal property of F to the value of
+thisArg.
+extra:</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        bound.boundTo = that;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-72">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-72">&#182;</a>
+              </div>
+              <ol>
+<li>Set the [[BoundArgs]] internal property of F to A.
+extra:</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        bound.boundArgs = args;
+        bound.length = (</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-73">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-73">&#182;</a>
+              </div>
+              <ol>
+<li>If the [[Class]] internal property of Target is &quot;Function&quot;, then</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">typeof</span> target == <span class="string">"function"</span> ?</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-74">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-74">&#182;</a>
+              </div>
+              <p>a. Let L be the length property of Target minus the length of A.
+b. Set the length own property of F to either 0 or L, whichever is larger.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            Math.max(target.length - args.length, <span class="number">0</span>) :</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-75">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-75">&#182;</a>
+              </div>
+              <ol>
+<li>Else set the length own property of F to 0.</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="number">0</span>
+        )</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-76">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-76">&#182;</a>
+              </div>
+              <ol>
+<li>The length own property of F is given attributes as specified in
+15.3.5.1.
+TODO</li>
+<li>Set the [[Extensible]] internal property of F to true.
+TODO</li>
+<li>Call the [[DefineOwnProperty]] internal method of F with
+arguments &quot;caller&quot;, PropertyDescriptor {[[Value]]: null,
+[[Writable]]: false, [[Enumerable]]: false, [[Configurable]]:
+false}, and false.
+TODO</li>
+<li>Call the [[DefineOwnProperty]] internal method of F with
+arguments &quot;arguments&quot;, PropertyDescriptor {[[Value]]: null,
+[[Writable]]: false, [[Enumerable]]: false, [[Configurable]]:
+false}, and false.
+TODO
+NOTE Function objects created using Function.prototype.bind do not
+have a prototype property.
+XXX can&#39;t delete it in pure-js.</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">return</span> bound;
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-77">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h1">
+                <a class="pilcrow" href="#section-77">&#182;</a>
+              </div>
+              <h1>String</h1>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-78">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-78">&#182;</a>
+              </div>
+              <p>ES5 15.5.4.20</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (!String.prototype.trim) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-79">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-79">&#182;</a>
+              </div>
+              <p><a href="http://blog.stevenlevithan.com/archives/faster-trim-javascript">http://blog.stevenlevithan.com/archives/faster-trim-javascript</a></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> trimBeginRegexp = <span class="regexp">/^\s\s*/</span>;
+    <span class="keyword">var</span> trimEndRegexp = <span class="regexp">/\s\s*$/</span>;
+    String.prototype.trim = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        <span class="keyword">return</span> String(<span class="keyword">this</span>).replace(trimBeginRegexp, <span class="string">''</span>).replace(trimEndRegexp, <span class="string">''</span>);
+    };
+}</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

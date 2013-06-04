@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>crender-styles.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="asm-llvm.html">
+                asm-llvm.js
+              </a>
+            
+              
+              <a class="source" href="bcompile.html">
+                bcompile.js
+              </a>
+            
+              
+              <a class="source" href="binterp.html">
+                binterp.js
+              </a>
+            
+              
+              <a class="source" href="browsercanvas.html">
+                browsercanvas.js
+              </a>
+            
+              
+              <a class="source" href="bytecode-table.html">
+                bytecode-table.js
+              </a>
+            
+              
+              <a class="source" href="canvastest.html">
+                canvastest.js
+              </a>
+            
+              
+              <a class="source" href="ccanvas.html">
+                ccanvas.js
+              </a>
+            
+              
+              <a class="source" href="crender-styles.html">
+                crender-styles.js
+              </a>
+            
+              
+              <a class="source" href="crender.html">
+                crender.js
+              </a>
+            
+              
+              <a class="source" href="ctiles.html">
+                ctiles.js
+              </a>
+            
+              
+              <a class="source" href="events.html">
+                events.js
+              </a>
+            
+              
+              <a class="source" href="eventtests.html">
+                eventtests.js
+              </a>
+            
+              
+              <a class="source" href="extensions.html">
+                extensions.js
+              </a>
+            
+              
+              <a class="source" href="global-es5.html">
+                global-es5.js
+              </a>
+            
+              
+              <a class="source" href="global.html">
+                global.js
+              </a>
+            
+              
+              <a class="source" href="html-escape.html">
+                html-escape.js
+              </a>
+            
+              
+              <a class="source" href="jcompile.html">
+                jcompile.js
+              </a>
+            
+              
+              <a class="source" href="json2.html">
+                json2.js
+              </a>
+            
+              
+              <a class="source" href="nodemain.html">
+                nodemain.js
+              </a>
+            
+              
+              <a class="source" href="parse.html">
+                parse.js
+              </a>
+            
+              
+              <a class="source" href="render.html">
+                render.js
+              </a>
+            
+              
+              <a class="source" href="render2.html">
+                render2.js
+              </a>
+            
+              
+              <a class="source" href="require.html">
+                require.js
+              </a>
+            
+              
+              <a class="source" href="stdlib.html">
+                stdlib.js
+              </a>
+            
+              
+              <a class="source" href="str-escape.html">
+                str-escape.js
+              </a>
+            
+              
+              <a class="source" href="tdop.html">
+                tdop.js
+              </a>
+            
+              
+              <a class="source" href="tests.html">
+                tests.js
+              </a>
+            
+              
+              <a class="source" href="tiles.html">
+                tiles.js
+              </a>
+            
+              
+              <a class="source" href="tokenize.html">
+                tokenize.js
+              </a>
+            
+              
+              <a class="source" href="top-level.html">
+                top-level.js
+              </a>
+            
+              
+              <a class="source" href="ts.html">
+                ts.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-bytecode.html">
+                write-rust-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-ops.html">
+                write-rust-ops.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>crender-styles.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>Style definitions for the crender widgets.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>define([<span class="string">'gfx/Color'</span>], <span class="keyword">function</span>(Color) {
+
+<span class="keyword">var</span> styles = {
+   textHeight: <span class="number">20</span>,
+   tilePadding: { left: <span class="number">4</span>, top: <span class="number">1</span>, right: <span class="number">3</span>, bottom: <span class="number">5</span>},
+   textColor: Color.From8888(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+   nameColor: Color.From8888(<span class="number">160</span>, <span class="number">82</span>, <span class="number">45</span>), <span class="comment">// variable names</span>
+   commentColor: Color.From8888(<span class="number">178</span>, <span class="number">34</span>, <span class="number">34</span>), <span class="comment">// comments</span>
+   keywordColor: Color.From8888(<span class="number">160</span>, <span class="number">32</span>, <span class="number">240</span>),<span class="comment">// keywords</span>
+   constColor: Color.From8888(<span class="number">0</span>, <span class="number">139</span>, <span class="number">139</span>), <span class="comment">// constants,this,arguments</span>
+   slotColor: Color.From8888(<span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>), <span class="comment">// slots in objects</span>
+   literalColor: Color.From8888(<span class="number">139</span>, <span class="number">34</span>, <span class="number">82</span>), <span class="comment">// string literals</span>
+   semiColor: Color.From8888(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">76</span>),<span class="comment">// semicolon</span>
+   tileColor: Color.From8888(<span class="number">253</span>, <span class="number">250</span>, <span class="number">235</span>),
+   tileOutlineColor: Color.From8888(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">125</span>),<span class="comment">//(255, 204, 106, 125),</span>
+   yadaColor: Color.From8888(<span class="number">249</span>, <span class="number">250</span>, <span class="number">215</span>, <span class="number">0</span>), <span class="comment">// background of ... expr</span>
+   stmtColor: Color.From8888(<span class="number">253</span>, <span class="number">250</span>, <span class="number">215</span>),
+   tileCornerRadius: <span class="number">4</span>,
+   puzzleIndent: <span class="number">5</span>,
+   puzzleRadius: <span class="number">5</span>,
+   expHalfHeight: <span class="number">12</span>,
+   expWidth: <span class="number">6</span>,
+   expUnderHeight: <span class="number">5</span>,
+   expUnderWidth: <span class="number">5</span>, <span class="comment">/* underline when it's running along the sides */</span>
+   blockIndent: <span class="number">26</span>,
+   objIndent: <span class="number">12</span>, <span class="comment">/* indent for the slot names in an object initializer */</span>
+   blockBottomPadding: <span class="number">8</span>, <span class="comment">/* below last tile in a block */</span>
+   functionIndent: <span class="number">5</span>, <span class="comment">/* thin line on left side of function */</span>
+   functionNameSpace: <span class="number">3</span>, <span class="comment">/* space to leave for a missing function name */</span>
+   listEndPadding: <span class="number">0</span>, <span class="comment">/* empty space on right side of lists */</span>
+   commaBreakWidth: <span class="number">600</span> <span class="comment">/* line wrapping HACK */</span>
+};
+<span class="keyword">if</span> (<span class="number">0</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>for debugging, make spacing larger and background transparent</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  styles = {
+    __proto__: styles,
+    tileColor: Color.From8888(<span class="number">253</span>, <span class="number">250</span>, <span class="number">235</span>, <span class="number">10</span>),
+    tileOutlineColor: Color.From8888(<span class="number">255</span>, <span class="number">204</span>, <span class="number">106</span>, <span class="number">205</span>),
+    expUnderHeight: <span class="number">8</span>,
+    expUnderWidth: <span class="number">8</span>, <span class="comment">/* underline when it's running along the sides */</span>
+    functionIndent: <span class="number">8</span>, <span class="comment">/* thin line on left side of function */</span>
+    functionNameSpace: <span class="number">8</span>
+  };
+}
+<span class="keyword">return</span> styles;
+
+});</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

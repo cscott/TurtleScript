@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>events.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="asm-llvm.html">
+                asm-llvm.js
+              </a>
+            
+              
+              <a class="source" href="bcompile.html">
+                bcompile.js
+              </a>
+            
+              
+              <a class="source" href="binterp.html">
+                binterp.js
+              </a>
+            
+              
+              <a class="source" href="browsercanvas.html">
+                browsercanvas.js
+              </a>
+            
+              
+              <a class="source" href="bytecode-table.html">
+                bytecode-table.js
+              </a>
+            
+              
+              <a class="source" href="canvastest.html">
+                canvastest.js
+              </a>
+            
+              
+              <a class="source" href="ccanvas.html">
+                ccanvas.js
+              </a>
+            
+              
+              <a class="source" href="crender-styles.html">
+                crender-styles.js
+              </a>
+            
+              
+              <a class="source" href="crender.html">
+                crender.js
+              </a>
+            
+              
+              <a class="source" href="ctiles.html">
+                ctiles.js
+              </a>
+            
+              
+              <a class="source" href="events.html">
+                events.js
+              </a>
+            
+              
+              <a class="source" href="eventtests.html">
+                eventtests.js
+              </a>
+            
+              
+              <a class="source" href="extensions.html">
+                extensions.js
+              </a>
+            
+              
+              <a class="source" href="global-es5.html">
+                global-es5.js
+              </a>
+            
+              
+              <a class="source" href="global.html">
+                global.js
+              </a>
+            
+              
+              <a class="source" href="html-escape.html">
+                html-escape.js
+              </a>
+            
+              
+              <a class="source" href="jcompile.html">
+                jcompile.js
+              </a>
+            
+              
+              <a class="source" href="json2.html">
+                json2.js
+              </a>
+            
+              
+              <a class="source" href="nodemain.html">
+                nodemain.js
+              </a>
+            
+              
+              <a class="source" href="parse.html">
+                parse.js
+              </a>
+            
+              
+              <a class="source" href="render.html">
+                render.js
+              </a>
+            
+              
+              <a class="source" href="render2.html">
+                render2.js
+              </a>
+            
+              
+              <a class="source" href="require.html">
+                require.js
+              </a>
+            
+              
+              <a class="source" href="stdlib.html">
+                stdlib.js
+              </a>
+            
+              
+              <a class="source" href="str-escape.html">
+                str-escape.js
+              </a>
+            
+              
+              <a class="source" href="tdop.html">
+                tdop.js
+              </a>
+            
+              
+              <a class="source" href="tests.html">
+                tests.js
+              </a>
+            
+              
+              <a class="source" href="tiles.html">
+                tiles.js
+              </a>
+            
+              
+              <a class="source" href="tokenize.html">
+                tokenize.js
+              </a>
+            
+              
+              <a class="source" href="top-level.html">
+                top-level.js
+              </a>
+            
+              
+              <a class="source" href="ts.html">
+                ts.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-bytecode.html">
+                write-rust-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-ops.html">
+                write-rust-ops.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>events.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>TurtleScript FRS-style event system.  Heavily based on Flapjax, and
+as such it is:</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="comment">/*
+ * Copyright (c) 2006-2009, The Flapjax Team.  All Rights Reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright notice,
+ *   this list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ * * Neither the name of the Brown University, the Flapjax Team, nor the names
+ *   of its contributors may be used to endorse or promote products derived
+ *   from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */</span>
+define([<span class="string">"!timeouts"</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_flapjax</span><span class="params">(timeouts)</span> {</span>
+    <span class="keyword">var</span> setTimeout = timeouts.setTimeout;
+    <span class="keyword">var</span> clearTimeout = timeouts.clearTimeout;
+
+    <span class="keyword">var</span> slice = <span class="keyword">function</span>(arr, start, stop) {
+        <span class="keyword">return</span> Array.prototype.slice.call(arr, start, stop);
+    };
+
+    <span class="keyword">var</span> zip = <span class="keyword">function</span>(arrays) {
+        <span class="keyword">var</span> ret = [], i = <span class="number">0</span>;
+        <span class="keyword">if</span> (arrays.length &gt; <span class="number">0</span>) {
+            <span class="keyword">while</span> (i &lt; arrays[<span class="number">0</span>].length) {
+                ret.push([]);
+                arrays.forEach(<span class="keyword">function</span>(arr) {
+                    ret[i].push(arr[i]);
+                });
+                i += <span class="number">1</span>;
+            }
+        }
+        <span class="keyword">return</span> ret;
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>map: (a <em> ... -&gt; z) </em> [a] * ... -&gt; [z]</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> map = <span class="function"><span class="keyword">function</span> <span class="params">(fn)</span> {</span>
+        <span class="keyword">var</span> arrays = slice(arguments, <span class="number">1</span>);
+        <span class="keyword">var</span> ret = [];
+        <span class="keyword">if</span> (arrays.length === <span class="number">1</span>) {
+            arrays[<span class="number">0</span>].forEach(<span class="keyword">function</span>(e) {
+                ret.push(fn(e));
+            });
+        } <span class="keyword">else</span> <span class="keyword">if</span> (arrays.length &gt; <span class="number">1</span>) {
+            <span class="keyword">var</span> o = {};
+            zip(arrays).forEach(<span class="keyword">function</span>(args) {
+                ret.push(fn.apply(o, args));
+            });
+        }
+        <span class="keyword">return</span> ret;
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>filter: (a -&gt; Boolean) * Array a -&gt; Array a</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> filter = <span class="function"><span class="keyword">function</span> <span class="params">(predFn, arr)</span> {</span>
+        <span class="keyword">var</span> res = [];
+        arr.forEach(<span class="keyword">function</span>(elem) {
+            <span class="keyword">if</span> (predFn(elem)) { res.push(elem); }
+        });
+        <span class="keyword">return</span> res;
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>////////////////////////////////////////////////////////////////////////////
+Flapjax core</p>
+<p>Sentinel value returned by updaters to stop propagation.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> doNotPropagate = { };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Pulse: Stamp <em> Path </em> Obj</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> Pulse = <span class="function"><span class="keyword">function</span> <span class="params">(stamp, value)</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Timestamps are used by liftB (and ifE).  Since liftB may receive multiple
+update signals in the same run of the evaluator, it only propagates the
+signal if it has a new stamp.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="keyword">this</span>.stamp = stamp;
+  <span class="keyword">this</span>.value = value;
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Probably can optimize as we expect increasing insert runs etc
+XXX csa: replace Math.floor with &gt;&gt;1</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> PQ = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+  <span class="keyword">var</span> ctx = <span class="keyword">this</span>;
+  ctx.val = [];
+  <span class="keyword">this</span>.insert = <span class="function"><span class="keyword">function</span> <span class="params">(kv)</span> {</span>
+    ctx.val.push(kv);
+    <span class="keyword">var</span> kvpos = ctx.val.length-<span class="number">1</span>;
+    <span class="keyword">while</span>(kvpos &gt; <span class="number">0</span> &amp;&amp; kv.k &lt; ctx.val[Math.floor((kvpos-<span class="number">1</span>)/<span class="number">2</span>)].k) {
+      <span class="keyword">var</span> oldpos = kvpos;
+      kvpos = Math.floor((kvpos-<span class="number">1</span>)/<span class="number">2</span>);
+      ctx.val[oldpos] = ctx.val[kvpos];
+      ctx.val[kvpos] = kv;
+    }
+  };
+  <span class="keyword">this</span>.isEmpty = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">return</span> ctx.val.length === <span class="number">0</span>;
+  };
+  <span class="keyword">this</span>.pop = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">if</span>(ctx.val.length === <span class="number">1</span>) {
+      <span class="keyword">return</span> ctx.val.pop();
+    }
+    <span class="keyword">var</span> ret = ctx.val.shift();
+    ctx.val.unshift(ctx.val.pop());
+    <span class="keyword">var</span> kvpos = <span class="number">0</span>;
+    <span class="keyword">var</span> kv = ctx.val[<span class="number">0</span>];
+    <span class="keyword">while</span>(<span class="number">1</span>) {
+      <span class="keyword">var</span> leftChild = (kvpos*<span class="number">2</span>+<span class="number">1</span> &lt; ctx.val.length ? ctx.val[kvpos*<span class="number">2</span>+<span class="number">1</span>].k : kv.k+<span class="number">1</span>);
+      <span class="keyword">var</span> rightChild = (kvpos*<span class="number">2</span>+<span class="number">2</span> &lt; ctx.val.length ? ctx.val[kvpos*<span class="number">2</span>+<span class="number">2</span>].k : kv.k+<span class="number">1</span>);
+      <span class="keyword">if</span>(leftChild &gt; kv.k &amp;&amp; rightChild &gt; kv.k) {
+          <span class="keyword">break</span>;
+      }
+
+      <span class="keyword">if</span>(leftChild &lt; rightChild) {
+        ctx.val[kvpos] = ctx.val[kvpos*<span class="number">2</span>+<span class="number">1</span>];
+        ctx.val[kvpos*<span class="number">2</span>+<span class="number">1</span>] = kv;
+        kvpos = kvpos*<span class="number">2</span>+<span class="number">1</span>;
+      }
+      <span class="keyword">else</span> {
+        ctx.val[kvpos] = ctx.val[kvpos*<span class="number">2</span>+<span class="number">2</span>];
+        ctx.val[kvpos*<span class="number">2</span>+<span class="number">2</span>] = kv;
+        kvpos = kvpos*<span class="number">2</span>+<span class="number">2</span>;
+      }
+    }
+    <span class="keyword">return</span> ret;
+  };
+};
+
+<span class="keyword">var</span> lastRank = <span class="number">0</span>;
+<span class="keyword">var</span> stamp = <span class="number">1</span>;
+<span class="keyword">var</span> nextStamp = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    stamp += <span class="number">1</span>;
+    <span class="keyword">return</span> stamp;
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>propagatePulse: Pulse * Array Node -&gt;
+Send the pulse to each node</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> propagatePulse = <span class="function"><span class="keyword">function</span> <span class="params">(pulse, node)</span> {</span>
+  <span class="keyword">var</span> queue = PQ.New(); <span class="comment">//topological queue for current timestep</span>
+
+  queue.insert({k:node.rank,n:node,v:pulse});
+  <span class="keyword">var</span> len = <span class="number">1</span>;
+
+  <span class="keyword">while</span> (len) {
+    <span class="keyword">var</span> qv = queue.pop();
+    len-=<span class="number">1</span>;
+    <span class="keyword">var</span> nextPulse = qv.n.updater(Pulse.New(qv.v.stamp, qv.v.value));
+    <span class="keyword">var</span> weaklyHeld = <span class="literal">true</span>;
+
+    <span class="keyword">if</span> (nextPulse !== doNotPropagate) {
+      qv.n.sendsTo.forEach(<span class="keyword">function</span>(n) {
+        weaklyHeld = weaklyHeld &amp;&amp; n.weaklyHeld;
+        len+=<span class="number">1</span>;
+        queue.insert({k:n.rank,n:n,v:nextPulse});
+      });
+      <span class="keyword">if</span> (qv.n.sendsTo.length &gt; <span class="number">0</span> &amp;&amp; weaklyHeld) {
+          qv.n.weaklyHeld = <span class="literal">true</span>;
+      }
+    }
+  }
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Event: Array Node b <em> ( (Pulse a -&gt; Void) </em> Pulse b -&gt; Void)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> EventStream = <span class="function"><span class="keyword">function</span> <span class="params">(nodes,updater)</span> {</span>
+  <span class="keyword">this</span>.updater = updater;
+
+  <span class="keyword">this</span>.sendsTo = []; <span class="comment">//forward link</span>
+  <span class="keyword">this</span>.weaklyHeld = <span class="literal">false</span>;
+
+  nodes.forEach(<span class="keyword">function</span>(n) {
+        n.attachListener(<span class="keyword">this</span>);
+  }, <span class="keyword">this</span>);
+
+  lastRank += <span class="number">1</span>;
+  <span class="keyword">this</span>.rank = lastRank;
+};
+EventStream.prototype = {};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>createNode: Array Node a <em> ( (Pulse b -&gt;) </em> (Pulse a) -&gt; Void) -&gt; Node b</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> createNode = <span class="function"><span class="keyword">function</span> <span class="params">(nodes, updater)</span> {</span>
+  <span class="keyword">return</span> EventStream.New(nodes,updater);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>note that this creates a new timestamp and new event queue</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> sendEvent = <span class="function"><span class="keyword">function</span> <span class="params">(node, value)</span> {</span>
+  <span class="keyword">if</span> (!EventStream.hasInstance(node)) {
+      Object.Throw(<span class="string">'sendEvent: expected Event as first arg'</span>);
+  } <span class="comment">//SAFETY</span>
+
+  propagatePulse(Pulse.New(nextStamp(), value),node);
+};
+
+<span class="keyword">var</span> genericAttachListener = <span class="keyword">function</span>(node, dependent) {
+  node.sendsTo.push(dependent);
+
+  <span class="keyword">if</span>(node.rank &gt; dependent.rank) {
+    <span class="keyword">var</span> lowest = lastRank+<span class="number">1</span>;
+    <span class="keyword">var</span> q = [dependent];
+    <span class="keyword">while</span>(q.length) {
+      <span class="keyword">var</span> cur = q.splice(<span class="number">0</span>,<span class="number">1</span>)[<span class="number">0</span>];
+      lastRank += <span class="number">1</span>;
+      cur.rank = lastRank;
+      q = q.concat(cur.sendsTo);
+    }
+  }
+};
+
+<span class="keyword">var</span> genericRemoveListener = <span class="function"><span class="keyword">function</span> <span class="params">(node, dependent, isWeakReference)</span> {</span>
+  <span class="keyword">var</span> foundSending = <span class="literal">false</span>;
+  <span class="keyword">var</span> i = <span class="number">0</span>;
+  <span class="keyword">while</span>( i &lt; node.sendsTo.length &amp;&amp; !foundSending ) {
+    <span class="keyword">if</span> (node.sendsTo[i] === dependent) {
+      node.sendsTo.splice(i, <span class="number">1</span>);
+      foundSending = <span class="literal">true</span>;
+    }
+    i += <span class="number">1</span>;
+  }
+
+  <span class="keyword">if</span> (isWeakReference === <span class="literal">true</span> &amp;&amp; node.sendsTo.length === <span class="number">0</span>) {
+    node.weaklyHeld = <span class="literal">true</span>;
+  }
+
+  <span class="keyword">return</span> foundSending;
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>attachListener: Node * Node -&gt; Void
+flow from node to dependent
+note: does not add flow as counting for rank nor updates parent ranks</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>EventStream.prototype.attachListener = <span class="keyword">function</span>(dependent) {
+  <span class="keyword">if</span> (!EventStream.hasInstance(dependent)) {
+      Object.Throw(<span class="string">'attachListener: expected an EventStream'</span>);
+  }
+  genericAttachListener(<span class="keyword">this</span>, dependent);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>note: does not remove flow as counting for rank nor updates parent ranks</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>EventStream.prototype.removeListener = <span class="function"><span class="keyword">function</span> <span class="params">(dependent, isWeak)</span> {</span>
+  <span class="keyword">if</span> (!EventStream.hasInstance(dependent)) {
+    Object.Throw(<span class="string">'removeListener: expected an EventStream'</span>);
+  }
+
+  genericRemoveListener(<span class="keyword">this</span>, dependent, isWeak);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>An internalE is a node that simply propagates all pulses it receives.  It&#39;s used internally by various
+combinators.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> internalE = <span class="keyword">function</span>(dependsOn) {
+  <span class="keyword">return</span> createNode(dependsOn || [ ],<span class="keyword">function</span>(pulse) { <span class="keyword">return</span> pulse; });
+};
+
+<span class="keyword">var</span> zeroE = <span class="keyword">function</span>() {
+  <span class="keyword">return</span> createNode([],<span class="keyword">function</span>(pulse) {
+      Object.Throw (<span class="string">'zeroE : received a value; zeroE should not receive a value; the value was '</span> + pulse.value);
+  });
+};
+
+
+<span class="keyword">var</span> oneE = <span class="keyword">function</span>(val) {
+  <span class="keyword">var</span> sent = <span class="literal">false</span>;
+  <span class="keyword">var</span> evt = createNode([],<span class="keyword">function</span>(pulse) {
+    <span class="keyword">if</span> (sent) {
+      Object.Throw (<span class="string">'oneE : received an extra value'</span>);
+    }
+    sent = <span class="literal">true</span>;
+    <span class="keyword">return</span> pulse;
+  });
+  setTimeout(<span class="keyword">function</span>() { sendEvent(evt,val); },<span class="number">0</span>);
+  <span class="keyword">return</span> evt;
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>a.k.a. mplus; mergeE(e1,e2) == mergeE(e2,e1)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> mergeE = <span class="keyword">function</span>() {
+  <span class="keyword">if</span> (arguments.length === <span class="number">0</span>) {
+    <span class="keyword">return</span> zeroE();
+  }
+  <span class="keyword">else</span> {
+    <span class="keyword">var</span> deps = slice(arguments,<span class="number">0</span>);
+    <span class="keyword">return</span> internalE(deps);
+  }
+};
+
+
+EventStream.prototype.mergeE = <span class="keyword">function</span>() {
+  <span class="keyword">var</span> deps = slice(arguments,<span class="number">0</span>);
+  deps.push(<span class="keyword">this</span>);
+  <span class="keyword">return</span> internalE(deps);
+};
+
+
+EventStream.prototype.constantE = <span class="keyword">function</span>(constantValue) {
+  <span class="keyword">return</span> createNode([<span class="keyword">this</span>],<span class="keyword">function</span>(pulse) {
+    pulse.value = constantValue;
+    <span class="keyword">return</span> pulse;
+  });
+};
+
+
+<span class="keyword">var</span> constantE = <span class="keyword">function</span>(e,v) { <span class="keyword">return</span> e.constantE(v); };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>This is up here so we can add things to its prototype that are in flapjax.combinators</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> Behavior = <span class="function"><span class="keyword">function</span> <span class="params">(event, init, updater)</span> {</span>
+  <span class="keyword">if</span> (!EventStream.hasInstance(event)) {
+    Object.Throw (<span class="string">'Behavior: expected event as second arg'</span>);
+  }
+
+  <span class="keyword">var</span> behave = <span class="keyword">this</span>;
+  <span class="keyword">this</span>.last = init;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>sendEvent to this might impact other nodes that depend on this event
+sendBehavior defaults to this one</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="keyword">this</span>.underlyingRaw = event;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>unexposed, sendEvent to this will only impact dependents of this behaviour</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="keyword">this</span>.underlying = createNode([event], updater
+    ? <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>
+        behave.last = updater(p.value);
+        p.value = behave.last; <span class="keyword">return</span> p;
+      }
+    : <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>
+        behave.last = p.value;
+        <span class="keyword">return</span> p;
+      });
+};
+Behavior.prototype = {};
+
+Behavior.prototype.valueNow = <span class="keyword">function</span>() {
+  <span class="keyword">return</span> <span class="keyword">this</span>.last;
+};
+<span class="keyword">var</span> valueNow = <span class="keyword">function</span>(behavior) { <span class="keyword">return</span> behavior.valueNow(); };
+<span class="keyword">var</span> constantB;
+
+Behavior.prototype.changes = <span class="keyword">function</span>() {
+  <span class="keyword">return</span> <span class="keyword">this</span>.underlying;
+};
+<span class="keyword">var</span> changes = <span class="function"><span class="keyword">function</span> <span class="params">(behave)</span> {</span> <span class="keyword">return</span> behave.changes(); };
+
+
+<span class="keyword">var</span> receiverE = <span class="keyword">function</span>() {
+  <span class="keyword">var</span> evt = internalE();
+  evt.sendEvent = <span class="keyword">function</span>(value) {
+    propagatePulse(Pulse.New(nextStamp(), value),evt);
+  };
+  <span class="keyword">return</span> evt;
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>bindE :: EventStream a * (a -&gt; EventStream b) -&gt; EventStream b</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>EventStream.prototype.bindE = <span class="keyword">function</span>(k) {
+  <span class="comment">/* m.sendsTo resultE
+   * resultE.sendsTo prevE
+   * prevE.sendsTo returnE
+   */</span>
+  <span class="keyword">var</span> m = <span class="keyword">this</span>;
+  <span class="keyword">var</span> prevE = <span class="literal">false</span>;
+
+  <span class="keyword">var</span> outE = createNode([],<span class="keyword">function</span>(pulse) { <span class="keyword">return</span> pulse; });
+  outE.name = <span class="string">"bind outE"</span>;
+
+  <span class="keyword">var</span> inE = createNode([m], <span class="function"><span class="keyword">function</span> <span class="params">(pulse)</span> {</span>
+    <span class="keyword">if</span> (prevE) {
+      prevE.removeListener(outE, <span class="literal">true</span>);
+
+    }
+    prevE = k(pulse.value);
+    <span class="keyword">if</span> (EventStream.hasInstance(prevE)) {
+      prevE.attachListener(outE);
+    }
+    <span class="keyword">else</span> {
+      Object.Throw(<span class="string">"bindE : expected EventStream"</span>);
+    }
+
+    <span class="keyword">return</span> doNotPropagate;
+  });
+  inE.name = <span class="string">"bind inE"</span>;
+
+  <span class="keyword">return</span> outE;
+};
+
+EventStream.prototype.mapE = <span class="keyword">function</span>(f) {
+  <span class="keyword">if</span> (!Function.hasInstance(f)) {
+    Object.Throw (<span class="string">'mapE : expected a function as the first argument; received '</span> + f);
+  }
+
+  <span class="keyword">return</span> createNode([<span class="keyword">this</span>],<span class="keyword">function</span>(pulse) {
+    pulse.value = f(pulse.value);
+    <span class="keyword">return</span> pulse;
+  });
+};
+
+
+EventStream.prototype.notE = <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.mapE(<span class="keyword">function</span>(v) { <span class="keyword">return</span> !v; }); };
+
+
+<span class="keyword">var</span> notE = <span class="keyword">function</span>(e) { <span class="keyword">return</span> e.notE(); };
+
+
+EventStream.prototype.filterE = <span class="keyword">function</span>(pred) {
+  <span class="keyword">if</span> (!Function.hasInstance(pred)) {
+    Object.Throw (<span class="string">'filterE : expected predicate; received '</span> + pred);
+  }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>Can be a bindE</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="keyword">return</span> createNode([<span class="keyword">this</span>], <span class="keyword">function</span>(pulse) {
+    <span class="keyword">return</span> pred(pulse.value) ? pulse : doNotPropagate;
+  });
+};
+
+
+<span class="keyword">var</span> filterE = <span class="keyword">function</span>(e,p) { <span class="keyword">return</span> e.filterE(p); };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>Fires just once.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>EventStream.prototype.onceE = <span class="keyword">function</span>() {
+  <span class="keyword">var</span> done = <span class="literal">false</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>Alternately: this.collectE(0,\n v -&gt; (n+1,v)).filterE((n,v) -&gt; n == 1).mapE(fst)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="keyword">return</span> createNode([<span class="keyword">this</span>],<span class="keyword">function</span>(pulse) {
+    <span class="keyword">if</span> (!done) { done = <span class="literal">true</span>; <span class="keyword">return</span> pulse; }
+    <span class="keyword">else</span> { <span class="keyword">return</span> doNotPropagate; }
+  });
+};
+
+
+<span class="keyword">var</span> onceE = <span class="keyword">function</span>(e) { <span class="keyword">return</span> e.onceE(); };
+
+
+EventStream.prototype.skipFirstE = <span class="keyword">function</span>() {
+  <span class="keyword">var</span> skipped = <span class="literal">false</span>;
+  <span class="keyword">return</span> createNode([<span class="keyword">this</span>],<span class="keyword">function</span>(pulse) {
+    <span class="keyword">if</span> (skipped)
+      { <span class="keyword">return</span> pulse; }
+    <span class="keyword">else</span>
+      { <span class="keyword">return</span> doNotPropagate; }
+  });
+};
+
+
+<span class="keyword">var</span> skipFirstE = <span class="keyword">function</span>(e) { <span class="keyword">return</span> e.skipFirstE(); };
+
+
+EventStream.prototype.collectE = <span class="keyword">function</span>(init,fold) {
+  <span class="keyword">var</span> acc = init;
+  <span class="keyword">return</span> <span class="keyword">this</span>.mapE(
+    <span class="function"><span class="keyword">function</span> <span class="params">(n)</span> {</span>
+      <span class="keyword">var</span> next = fold(n, acc);
+      acc = next;
+      <span class="keyword">return</span> next;
+    });
+};
+
+
+<span class="keyword">var</span> collectE = <span class="keyword">function</span>(e,i,f) { <span class="keyword">return</span> e.collectE(i,f); };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>a.k.a. join</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>EventStream.prototype.switchE = <span class="keyword">function</span>() {
+  <span class="keyword">return</span> <span class="keyword">this</span>.bindE(<span class="keyword">function</span>(v) { <span class="keyword">return</span> v; });
+};
+
+
+<span class="keyword">var</span> recE = <span class="keyword">function</span>(fn) {
+  <span class="keyword">var</span> inE = receiverE();
+  <span class="keyword">var</span> outE = fn(inE);
+  outE.mapE(<span class="keyword">function</span>(x) {
+    inE.sendEvent(x); });
+  <span class="keyword">return</span> outE;
+};
+
+
+<span class="keyword">var</span> switchE = <span class="keyword">function</span>(e) { <span class="keyword">return</span> e.switchE(); };
+
+
+EventStream.prototype.ifE = <span class="keyword">function</span>(thenE,elseE) {
+  <span class="keyword">var</span> testStamp = -<span class="number">1</span>;
+  <span class="keyword">var</span> testValue = <span class="literal">false</span>;
+
+  createNode([<span class="keyword">this</span>],<span class="keyword">function</span>(pulse) { testStamp = pulse.stamp; testValue = pulse.value; <span class="keyword">return</span> doNotPropagate; });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>XXX broken? CSA tried to fix..</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="keyword">return</span> mergeE(createNode([thenE],<span class="keyword">function</span>(pulse) { <span class="keyword">return</span> (testValue &amp;&amp; (testStamp === pulse.stamp)) ? pulse : doNotPropagate; }),
+                createNode([elseE],<span class="keyword">function</span>(pulse) { <span class="keyword">return</span> (!testValue &amp;&amp; (testStamp === pulse.stamp)) ? pulse : doNotPropagate; }));
+};
+
+
+<span class="keyword">var</span> ifE = <span class="keyword">function</span>(test,thenE,elseE) {
+  <span class="keyword">if</span> (EventStream.hasInstance(test))
+    { <span class="keyword">return</span> test.ifE(thenE,elseE); }
+  <span class="keyword">else</span>
+    { <span class="keyword">return</span> test ? thenE : elseE; }
+};
+
+
+<span class="keyword">var</span> andE = <span class="function"><span class="keyword">function</span> <span class="params">(<span class="comment">/* . nodes */</span>)</span> {</span>
+  <span class="keyword">var</span> nodes = slice(arguments, <span class="number">0</span>);
+
+  <span class="keyword">var</span> acc = (nodes.length &gt; <span class="number">0</span>)?
+  nodes[nodes.length - <span class="number">1</span>] : oneE(<span class="literal">true</span>);
+
+  <span class="keyword">var</span> i = nodes.length - <span class="number">2</span>;
+  <span class="keyword">while</span> (i &gt;= <span class="number">0</span>) {
+    acc = ifE(
+      nodes[i],
+      acc,
+      nodes[i].constantE(<span class="literal">false</span>));
+    i -= <span class="number">1</span>;
+  }
+  <span class="keyword">return</span> acc;
+};
+
+
+EventStream.prototype.andE = <span class="keyword">function</span>( <span class="comment">/* others */</span> ) {
+  <span class="keyword">var</span> deps = [<span class="keyword">this</span>].concat(slice(arguments,<span class="number">0</span>));
+  <span class="keyword">return</span> andE.apply(<span class="keyword">this</span>,deps);
+};
+
+
+<span class="keyword">var</span> orE = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+  <span class="keyword">var</span> nodes = slice(arguments, <span class="number">0</span>);
+  <span class="keyword">var</span> acc = (nodes.length &gt; <span class="number">2</span>)?
+  nodes[nodes.length - <span class="number">1</span>] : oneE(<span class="literal">false</span>);
+  <span class="keyword">var</span> i = nodes.length - <span class="number">2</span>;
+  <span class="keyword">while</span> (i &gt;= <span class="number">0</span>) {
+    acc = ifE(
+      nodes[i],
+      nodes[i],
+      acc);
+    i -= <span class="number">1</span>;
+  }
+  <span class="keyword">return</span> acc;
+};
+
+
+EventStream.prototype.orE = <span class="keyword">function</span>(<span class="comment">/*others*/</span>) {
+  <span class="keyword">var</span> deps = [<span class="keyword">this</span>].concat(slice(arguments,<span class="number">0</span>));
+  <span class="keyword">return</span> orE.apply(<span class="keyword">this</span>,deps);
+};
+
+
+<span class="keyword">var</span> delayStaticE = <span class="function"><span class="keyword">function</span> <span class="params">(event, time)</span> {</span>
+
+  <span class="keyword">var</span> resE = internalE();
+
+  createNode([event], <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>
+    setTimeout(<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> sendEvent(resE, p.value);},  time );
+    <span class="keyword">return</span> doNotPropagate;
+  });
+
+  <span class="keyword">return</span> resE;
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>delayE: Event a * [Behavior] Number -&gt;  Event a</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>EventStream.prototype.delayE = <span class="function"><span class="keyword">function</span> <span class="params">(time)</span> {</span>
+  <span class="keyword">var</span> event = <span class="keyword">this</span>;
+
+  <span class="keyword">if</span> (Behavior.hasInstance(time)) {
+
+    <span class="keyword">var</span> receiverEE = internalE();
+    <span class="keyword">var</span> link =
+    {
+      from: event,
+      towards: delayStaticE(event, valueNow(time))
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <p>TODO: Change semantics such that we are always guaranteed to get an event going out?</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> switcherE =
+    createNode(
+      [changes(time)],
+      <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>
+        link.from.removeListener(link.towards);
+        link =
+        {
+          from: event,
+          towards: delayStaticE(event, p.value)
+        };
+        sendEvent(receiverEE, link.towards);
+        <span class="keyword">return</span> doNotPropagate;
+      });
+
+    <span class="keyword">var</span> resE = receiverEE.switchE();
+
+    sendEvent(switcherE, valueNow(time));
+    <span class="keyword">return</span> resE;
+
+      } <span class="keyword">else</span> { <span class="keyword">return</span> delayStaticE(event, time); }
+};
+
+
+<span class="keyword">var</span> delayE = <span class="keyword">function</span>(sourceE,interval) {
+  <span class="keyword">return</span> sourceE.delayE(interval);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <p>mapE: ([Event] (. Array a -&gt; b)) . Array [Event] a -&gt; [Event] b</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> mapE = <span class="function"><span class="keyword">function</span> <span class="params">(fn <span class="comment">/*, [node0 | val0], ...*/</span>)</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <pre><code> if (!Function.hasInstance(fn)) { Object.Throw (&#39;mapE: expected fn as second arg&#39;); } //SAFETY</code></pre>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> valsOrNodes = slice(arguments, <span class="number">0</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              <p>selectors<a href="">i</a> returns either the node or real val, optimize real vals</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> selectors = [];
+  <span class="keyword">var</span> selectI = <span class="number">0</span>;
+  <span class="keyword">var</span> nodes = [];
+  valsOrNodes.forEach(<span class="keyword">function</span>(vn) {
+    <span class="keyword">if</span> (EventStream.hasInstance(vn)) {
+      nodes.push(vn);
+      selectors.push(
+        (<span class="keyword">function</span>(ii) {
+            <span class="keyword">return</span> <span class="keyword">function</span>(realArgs) {
+              <span class="keyword">return</span> realArgs[ii];
+            };
+        })(selectI));
+      selectI+=<span class="number">1</span>;
+    } <span class="keyword">else</span> {
+      selectors.push(
+        (<span class="keyword">function</span>(aa) {
+            <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+              <span class="keyword">return</span> aa;
+            };
+        })(vn));
+    }
+  });
+
+  <span class="keyword">var</span> context = <span class="keyword">this</span>;
+  <span class="keyword">var</span> nofnodes = slice(selectors,<span class="number">1</span>);
+
+  <span class="keyword">if</span> (nodes.length === <span class="number">0</span>) {
+    <span class="keyword">return</span> oneE(fn.apply(context, valsOrNodes));
+  } <span class="keyword">else</span> <span class="keyword">if</span> ((nodes.length === <span class="number">1</span>) &amp;&amp; Function.hasInstance(fn)) {
+    <span class="keyword">return</span> nodes[<span class="number">0</span>].mapE(
+      <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        <span class="keyword">var</span> args = arguments;
+        <span class="keyword">return</span> fn.apply(
+          context,
+          map(<span class="function"><span class="keyword">function</span> <span class="params">(s)</span> {</span><span class="keyword">return</span> s(args);}, nofnodes));
+      });
+  } <span class="keyword">else</span> <span class="keyword">if</span> (nodes.length === <span class="number">1</span>) {
+    <span class="keyword">return</span> fn.mapE(
+      <span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span>
+        <span class="keyword">var</span> args = arguments;
+        <span class="keyword">return</span> v.apply(
+          context,
+          map(<span class="function"><span class="keyword">function</span> <span class="params">(s)</span> {</span><span class="keyword">return</span> s(args);}, nofnodes));
+      });
+  <span class="comment">/* XXX CSA BROKEN: createTimeSyncNode no longer defined...
+  } else if (Function.hasInstance(fn)) {
+    return createTimeSyncNode(nodes).mapE(
+      function (arr) {
+        return fn.apply(
+          this,
+          map(function (s) { return s(arr); }, nofnodes));
+      });
+  } else if (EventStream.hasInstance(fn)) {
+    return createTimeSyncNode(nodes).mapE(
+      function (arr) {
+        return arr[0].apply(
+          this,
+          map(function (s) {return s(arr); }, nofnodes));
+      });
+  XXX end broken bit */</span>
+  } <span class="keyword">else</span> { Object.Throw(<span class="string">'unknown mapE case'</span>); }
+};
+
+
+EventStream.prototype.snapshotE = <span class="function"><span class="keyword">function</span> <span class="params">(valueB)</span> {</span>
+  <span class="keyword">return</span> createNode([<span class="keyword">this</span>], <span class="function"><span class="keyword">function</span> <span class="params">(pulse)</span> {</span>
+    pulse.value = valueNow(valueB);
+    <span class="keyword">return</span> pulse;
+  });
+};
+
+
+<span class="keyword">var</span> snapshotE = <span class="keyword">function</span>(triggerE,valueB) {
+  <span class="keyword">return</span> triggerE.snapshotE(valueB);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-30">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-30">&#182;</a>
+              </div>
+              <p>XXX CSA this is more specific notion of equality than original</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> _default_eq_ = <span class="keyword">function</span>(x,y) { <span class="keyword">return</span> x===y; };
+<span class="keyword">var</span> _default_cp_ = <span class="keyword">function</span>(x) { <span class="keyword">return</span> x; };
+EventStream.prototype.filterRepeatsE = <span class="keyword">function</span>(optStart, optEq, optClone) {
+  <span class="keyword">var</span> hadFirst = (optStart === <span class="literal">undefined</span>) ? <span class="literal">false</span> : <span class="literal">true</span>;
+  <span class="keyword">var</span> prev = optStart;
+  <span class="keyword">var</span> eq = optEq ? optEq : _default_eq_;
+  <span class="keyword">var</span> cp = optClone ? optClone : _default_cp_;
+
+  <span class="keyword">return</span> <span class="keyword">this</span>.filterE(<span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span>
+    <span class="keyword">if</span> (!hadFirst || !eq(prev, v)) {
+      hadFirst = <span class="literal">true</span>;
+      prev = cp(v);
+      <span class="keyword">return</span> <span class="literal">true</span>;
+    }
+    <span class="keyword">else</span> {
+      <span class="keyword">return</span> <span class="literal">false</span>;
+    }
+  });
+};
+
+
+<span class="keyword">var</span> filterRepeatsE = <span class="keyword">function</span>(sourceE,optStart) {
+  <span class="keyword">return</span> sourceE.filterRepeatsE(optStart);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-31">&#182;</a>
+              </div>
+              <p>credit Pete Hopkins
+extensively hacked by CSA</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> calmE = <span class="function"><span class="keyword">function</span> <span class="params">(triggerE, timeB)</span> {</span>
+  <span class="keyword">if</span> (!Behavior.hasInstance(timeB)) {
+      timeB = constantB(timeB);
+  }
+  <span class="keyword">var</span> out = internalE();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-32">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-32">&#182;</a>
+              </div>
+              <p>state</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> lastTime = <span class="number">0</span>;
+  <span class="keyword">var</span> towards = <span class="literal">null</span>;
+  <span class="keyword">var</span> lastVal, sawMoreRecent;
+  <span class="keyword">var</span> towardsFunc = <span class="keyword">function</span>() {
+    towards = <span class="literal">null</span>;
+    <span class="keyword">if</span> (sawMoreRecent) {
+      sendEvent(out, lastVal);
+    }
+  };
+  <span class="keyword">var</span> timeChangedE = timeB.changes().mapE(<span class="keyword">function</span>() {
+      <span class="keyword">return</span> sawMoreRecent ? lastVal : doNotPropagate;
+  });
+
+  <span class="keyword">return</span> createNode(
+    [triggerE, out, timeChangedE],
+    <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>
+        <span class="keyword">var</span> curTime = now();
+        <span class="keyword">var</span> left = (curTime - lastTime) - timeB.valueNow();
+        <span class="keyword">if</span> (towards) { clearTimeout(towards); }
+        <span class="keyword">if</span> (left &gt;= <span class="number">0</span>) {
+          lastTime = curTime;
+          sawMoreRecent = <span class="literal">false</span>;
+          lastVal = <span class="literal">null</span>; <span class="comment">// free memory</span>
+          towards = setTimeout( towardsFunc, timeB.valueNow() );</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-33">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-33">&#182;</a>
+              </div>
+              <p>propagate directly.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>          <span class="keyword">return</span> p;
+        } <span class="keyword">else</span> {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-34">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-34">&#182;</a>
+              </div>
+              <p>hmm, don&#39;t propagate this yet, but maybe do it later.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>          sawMoreRecent = <span class="literal">true</span>;
+          lastVal = p;
+          towards = setTimeout( towardsFunc, left );
+          <span class="keyword">return</span> doNotPropagate;
+        }
+    });
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-35">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-35">&#182;</a>
+              </div>
+              <p>calmE: Event a * [Behavior] Number -&gt; Event a</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>EventStream.prototype.calmE = <span class="keyword">function</span>(timeB) {
+    <span class="keyword">return</span> calmE(<span class="keyword">this</span>, timeB);
+};
+
+
+EventStream.prototype.blindE = <span class="function"><span class="keyword">function</span> <span class="params">(time)</span> {</span>
+  <span class="keyword">return</span> createNode(
+    [<span class="keyword">this</span>],
+    <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+      <span class="keyword">var</span> intervalFn =
+      Behavior.hasInstance(time)?
+      <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">return</span> valueNow(time); }
+      : <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">return</span> time; };
+      <span class="keyword">var</span> lastSent = now() - intervalFn() - <span class="number">1</span>;
+      <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>
+        <span class="keyword">var</span> curTime = now();
+        <span class="keyword">if</span> (curTime - lastSent &gt; intervalFn()) {
+          lastSent = curTime;
+          <span class="keyword">return</span> p;
+        }
+        <span class="keyword">else</span> { <span class="keyword">return</span> doNotPropagate; }
+      };
+    }());
+};
+
+
+<span class="keyword">var</span> blindE = <span class="keyword">function</span>(sourceE,interval) {
+  <span class="keyword">return</span> sourceE.blindE(interval);
+};
+
+
+EventStream.prototype.startsWith = <span class="keyword">function</span>(init) {
+  <span class="keyword">return</span> Behavior.New(<span class="keyword">this</span>,init);
+};
+
+
+<span class="keyword">var</span> startsWith = <span class="keyword">function</span>(e,init) {
+  <span class="keyword">if</span> (!EventStream.hasInstance(e)) {
+    Object.Throw(<span class="string">'startsWith: expected EventStream; received '</span> + e);
+  }
+  <span class="keyword">return</span> e.startsWith(init);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-36">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-36">&#182;</a>
+              </div>
+              <p>TODO optionally append to objects
+createConstantB: a -&gt; Behavior a</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>constantB = <span class="function"><span class="keyword">function</span> <span class="params">(val)</span> {</span>
+  <span class="keyword">return</span> Behavior.New(internalE(), val);
+};
+
+
+<span class="keyword">var</span> liftB = <span class="function"><span class="keyword">function</span> <span class="params">(fn <span class="comment">/* . behaves */</span>)</span> {</span>
+
+  <span class="keyword">var</span> args = slice(arguments, <span class="number">1</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-37">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-37">&#182;</a>
+              </div>
+              <p>dependencies</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> constituentsE =
+    map(changes,
+    filter(<span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span> <span class="keyword">return</span> Behavior.hasInstance(v); },
+           slice(arguments, <span class="number">0</span>)));</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-38">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-38">&#182;</a>
+              </div>
+              <p>calculate new vals</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> getCur = <span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span>
+    <span class="keyword">return</span> Behavior.hasInstance(v) ? v.last : v;
+  };
+
+  <span class="keyword">var</span> ctx = <span class="keyword">this</span>;
+  <span class="keyword">var</span> getRes = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+    <span class="keyword">return</span> getCur(fn).apply(ctx, map(getCur, args));
+  };
+
+  <span class="keyword">if</span>(constituentsE.length === <span class="number">1</span>) {
+    <span class="keyword">return</span> Behavior.New(constituentsE[<span class="number">0</span>],getRes(),getRes);
+  }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-39">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-39">&#182;</a>
+              </div>
+              <p>gen/send vals @ appropriate time</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> prevStamp = -<span class="number">1</span>;
+  <span class="keyword">var</span> mid = createNode(constituentsE, <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>
+    <span class="keyword">if</span> (p.stamp !== prevStamp) {
+      prevStamp = p.stamp;
+      <span class="keyword">return</span> p;
+    }
+    <span class="keyword">else</span> {
+      <span class="keyword">return</span> doNotPropagate;
+    }
+  });
+
+  <span class="keyword">return</span> Behavior.New(mid,getRes(),getRes);
+};
+
+
+Behavior.prototype.liftB = <span class="keyword">function</span>(<span class="comment">/* args */</span>) {
+  <span class="keyword">var</span> args= slice(arguments,<span class="number">0</span>).concat([<span class="keyword">this</span>]);
+  <span class="keyword">return</span> liftB.apply(<span class="keyword">this</span>,args);
+};
+
+
+Behavior.prototype.switchB = <span class="keyword">function</span>() {
+  <span class="keyword">var</span> behaviourCreatorsB = <span class="keyword">this</span>;
+  <span class="keyword">var</span> init = valueNow(behaviourCreatorsB);
+
+  <span class="keyword">var</span> prevSourceE = <span class="literal">null</span>;
+
+  <span class="keyword">var</span> receiverE = internalE.New();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-40">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-40">&#182;</a>
+              </div>
+              <p>XXX could result in out-of-order propagation! Fix!</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> makerE =
+  createNode(
+    [changes(behaviourCreatorsB)],
+    <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>
+        <span class="keyword">if</span> (!Behavior.hasInstance(p.value)) { Object.Throw (<span class="string">'switchB: expected Behavior as value of Behavior of first argument'</span>); } <span class="comment">//SAFETY</span>
+      <span class="keyword">if</span> (prevSourceE !== <span class="literal">null</span>) {
+        prevSourceE.removeListener(receiverE);
+      }
+
+      prevSourceE = changes(p.value);
+      prevSourceE.attachListener(receiverE);
+
+      sendEvent(receiverE, valueNow(p.value));
+      <span class="keyword">return</span> doNotPropagate;
+    });
+
+  <span class="keyword">if</span> (Behavior.hasInstance(init)) {
+    sendEvent(makerE, init);
+  }
+
+  <span class="keyword">return</span> startsWith(
+    receiverE,
+    Behavior.hasInstance(init)? valueNow(init) : init);
+};
+
+
+<span class="keyword">var</span> switchB = <span class="function"><span class="keyword">function</span> <span class="params">(b)</span> {</span> <span class="keyword">return</span> b.switchB(); };
+
+
+<span class="comment">/* XXX CSA omitted</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-41">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-41">&#182;</a>
+              </div>
+              <p>TODO test, signature</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>var timerB = function(interval) {
+  return startsWith(timerE(interval), now());
+};
+*/</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-42">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-42">&#182;</a>
+              </div>
+              <p>TODO test, signature</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> delayStaticB = <span class="function"><span class="keyword">function</span> <span class="params">(triggerB, time, init)</span> {</span>
+  <span class="keyword">return</span> startsWith(delayStaticE(changes(triggerB), time), init);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-43">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-43">&#182;</a>
+              </div>
+              <p>TODO test, signature</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Behavior.prototype.delayB = <span class="function"><span class="keyword">function</span> <span class="params">(time, init)</span> {</span>
+  <span class="keyword">var</span> triggerB = <span class="keyword">this</span>;
+  <span class="keyword">if</span> (Behavior.hasInstance(time)) {
+    <span class="keyword">return</span> startsWith(
+      delayE(
+        changes(triggerB),
+        time),
+      arguments.length &gt; <span class="number">3</span> ? init : valueNow(triggerB));
+  } <span class="keyword">else</span> {
+    <span class="keyword">return</span> delayStaticB(
+      triggerB,
+      time,
+      arguments.length &gt; <span class="number">3</span> ? init : valueNow(triggerB));
+  }
+};
+
+
+<span class="keyword">var</span> delayB = <span class="keyword">function</span>(srcB, timeB, init) {
+  <span class="keyword">return</span> srcB.delayB(timeB,init);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-44">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-44">&#182;</a>
+              </div>
+              <p>artificially send a pulse to underlying event node of a behaviour
+note: in use, might want to use a receiver node as a proxy or an identity map</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Behavior.prototype.sendBehavior = <span class="keyword">function</span>(val) {
+  sendEvent(<span class="keyword">this</span>.underlyingRaw,val);
+};
+
+<span class="keyword">var</span> sendBehavior = <span class="function"><span class="keyword">function</span> <span class="params">(b,v)</span> {</span> b.sendBehavior(v); };
+
+
+
+Behavior.prototype.ifB = <span class="keyword">function</span>(trueB,falseB) {
+  <span class="keyword">var</span> testB = <span class="keyword">this</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-45">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-45">&#182;</a>
+              </div>
+              <p>TODO auto conversion for behaviour funcs</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="keyword">if</span> (!Behavior.hasInstance(trueB)) { trueB = constantB(trueB); }
+  <span class="keyword">if</span> (!Behavior.hasInstance(falseB)) { falseB = constantB(falseB); }
+  <span class="keyword">return</span> liftB(<span class="keyword">function</span>(te,t,f) { <span class="keyword">return</span> te ? t : f; },testB,trueB,falseB);
+};
+
+
+<span class="keyword">var</span> ifB = <span class="keyword">function</span>(test,cons,altr) {
+  <span class="keyword">if</span> (!Behavior.hasInstance(test)) { test = constantB(test); }
+
+  <span class="keyword">return</span> test.ifB(cons,altr);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-46">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-46">&#182;</a>
+              </div>
+              <p>condB: . [Behavior boolean, Behavior a] -&gt; Behavior a</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> condB = <span class="function"><span class="keyword">function</span> <span class="params">(<span class="comment">/* . pairs */</span> )</span> {</span>
+  <span class="keyword">var</span> pairs = slice(arguments, <span class="number">0</span>);
+<span class="keyword">return</span> liftB.apply({},[<span class="keyword">function</span>() {
+    <span class="keyword">var</span> i=<span class="number">0</span>;
+    <span class="keyword">while</span> (i&lt;pairs.length) {
+      <span class="keyword">if</span>(arguments[i]) {
+        <span class="keyword">return</span> arguments[pairs.length+i];
+      }
+      i+=<span class="number">1</span>;
+    }
+    <span class="keyword">return</span> <span class="literal">undefined</span>;
+  }].concat(map(<span class="keyword">function</span>(pair) {<span class="keyword">return</span> pair[<span class="number">0</span>];},pairs).concat(map(<span class="keyword">function</span>(pair) {<span class="keyword">return</span> pair[<span class="number">1</span>];},pairs))));
+};
+
+
+<span class="keyword">var</span> andB = <span class="function"><span class="keyword">function</span> <span class="params">(<span class="comment">/* . behaves */</span>)</span> {</span>
+<span class="keyword">return</span> liftB.apply({},[<span class="keyword">function</span>() {
+    <span class="keyword">var</span> i=<span class="number">0</span>;
+    <span class="keyword">while</span> (i&lt;arguments.length) {
+        <span class="keyword">if</span>(!arguments[i]) { <span class="keyword">return</span> <span class="literal">false</span>; }
+        i+=<span class="number">1</span>;
+    }
+    <span class="keyword">return</span> <span class="literal">true</span>;
+}].concat(slice(arguments,<span class="number">0</span>)));
+};
+
+
+Behavior.prototype.andB = <span class="keyword">function</span>() {
+  <span class="keyword">return</span> andB([<span class="keyword">this</span>].concat(arguments));
+};
+
+
+<span class="keyword">var</span> orB = <span class="function"><span class="keyword">function</span> <span class="params">(<span class="comment">/* . behaves */</span> )</span> {</span>
+<span class="keyword">return</span> liftB.apply({},[<span class="keyword">function</span>() {
+    <span class="keyword">var</span> i=<span class="number">0</span>;
+    <span class="keyword">while</span> (i&lt;arguments.length) {
+        <span class="keyword">if</span>(arguments[i]) { <span class="keyword">return</span> <span class="literal">true</span>; }
+        i+=<span class="number">1</span>;
+    }
+    <span class="keyword">return</span> <span class="literal">false</span>;
+}].concat(slice(arguments,<span class="number">0</span>)));
+};
+
+
+Behavior.prototype.orB = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+  <span class="keyword">return</span> orB([<span class="keyword">this</span>].concat(arguments));
+};
+
+
+Behavior.prototype.notB = <span class="keyword">function</span>() {
+  <span class="keyword">return</span> <span class="keyword">this</span>.liftB(<span class="keyword">function</span>(v) { <span class="keyword">return</span> !v; });
+};
+
+
+<span class="keyword">var</span> notB = <span class="keyword">function</span>(b) { <span class="keyword">return</span> b.notB(); };
+
+
+Behavior.prototype.blindB = <span class="function"><span class="keyword">function</span> <span class="params">(intervalB)</span> {</span>
+  <span class="keyword">return</span> changes(<span class="keyword">this</span>).blindE(intervalB).startsWith(<span class="keyword">this</span>.valueNow());
+};
+
+
+<span class="keyword">var</span> blindB = <span class="keyword">function</span>(srcB,intervalB) {
+  <span class="keyword">return</span> srcB.blindB(intervalB);
+};
+
+
+Behavior.prototype.calmB = <span class="function"><span class="keyword">function</span> <span class="params">(intervalB)</span> {</span>
+  <span class="keyword">return</span> <span class="keyword">this</span>.changes().calmE(intervalB).startsWith(<span class="keyword">this</span>.valueNow());
+};
+
+
+<span class="keyword">var</span> calmB = <span class="function"><span class="keyword">function</span> <span class="params">(srcB,intervalB)</span> {</span>
+  <span class="keyword">return</span> srcB.calmB(intervalB);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-47">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-47">&#182;</a>
+              </div>
+              <p>/// Module export stuff.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">return</span> {
+        __module_name__: <span class="string">"events"</span>,
+        __module_init__: make_flapjax,
+        __module_deps__: [<span class="string">"timeouts"</span>],
+
+        constantB: constantB,
+        delayB: delayB,
+        calmB: calmB,
+        blindB: blindB,
+        valueNow: valueNow,
+        switchB: switchB,
+        andB: andB,
+        orB: orB,
+        notB: notB,
+        liftB: liftB,
+        condB: condB,
+        ifB: ifB,
+        <span class="comment">/*
+        timerB: timerB,
+        disableTimer: disableTimer,
+        insertDomB: insertDomB,
+        insertDom: insertDom,
+        mouseTopB: mouseTopB,
+        mouseLeftB: mouseLeftB,
+        mouseB: mouseB,
+        extractValueB: extractValueB,
+        this.$B = impl.$B;
+        extractValueE: extractValueE,
+        extractEventE: extractEventE,
+        this.$E = impl.$E;
+        clicksE: clicksE,
+        timerE: timerE,
+        extractValueOnEventE: extractValueOnEventE,
+        extractIdB: extractIdB,
+        insertDomE: insertDomE,
+        insertValueE: insertValueE,
+        insertValueB: insertValueB,
+        tagRec: tagRec,
+        getWebServiceObjectE: getWebServiceObjectE,
+        getForeignWebServiceObjectE: getForeignWebServiceObjectE,
+        evalForeignScriptValE: evalForeignScriptValE,
+        */</span>
+        oneE: oneE,
+        zeroE: zeroE,
+        mapE: mapE,
+        mergeE: mergeE,
+        switchE: switchE,
+        filterE: filterE,
+        ifE: ifE,
+        recE: recE,
+        constantE: constantE,
+        collectE: collectE,
+        andE: andE,
+        orE: orE,
+        notE: notE,
+        filterRepeatsE: filterRepeatsE,
+        receiverE: receiverE,
+        sendEvent: sendEvent,
+        snapshotE: snapshotE,
+        onceE: onceE,
+        skipFirstE: skipFirstE,
+        delayE: delayE,
+        blindE: blindE,
+        calmE: calmE,
+        startsWith: startsWith,
+        <span class="comment">/*
+        changes: changes,
+        getElementsByClass: getElementsByClass,
+        getObj: getObj,
+        this.$ = impl.$;
+        readCookie: readCookie,
+        swapDom: swapDom,
+        getURLParam: getURLParam,
+        cumulativeOffset: cumulativeOffset,
+        fold: fold,
+        foldR: foldR,
+        */</span>
+        map: map,
+        <span class="comment">/*
+        filter: filter,
+        member: member,
+        slice: slice,
+        forEach: forEach,
+        toJSONString: toJSONString,
+        compilerInsertDomB: compilerInsertDomB,
+        compilerInsertValueB: compilerInsertValueB,
+        compilerLift: compilerLift,
+        compilerCall: compilerCall,
+        compilerIf: compilerIf,
+        compilerUnbehavior: compilerUnbehavior,
+        compilerEventStreamArg: compilerEventStreamArg,
+        */</span>
+        Behavior: Behavior,
+        EventStream: EventStream,
+        <span class="comment">/* For use by test suite only... */</span>
+        base: {
+            Pulse: Pulse,
+            propagatePulse: propagatePulse
+        },
+        engine: {
+            createNode: createNode,
+            doNotPropagate: doNotPropagate
+        }
+    };
+});</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

@@ -1,0 +1,1082 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.10: http://docutils.sourceforge.net/" />
+<title></title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 7514 2012-09-14 14:27:12Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title, .code .error {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block, pre.math, pre.code {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+pre.code .ln { color: grey; } /* line numbers */
+pre.code, code { background-color: #eeeeee }
+pre.code .comment, code .comment { color: #5C6576 }
+pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
+pre.code .literal.string, code .literal.string { color: #0C5404 }
+pre.code .name.builtin, code .name.builtin { color: #352B84 }
+pre.code .deleted, code .deleted { background-color: #DEB0A1}
+pre.code .inserted, code .inserted { background-color: #A3D289}
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document">
+
+
+<img alt="https://raw.github.com/cscott/TurtleScript/master/images/hello-world.png" class="align-right" src="https://raw.github.com/cscott/TurtleScript/master/images/hello-world.png" />
+<div class="section" id="project-goals">
+<h1>Project Goals</h1>
+<p>The TurtleScript experiment attempts to provide a simple logo-like
+programming environment which is based on a &quot;real&quot; programming
+language.  It draws heavy inspiration from <a class="reference external" href="http://wiki.laptop.org/go/Etoys">Etoys</a>, <a class="reference external" href="http://scratch.mit.edu/">Scratch</a>, <a class="reference external" href="http://byob.berkeley.edu/">BYOB</a>,
+<a class="reference external" href="http://www.chirp.scratchr.org/blog/?p=24">Elements</a>, <a class="reference external" href="http://tinlizzie.org/jstile/">TileScript</a>, <a class="reference external" href="http://wiki.laptop.org/go/Turtle_Art">Turtle Art</a>, and <a class="reference external" href="http://education.mit.edu/drupal/openblocks">Open Blocks</a>.  As a
+browser-based programming environment, it builds on ideas from the
+<a class="reference external" href="http://www.lively-kernel.org/index.html">Lively Kernel</a> and <a class="reference external" href="http://lively.cs.tut.fi/qt/">Lively Qt</a>.  The <a class="reference external" href="http://tinlizzie.org/jstile/#TileScript">TileScript paper</a> describes
+our own motivations well, although we've chosen a slightly different
+path.</p>
+<p>The ultimate goal is to construct a <a class="reference external" href="http://wiki.laptop.org/go/Sugar">Sugar</a>-like activity environment with
+a pervasive and scalable <a class="reference external" href="http://wiki.laptop.org/go/View_Source">View Source</a> capability.  Any visible item
+can be interrogated and almost all source code viewed, modified,
+and saved for later use in an interactive fashion.  The choice of
+JavaScript is intended to leverage modern browser technology, which
+already provides an advanced runtime environment and sandbox.  It is
+also a commercially-important programming language, which is (sadly)
+important to many vocationally-minded educators.</p>
+<p>I've also been recently (re)inspired by the Smalltalk community, and
+in particular by Ian Piumarta's work on the small self-describing
+systems <a class="reference external" href="http://piumarta.com/software/cola/">cola</a> and <a class="reference external" href="http://piumarta.com/software/maru/">maru</a>.  The SELF bytecode format described in
+Chambers et al's <a class="reference external" href="http://selflanguage.org/documentation/published/implementation.html">OOPSLA 89</a> paper was a further incentive to
+investigate minimal executable representations.  The hope is that
+a few powerful optimizations can be employed against a tiny set of
+fundamental operations to create a compact and high-performance
+environment which is truly &quot;<a class="reference external" href="http://en.wikipedia.org/wiki/Turtles_all_the_way_down">turtles all the way down</a>&quot;.</p>
+</div>
+<div class="section" id="warnings-and-caveats">
+<h1>Warnings and Caveats</h1>
+<p>This README is a description of a work-in-progress.
+It is likely to get increasingly outdated over time.  I'll attempt to
+periodically overhaul it to match reality, but it may always contain
+historical fragments, false starts, and loose ends.</p>
+</div>
+<div class="section" id="state-of-the-world-2013-06-03">
+<h1>State of the world: 2013-06-03</h1>
+<p>I recently wrote a &quot;native&quot; interpreter for TurtleScript in Mozilla's
+<a class="reference external" href="http://www.rust-lang.org">Rust</a> programming language.  The source code
+for that project can be found at
+<a class="reference external" href="http://github.com/cscott/rusty-turtle">http://github.com/cscott/rusty-turtle</a>.</p>
+<p>In the process I improved the <a class="reference external" href="http://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop">REPL</a> for TurtleScript, built out the
+standard library a bit, fixed bugs, and added <a class="reference external" href="http://nodejs.org">node</a> compatibility
+and a test suite.</p>
+<p>More recently I've begun to think about a
+TurtleScript-to-<a class="reference external" href="http://asmjs.org">asm.js</a>-to-<a class="reference external" href="http://llvm.org/">LLVM</a>
+compiler, which would let me investigate object layout and performance
+optimizations without resorting to Rust, C, or another low-level
+language.  (Unfortunately <tt class="docutils literal">asm.js</tt> is not a proper subset of
+TurtleScript at present, since TurtleScript doesn't have the <tt class="docutils literal">switch</tt>
+statements or bitwise operators.  This gap can be mended.)
+Accordingly, <a class="reference external" href="https://github.com/cscott/TurtleScript/blob/master/asm-llvm.js">asm-llvm.js</a> is the beginnings of an <tt class="docutils literal">asm.js</tt>-to-LLVM
+compiler, written in TurtleScript.</p>
+</div>
+<div class="section" id="state-of-the-world-2011-05-19">
+<h1>State of the world: 2011-05-19</h1>
+<p>The source code for the project is hosted at
+<a class="reference external" href="http://github.com/cscott/TurtleScript">http://github.com/cscott/TurtleScript</a>.</p>
+<p>It begins with a parser for the &quot;Simplified JavaScript&quot; of
+<a class="reference external" href="http://www.crockford.com/javascript/">Douglas Crockford</a> in <a class="reference external" href="https://github.com/cscott/TurtleScript/blob/master/parse.js">parse.js</a>.  I've extended the language very
+slightly: it now supports block comments and '$' in identifiers, and
+represents blocks in the parse tree in a more uniform fashion.  I've
+also hoisted all variable declarations to the top of a block, to more
+accurately reflect their scope.  Some further improvements are
+discussed in <a class="reference internal" href="#interesting-parser-tasks">Interesting Parser Tasks</a>, but the base language is not
+expected to change much more.</p>
+<div class="figure align-right">
+<a class="reference external image-reference" href="https://raw.github.com/cscott/TurtleScript/master/tdop.html"><img alt="Bytecode output" src="https://raw.github.com/cscott/TurtleScript/master/images/compile.png" /></a>
+<p class="caption">Simple bytecode compiler/interpreter, 2011</p>
+</div>
+<p>There are a few backends which process the parsed text.  The first to
+be implemented (<a class="reference external" href="https://github.com/cscott/TurtleScript/blob/master/jcompile.js">jcompile.js</a>, July 2010) simply emitted JavaScript
+from the parse tree which can be <tt class="docutils literal">eval</tt>'ed by the browser's standard
+JavaScript environment.  At the moment, this isn't very interesting—but it allows us to modify the parsed language in various ways
+and still emit ECMA-standard JavaScript which can take advantage of
+browsers' highly-tuned JavaScript implementations.  Some possible
+extensions are described in the <a class="reference internal" href="#interesting-compiler-tasks">Interesting Compiler Tasks</a> section.</p>
+<p>In May 2011 I wrote a simple bytecode compiler/interpreter for the
+language, inspired by Piumarta's <a class="reference external" href="http://piumarta.com/software/maru/">maru</a> system.  You can test the
+parser and the bytecode compiler and interpreter using <a class="reference external" href="https://raw.github.com/cscott/TurtleScript/master/tdop.html">tdop.html</a>,
+which is a highly modified version of Douglas Crockford's original <a class="reference external" href="http://javascript.crockford.com/tdop/index.html">parser
+demonstration</a>.  The bytecode instruction set is simple, but not
+simple enough; <a class="reference internal" href="#simplifying-the-environment">Simplifying the Environment</a> discusses improvements.</p>
+<div class="figure align-right">
+<a class="reference external image-reference" href="https://raw.github.com/cscott/TurtleScript/master/tile2.html"><img alt="2010 graphical tiles" src="https://raw.github.com/cscott/TurtleScript/master/images/tiles1.png" /></a>
+<p class="caption">Original CSS experiments, 2010</p>
+</div>
+<p>Back in 2010 I implemented some simple tile-based renderers for the parse
+tree.  These used <a class="reference external" href="http://jquery.com/">jQuery</a> to render the tree as CSS-styled HTML.
+A CSS-styling demo is at <a class="reference external" href="https://raw.github.com/cscott/TurtleScript/master/tile2.html">tile2.html</a> and <a class="reference external" href="https://raw.github.com/cscott/TurtleScript/master/tiles.html">tiles.html</a> displays
+&quot;editable&quot; interactive source using <a class="reference external" href="http://jqueryui.com/">jQuery UI</a>.  I was dissatisfied
+with these results.  The markup process was very slow, and rendering
+into HTML/CSS added a lot of additional difficulty and complexity.
+The promise of clean semantic HTML for the program source was not
+fulfilled: the actual generated HTML needed to be exceedingly crufty
+in order to get the rendering close to what I wanted.  The interaction
+model also failed to satisfy: jQuery UI had a lot of problems with
+horizontal layouts, and the real time re-layout during drag operations
+made the display stutter unacceptably.</p>
+<div class="figure align-right">
+<a class="reference external image-reference" href="https://raw.github.com/cscott/TurtleScript/master/ctiles.html"><img alt="2011 graphical tiles" src="https://raw.github.com/cscott/TurtleScript/master/images/tiles2.png" /></a>
+<p class="caption">Tile Rendering using &lt;canvas&gt;, 2011</p>
+</div>
+<p>I revisited the rendering code in 2011.  As discussed in the <a class="reference internal" href="#rendering-ideas">Rendering
+Ideas</a> section, I wanted to explore tile-based representations that
+were nonetheless faithful to the &quot;traditional&quot; text-based layout of
+source.  This time I decided to skip the complexity of the HTML/CSS
+layers and render directly to a canvas.  The result can be seen at
+<a class="reference external" href="https://raw.github.com/cscott/TurtleScript/master/ctiles.html">ctiles.html</a>.  This renderer is written in Simplified JavaScript
+with a very small <a class="reference external" href="https://github.com/cscott/TurtleScript/blob/master/ccanvas.js">canvas API</a>, and can display itself.
+Further discussion can be found in the <a class="reference internal" href="#interaction-ideas">Interaction Ideas</a> and
+<a class="reference internal" href="#renderer-tasks">Renderer Tasks</a> sections.</p>
+<p>It is my intention to drive towards an initial application similar to
+<a class="reference external" href="http://wiki.laptop.org/go/Turtle_Art">Turtle Art</a>, with an on-screen turtle controlled by the script tiles.
+This will be a public demonstration of the ideas behind the
+TurtleScript project.  The on-screen palette will include a tab for
+each imported namespace, which displays tiles for each name
+(method or variable) defined in that namespace.  So the activity would
+initially offer a <tt class="docutils literal">run()</tt> method to be defined, starting with
+<tt class="docutils literal">var turtle = imports.turtle</tt> (borrowing the <a class="reference external" href="http://cananian.livejournal.com/58744.html">gjs module system</a>,
+which is built on the single global <tt class="docutils literal">imports</tt> definition).  This is
+sufficient to put the standard <tt class="docutils literal"><span class="pre">forward(...)</span></tt>, <tt class="docutils literal"><span class="pre">turn(...)</span></tt>, <tt class="docutils literal">pen up()</tt>,
+<tt class="docutils literal">pen down()</tt>, and <tt class="docutils literal"><span class="pre">color(...)</span></tt> definitions on the first page of the
+palette.  By dragging these into the <tt class="docutils literal">run()</tt> function, we can create
+a simple turtle program.  There should be at least three other buttons
+visible, to run/stop the turtle or clear the screen.</p>
+<p>But you should also be able to open the <tt class="docutils literal">turtle</tt> namespace to look at
+how the commands are defined (in Simplified JavaScript), and thus to add your
+own turtle commands!  These will show up in the turtle palette like any
+other commands.</p>
+<p>Ideally you should also be able to drill down all the way to the parser,
+compiler, and renderer, to effect even more fundamental changes to the
+language driving the turtle.  In fact, you can keep digging all the
+way into the object system and runtime.  Turtles all the way down!</p>
+<p>See <a class="reference internal" href="#helping-out">Helping out</a> to contribute.</p>
+<div class="section" id="interesting-parser-tasks">
+<h2>Interesting Parser Tasks</h2>
+<p>There are a few different things one could do to extend the &quot;Simplified
+JavaScript&quot; language.  The four that I think are interesting are:</p>
+<ol class="arabic">
+<li><p class="first">Transform variable names.</p>
+<p>It would be better to present &quot;readable&quot; variable names, including
+embedded spaces to separate words.  Typical underscore or
+StudlyCaps conventions can be reversibly transformed to their
+corresponding readable names in the parse tree, and converted back
+in the compiler pass.  For example, &quot;make_parse&quot; in the source
+becomes &quot;make parse&quot; in the parse tree, and vice-versa.</p>
+<p>Further, we'd like to avoid the requirement to reserve keywords from
+use as variable names.  Since we'd like to localize the
+keyword names in the future, we especially don't want to have to reserve
+all possible keyword names in all possible languages.  Better would be
+to use a standard convention to transform the names when parsing/compiling,
+such that <tt class="docutils literal">$if</tt> in the source gets rendered as the plain name <tt class="docutils literal">if</tt> in
+the parse tree, and vice-versa.</p>
+<p>We will also want to reserve some names for use by the compiler.
+A reasonable solution is to transform names to protect (say) &quot;leading $&quot;
+for the exclusive use of the compiler.</p>
+<p>To protect ourselves from JavaScript implementations which don't support
+full Unicode in identifiers, we might also want to transform names to
+escape/unescape these characters.</p>
+<p>Once the variable names are independent of the keywords, both
+variable names and keywords ought to be fully translatable. A good
+demo would be to translate a good chunk of the system code (and
+comments!) and allow real-time switching between display languages.</p>
+</li>
+<li><p class="first">Introduce a <a class="reference external" href="http://search.cpan.org/~tmtm/Yada-Yada-Yada-1.00/Yada.pm">yada yada yada</a> operator.</p>
+<p>When programming interactively, we will often have some &quot;holes&quot; in the
+program which haven't yet been filled in.  For instance, we might have
+dragged a &quot;while&quot; tile in from a palette, but haven't yet filled in
+the test expression or the contents of the loop block.</p>
+<p>From Perl 6 we borrow the <tt class="docutils literal">...</tt> operator, pronounced &quot;yada yada yada&quot;.
+This is used to represent a &quot;hole&quot; in the program which hasn't yet been
+filled in.  By adding this to the formal syntax we simplify
+serializing/compiling/viewing programs with holes.</p>
+<p>The yada yada yada operator can be compiled to
+<tt class="docutils literal">Object.yada_yada_yada()</tt> or some other placeholder or global method.
+By default it will probably throw an exception or enter the debugger.</p>
+</li>
+<li><p class="first">Add an <tt class="docutils literal">imports</tt> global.</p>
+<p>This is a trivial change to the top-level scope of the parser, but it
+is the hook on which the module mechanism will hang.  The existing
+code should be rewritten to use the imports global, which we'll
+hand-populate with our modules until we've got a &quot;real&quot; loader
+running.</p>
+</li>
+<li><p class="first">Preserve comments and new lines.</p>
+<p>Comments are an important part of the documentation of a program,
+and shouldn't get discarded during the parse.  Similarly, newlines
+are an important part of the formatting of the program text, which
+is useful even when doing graphical rendering (see <a class="reference internal" href="#rendering-ideas">Rendering
+Ideas</a>, below).  Newlines can be attached to parser tokens.  In
+the simplest case, each token would have a boolean flag to indicate
+whether it was followed by a newline.  I haven't yet figured out
+whether a boolean is sufficient, or whether we actually need to
+count <em>how many</em> newlines occur.  I assume we should count them all
+initially, and chose the ignore the quantity at a later stage if
+that turns out to be best.</p>
+</li>
+</ol>
+<p>In contrast, I don't believe these are pressing (or even
+desirable):</p>
+<ol class="arabic">
+<li><p class="first">Add throw, try, catch, and finally keywords.  Add delete and in operators.</p>
+<p>Exceptions add a lot to the expressivity of the language.  I expect
+that their function can be implemented in the library, however,
+without requiring additional syntax in the base language.  The
+<a class="reference external" href="https://github.com/cscott/TurtleScript/blob/master/extensions.js">extensions.js</a> file demonstrates how these might be implemented
+as library methods.  The implementations of these methods will need
+to be primitive (and thus will not be introspectable), but we can
+retain our simplified syntactic vocabulary.</p>
+</li>
+<li><p class="first">Add more/better looping constructs.</p>
+<p>Simplified JavaScript only has a <tt class="docutils literal">while</tt> loop.  For beginning
+programmers, a <tt class="docutils literal">for i = 1 to 5 { ... }</tt> or <tt class="docutils literal">repeat(5) { ... }</tt>
+sort of loop might be easier to understand.  A standard library
+function (taking a function as a block) or a macro or &quot;build your
+own tile&quot; feature might be a better way to add this feature.  (In
+particular, I've found myself using the standard <a class="reference external" href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/forEach">Arrays.forEach</a>
+method extensively when writing Simplified JavaScript.)</p>
+</li>
+</ol>
+</div>
+<div class="section" id="interesting-compiler-tasks">
+<h2>Interesting Compiler Tasks</h2>
+<p>Extending the compiler in ways which change the semantics of the
+language must be done with care: we don't want to end up defining our
+own &quot;JavaScript-like&quot; language, or negatively impact portability (or
+editability) of existing JavaScript code.  Certain tweaks may be
+warranted, however, if they simplify the implementation of (and
+reflection into) the rest of the system.  Here are some interesting
+compiler extensions:</p>
+<ol class="arabic">
+<li><p class="first">Providing &quot;real&quot; block scope for variables in JavaScript, either by
+transforming <tt class="docutils literal">var</tt> to <tt class="docutils literal">let</tt> in Mozilla-based browsers, or by creating
+new anonymous functions at block level to implement the necessary scoping.</p>
+<p>This just simplifies the programming model to better match most
+users' expectations.  Very little existing code depends on the <em>lack</em>
+of block scope, although naive code written for our Simplified JavaScript
+environment might then fail to run in a native JavaScript environment.</p>
+</li>
+<li><p class="first">Support <tt class="docutils literal">yield</tt>.</p>
+<p><a class="reference external" href="https://developer.mozilla.org/en/JavaScript/Guide/Iterators_and_Generators">Generators/yield</a> are a powerful language extension, especially when
+implementing asynchronous computation.  They are implemented in the
+Mozilla JavaScript engines, but not in Webkit or V8.  It would be
+helpful to be able to use <tt class="docutils literal">yield</tt>, even when running in these
+other browsers.</p>
+<p>The importance of this feature depends on the details of the event
+model we adopt.  Adding <tt class="docutils literal">yield</tt> introduces an incompatibility
+with ECMAScript 5 browsers, but not with Mozilla JavaScript
+engines.</p>
+</li>
+<li><p class="first">Allow serialization of (running) program state.</p>
+<p>JavaScript currently provides &quot;real&quot; information hiding, in the
+form of a function's closure object.  Variables defined in function
+scope can be accessed within the function, but not from outside the
+scope.  This prevents proper serialization of a created function,
+since the scope can not be saved or reconstructed.  Transforming:</p>
+<pre class="literal-block">
+function () {
+  var v = ...
+}
+</pre>
+<p>to something like:</p>
+<pre class="literal-block">
+function($scope) {
+  $scope.v = ...
+}
+</pre>
+<p>allows us to manually manage the scope chain, including serializing and
+deserializing a function's closure <a class="footnote-reference" href="#id3" id="id2">[1]</a>.  The <tt class="docutils literal">$scope</tt> parameter can be
+stored as a <tt class="docutils literal">scope</tt> property of the <tt class="docutils literal">Function</tt> object.</p>
+</li>
+<li><p class="first">Bind <tt class="docutils literal">this</tt> properly in inner functions.</p>
+<p>This is a <a class="reference external" href="http://www.crockford.com/javascript/recommend.html">proposal by Crockford</a>.  Function expressions should
+bind <tt class="docutils literal">this</tt> from their scope at definition time; only method invocation
+should change the <tt class="docutils literal">this</tt> binding.  With an explicit scope parameter,
+as described above, this can be implemented by defining <tt class="docutils literal">$scope.this</tt> at
+function creation time, compiling the <tt class="docutils literal">this</tt> literal as
+<tt class="docutils literal">(this || $scope.this)</tt>, as implement (non-this-binding) function
+invocation as <tt class="docutils literal">f.call(null, <span class="pre">...)</span></tt>.</p>
+<p>As with the previous tweak, most existing JavaScript code avoids
+use of <tt class="docutils literal">this</tt> in inner functions, or manually overrides the
+default <tt class="docutils literal">this</tt> via a <tt class="docutils literal">bind</tt> utility function.  Existing code is
+thus expected to work in our environment, but naive Simplified
+JavaScript code will fail to run in a native JavaScript
+environment.</p>
+</li>
+<li><p class="first">Extend properties of <tt class="docutils literal">Function</tt> objects.</p>
+<p>Every function object should have a <tt class="docutils literal">scope</tt> property, as proposed
+above, as well as <tt class="docutils literal">name</tt> and <tt class="docutils literal">arguments</tt> parameters, as in the
+<a class="reference external" href="http://www.crockford.com/javascript/recommend.html">proposal by Crockford</a>.  A <tt class="docutils literal">parsed</tt> property might link to the
+Simplified JavaScript parse tree of the function's source.  It
+would also be nice to add a means to access the function object
+itself from within the function body.  This would allow a function
+to access to its own <tt class="docutils literal">name</tt>, <tt class="docutils literal">arguments</tt>, <tt class="docutils literal">scope</tt>, and
+<tt class="docutils literal">parsed</tt> properties and any other properties explicitly added to
+the <tt class="docutils literal">Function</tt>.  For example, a user framework might add an
+<tt class="docutils literal">owner</tt> property to each method defined in a prototype, pointing
+at the prototype object itself, in order to allow the function to
+access to the prototype chain involved in the function's dispatch.</p>
+<p>Most existing code would be unaffected by the presence of additional
+properties of Function objects, and most naive user code will not need
+to access these properties.</p>
+</li>
+<li><p class="first">A hidden property mechanism for objects.</p>
+<p>For serialization we'll probably want to add a hidden <tt class="docutils literal">$$id</tt> field to
+every serializable object; we may wish to add other hidden properties to
+support the scope transformation and other needs.  For <tt class="docutils literal">$$id</tt>, it
+probably makes the most sense to do this by overriding
+<tt class="docutils literal">Object.create()</tt> and ensuring that the new <tt class="docutils literal">$$id</tt> property is
+<a class="reference external" href="https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Object/defineProperty">not enumerable</a>.</p>
+<p>As an alternative, one might consider adding a &quot;meta object&quot; above
+each &quot;real&quot; object in the object's prototype chain.  Properties can
+be added to the &quot;meta object&quot; without being enumerable, assuming
+that the developer is using the <tt class="docutils literal">hasOwnProperty</tt> <a class="reference external" href="http://javascript.crockford.com/code.html">prophylactic</a>.</p>
+<p>If a &quot;meta object&quot; mechanism is required, the goal would be to
+avoid any changes to the semantics of the language.  This would purely
+be an implementation aid for efficient hidden properties.</p>
+</li>
+</ol>
+<table class="docutils footnote" frame="void" id="id3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td><p class="first">Note that there's a bug in ECMA-262 3rd edition which allows standard
+JavaScript to access the hidden scope object via:</p>
+<pre class="literal-block">
+function f() { this.scope = this; }
+try {
+  throw f;
+} catch (e) {
+  e();
+}
+... = scope;
+</pre>
+<p class="last">See ECMA-262 5th edition, Annex D, 12.4 and 13 for details.
+Transformation of the parse tree is a much better way to make the
+scope object accessible!  We will have to transform variable names
+slightly in order to avoid the bugs corrected by ECMA-262 5th edition:
+in particular, making properties of Object visible as identifiers in
+scope.</p>
+</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="simplifying-the-environment">
+<h2>Simplifying the Environment</h2>
+<p>The existing bytecode compiler/interpreter is simple, but it could be
+even simpler.  With fewer basic forms, we can get better mileage out
+of a small set of powerful optimizations: inlining, constant
+propagation, and memoization.  Here's a task list:</p>
+<ol class="arabic">
+<li><p class="first">Transform all the binary and unary operators into method calls.
+They will become simple <tt class="docutils literal">invoke</tt> operations in bytecode.  The tricky
+part is just ensuring that method lookup/dispatch works properly on
+primitives, and that the various type coercions are done correctly.</p>
+</li>
+<li><p class="first">Remove jumps from the bytecode.  Use dispatch to the boolean
+results of comparisons instead.  See the <tt class="docutils literal">ifElse</tt> and <tt class="docutils literal">while</tt>
+operators in <a class="reference external" href="https://github.com/cscott/TurtleScript/blob/master/extensions.js">extensions.js</a>.  An example:</p>
+<pre class="literal-block">
+var i = 0;
+(function() { i += 1; }).while(this, function() { return i &lt; 5; });
+
+function pluralize(str, n) {
+    return str + ((n==1).ifElse(this, function() { return &quot;&quot;; },
+                                      function() { return &quot;s&quot;; }));
+}
+</pre>
+</li>
+<li><p class="first">Remove the five <tt class="docutils literal">get_slot</tt>/<tt class="docutils literal">set_slot</tt> variants and replace with
+<tt class="docutils literal">get_getter</tt> and <tt class="docutils literal">get_setter</tt> messages sent to the object's
+map.  The <tt class="docutils literal">mapof</tt> operator is the only new bytecode operator
+needed.  The result from <tt class="docutils literal">get_getter</tt>/<tt class="docutils literal">get_setter</tt> is a
+function, so these will be immediately followed by an invocation
+to actually perform the get/set.</p>
+<p>The implementation of <tt class="docutils literal">get_getter</tt> for a map representing an
+array will indirect through the field:</p>
+<pre class="literal-block">
+ArrayMap.get_getter = function(field) {
+  return field.array_getter(this);
+}
+</pre>
+<p>Then we can make a special &quot;numeric string&quot; subclass of string,
+used for strings which can be parsed as <tt class="docutils literal">uint32_t</tt> numbers (ie, valid
+array indices) and represented internally as a tagged integer.
+(If length &gt; 10 or any of the first 10 characters
+is not a digit, then it's not a numeric string.  Negative integers
+are not numeric strings.)  This lets us implement array indexing
+efficiently as a method of <tt class="docutils literal">NumericString</tt>:</p>
+<pre class="literal-block">
+NumericString.array_getter = function(map) {
+  // this function creation and its subsequent invocation should
+  // be inlined.
+  val idx = this.asUint32();
+  return native_func(obj) { return memory.get(obj + OFFSET + idx * 8); }
+}
+// all other fields use normal object lookup.
+String.array_getter = function(map) {
+  // this should also be inlinable.
+  return ObjectMap.get_getter.call(map, this);
+}
+</pre>
+<p>We've now reduced all runtime type tests to the same basic dispatch
+mechanism, which we can optimize using specialization and inlining.</p>
+</li>
+<li><p class="first">Rewrite bytecode interpreter to operate on object representations
+stored in a <a class="reference external" href="http://www.khronos.org/registry/typedarray/specs/latest/">Typed Array</a>.  This can include a proper <a class="reference external" href="http://piumarta.com/software/cola/objmodel2.pdf">object model</a>
+and garbage collector.  Use <a class="reference external" href="http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation/">NaN boxing</a>, possibly based more-or-less
+directly on SpiderMonkey's <a class="reference external" href="http://hg.mozilla.org/tracemonkey/annotate/9c869e64ee26/js/src/jsval.h">jsval.h</a> but with the addition of
+a <tt class="docutils literal">NumericString</tt> type as described above.</p>
+</li>
+<li><p class="first">Write a simple bytecode interpreter in C which can operate on
+system images created by the JavaScript implementation above.
+Bind it to a canvas, run it in <a class="reference external" href="http://en.wikipedia.org/wiki/Google_Native_Client">NaCl</a> as a demo?  At this point you'd
+have a system which was turtles all the way down to bytecode.</p>
+</li>
+<li><p class="first">Construct a REPL loop for interactive use of the system.  Maybe
+integrate this with the tile demo, so that you can see a tile
+representation of the current frame, including bound method bodies,
+and you can type commands at a proper to update the frame/compute
+results.  This may involve writing some code which can convert
+from a native object representation to an equivalent parse tree,
+which would look something like:
+<tt class="docutils literal">{ foo: 'bar', bat: function() { ... } }</tt>.
+We'd need a way to link a <tt class="docutils literal">binterp</tt> function ID with the
+corresponding widget tree.</p>
+</li>
+<li><p class="first">Efficient compiler which does an interpretation of the bytecode
+during the first execution, propagating constants and memoizable
+function results.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="rendering-ideas">
+<h2>Rendering Ideas</h2>
+<p>I originally had two conflicting ideas for rendering the Simplified
+JavaScript parse tree:</p>
+<ol class="arabic">
+<li><p class="first">Move towards a traditional text representation.</p>
+<p>Text-based languages are easy to read and understand for a reason:
+many years of experience have been used to improve and refine them.
+We want to move away from the keyboard and towards a more intuitive
+touch-based editing mechanism, but why throw the baby out with the
+bathwater?</p>
+<p>In this concept, we still use some subtle puzzle-piece styling cues,
+but try to fit these &quot;in between the lines&quot;.  The basic layout
+should be almost identical to what you'd see in your text editor,
+with very good syntax coloring.</p>
+<p>Liberal use of the &quot;yada yada yada&quot; operator would be used to
+indicate drop points, along with dynamic highlight effects as you
+drag over places where an existing construct (block, argument list,
+variable declaration, etc) can be extended.</p>
+</li>
+<li><p class="first">Puzzle pieces.</p>
+<p><a class="reference external" href="http://scratch.mit.edu/">Scratch</a>, <a class="reference external" href="http://wiki.laptop.org/go/Turtle_Art">Turtle Art</a>, and <a class="reference external" href="http://education.mit.edu/drupal/openblocks">Open Blocks</a> are successful with
+kids.  Try to learn from these representations and copy the details
+which make them successful.  One key might be switching to more
+&quot;open&quot; layouts of block groupings, using a &quot;C&quot; shape open at one
+side instead of a box enclosing all the parts.  Similarly, the
+space for the test expression in a if or while, or the argument
+list in a call, could be left open at the right hand side to allow
+the expression/list to grow outside the tile without forcing the
+tile itself to expand horizontally.</p>
+</li>
+</ol>
+<p>Current code leaves heavily towards the first option, although we use
+puzzle piece styling as much as possible.  The original code used a
+&quot;stacking&quot; 3d look which made deeply-nested expressions look too
+&quot;tall&quot;; the current look using a single 3d level, with pieces fitting
+into indents so that the combination of pieces is still flat.</p>
+<p>Additional thoughts:</p>
+<ol class="arabic">
+<li><p class="first">Repeated binary expressions (<tt class="docutils literal">... + ... + ...</tt> or <tt class="docutils literal">... &amp;&amp; ... &amp;&amp;
+...</tt>) need to be flattened, instead of exposing the parse tree
+details.  Explicit piece boundaries should only be shown where
+precedence levels vary, where they serve to visually indicate
+&quot;parentheses&quot; in the traditional text representation.</p>
+</li>
+<li><p class="first">It may be possible to aggressively use a &quot;click to expand&quot;
+representation, so that the rendering of a long function or namespace
+is not overwhelmingly complex.  Initially we might only see a list of
+top level symbols, with expander boxes.  Clicking on the expander
+would show the definition of that symbol.  (This could visually relate
+to the way the object browser represents non-primitive field values:
+in both cases an &quot;expander&quot; would be used to show/edit a complex
+value.)</p>
+</li>
+<li><p class="first">I believe we want to explicitly represent &quot;line breaks&quot;, rather than
+allow constructs to extend indefinitely to the right.  My original
+thought was to just add a &quot;new line&quot; flag to the <tt class="docutils literal">binop</tt> node and
+to the function call nodes (both the &quot;binary&quot; and &quot;ternary&quot; forms).
+Setting the newline flag on the <tt class="docutils literal">binop</tt> would arrange the &quot;right&quot;
+and &quot;left&quot; operands vertically.  Setting the newline flag on the
+function invocation would arrange the arguments vertically.
+Similar flags would allow you to toggle vertical/horizontal
+orientations for the arguments of function definitions, and for the
+array and object constructor forms.</p>
+<p>My current thinking is that all tokens should have a
+&quot;newlinesAfter&quot; count, and as many places as possible should
+support adding newlines to the rendering, using a uniform gesture.</p>
+<p>An alternative is to make layout &quot;smarter&quot; so that the correct
+orientation is selected automatically.  It's probably possible to
+reach a happy medium in which automatic line breaks happen in
+reasonable places but the user is still able to customize the
+display for additional clarity/expressiveness.</p>
+</li>
+<li><p class="first">I'd prefer that syntactic extension to the base language occur
+through the definition of new <em>graphical block</em> types, which can
+desugar to the basic AST structures; thus, the block widget is a type of
+macro.  We still need a means to represent the macro textually, so
+that there is a lossless conversion between text and graphical
+forms, but correspondence might be accomplished by simple
+convention, like being imported from a path rooted at <tt class="docutils literal">macros</tt>:</p>
+<pre class="literal-block">
+var ForBlockMacro = imports.macros.ForBlockMacro;
+var foo = function() {
+     var i;
+     ForBlockMacro(function() { i=0; },
+                   function() { return i &lt; 5; },
+                   function() { i+=1; },
+                   function() { /* body */ });
+}
+</pre>
+<p>A user without a definition for <tt class="docutils literal">ForBlockMacro</tt> would see
+a graphical representation corresponding to the text above.  But if the
+<tt class="docutils literal">ForBlockMacro</tt> function includes an <tt class="docutils literal">asWidget()</tt> method, it could
+define its own graphical representation which could suppress the
+<tt class="docutils literal">function()</tt> and <tt class="docutils literal">return</tt> cruft to yield a graphical representation
+identical to the traditional syntactic form:</p>
+<pre class="literal-block">
+for ( i=0 ; i &lt; 5 ; i+=1 ) {
+  /* body */
+}
+</pre>
+<p>But this resemblance is purely visual; the underlying source
+language and syntax remains unchanged.  More radical visual changes
+could also be accomplished, but display of macros can also be
+toggled off to yield more traditional (if verbose) syntax.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="renderer-tasks">
+<h2>Renderer Tasks</h2>
+<p>The following is a potential implementation order for additional
+rendering tasks:</p>
+<ol class="arabic simple">
+<li>Split <a class="reference external" href="https://github.com/cscott/TurtleScript/blob/master/crender.js">crender.js</a> to separate out the Widget definitions from the
+code which transforms a parse tree into widgets.  Perhaps make
+the AST node definitions their own separate module as well, instead
+of conflating them with token objects in <a class="reference external" href="https://github.com/cscott/TurtleScript/blob/master/parse.js">parse.js</a>?</li>
+<li>Move parenthesization of expressions based on precedence from the
+transform code into the widget rendering.  Parentheses should
+automatically appear around a binop if its operator precedence is
+lower than its context.</li>
+<li>Add the ability to losslessly render Widgets back into Simplified JavaScript
+source and/or a parse tree.</li>
+<li>Add basic 'pick' functionality.  (Possibly split Widget
+representation into Composite/Composable at the same time, as is
+done in <a class="reference external" href="http://piumarta.com/software/cola/canvas.pdf">Lessphic</a>.)</li>
+<li>Allow dragging widgets (but not actual editing yet).</li>
+<li>Allow editing trees via drag and drop (but not yet editing/creating
+names).</li>
+<li>Click to edit literals, including name literals.  (Modal dialog is
+fine at first.)</li>
+<li>Name literal browser/palettes, for each access to all the names
+that are in scope.  Perhaps combine this with an object browser
+which can display active objects and let you drag/drop slot names.</li>
+</ol>
+</div>
+<div class="section" id="interaction-ideas">
+<h2>Interaction Ideas</h2>
+<p>I hope that TurtleScript will be used to explore interaction models for
+programming on touchscreen devices.  Here are some of my current ideas:</p>
+<ol class="arabic">
+<li><p class="first">Managing flicker (avoiding resize).</p>
+<p>Dragging pieces into a dynamically-resizing rendering causes
+excessive flicker as the various drop targets expand/contract.  The
+flicker may cause the drop target itself to move, which may make it
+impossible to drop the piece in a desired location.</p>
+<p>To solve this problem, the drop targets should be identified
+<em>without</em> resizing the rendering; any expansion should occur only
+<em>after</em> the drop.  For example, border colors might highlight to
+indicate that a drop may occur between two existing tiles.  When
+you drag a block out, it should be replaced by a &quot;yada yada yada&quot;
+element <em>of the exact same size</em> so that the parent widget does
+not immediately change.  Only after the drop should the yada yada
+yada shrink.</p>
+<p>Alternatively, one could explore an &quot;explicit resize&quot; model, where
+the user uses an explicit pinch/spread gesture to expand or
+contract an element (block body, say).  This gives more control of
+layout to the user, at the cost of forcing them to perform
+additional actions to &quot;tidy up&quot; the display.  Perhaps &quot;double tap
+to shrink fit&quot; is the main gesture -- after you drag out a large
+block body, the placeholder yada yada yada stays the same large
+size until you double tap it.  The benefit is entirely avoiding
+automatic resize (and thus flicker) during editing.</p>
+<p>Some additional study of existing block-based systems is warranted.</p>
+</li>
+<li><p class="first">Clone by default.</p>
+<p>It's more common to copy (and then modify) a part than to reorder
+the parts of a program.  The default behavior when dragging a piece
+which is currently part of some structure (not free floating on the
+workspace) should be to drag a clone.  A separate double-tap or
+swipe gesture should be used to delete the original, if a move was
+actually desired.</p>
+</li>
+<li><p class="first">Tap to break apart.</p>
+<p>It's visually confusing to show all the possible drop targets or
+subcomponents for every expression and statement.  Introducing a
+uniform &quot;tap to break apart&quot; gesture would allow hiding these
+details unless/until they are necessary.  Each tap would reveal the
+boundaries in one additional level of structure (the individual
+statements in a function, for instance).  Additional taps on a
+subcomponent would allow drilling down to additional levels of
+detail (exposing the parts of an assignment statement, for instance).</p>
+</li>
+<li><p class="first">Pervasive &quot;undo&quot;.</p>
+<p>Each change to a program should be easily reversible.  Similarly,
+editing the state of a live object should also be reversible: it
+should be possible to go &quot;back in time&quot; before the execution of a
+function or assignment of a field.  (Clearing the turtle's
+drawing canvas might even use this mechanism.)</p>
+<p>In practice this is probably implemented by serializing
+logarithmically-spaced program states and recording mutations and
+executions.  We can then revert to the state at a previous time by
+deserializing an appropriate older state and then replaying all
+interactive mutations/function executions which occurred between
+that state and the desired point in time.  This is the approach
+used by recent work, such as <a class="reference external" href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.88.2071">Jockey</a>, <a class="reference external" href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.130.6878">Flashback</a>, and <a class="reference external" href="http://www.cs.utk.edu/~plank/plank/papers/USENIX-95W.html">libckpt</a>,
+and results in time travel time complexity proportional to the
+distance traveled.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="environment">
+<h2>Environment</h2>
+<p>This section contains more tentative thoughts about the overall
+application environment.</p>
+<ol class="arabic">
+<li><p class="first">Building on the shoulders of HTML/CSS/DOM/JavaScript (or not)</p>
+<p>One original goal was to attempt to leverage the existing HTML
+elements and DOM rather than invent our own GUI framework.
+We'd use DOM event model (with some
+sugar).  Applications should serialize to an HTML/CSS tree with
+JavaScript bindings; probably other bits like &quot;the current contents
+of a canvas&quot; could be serialized as well.  Perhaps CSS and the DOM
+can be unified with JavaScript/JSON using something like <a class="reference external" href="http://www.featureblend.com/css-json.html">CSS
+JSON</a> and <a class="reference external" href="http://jsonml.org/DOM/">JsonML</a> to mitigate the number of different syntaxes
+involved.</p>
+<p>At the moment, I feel that the complexity this adds to the
+environment isn't warranted.  We should be able to harness/embed
+HTML/CSS, but we shouldn't use it as a building block.  Perhaps
+some &quot;Simplified HTML&quot; subset can be employed.  As a limit case,
+perhaps only &lt;canvas&gt; elements?  (That's what we're doing now.)</p>
+</li>
+<li><p class="first">Work on serialization format.</p>
+<p>First step towards a serializable environment is to write a simple
+module loader.  Assuming we've written a module (JavaScript plus
+its visible DOM tree and event bindings) to disk, what does it look
+like?  How do we re-load it?  For speed we want to leverage the
+existing native HTML, JavaScript and JSON parsers in the browser.
+Four possible solutions (perhaps there are others):</p>
+<ol class="loweralpha">
+<li><p class="first">The module is an HTML file loaded via &lt;iframe&gt; injection.</p>
+<p>This is probably the preferred approach.  We use the native
+HTML and JavaScript parsers, and can (<a class="reference external" href="http://cananian.livejournal.com/60624.html">in some browsers</a>) reparent
+the iframe in order to pull pieces of the environment out into
+their own windows.</p>
+</li>
+<li><p class="first">The module is a JavaScript source file, loaded via &lt;script&gt; injection.</p>
+<p>In this case all the HTML/DOM content needs to be
+generated programmatically by JavaScript code or <a class="reference external" href="http://jsonml.org/DOM/">JsonML</a>.  This
+might be slower than direct HTML parsing.</p>
+</li>
+<li><p class="first">The module is a JSON object, loaded via AJAX or from browser-local
+storage, and post-processed.</p>
+<p>JSON (with an appropriate prefix, or <a class="reference external" href="http://bob.pythonmac.org/archives/2005/12/05/remote-json-jsonp/">JSON-P</a>) could be directly loaded
+via &lt;script&gt; as well as parsed from a string using the (fast) native JSON
+parser <a class="footnote-reference" href="#id8" id="id6">[2]</a>.  We'd need to post-process the JSON to handle cycles and
+functions, and programmatically recreate the DOM as in the previous
+option <a class="footnote-reference" href="#id11" id="id7">[4]</a>.</p>
+</li>
+<li><p class="first">Direct implementation of <a class="reference external" href="http://json.org/module.html">Crockford's &lt;module&gt; proposal</a>.</p>
+<p>Might be tricky to do without native browser support.</p>
+</li>
+<li><p class="first">Build an in-browser VM.</p>
+<p>My most recent work has been inspired by efforts like <a class="reference external" href="http://bellard.org/jslinux/index.html">jslinux</a>
+which use the <a class="reference external" href="http://www.khronos.org/registry/typedarray/specs/latest/">JavaScript Typed Array</a> API to build &quot;low level&quot;
+abstractions in the browser.  I believe it's possible to
+construct a reasonably-performing object model in the browser
+using a raw memory abstraction.  This then trivially allows for
+serialization.  The major disadvantage is that we lose
+interoperability with native browser objects, and potentially
+a bit of the performance of the native VM.</p>
+</li>
+</ol>
+<p>Picking a serialization format and building it should foreground
+representation and project-scope issues.  At the end we'll have a
+hand-built module as well as a lightweight module loader.</p>
+<p>Once we have a serialized module, how do we save a module as a
+complete application (presumably, including all of its
+dependencies)?  This probably entails a somewhat heavier &quot;app
+loader&quot; framework, which can take a given module as an argument.
+The loader should be able to pull in the full compiler, object
+browser, etc as needed (but maybe on-demand rather than up front).
+It would be nice to be able to construct a module in an &quot;IDE&quot;
+environment, or by modifying an existing sample or app, and then
+&quot;save as&quot; to make the new module a first-class standalone app.</p>
+</li>
+</ol>
+<table class="docutils footnote" frame="void" id="id8" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id6">[2]</a></td><td>Note that <tt class="docutils literal">JSON.stringify()</tt> has a <tt class="docutils literal">replacer</tt> parameter we can
+use to serialize functions and their scope objects <a class="footnote-reference" href="#id10" id="id9">[3]</a>, but the JSON
+parser does not have an equivalent hook.  We'd have to grunge over
+the object tree ourselves, looking for something like a <tt class="docutils literal">$$function</tt>
+property on an object and then replacing the object with the compiled
+parse tree hanging off it.  We'd also have to manually munge cycles,
+identifying them via an <tt class="docutils literal">$$id</tt> property we add to objects, and using
+a <tt class="docutils literal">$$replace</tt> property to represent the cycle in the object graph.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id10" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id9">[3]</a></td><td>...but beware the <a class="reference external" href="https://bugzilla.mozilla.org/show_bug.cgi?id=509184">Firefox JSON bug</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id11" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id7">[4]</a></td><td>The <a class="reference external" href="http://www.jspon.org/">JSPON</a> proposal seems to be related to our JSON solution, but
+JSPON doesn't seem to allow serialization of code.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="helping-out">
+<h1>Helping out</h1>
+<p>Comments on the goals expressed here and suggestions for future (or
+related) work are welcomed.  You can also hack away and contribute code
+using the standard <a class="reference external" href="http://github.com/cscott/TurtleScript">github</a> fork-and-pull-request mechanism.  Thanks
+for reading!</p>
+<blockquote>
+-- C. Scott Ananian, 9-14 July 2010, revised 19 May 2011, revised 3 Jun 2013</blockquote>
+<!-- LocalWords:  README TurtleScript Etoys TileScript JavaScript runtime jQuery -->
+<!-- LocalWords:  Crockford renderer namespace gjs yada introspectable Mozilla -->
+<!-- LocalWords:  Webkit ECMAScript hasOwnProperty serializable JSON iframe ECMA -->
+<!-- LocalWords:  Ananian bytecode CSS API maru boolean editability resize -->
+</div>
+</div>
+</body>
+</html>

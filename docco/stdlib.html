@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>stdlib.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="asm-llvm.html">
+                asm-llvm.js
+              </a>
+            
+              
+              <a class="source" href="bcompile.html">
+                bcompile.js
+              </a>
+            
+              
+              <a class="source" href="binterp.html">
+                binterp.js
+              </a>
+            
+              
+              <a class="source" href="browsercanvas.html">
+                browsercanvas.js
+              </a>
+            
+              
+              <a class="source" href="bytecode-table.html">
+                bytecode-table.js
+              </a>
+            
+              
+              <a class="source" href="canvastest.html">
+                canvastest.js
+              </a>
+            
+              
+              <a class="source" href="ccanvas.html">
+                ccanvas.js
+              </a>
+            
+              
+              <a class="source" href="crender-styles.html">
+                crender-styles.js
+              </a>
+            
+              
+              <a class="source" href="crender.html">
+                crender.js
+              </a>
+            
+              
+              <a class="source" href="ctiles.html">
+                ctiles.js
+              </a>
+            
+              
+              <a class="source" href="events.html">
+                events.js
+              </a>
+            
+              
+              <a class="source" href="eventtests.html">
+                eventtests.js
+              </a>
+            
+              
+              <a class="source" href="extensions.html">
+                extensions.js
+              </a>
+            
+              
+              <a class="source" href="global-es5.html">
+                global-es5.js
+              </a>
+            
+              
+              <a class="source" href="global.html">
+                global.js
+              </a>
+            
+              
+              <a class="source" href="html-escape.html">
+                html-escape.js
+              </a>
+            
+              
+              <a class="source" href="jcompile.html">
+                jcompile.js
+              </a>
+            
+              
+              <a class="source" href="json2.html">
+                json2.js
+              </a>
+            
+              
+              <a class="source" href="nodemain.html">
+                nodemain.js
+              </a>
+            
+              
+              <a class="source" href="parse.html">
+                parse.js
+              </a>
+            
+              
+              <a class="source" href="render.html">
+                render.js
+              </a>
+            
+              
+              <a class="source" href="render2.html">
+                render2.js
+              </a>
+            
+              
+              <a class="source" href="require.html">
+                require.js
+              </a>
+            
+              
+              <a class="source" href="stdlib.html">
+                stdlib.js
+              </a>
+            
+              
+              <a class="source" href="str-escape.html">
+                str-escape.js
+              </a>
+            
+              
+              <a class="source" href="tdop.html">
+                tdop.js
+              </a>
+            
+              
+              <a class="source" href="tests.html">
+                tests.js
+              </a>
+            
+              
+              <a class="source" href="tiles.html">
+                tiles.js
+              </a>
+            
+              
+              <a class="source" href="tokenize.html">
+                tokenize.js
+              </a>
+            
+              
+              <a class="source" href="top-level.html">
+                top-level.js
+              </a>
+            
+              
+              <a class="source" href="ts.html">
+                ts.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-bytecode.html">
+                write-rust-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-ops.html">
+                write-rust-ops.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h1">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1>stdlib.js</h1>
+<p>TurtleScript standard library, written in TurtleScript.</p>
+<p>Used for bytecode interpreters (both TurtleScript and native).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>define([], <span class="function"><span class="keyword">function</span> <span class="title">make_stdlib</span><span class="params">()</span> {</span>
+    <span class="keyword">var</span> init = <span class="keyword">function</span>() {
+        String.prototype.indexOf = <span class="keyword">function</span>(searchValue, from) {
+            <span class="keyword">var</span> i = from || <span class="number">0</span>;
+            <span class="keyword">var</span> j = <span class="number">0</span>;
+            <span class="keyword">if</span> (i &gt; <span class="keyword">this</span>.length) {
+                i = <span class="keyword">this</span>.length;
+            }
+            <span class="keyword">while</span> ( i &lt; <span class="keyword">this</span>.length ) {
+                j = <span class="number">0</span>;
+                <span class="keyword">while</span> (j &lt; searchValue.length &amp;&amp;
+                       <span class="keyword">this</span>.charAt(i+j) === searchValue.charAt(j)) {
+                    j += <span class="number">1</span>;
+                }
+                <span class="keyword">if</span> (j === searchValue.length) {
+                    <span class="keyword">break</span>;
+                }
+                i += <span class="number">1</span>;
+            }
+            <span class="keyword">return</span> (j === searchValue.length) ? i : -<span class="number">1</span>;
+        };
+        String.prototype.trim = <span class="keyword">function</span>() {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Non-regex version of <code>String.prototype.trim()</code> based on
+<a href="http://blog.stevenlevithan.com/archives/faster-trim-javascript">http://blog.stevenlevithan.com/archives/faster-trim-javascript</a></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> str = <span class="keyword">this</span>;
+            <span class="keyword">if</span> (str.length === <span class="number">0</span>) { <span class="keyword">return</span> str; }
+            <span class="keyword">var</span> whitespace = <span class="string">' \n\r\t\f\u000b\u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000'</span>;
+            <span class="keyword">var</span> i = <span class="number">0</span>;
+            <span class="keyword">while</span> (i &lt; str.length) {
+                <span class="keyword">if</span> (whitespace.indexOf(str.charAt(i)) === -<span class="number">1</span>) {
+                    str = str.substring(i);
+                    <span class="keyword">break</span>;
+                }
+                i += <span class="number">1</span>;
+            }
+            i = str.length - <span class="number">1</span>;
+            <span class="keyword">while</span> ( i &gt;= <span class="number">0</span> ) {
+                <span class="keyword">if</span> (whitespace.indexOf(str.charAt(i)) === -<span class="number">1</span>) {
+                    str = str.substring(<span class="number">0</span>, i + <span class="number">1</span>);
+                    <span class="keyword">break</span>;
+                }
+                i -= <span class="number">1</span>;
+            }
+            <span class="keyword">return</span> whitespace.indexOf(str.charAt(<span class="number">0</span>)) === -<span class="number">1</span> ? str : <span class="string">''</span>;
+        };
+        Array.prototype.push = <span class="keyword">function</span>() {
+            <span class="keyword">var</span> i = <span class="number">0</span>, j = (<span class="number">1</span>*<span class="keyword">this</span>.length) || <span class="number">0</span>;
+            <span class="keyword">while</span> (i &lt; arguments.length) {
+                <span class="keyword">this</span>[j] = arguments[i];
+                i += <span class="number">1</span>;
+                j += <span class="number">1</span>;
+            }
+            <span class="keyword">this</span>.length = j;
+            <span class="keyword">return</span> j;
+        };
+        Array.prototype.pop = <span class="keyword">function</span>() {
+            <span class="keyword">if</span> (<span class="keyword">this</span>.length === <span class="number">0</span>) { <span class="keyword">return</span>; }
+            <span class="keyword">var</span> last = <span class="keyword">this</span>[<span class="keyword">this</span>.length-<span class="number">1</span>];
+            <span class="keyword">this</span>.length -= <span class="number">1</span>;
+            <span class="keyword">return</span> last;
+        };
+        Array.prototype.join = <span class="keyword">function</span>(sep) {
+            <span class="comment">/* XXX call internal `[[toObject]]` on `this` */</span>
+            <span class="keyword">var</span> len = <span class="keyword">this</span>.length;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>We call internal <code>[[toString]]</code> on <code>sep</code> (by adding &#39;&#39;).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (sep === <span class="literal">undefined</span>) { sep = <span class="string">','</span>; } <span class="keyword">else</span> { sep = <span class="string">''</span> + sep; }
+            <span class="keyword">var</span> k = <span class="number">0</span>;
+            <span class="keyword">var</span> result = <span class="string">''</span>;
+            <span class="keyword">while</span> (k &lt; len) {
+                <span class="keyword">var</span> elem = <span class="keyword">this</span>[k];
+                <span class="keyword">if</span> (elem!==<span class="literal">undefined</span> &amp;&amp; elem!==<span class="literal">null</span>) {
+                    result += elem;
+                }
+                k += <span class="number">1</span>;
+            }
+            <span class="keyword">return</span> result;
+        };
+        Array.prototype.concat = <span class="keyword">function</span>() {
+            <span class="keyword">var</span> result = [], i, j;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Start by cloning <code>this</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            i = <span class="number">0</span>;
+            <span class="keyword">while</span> (i &lt; <span class="keyword">this</span>.length) {
+                result[i] = <span class="keyword">this</span>[i];
+                i += <span class="number">1</span>;
+            }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Now add elements from arguments.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            i = <span class="number">0</span>;
+            <span class="keyword">while</span> (i &lt; arguments.length) {
+                <span class="keyword">var</span> e = arguments[i];</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Awkward test for &quot;is e an array?&quot;</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (<span class="keyword">typeof</span>(e)===<span class="string">"object"</span> &amp;&amp; e !== <span class="literal">null</span> &amp;&amp;
+                    e.hasOwnProperty(<span class="string">'length'</span>)) {
+                    j = <span class="number">0</span>;
+                    <span class="keyword">while</span> (j &lt; e.length) {
+                        result[result.length] = e[j];
+                        j += <span class="number">1</span>;
+                    }
+                } <span class="keyword">else</span> {
+                    result[result.length] = e;
+                }
+                i += <span class="number">1</span>;
+            }
+            <span class="keyword">return</span> result;
+        };
+        Array.prototype.forEach =  <span class="keyword">function</span>(block, thisObject) {
+            <span class="keyword">var</span> len = (<span class="number">1</span>*<span class="keyword">this</span>.length) || <span class="number">0</span>;
+            <span class="keyword">var</span> i = <span class="number">0</span>;
+            <span class="keyword">while</span> (i &lt; len) {
+                <span class="keyword">if</span> (<span class="keyword">this</span>.hasOwnProperty(i)) {
+                    block.call(thisObject, <span class="keyword">this</span>[i], i, <span class="keyword">this</span>);
+                }
+                i += <span class="number">1</span>;
+            }
+        };
+        Array.prototype.map = <span class="keyword">function</span>(fun <span class="comment">/*, thisp*/</span>) {
+            <span class="keyword">var</span> len = (<span class="number">1</span>*<span class="keyword">this</span>.length) || <span class="number">0</span>;
+            <span class="comment">/*
+              if (typeof fun != "function")
+              throw new TypeError();
+            */</span>
+
+            <span class="keyword">var</span> res = [], i = <span class="number">0</span>;
+            <span class="keyword">var</span> thisp = arguments[<span class="number">1</span>];
+            <span class="keyword">while</span> (i &lt; len) {
+                <span class="keyword">if</span> (<span class="keyword">this</span>.hasOwnProperty(i)) {
+                    res[i] = fun.call(thisp, <span class="keyword">this</span>[i], i, <span class="keyword">this</span>);
+                }
+                i += <span class="number">1</span>;
+            }
+            res.length = len;
+            <span class="keyword">return</span> res;
+        };
+        Array.prototype.join = <span class="keyword">function</span>(sep) {
+            <span class="keyword">var</span> result = <span class="string">""</span>, i = <span class="number">0</span>;
+            sep = sep || <span class="string">','</span>;
+            <span class="keyword">while</span> (i &lt; <span class="keyword">this</span>.length) {
+                result += <span class="keyword">this</span>[i];
+                i += <span class="number">1</span>;
+                <span class="keyword">if</span> (i &lt; <span class="keyword">this</span>.length) {
+                    result += sep;
+                }
+            }
+            <span class="keyword">return</span> result;
+        };
+        Function.prototype.bind = <span class="keyword">function</span>() {
+            <span class="keyword">var</span> method = <span class="keyword">this</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Avoid making a function wrapper if we don&#39;t have to.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (arguments.length === <span class="number">0</span>) {
+                <span class="keyword">return</span> method;
+            }
+            <span class="keyword">var</span> addHasInstance = <span class="keyword">function</span>(f) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>This is from the definition of internal <code>[[HasInstance]]</code>
+method in the ECMA JavaScript spec.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                f.hasInstance = <span class="keyword">function</span>(v) { <span class="keyword">return</span> method.hasInstance(v); };
+                <span class="keyword">return</span> f;
+            };
+            <span class="keyword">var</span> nthis = arguments[<span class="number">0</span>];</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Avoid copying the arguments array if we don&#39;t have to.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (arguments.length === <span class="number">1</span>) {
+                <span class="keyword">return</span> addHasInstance(<span class="function"><span class="keyword">function</span> <span class="title">bind0</span> <span class="params">()</span> {</span>
+                    <span class="keyword">return</span> method.apply(nthis, arguments);
+                });
+            }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Ok, we need to copy the bound arguments.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> nargs = [];
+            <span class="keyword">var</span> i = <span class="number">1</span>;
+            <span class="keyword">while</span> (i &lt; arguments.length) {
+                nargs.push(arguments[i]);
+                i += <span class="number">1</span>;
+            }
+            <span class="keyword">return</span> addHasInstance(<span class="function"><span class="keyword">function</span> <span class="title">bindN</span> <span class="params">()</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Use <code>concat.apply</code> here to finesse the fact that <code>arguments</code>
+isn&#39;t necessarily a &#39;real&#39; array.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">return</span> method.apply(nthis, Array.prototype.concat.apply(
+                    nargs, arguments));
+            });
+        };
+        Function.prototype.hasInstance = <span class="keyword">function</span>(v) {
+            <span class="keyword">var</span> o;
+            <span class="keyword">if</span> (<span class="keyword">typeof</span>(v) !== <span class="string">'object'</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
+            o = <span class="keyword">this</span>.prototype;
+            <span class="keyword">if</span> (<span class="keyword">typeof</span>(o) !== <span class="string">'object'</span>) { Object.Throw(<span class="string">'TypeError'</span>); <span class="comment">/*XXX*/</span> }
+            <span class="keyword">while</span> (<span class="literal">true</span>) {
+                v = v.__proto__;
+                <span class="keyword">if</span> (v === <span class="literal">null</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
+                <span class="keyword">if</span> (o === v) { <span class="keyword">return</span> <span class="literal">true</span>; }
+            }
+        };
+        Function.prototype[<span class="string">'New'</span>] = <span class="keyword">function</span>() {
+            <span class="keyword">var</span> object, result;
+            <span class="keyword">if</span> (<span class="keyword">typeof</span>(<span class="keyword">this</span>.prototype)===<span class="string">"object"</span>) {
+                object = Object.create(<span class="keyword">this</span>.prototype);
+            } <span class="keyword">else</span> {
+                object = {};
+            }
+            result = <span class="keyword">this</span>.apply(object, arguments);
+            <span class="keyword">if</span> (<span class="keyword">typeof</span>(result)===<span class="string">"object"</span>) {
+                <span class="keyword">return</span> result;
+            }
+            <span class="keyword">return</span> object;
+        };
+        Function.prototype.toString = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+            <span class="keyword">var</span> result = <span class="string">"function "</span>;
+            <span class="keyword">if</span> (<span class="keyword">this</span>.name) { result += <span class="keyword">this</span>.name; }
+            result += <span class="string">"() { [native code] }"</span>;
+            <span class="keyword">return</span> result;
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Define <code>toString()</code> in terms of <code>valueOf()</code> for some types.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        Boolean.prototype.toString = <span class="keyword">function</span>() {
+            <span class="keyword">return</span> Boolean.prototype.valueOf.call(<span class="keyword">this</span>) ? <span class="string">"true"</span> : <span class="string">"false"</span>;
+        };
+        String.prototype.toString = String.prototype.valueOf;
+        Number.prototype.toLocaleString = Number.prototype.toString;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Support for branchless bytecode (see Chambers et al, OOPSLA &#39;89).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="literal">true</span>[<span class="string">"while"</span>] = <span class="keyword">function</span>(_this_, cond, body) {
+            body.call(_this_);
+            cond.call(_this_)[<span class="string">"while"</span>](_this_, cond, body);
+        };
+        <span class="literal">false</span>[<span class="string">"while"</span>] = <span class="keyword">function</span>(_this_, cond, body) {
+            <span class="comment">/* no op */</span>
+        };
+        <span class="literal">true</span>[<span class="string">"ifElse"</span>] = <span class="keyword">function</span>(_this_, ifTrue, ifFalse) {
+            <span class="keyword">return</span> ifTrue.call(_this_);
+        };
+        <span class="literal">false</span>[<span class="string">"ifElse"</span>] = <span class="keyword">function</span>(_this_, ifTrue, ifFalse) {
+            <span class="keyword">return</span> ifFalse.call(_this_);
+        };
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>Define a helper function to turn the <code>stdlib.init</code> function into the
+source text of an evaluatable statement expression.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> source = <span class="keyword">function</span>() {
+        <span class="keyword">var</span> s = init.toSource ? init.toSource() : init.toString();
+        s = <span class="string">'('</span> + s + <span class="string">')();'</span>;
+        <span class="keyword">return</span> s;
+    };
+
+    <span class="keyword">return</span> {
+        __module_name__: <span class="string">'stdlib'</span>,
+        __module_init__: make_stdlib,
+        __module_deps__: [],
+        init: init,
+        source: source
+    };
+});</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

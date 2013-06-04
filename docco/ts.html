@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>ts.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="asm-llvm.html">
+                asm-llvm.js
+              </a>
+            
+              
+              <a class="source" href="bcompile.html">
+                bcompile.js
+              </a>
+            
+              
+              <a class="source" href="binterp.html">
+                binterp.js
+              </a>
+            
+              
+              <a class="source" href="browsercanvas.html">
+                browsercanvas.js
+              </a>
+            
+              
+              <a class="source" href="bytecode-table.html">
+                bytecode-table.js
+              </a>
+            
+              
+              <a class="source" href="canvastest.html">
+                canvastest.js
+              </a>
+            
+              
+              <a class="source" href="ccanvas.html">
+                ccanvas.js
+              </a>
+            
+              
+              <a class="source" href="crender-styles.html">
+                crender-styles.js
+              </a>
+            
+              
+              <a class="source" href="crender.html">
+                crender.js
+              </a>
+            
+              
+              <a class="source" href="ctiles.html">
+                ctiles.js
+              </a>
+            
+              
+              <a class="source" href="events.html">
+                events.js
+              </a>
+            
+              
+              <a class="source" href="eventtests.html">
+                eventtests.js
+              </a>
+            
+              
+              <a class="source" href="extensions.html">
+                extensions.js
+              </a>
+            
+              
+              <a class="source" href="global-es5.html">
+                global-es5.js
+              </a>
+            
+              
+              <a class="source" href="global.html">
+                global.js
+              </a>
+            
+              
+              <a class="source" href="html-escape.html">
+                html-escape.js
+              </a>
+            
+              
+              <a class="source" href="jcompile.html">
+                jcompile.js
+              </a>
+            
+              
+              <a class="source" href="json2.html">
+                json2.js
+              </a>
+            
+              
+              <a class="source" href="nodemain.html">
+                nodemain.js
+              </a>
+            
+              
+              <a class="source" href="parse.html">
+                parse.js
+              </a>
+            
+              
+              <a class="source" href="render.html">
+                render.js
+              </a>
+            
+              
+              <a class="source" href="render2.html">
+                render2.js
+              </a>
+            
+              
+              <a class="source" href="require.html">
+                require.js
+              </a>
+            
+              
+              <a class="source" href="stdlib.html">
+                stdlib.js
+              </a>
+            
+              
+              <a class="source" href="str-escape.html">
+                str-escape.js
+              </a>
+            
+              
+              <a class="source" href="tdop.html">
+                tdop.js
+              </a>
+            
+              
+              <a class="source" href="tests.html">
+                tests.js
+              </a>
+            
+              
+              <a class="source" href="tiles.html">
+                tiles.js
+              </a>
+            
+              
+              <a class="source" href="tokenize.html">
+                tokenize.js
+              </a>
+            
+              
+              <a class="source" href="top-level.html">
+                top-level.js
+              </a>
+            
+              
+              <a class="source" href="ts.html">
+                ts.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-bytecode.html">
+                write-rust-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-ops.html">
+                write-rust-ops.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h1">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1>ts.js</h1>
+<p><a href="http://requirejs.org/">requirejs</a>
+<a href="http://requirejs.org/docs/plugins.html">plugin</a>
+for loading TurtleScript code which has been run through
+<code>parse</code> and <code>jcompile</code>.</p>
+<p>This is mostly to keep us honest, by ensuring that our source code
+really is valid TurtleScript.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="comment">/**
+ * @license ts 0.0.0 Copyright (c) 2011 C. Scott Ananian, portions Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
+ * Available via the MIT or new BSD license.
+ */</span>
+
+<span class="comment">/* Yes, deliciously evil. */</span>
+<span class="comment">/*jslint evil: true, strict: false, plusplus: false, regexp: false */</span>
+<span class="comment">/*global require: false, XMLHttpRequest: false, ActiveXObject: false,
+  define: false, process: false, window: false */</span>
+
+(<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+
+    <span class="keyword">var</span> fs, getXhr,
+        progIds = [<span class="string">'Msxml2.XMLHTTP'</span>, <span class="string">'Microsoft.XMLHTTP'</span>, <span class="string">'Msxml2.XMLHTTP.4.0'</span>],
+        fetchText = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+            <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Environment unsupported.'</span>);
+        },
+        buildMap = [];
+
+
+
+    <span class="keyword">if</span> (<span class="keyword">typeof</span> window !== <span class="string">"undefined"</span> &amp;&amp; window.navigator &amp;&amp; window.document) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Browser action</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        getXhr = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Would love to dump the ActiveX crap in here. Need IE 6 to die first.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> xhr, i, progId;
+            <span class="keyword">if</span> (<span class="keyword">typeof</span> XMLHttpRequest !== <span class="string">"undefined"</span>) {
+                <span class="keyword">return</span> <span class="keyword">new</span> XMLHttpRequest();
+            } <span class="keyword">else</span> {
+                <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++) {
+                    progId = progIds[i];
+                    <span class="keyword">try</span> {
+                        xhr = <span class="keyword">new</span> ActiveXObject(progId);
+                    } <span class="keyword">catch</span> (e) {}
+
+                    <span class="keyword">if</span> (xhr) {
+                        progIds = [progId];  <span class="comment">// so faster next time</span>
+                        <span class="keyword">break</span>;
+                    }
+                }
+            }
+
+            <span class="keyword">if</span> (!xhr) {
+                <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"getXhr(): XMLHttpRequest not available"</span>);
+            }
+
+            <span class="keyword">return</span> xhr;
+        };
+
+        fetchText = <span class="function"><span class="keyword">function</span> <span class="params">(url, callback)</span> {</span>
+            <span class="keyword">var</span> xhr = getXhr();
+            xhr.open(<span class="string">'GET'</span>, url, <span class="literal">true</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>XXX FOR DEVELOPMENT</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            xhr.setRequestHeader(<span class="string">'Cache-Control'</span>, <span class="string">'no-cache'</span>);
+            xhr.setRequestHeader(<span class="string">'Pragma'</span>, <span class="string">'no-cache'</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>XXX END DEVELOPMENT</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            xhr.onreadystatechange = <span class="function"><span class="keyword">function</span> <span class="params">(evt)</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Do not explicitly handle errors, those should be
+visible via console output in the browser.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (xhr.readyState === <span class="number">4</span>) {
+                    callback(xhr.responseText);
+                }
+            };
+            xhr.send(<span class="literal">null</span>);
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>end browser.js adapters</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span> process !== <span class="string">"undefined"</span> &amp;&amp;
+               process.versions &amp;&amp;
+               !!process.versions.node) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Using special require.nodeRequire, something added by r.js.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        fs = require.nodeRequire(<span class="string">'fs'</span>);
+        fetchText = <span class="function"><span class="keyword">function</span> <span class="params">(path, callback)</span> {</span>
+            callback(fs.readFileSync(path, <span class="string">'utf8'</span>));
+        };
+    }
+
+    define([<span class="string">'parse'</span>,<span class="string">'jcompile'</span>,<span class="string">'top-level'</span>], <span class="keyword">function</span>(parse, jcompile, top_level) {
+        <span class="keyword">if</span> (!Object.Throw) {
+            Object.Throw = <span class="keyword">function</span>(obj) { <span class="keyword">throw</span> obj; };
+        }
+        <span class="function"><span class="keyword">function</span> <span class="title">TurtleScript</span><span class="params">(text, config)</span> {</span>
+            tree = parse(text, top_level);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>find top-level call(s) to &#39;define()&#39; and hack the dependencies
+to also use the ts! loader.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            tree.forEach(<span class="keyword">function</span>(stmt) {
+                <span class="keyword">if</span> (stmt.arity===<span class="string">"binary"</span> &amp;&amp; stmt.value === <span class="string">'('</span> &amp;&amp;
+                    stmt.first.arity===<span class="string">"name"</span> &amp;&amp; stmt.first.value===<span class="string">"define"</span>) {
+                    <span class="keyword">var</span> i, deps;
+                    <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;stmt.second.length; i++) {
+                        <span class="keyword">if</span> (stmt.second[i].arity===<span class="string">"unary"</span> &amp;&amp;
+                            stmt.second[i].value===<span class="string">"["</span>) {
+                            deps = stmt.second[i];
+                            <span class="keyword">break</span>;
+                        }
+                    }
+                    <span class="keyword">if</span> (!deps) { <span class="keyword">return</span>; }
+                    deps.first.forEach(<span class="keyword">function</span>(dname) {
+                        <span class="keyword">if</span> (dname.arity !== <span class="string">'literal'</span>) { <span class="keyword">return</span>; }
+                        <span class="keyword">if</span> (dname.value.indexOf(<span class="string">'!'</span>) !== -<span class="number">1</span>) { <span class="keyword">return</span>; }
+                        dname.value = <span class="string">"ts!"</span> + dname.value;
+                    });
+                }
+            });
+            <span class="keyword">return</span> jcompile(tree);
+        };
+        <span class="keyword">return</span> {
+        version: <span class="string">'0.1.0'</span>,
+
+        load: <span class="function"><span class="keyword">function</span> <span class="params">(name, parentRequire, load, config)</span> {</span>
+            <span class="keyword">var</span> path = parentRequire.toUrl(name + <span class="string">'.js'</span>);<span class="comment">// XXX could be .ts?</span>
+            fetchText(path, <span class="function"><span class="keyword">function</span> <span class="params">(text)</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Do TurtleScript transform.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> origText = text;
+                <span class="keyword">try</span> {
+                  text = TurtleScript(origText, config.TurtleScript);
+                } <span class="keyword">catch</span> (e) {
+                    <span class="keyword">if</span> (e.from &amp;&amp; e.to) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>find newline before &#39;from&#39;</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                        <span class="keyword">var</span> fromNL = origText.lastIndexOf(<span class="string">'\n'</span>, e.from);
+                        <span class="keyword">var</span> toNL = origText.indexOf(<span class="string">'\n'</span>, e.to);
+                        <span class="keyword">if</span> (fromNL === -<span class="number">1</span>) fromNL = <span class="number">0</span>; <span class="keyword">else</span> fromNL++;
+                        <span class="keyword">if</span> (toNL === -<span class="number">1</span>) toNL = e.to;
+                        <span class="keyword">var</span> line = origText.substring(fromNL, toNL);
+                        console.log(<span class="string">"Syntax Error: "</span>+JSON.stringify(e));
+                        console.log(line);
+                    }
+                    <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Could not compile: "</span>+path);
+                }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Hold on to the transformed text if a build.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (config.isBuild) {
+                    buildMap[name] = text;
+                }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>IE with conditional comments on cannot handle the
+sourceURL trick, so skip it if enabled.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="comment">/*@if (@_jscript) @else @*/</span>
+                <span class="keyword">if</span> (!config.isBuild) {
+                    text += <span class="string">"\r\n//@ sourceURL="</span> + path;
+                }
+                <span class="comment">/*@end@*/</span>
+
+                load.fromText(name, text);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>Give result to load. Need to wait until the module
+is fully parse, which will happen after this
+execution.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                parentRequire([name], <span class="function"><span class="keyword">function</span> <span class="params">(value)</span> {</span>
+                    load(value);
+                });
+            });
+
+        },
+
+        write: <span class="function"><span class="keyword">function</span> <span class="params">(pluginName, name, write)</span> {</span>
+            <span class="keyword">if</span> (name <span class="keyword">in</span> buildMap) {
+                <span class="keyword">var</span> text = buildMap[name];
+                write.asModule(pluginName + <span class="string">"!"</span> + name, text);
+            }
+        }
+        };
+    });
+
+}());</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

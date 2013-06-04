@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Canvas events test</title>
+<meta name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<link rel="shortcut icon" href="images/turtle_icon-16x16.ico" />
+<link rel="apple-touch-icon" href="images/turtle_icon-128x128.png" />
+<link rel="apple-touch-startup-image" href="images/turtle_splash-320x460.png" />
+<!-- XXX apparently alternate size startup images don't work yet on  iOS XXX
+     XXX only solution is to use document.write() to add an appropriate
+     XXX link element on the fly, boo.  And even that doesn't work for the
+     XXX retina display resolution. -->
+<!--
+<link rel="apple-touch-startup-image"
+      sizes="640x920" href="images/turtle_splash-640x920.png" />
+<link rel="apple-touch-startup-image"
+      sizes="1024x748" href="images/turtle_splash-1024x748.png" />
+<link rel="apple-touch-startup-image"
+      sizes="768x1004" href="images/turtle_splash-768x1004.png" />
+-->
+<style type="text/css">
+html, body, canvas { padding: 0; margin: 0; }
+#canvas {
+  position: absolute;
+  width: 100%; height: 100%;
+  -webkit-user-select: none;
+}
+</style>
+
+<script type="text/javascript" src="global.js"></script>
+<script type="text/javascript" src="global-es5.js"></script>
+<script type="text/javascript" src="extensions.js"></script>
+
+<script type="text/javascript" data-main="canvastest.js"
+        src="require.js"></script>
+<script type="text/javascript">
+define("timeouts", { setTimeout: window.setTimeout,
+                     clearTimeout: window.clearTimeout });
+</script>
+</head>
+<body><canvas id="canvas"></canvas></body>
+</html>

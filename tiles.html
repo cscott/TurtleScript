@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>TurtleScript tile test</title>
+<!-- jquery stuff -->
+<link href="jquery/pepper-grinder/jquery-ui-1.8.2.custom.css"
+      rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="jquery/jquery-1.4.2.js"></script>
+<script type="text/javascript" src="jquery/jquery-ui-1.9pre.js"></script>
+
+<!-- my stuff -->
+<link href="stylesheet.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="./global.js"></script>
+<script type="text/javascript" src="./global-es5.js"></script>
+<script type="text/javascript" src="./extensions.js"></script>
+<script type="text/javascript" data-main="tiles.js"
+        src="require.js"></script>
+<script type="text/javascript">
+define("timeouts", { setTimeout: window.setTimeout,
+                     clearTimeout: window.clearTimeout });
+</script>
+<style type="text/css">
+#canvas {
+  border: 1px solid #ccc;
+}
+
+/* just make sure the footer is properly at the bottom */
+hr { clear: both; }
+</style>
+</head>
+
+<body>
+<h1>TurtleScript tile test</h1>
+
+<pre id="debug">
+</pre>
+<div id="canvas" class="ts">
+
+  <div class="function">
+    <div class="header">function <span class="name">parse_test</span>
+      (<ul class="arguments"></ul>) {</div>
+    <div class="block" id="test">
+     <div class="variables empty">
+      var <ul class="variables"><li class="placeholder"></li></ul><span class='semi'>;</span>
+     </div>
+    </div>
+    <div class="footer">}</div>
+  </div>
+
+<!-- Simple static example, for testing stylesheet.
+  <div class="function">
+    <div class="header">function <span class="name">foo</span>
+      (<ul class="arguments"><li class="name">a</li><li class="name">b</li></ul>) {</div>
+    <div class="block">
+     <div class="variables">
+      var <ul class="variables"><li class="name">c</li></ul>;
+     </div>
+     <ul>
+      <li class="stmt">
+        <ul class="expr fixed"><!- - a expression statement - ->
+          <li class="binop">
+            <ul class="expr"><li class="name">c</li></ul>
+            <span class="op">=</span>
+            <ul class="expr"><li class="name">b</li></ul>
+          </li>
+        </ul>
+        ;
+      </li>
+
+      <li class="stmt">
+        <div class="header">while
+          (<ul class="expr"><li class="literal">1</li></ul>) {
+        </div>
+        <div class="block">
+          <div class="variables">
+            var <ul class="variables"><li class="placeholder"></li></ul>;
+          </div>
+          <ul><li class="stmt">break;</li></ul>
+        </div>
+        <div class="footer">}</div>
+      </li>
+
+      <li class="stmt">return
+        <ul class="expr">
+          <li class="binop">
+            <ul class="expr"><li class="name">a</li></ul>
+            <span class="op">+</span>
+            <ul class="expr"><li class="name">b</li></ul>
+          </li>
+        </ul>
+        ;
+      </li>
+    </ul>
+    </div>
+    <div class="footer">}</div>
+  </div>
+-->
+</div>
+
+<hr>
+<address></address>
+<!-- hhmts start -->Last modified: Thu Jun  2 03:01:52 EDT 2011 <!-- hhmts end -->
+</body> </html>

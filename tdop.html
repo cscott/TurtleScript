@@ -1,0 +1,90 @@
+<HTML><HEAD><META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <TITLE>Simplified JavaScript parsing and interpretation</TITLE>
+    <STYLE>
+th {background-color: thistle; border: black solid 1px; text-align: left;
+    padding-left: 10px; padding-right: 10px; vertical-align: top;}
+td {background-color: white; border: black solid 1pt; padding-left: 10px;
+    padding-right: 10px; vertical-align: top;}
+table {width: 90%; border: 0px; cellpadding: 0px;}
+    </STYLE>
+</HEAD><BODY bgcolor="linen">
+<H1>Simplified JavaScript parsing and interpretation</H1>
+
+<p>C. Scott Ananian, based on a grammar by Douglas Crockford</p>
+
+<H2>Demonstration</H2>
+
+<p>This demo is heavily modified from
+<A href="http://www.crockford.com/">Douglas Crockford</A>'s
+original <A href="http://javascript.crockford.com/tdop/tdop.html">Top
+Down Operator Precedence</A> JavaScript grammar
+<A href="http://javascript.crockford.com/tdop/index.html">demo</a>,
+which is described in chapter 9 of the book <A href="http://www.amazon.com/exec/obidos/ASIN/0596510047/wrrrldwideweb">Beautiful
+  Code</A>.</p>
+
+<p>This page contains a tokenizer, parser, bytecode compiler, and bytecode
+interpreter for Simplified JavaScript, all of which are written in
+Simplified JavaScript.  This page compiles all these pieces to
+bytecode and then runs them in the interpreter.  The interpreted
+version of the bytecode compiler is given a simple addition statement
+to compile.</p>
+
+<P>This page loads five main JavaScript files:</P>
+<TABLE border="0" align="center">
+  <TBODY><TR>
+    <TD valign="top"><A href="./tokenize.js">tokenize.js</A></TD>
+    <TD>This file installs the <code>tokenize</code> function which produces an array of simple tokens from a string.</TD>
+  </TR>
+  <TR>
+    <TD valign="top"><A href="./parse.js">parse.js</A></TD>
+    <TD>This file installs the <CODE>parse</CODE> function.</TD>
+  </TR>
+  <TR>
+    <TD valign="top"><A href="./bytecode_table.js">bytecode_table.js</A></TD>
+    <TD>This file installs the <CODE>bytecode_table</CODE> object which
+      wraps the short list of bytecode instructions used by the compiler and
+      interpreter.</TD>
+  </TR>
+  <TR>
+    <TD valign="top"><A href="./bcompile.js">bcompile.js</A></TD>
+    <TD>This file installs the <code>bcompile</code> function.  This
+      compiles a parse tree into a list of bytecode-compiled functions.</TD>
+  </TR>
+  <TR>
+    <TD valign="top"><A href="./binterp.js">binterp.js</A></TD>
+    <TD>This file installs the <CODE>binterp</CODE> object which
+      contains the bytecode interpreter.  It piggybacks on the
+      meta-level's object system, but otherwise tries hard not to
+      let meta-level definitions leak into the interpreted state.
+      All primitive objects and library functions are reimplemented
+      inside the interpreter, for example.</TD>
+  </TR>
+</TBODY></TABLE>
+
+<script type="text/javascript" src="./global.js"></script>
+<script type="text/javascript" src="./global-es5.js"></script>
+<script type="text/javascript" src="./extensions.js"></script>
+<script type="text/javascript" data-main="tdop.js"
+        src="require.js"></script>
+<script type="text/javascript">
+define("timeouts", { setTimeout: window.setTimeout,
+                     clearTimeout: window.clearTimeout });
+</script>
+
+<pre id="errors"></pre>
+<pre id="isource"></pre>
+<pre id="expected-result"></pre>
+<pre id="result"></pre>
+<pre id="parse-tree"></pre>
+<pre id="jcompile"></pre>
+<pre id="raw-bytecode"></pre>
+<pre id="encoded-bytecode"></pre>
+<div id="bytecode"></div>
+<div id="source"></div>
+
+<PRE id="output"><SCRIPT>
+</SCRIPT>
+</PRE>
+
+
+</BODY></HTML>
