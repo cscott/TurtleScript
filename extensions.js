@@ -1,4 +1,4 @@
-// some extensions to javascript to make the browser environment
+// Some extensions to javascript to make the browser environment
 // better match the Simplified JavaScript 'native' environment.
 
 Object.newUint8Array = function(size) {

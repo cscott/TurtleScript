@@ -1,3 +1,12 @@
+// # ts.js
+// [requirejs](http://requirejs.org/)
+// [plugin](http://requirejs.org/docs/plugins.html)
+// for loading TurtleScript code which has been run through
+// `parse` and `jcompile`.
+
+// This is mostly to keep us honest, by ensuring that our source code
+// really is valid TurtleScript.
+
 /**
  * @license ts 0.0.0 Copyright (c) 2011 C. Scott Ananian, portions Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.

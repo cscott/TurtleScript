@@ -1,6 +1,7 @@
-/* TurtleScript standard library, written in TurtleScript. */
-/* Used for bytecode interpreters (both TurtleScript and native). */
-// This modules is evaluated entirely for its side effects.
+// # stdlib.js
+// TurtleScript standard library, written in TurtleScript.
+//
+// Used for bytecode interpreters (both TurtleScript and native).
 define([], function make_stdlib() {
     var init = function() {
         String.prototype.indexOf = function(searchValue, from) {
@@ -23,7 +24,7 @@ define([], function make_stdlib() {
             return (j === searchValue.length) ? i : -1;
         };
         String.prototype.trim = function() {
-            // non-regex version based on
+            // Non-regex version of `String.prototype.trim()` based on
             // http://blog.stevenlevithan.com/archives/faster-trim-javascript
             var str = this;
             if (str.length === 0) { return str; }
@@ -63,9 +64,9 @@ define([], function make_stdlib() {
             return last;
         };
         Array.prototype.join = function(sep) {
-            // xxx call internal toObject on this
+            /* XXX call internal `[[toObject]]` on `this` */
             var len = this.length;
-            // we call internal toString on sep (by adding '')
+            // We call internal `[[toString]]` on `sep` (by adding '').
             if (sep === undefined) { sep = ','; } else { sep = '' + sep; }
             var k = 0;
             var result = '';
@@ -80,17 +81,17 @@ define([], function make_stdlib() {
         };
         Array.prototype.concat = function() {
             var result = [], i, j;
-            // start by cloning 'this'
+            // Start by cloning `this`.
             i = 0;
             while (i < this.length) {
                 result[i] = this[i];
                 i += 1;
             }
-            // now add elements from arguments
+            // Now add elements from arguments.
             i = 0;
             while (i < arguments.length) {
                 var e = arguments[i];
-                // awkward test for "is e an array"
+                // Awkward test for "is e an array?"
                 if (typeof(e)==="object" && e !== null &&
                     e.hasOwnProperty('length')) {
                     j = 0;
@@ -147,24 +148,24 @@ define([], function make_stdlib() {
         };
         Function.prototype.bind = function() {
             var method = this;
-            // avoid making a function wrapper if we don't have to
+            // Avoid making a function wrapper if we don't have to.
             if (arguments.length === 0) {
                 return method;
             }
             var addHasInstance = function(f) {
-                // from definition of internal HasInstance method in ECMA
-                // JavaScript spec.
+                // This is from the definition of internal ``[[HasInstance]]``
+                // method in the ECMA JavaScript spec.
                 f.hasInstance = function(v) { return method.hasInstance(v); };
                 return f;
             };
             var nthis = arguments[0];
-            // avoid copying the arguments array if we don't have to
+            // Avoid copying the arguments array if we don't have to.
             if (arguments.length === 1) {
                 return addHasInstance(function bind0 () {
                     return method.apply(nthis, arguments);
                 });
             }
-            // ok, we need to copy the bound arguments
+            // Ok, we need to copy the bound arguments.
             var nargs = [];
             var i = 1;
             while (i < arguments.length) {
@@ -172,8 +173,8 @@ define([], function make_stdlib() {
                 i += 1;
             }
             return addHasInstance(function bindN () {
-                // use concat.apply to finesse the fact that arguments isn't
-                // necessarily a 'real' array.
+                // Use `concat.apply` here to finesse the fact that `arguments`
+                // isn't necessarily a 'real' array.
                 return method.apply(nthis, Array.prototype.concat.apply(
                     nargs, arguments));
             });
@@ -208,20 +209,20 @@ define([], function make_stdlib() {
             result += "() { [native code] }";
             return result;
         };
-        // define toString() in terms of valueOf() for some types
+        // Define `toString()` in terms of `valueOf()` for some types.
         Boolean.prototype.toString = function() {
             return Boolean.prototype.valueOf.call(this) ? "true" : "false";
         };
         String.prototype.toString = String.prototype.valueOf;
         Number.prototype.toLocaleString = Number.prototype.toString;
 
-        // Support for branchless bytecode (see Chambers et al, OOPSLA '89)
+        // Support for branchless bytecode (see Chambers et al, OOPSLA '89).
         true["while"] = function(_this_, cond, body) {
             body.call(_this_);
             cond.call(_this_)["while"](_this_, cond, body);
         };
         false["while"] = function(_this_, cond, body) {
-            // no op
+            /* no op */
         };
         true["ifElse"] = function(_this_, ifTrue, ifFalse) {
             return ifTrue.call(_this_);
@@ -231,8 +232,8 @@ define([], function make_stdlib() {
         };
     };
 
-    // helper function to turn the stdlib init function into an
-    // evaluatable statement expression.
+    // Define a helper function to turn the `stdlib.init` function into the
+    // source text of an evaluatable statement expression.
     var source = function() {
         var s = init.toSource ? init.toSource() : init.toString();
         s = '(' + s + ')();';

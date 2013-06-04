@@ -1,6 +1,8 @@
-// bytecode_table.js
+// # bytecode_table.js
+//
 // Part of the bytecode compiler for parsed Simplified JavaScript, written in
 // Simplified JavaScript.
+//
 // This module just defines the bytecode operations.
 
 // C. Scott Ananian

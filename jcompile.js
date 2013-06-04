@@ -1,6 +1,8 @@
-// jcompile.js
+// # jcompile.js
+//
 // Pretty-printer for parsed Simplified JavaScript,
 // written in Simplified JavaScript.
+//
 // This is also a "compiler" for our parse tree to a form which can be
 // 'eval'ed and run natively in the browser JavaScript engine.  At the
 // moment we're not doing any transforms, so it's not a very interesting

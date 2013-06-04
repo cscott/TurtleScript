@@ -1,16 +1,21 @@
-// bcompile.js
+// # bcompile.js
+//
 // Bytecode compiler for parsed Simplified JavaScript written in
 // Simplified JavaScript.
+//
 // Implements lexical scope using object operations.  Eg.
+// ```
 // function foo() {
 //   var x = 5;
 //   function bar() {
 //     return x;
 //   }
 // }
+// ```
 // is desugared to something like:
+//  ```
 //  function addscope(f, scope) {
-//     return function() { 
+//     return function() {
 //         var $frame = { function: f, scope: {} };
 //         $frame.scope.__proto__ = scope;
 //         return f($frame);
@@ -23,7 +28,8 @@
 //         return $frame.scope.x;
 //      }, $frame.scope);
 //  }, $scope);
-//  where $frame is the activation record for the function.
+//  ```
+//  where `$frame` is the activation record for the function.
 //
 // C. Scott Ananian
 // 2011-05-10

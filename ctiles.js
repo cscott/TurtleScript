@@ -1,13 +1,5 @@
-define(["ts!parse", "ccanvas", "ts!crender", "ts!crender-styles", "ts!tests"], function(parse, ccanvas, crender, crender_styles, tests) {
-
-// set up some global context
-Object.prototype.error = function (message, t) {
-    t = t || this;
-    t.name = "SyntaxError";
-    t.message = message;
-    console.log(t);
-    throw t;
-};
+define(["ts!parse", "ccanvas", "ts!crender", "ts!crender-styles", "ts!tests", "ts!top-level"], function(parse, ccanvas, crender, crender_styles, tests, top_level) {
+var SCALE = 1; // change to (eg) 2 to enlarge the rendering
 
 // set up the canvas styles
 
@@ -18,16 +10,16 @@ function add_demo(title, source) {
 
 // a collection of various bits of code used for testing different widgets
 add_demo('Hello, world', 'console.log("Hello, world!");');
-add_demo('JS tokenizer', tests[0]);
-add_demo('JS parser', tests[1]);
-add_demo('JS compiler', tests[2]);
-add_demo('Tile renderer', tests[3]);
-add_demo('Bytecode table', tests[4]);
-add_demo('Bytecode compiler', tests[5]);
-add_demo('Bytecode interpreter', tests[6]);
-add_demo('Standard library', tests[8]);
-add_demo('Event library', tests[7]);
-add_demo('Test suite', tests[9]);
+add_demo('JS tokenizer', tests.lookup('tokenize'));
+add_demo('JS parser', tests.lookup('parse'));
+add_demo('JS compiler', tests.lookup('jcompile'));
+add_demo('Tile renderer', tests.lookup('crender'));
+add_demo('Bytecode table', tests.lookup('bytecode-table'));
+add_demo('Bytecode compiler', tests.lookup('bcompile'));
+add_demo('Bytecode interpreter', tests.lookup('binterp'));
+add_demo('Standard library', tests.lookup('stdlib'));
+add_demo('Event library', tests.lookup('events'));
+add_demo('Test suite', tests.lookup('tests'));
 
 add_demo('IDC2012', "function fact(n) { if (n<=1) {return 1;} return n*fact(n-1); } console.log(\"5!=\", fact(5));");
 
@@ -60,9 +52,6 @@ isource = tests[tests.length-2];
 
 function update_from_source(canvas, styles, isource) {
   // parse the example source
-  var top_level = "isFinite parseInt isNaN "+
-                  "Boolean String Function Math "+
-                  "console arguments now define document";
   var tree = parse(isource, top_level);
 
   // make widgets from parse tree
@@ -73,7 +62,7 @@ function update_from_source(canvas, styles, isource) {
   // resize the canvas appropriately
   // (chrome seems to have trouble w/ enormous canvases, so limit reasonably)
   canvas.resize(Math.min(widget.bbox.width(), 8000)+10,
-                Math.min(widget.bbox.height(), 30000)+10);
+                Math.min(widget.bbox.height(), 30000)+10, SCALE);
   // wrap in withContext to undo the effects of the 'translate'
   canvas.withContext({}, function() {
     // canvas coordinates are pixels, so a 1px line straddles two pixels.

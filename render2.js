@@ -1,28 +1,45 @@
-// render.js
+// # render.js
+//
 // Hacked-together conversion to HTML.
 //
-// Expr context is: <div class="e efirst"><span><span>....</span></span></div>
-//      The outer div is a 100% width block; the inner span is
-//      a shrink-to-fit inline-block, then innermost span is an inline-table
-//   Each individual expr components should look like:
-//            <span class="expr ..."><span>....</span></span>
-//      The nested <span> allows positioning the text relative to the border.
-//   For a new continuation line in an expr, use
-//            ...</span></div><div class="e econt"><span>...
-//      Usually the full markup will look something like:
-//            ...<span class="expr binop brokentop">+</span></span></div>
-//            <div class="e econt"><span><span class="expr binop brokenbot">
-//            <!--border image here w/ no text--></span>...
-//   For an embedded function, array, object, etc context in an expr, use:
-//            ...</span></div><div class="e enest ..."><span>...
-//   And at the end of the embedded context:
-//            ...</span></div><div class="e econt"><span>...
+// Expr context is:
+// ```
+// <div class="e efirst"><span><span>....</span></span></div>
+// ```
+// The outer div is a 100% width block; the inner span is
+// a shrink-to-fit inline-block, then innermost span is an inline-table.
+// Each individual expr components should look like:
+// ```
+// <span class="expr ..."><span>....</span></span>
+// ```
+// The nested `<span>` allows positioning the text relative to the border.
+// For a new continuation line in an expr, use:
+// ```
+// ...</span></div><div class="e econt"><span>...
+// ```
+// Usually the full markup will look something like:
+// ```
+// ...<span class="expr binop brokentop">+</span></span></div>
+// <div class="e econt"><span><span class="expr binop brokenbot">
+// <!--border image here w/ no text--></span>...
+// ```
+// For an embedded function, array, object, etc context in an expr, use:
+// ```
+// ...</span></div><div class="e enest ..."><span>...
+// ```
+// And at the end of the embedded context:
+// ```
+// ...</span></div><div class="e econt"><span>...
+// ```
 //
 // Statements should be of the form:
-//            <div class="stmt ..."><span> ... </span></div>
-//   The outer div is a 100% width block; the inner span is
-//   a shrink-to-fit inline-block.
-//   The statement is responsible for its own closing semicolon.
+// ```
+// <div class="stmt ..."><span> ... </span></div>
+// ```
+// The outer div is a 100% width block; the inner span is
+// a shrink-to-fit inline-block.
+//
+// The statement is responsible for its own closing semicolon.
 
 // C. Scott Ananian
 // 2010-07-02ish

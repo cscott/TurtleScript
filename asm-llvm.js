@@ -1,4 +1,4 @@
-// asm-llvm.js is a parser for [asm.js](http://asmjs.org) written
+// `asm-llvm.js` is a parser for [asm.js](http://asmjs.org) written
 // in [TurtleScript](http://github.com/cscott/turtlescript), a
 // syntactically-simplified JavaScript.  It is written by
 // C. Scott Ananian and released under an MIT license.
@@ -11,6 +11,7 @@
 // Copyright (c) 2013 C. Scott Ananian
 define([], function asm_llvm() {
     // The module object.
+    // (This is used by `tests.js` to recreate the module source.)
     var module = {
         __module_name__: "asm-llvm",
         __module_init__: asm_llvm,
@@ -19,15 +20,16 @@ define([], function asm_llvm() {
 
     // ## Type system
 
-    // Set up the [type system of asm.js](http://asmjs.org/spec/latest/#types)
+    // Set up the [type system of asm.js](http://asmjs.org/spec/latest/#types).
     var Type = {
         _id: 0,
         _derived: {},
         subtypes: []
     };
-    // We do hash-consing of Type objects so that we have a singleton object
+    // We do hash-consing of `Type` objects so that we have a singleton object
     // representing every unique type, no matter how it was derived.
-    // The basis is Type.derive, which creates one Type object from another.
+    // The basis is `Type.derive()`, which creates one `Type` object from
+    // another.
     Type.derive = (function() {
         var id = 1;
         return function(spec, properties) {
@@ -102,8 +104,8 @@ define([], function asm_llvm() {
         return Type.ArrayBufferView.derive('Float' + n + 'Array');
     };
     Type.FunctionType = function(argtypes, rettype) {
-        // derive a function type from the return type and the arguments,
-        // in order.
+        // We derive a function type starting from the return type, and
+        // proceeding to the argument types in order.
         var result = rettype.derive('()->', {
             'function': true,
             rettype: rettype,
@@ -116,8 +118,8 @@ define([], function asm_llvm() {
         return result;
     };
     Type.FunctionTypes = function(functiontypes) {
-        // sort the function types by id, to have a canonical order,
-        // then derive the set
+        // Sort the function types by id, to make a canonical ordering,
+        // then derive the `FunctionTypes` type.
         functiontypes.sort(function(a,b) { return a._id - b._id; });
         var result = Type.derive('FunctionTypes', {
             functiontypes: true,
@@ -144,14 +146,14 @@ define([], function asm_llvm() {
     };
     test_types();
 
-    // Here we start borrowing liberally from acorn!
-    // We move the token types into module context, since they are
-    // (for all practical purposes) constants.
-
     // Some functions will have alternate implementations in a
     // TurtleScript environment -- for example, we'll try to avoid
     // using regular expressions and dynamic eval.
     var runningInTS = false; // XXX replace with an appropriate dynamic test
+
+    // Here we start borrowing liberally from acorn!
+    // We move the token types into module context, since they are
+    // (for all practical purposes) constants.
 
     // ## Token types
 
@@ -307,7 +309,7 @@ define([], function asm_llvm() {
 
     var makePredicate = function(words) {
         words = words.split(" ");
-        // When running under turtlescript, substitute a much simpler
+        // When running under TurtleScript, substitute a much simpler
         // implementation (for now at least).
         if (runningInTS) {
             return function(str) { return words.indexOf(str) >= 0; };
@@ -413,7 +415,7 @@ define([], function asm_llvm() {
         if (code < 97) { return code === 95; }
         if (code < 123) { return true; }
         return code >= 0xaa &&
-            // don't use the regexp if we're running under TurtleScript
+            // Don't use the regexp if we're running under TurtleScript.
             (!runningInTS) &&
             nonASCIIidentifierStart.test(String.fromCharCode(code));
     };
@@ -428,7 +430,7 @@ define([], function asm_llvm() {
         if (code < 97) { return code === 95; }
         if (code < 123) { return true; }
         return code >= 0xaa &&
-            // don't use the regexp if we're running under TurtleScript
+            // Don't use the regexp if we're running under TurtleScript.
             (!runningInTS) &&
             nonASCIIidentifier.test(String.fromCharCode(code));
     };
@@ -727,8 +729,8 @@ define([], function asm_llvm() {
                 } else if ((ch < 14 && ch > 8) || ch === 32 || ch === 160) { // ' ', '\xa0'
                     tokPos += 1;
                 } else if (ch >= 5760 &&
-                           // don't use the regexp if we're running under
-                           // TurtleScript
+                           // Don't use the regexp if we're running under
+                           // TurtleScript.
                            (!options.runningInTS) &&
                            nonASCIIwhitespace.test(String.fromCharCode(ch))) {
                     tokPos += 1;
@@ -934,7 +936,7 @@ define([], function asm_llvm() {
                 // character, or something that's entirely disallowed.
                 var ch = String.fromCharCode(code);
                 if (ch === "\\" ||
-                    // don't use the regexp if we're running under TurtleScript
+                    // Don't use the regexp if we're running under TurtleScript.
                     ((!options.runningInTS) &&
                      nonASCIIidentifierStart.test(ch))) {
                     return readWord();
@@ -1103,24 +1105,22 @@ define([], function asm_llvm() {
                         out += String.fromCharCode(parseInt(octal, 8));
                         tokPos += octal.length - 1;
                     } else {
-                        // this was a switch statement; we turned it into
-                        // a binary search tree of ifs instead.
+                        // This was a switch statement in acorn; we turned it
+                        // into a binary search tree of ifs instead.
                         if (ch < 110) { // 10,13,48,85,98,102
                             if (ch < 85) { // 10,13,48
-                                if (ch===10 || ch===13) {
+                                if (ch===10 || ch===13) { // '\r' or '\n'
                                     if (ch===13) {
                                         if (input.charCodeAt(tokPos) === 10) {
                                             tokPos += 1; // '\r\n'
                                         }
                                     }
-                                    // '\n'
                                     if (options.locations) {
                                         tokLineStart = tokPos; tokCurLine += 1;
                                     }
                                 } else if (ch === 48) {
                                     out += "\0"; break; // 0 -> '\0'
-                                } else {
-                                    // default case
+                                } else { // default case
                                     out += String.fromCharCode(ch);
                                 }
                             } else { // 85,98,102
@@ -1130,8 +1130,7 @@ define([], function asm_llvm() {
                                     out += "\b";
                                 } else if (ch === 102) { // 'f' -> '\f'
                                     out += "\f";
-                                } else {
-                                    // default case
+                                } else { // default case
                                     out += String.fromCharCode(ch);
                                 }
                             }
@@ -1143,8 +1142,7 @@ define([], function asm_llvm() {
                                     out += "\r";
                                 } else if (ch === 116) { // 't' -> '\t'
                                     out += "\t";
-                                } else {
-                                    // default case
+                                } else { // default case
                                     out += String.fromCharCode(ch);
                                 }
                             } else { // 117,118,120
@@ -1154,8 +1152,7 @@ define([], function asm_llvm() {
                                     out += "\u000b";
                                 } else if (ch===120) { // 'x'
                                     out += String.fromCharCode(readHexChar(2));
-                                } else {
-                                    // default case
+                                } else { // default case
                                     out += String.fromCharCode(ch);
                                 }
                             }

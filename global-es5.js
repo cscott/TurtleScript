@@ -1,7 +1,8 @@
 
-// -- kriskowal Kris Kowal Copyright (C) 2009-2010 MIT License
-// -- tlrobinson Tom Robinson
-// dantman Daniel Friesen
+/*! -- kriskowal Kris Kowal Copyright (C) 2009-2010 MIT License
+    -- tlrobinson Tom Robinson
+   dantman Daniel Friesen
+*/
 
 /*!
     Copyright (c) 2009, 280 North Inc. http://280north.com/
@@ -30,7 +31,7 @@
 // =====
 //
 
-// ES5 15.4.3.2 
+// ES5 15.4.3.2
 if (!Array.isArray) {
     Array.isArray = function(obj) {
         return Object.prototype.toString.call(obj) == "[object Array]";
@@ -220,7 +221,7 @@ if (!Array.prototype.lastIndexOf) {
 //
 // Object
 // ======
-// 
+//
 
 // ES5 15.2.3.2
 if (!Object.getPrototypeOf) {
@@ -244,7 +245,7 @@ if (!Object.getOwnPropertyNames) {
     };
 }
 
-// ES5 15.2.3.5 
+// ES5 15.2.3.5
 if (!Object.create) {
     Object.create = function(prototype, properties) {
         if (typeof prototype != "object" || prototype === null)
@@ -390,7 +391,7 @@ if (!Date.prototype.toISOString) {
             this.getHours() + ":" +
             this.getMinutes() + ":" +
             this.getSeconds() + "Z"
-        ); 
+        );
     }
 }
 
@@ -480,7 +481,7 @@ if (isNaN(Date.parse("T00:00"))) {
                         "(\\d\\d)" + // day capture
                     ")?" +
                 ")?" +
-            ")?" + 
+            ")?" +
             "(?:T" + // hour:minute:second.subsecond
                 "(\\d\\d)" + // hour capture
                 ":(\\d\\d)" + // minute capture
@@ -550,10 +551,10 @@ if (isNaN(Date.parse("T00:00"))) {
     })(Date);
 }
 
-// 
+//
 // Function
 // ========
-// 
+//
 
 // ES-5 15.3.4.5
 // http://www.ecma-international.org/publications/files/drafts/tc39-2009-025.pdf
@@ -563,7 +564,7 @@ if (!Function.prototype.bind) {
         // 1. Let Target be the this value.
         var target = this;
         // 2. If IsCallable(Target) is false, throw a TypeError exception.
-        // XXX this gets pretty close, for all intents and purposes, letting 
+        // XXX this gets pretty close, for all intents and purposes, letting
         // some duck-types slide
         if (typeof target.apply != "function" || typeof target.call != "function")
             return new TypeError();
@@ -685,4 +686,3 @@ if (!String.prototype.trim) {
         return String(this).replace(trimBeginRegexp, '').replace(trimEndRegexp, '');
     };
 }
-

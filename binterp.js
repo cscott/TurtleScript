@@ -1,4 +1,5 @@
-// binterp.js
+// # binterp.js
+//
 // Bytecode interpreter, written in Simplified JavaScript.
 
 // TODO: string coercions aren't quite right yet, we don't call the

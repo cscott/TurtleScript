@@ -1,21 +1,9 @@
-define(["parse", "jcompile", "render", "tests", "!html-escape"], function(parse, jcompile, render, tests, html_escape) {
-
-// set up some global context
-Object.prototype.error = function (message, t) {
-    t = t || this;
-    t.name = "SyntaxError";
-    t.message = message;
-    console.log(t);
-    throw t;
-};
+define(["parse", "jcompile", "render", "tests", "top-level", "!html-escape"], function(parse, jcompile, render, tests, top_level, html_escape) {
 
 $(function() {
-  // generate some stuff on the canvas
+  // Generate some stuff on the canvas.
   var source = tests[0];
   //$("#debug").append(html_escape(source)+"\n");
-  var top_level = "isFinite parseInt isNaN "+
-                  "Boolean String Function Math "+
-                  "console arguments now define document";
   var tree = parse(source, top_level);
   //$("#debug").append(html_escape(jcompile(tree)));
   var elem = render(tree);

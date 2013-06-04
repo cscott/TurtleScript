@@ -1,6 +1,6 @@
-// a collection of interesting test cases.
+// A collection of interesting test cases.
 define(["str-escape",
-        // these are just imported to make test cases out of them
+        /* These modules are just imported to make test cases out of them. */
         "tokenize", "parse", "jcompile", "crender", "bytecode-table",
         "bcompile", "binterp", "stdlib", "events", "asm-llvm"],
        function make_tests(str_escape,
@@ -10,27 +10,27 @@ define(["str-escape",
                 "tokenize", "parse", "jcompile", "crender", "bytecode-table",
                 "bcompile", "binterp", "stdlib", "events", "asm-llvm"];
     var test=[], i=1/* skip str_escape */;
-    // first tests are our own source code, from the arguments.
+    // The first tests are our own source code, from the module arguments.
     while (i < arguments.length) {
         test[i-1] = arguments[i];
         test[i-1].__module_name__ = deps[i]; // hack
         i += 1;
     }
     i -= 2;
-    // next test case is this function itself.
+    // The next test case is this function itself.
     if (make_tests) {
         make_tests.__module_name__ = "tests";
         make_tests.__module_deps__ = deps;
         make_tests.__module_init__ = make_tests;
         test[i+=1] = make_tests;
     }
-    // now some ad-hoc test cases.  Phrased as functions so they can be
-    // syntax-checked, etc.  'autotest' functions should return 'true'
+    // Now some ad-hoc test cases.  These are phrased as functions so they can
+    // be syntax-checked, etc.  `autotest()` functions should return `true`
     // on a successful evaluation.
     var autotest = function(f) { f.autotest=true; return f; };
     test[i+=1] = function() {
-        // find bug sharing no-arg and arg return tokens
-        // (when you do token.reserve() it makes the current syntree
+        // Find bug sharing no-arg and arg return tokens.
+        // When you do token.reserve() it makes the current syntree
         // node the prototype for future return statements.  This can
         // result in circular structures unless you always define this.first.
         // Otherwise it gets inherited from the parent, and thus might
@@ -63,7 +63,7 @@ define(["str-escape",
         return (a===7) && (b===9) && (c===-3) && (d===7);
     });
     test[i+=1] = function(i, j, k, l, m, n, o) {
-        // precedence tests
+        // Precedence tests.
        var a = i + j ? k + l : m + n;
        var b = i + (j ? k + l : m) + n;
        var c = i ? (j ? k : l) : (m ? n : o);
@@ -85,7 +85,7 @@ define(["str-escape",
         if (x) { x += 1; } else if (!x) { x += 2; } else { x+= 3; }
         return x;
     };
-    /** Interpreter tests */
+    // ## Interpreter tests
     test[i+=1] = function() {
         var a = [];
         var b = a.push('a', [1, 2]);
@@ -133,7 +133,7 @@ define(["str-escape",
             cond.call(_this_)["while"](_this_, cond, body);
         };
         false["while"] = function(_this_, cond, body) {
-            // no op
+            /* no op */
         };
         true["ifElse"] = function(_this_, ifTrue, ifFalse) {
             return ifTrue.call(_this_);
@@ -146,7 +146,7 @@ define(["str-escape",
         // (even though it's not truely object-oriented)
         Boolean.prototype["while"] = function(_this_, cond, body) {
             console.log("Boolean.while fallback");
-            // strange: === gives the wrong value. == works, because (i think)
+            // Strange: === gives the wrong value. == works, because (I think)
             // it coerces to string, like the below.  ! also does the wrong
             // thing.  Hm!
             if (this.toString() === "false") { return; }
@@ -222,7 +222,7 @@ define(["str-escape",
         return true;
     });
     test[i+=1] = autotest(function() {
-        // more array method tests
+        // More array method tests.
         var s = "";
         [1, 2, 3, 4].map(function(x) { return x*2; }).forEach(function(e, i){
             s += [i, e].join(',') + " ";
@@ -230,12 +230,12 @@ define(["str-escape",
         return s === '0,2 1,4 2,6 3,8 ';
     });
     test[i+=1] = autotest(function() {
-        // three-operand call
+        // Three-operand call.
         var foo = function() { return this.bar('baz'); };
-        // more unusual forms of three-operand call; 'this' is still set.
+        // More unusual forms of three-operand call; 'this' is still set.
         var bar1 = function(bat) { return bat[0](42); };
         var bar2 = function(bat, i) { return bat[i](42); };
-        // make proper parsing testable by invoking the functions
+        // Make proper parsing auto-testable by invoking the defined functions.
         var r1 = foo.call({bar: function(x) { return x; }});
         if (r1 !== 'baz') { return false; }
         var r2 = bar1([function(x) { return x; }]);
@@ -245,7 +245,7 @@ define(["str-escape",
         return true;
     });
     test[i+=1] = autotest(function() {
-        // check that 'this' is set correctly for various three-operand
+        // Check that `this` is set correctly for various three-operand
         // call types.
         var foo = {
             answer: 42,
@@ -264,7 +264,7 @@ define(["str-escape",
         return true;
     });
     test[i+=1] = function() {
-        // test 'new' and 'instanceof'
+        // Test `new` and `instanceof`
         function Foo(arg) { this.foo = arg; }
         Foo.prototype = {};
         var f = Foo.New('foo');
@@ -281,7 +281,7 @@ define(["str-escape",
         return s;
     };
     test[i+=1] = autotest(function() {
-        // very basic Uint8Array support.
+        // Very basic `Uint8Array` support.
         var uarr = Object.newUint8Array(256);
         uarr[0] = 255;
         uarr[0] += 1;
@@ -307,7 +307,8 @@ define(["str-escape",
         return u8s.length===512 && u8s[510]===224 && u8s[511]===64;
     };
     */
-    /** Tile-generation tests */
+
+    // ## Tile-generation tests
     test[i+=1] = function() {
         var c = 1+2;
         return c;
@@ -336,7 +337,7 @@ define(["str-escape",
         b = a;
         return b;
     };
-    /** Block scoping tests (don't currently work) */
+    // ## Block scoping tests (don't currently work)
     /*
     test[i+=1] = function() {
         var x = 3, z;
@@ -383,15 +384,15 @@ define(["str-escape",
         if (test[j].autotest) { autotests[j] = true; }
         j+=1;
     }
-    // add an accessor method to the test_source array
+    // Add an accessor method to the `test_source` array.
     test_source.lookup = function(name) {
         return test_map[name];
     };
-    // add an accessor method to the test_names array
+    // Add an accessor method to the `test_names` array.
     test_source.getName = function(idx) {
         return test_names[idx];
     };
-    // get at the list of executable test cases
+    // Get at the list of executable test cases.
     test_source.isExecutable = function(idx) { return !!autotests[idx]; };
     return test_source;
 });

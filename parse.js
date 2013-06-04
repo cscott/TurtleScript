@@ -1,10 +1,13 @@
-// parse.js
-// Parser for Simplified JavaScript written in Simplified JavaScript
-// From Top Down Operator Precedence
-// http://javascript.crockford.com/tdop/index.html
-// Douglas Crockford
-// 2008-07-07
-// Modified by C. Scott Ananian
+// # parse.js
+//
+// Parser for Simplified JavaScript written in Simplified JavaScript.
+//
+// From
+// [Top Down Operator Precedence](http://javascript.crockford.com/tdop/index.html)
+// by Douglas Crockford
+// 2008-07-07.
+//
+// Modified by C. Scott Ananian.
 define(["tokenize"], function make_parse(tokenize) {
     var DEBUG;
     var scope;

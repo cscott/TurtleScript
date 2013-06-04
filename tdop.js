@@ -1,3 +1,4 @@
+// Source for the `tdop.html` demonstration page.
 define(["html-escape", "json2", "ts!parse", "ts!bcompile", "ts!binterp", "ts!stdlib", "ts!top-level", "ts!tests"], function(html_escape, JSON, parse, bcompile, binterp, stdlib, top_level, tests) {
 
 /*jslint evil: true */

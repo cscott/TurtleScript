@@ -1,6 +1,8 @@
-// crender.js
+// # crender.js
+//
 // Create widget tree for parsed Simplified JavaScript.
 // Written in Simplified JavaScript.
+//
 // C. Scott Ananian
 // 2011-05-13
 define(["str-escape", "gfx/Point", "gfx/Color"], function make_crender(str_escape, Point, Color) {

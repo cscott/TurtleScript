@@ -1,10 +1,11 @@
-// simple string escape function.
+// A simple string escape function.
 define(function() { return function str_escape(s) {
         if (s.toSource) {
-            // abuse toSource() to properly quote a string value.
+            // If available, abuse `toSource()` to properly quote a string
+            // value.
             return s.toSource().slice(12,-2);
         }
-        // Erg, use hand-coded version
+        // Erg, use hand-coded version.
         var quotes = '"';
         if (s.indexOf('"') !== -1 && s.indexOf("'") === -1) {
             quotes = "'";

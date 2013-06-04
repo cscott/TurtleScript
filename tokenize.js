@@ -1,15 +1,17 @@
-// tokens.js
-// 2009-05-17
+// # tokenize.js
+/* 2009-05-17 */
 
-// (c) 2006 Douglas Crockford
-// Very lightly modified by C. Scott Ananian
+// (c) 2006 Douglas Crockford.
+// Very lightly modified by C. Scott Ananian.
 
 // Produce an array of simple token objects from a string.
 // A simple token object contains these members:
+// ```
 //      type: 'name', 'string', 'number', 'operator'
 //      value: string or number value of the token
 //      from: index of first character of the token
 //      to: index of the last character + 1
+// ```
 
 // Comments of the // type are ignored.
 
@@ -17,9 +19,13 @@
 // operators can be made by supplying a string of prefix and
 // suffix characters.
 // characters. For example,
+// ```
 //      '<>+-&', '=>&:'
+// ```
 // will match any of these:
+// ```
 //      <=  >>  >>>  <>  >=  +: -: &: &&: &&
+// ```
 define(function make_tokenize() { function tokenize (_this_, prefix, suffix, DEBUG) {
     var c;                      // The current character.
     var from;                   // The index of the start of the token.

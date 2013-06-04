@@ -1,6 +1,9 @@
-// render.js
+// # render.js
+//
 // Create DOM element tree for parsed Simplified JavaScript.
+//
 // Written in Simplified JavaScript, but uses jQuery methods.
+//
 // C. Scott Ananian
 // 2010-07-08
 define(["str-escape","!html-escape"], function make_render(str_escape, html_escape) {
