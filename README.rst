@@ -56,6 +56,35 @@ It is likely to get increasingly outdated over time.  I'll attempt to
 periodically overhaul it to match reality, but it may always contain
 historical fragments, false starts, and loose ends.
 
+State of the world: 2013-06-03
+------------------------------
+
+I recently wrote a "native" interpreter for TurtleScript in Mozilla's
+Rust_ programming language.  The source code
+for that project can be found at
+http://github.com/cscott/rusty-turtle.
+
+In the process I improved the REPL_ for TurtleScript, built out the
+standard library a bit, fixed bugs, and added node_ compatibility
+and a test suite.
+
+More recently I've begun to think about a
+TurtleScript-to-`asm.js`_-to-`LLVM`_
+compiler, which would let me investigate object layout and performance
+optimizations without resorting to Rust, C, or another low-level
+language.  (Unfortunately ``asm.js`` is not a proper subset of
+TurtleScript at present, since TurtleScript doesn't have the ``switch``
+statements or bitwise operators.  This gap can be mended.)
+Accordingly, `asm-llvm.js`_ is the beginnings of an ``asm.js``-to-LLVM
+compiler, written in TurtleScript.
+
+.. _Rust: http://www.rust-lang.org
+.. _REPL: http://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop
+.. _node: http://nodejs.org
+.. _asm.js: http://asmjs.org
+.. _LLVM: http://llvm.org/
+.. _asm-llvm.js: https://github.com/cscott/TurtleScript/blob/master/asm-llvm.js
+
 State of the world: 2011-05-19
 ------------------------------
 
@@ -159,8 +188,8 @@ way into the object system and runtime.  Turtles all the way down!
 See `Helping out`_ to contribute.
 
 .. _Douglas Crockford: http://www.crockford.com/javascript/
-.. _parse.js: http://cscott.net/Projects/TurtleScript/parse.js
-.. _jcompile.js: http://cscott.net/Projects/TurtleScript/jcompile.js
+.. _parse.js: https://github.com/cscott/TurtleScript/blob/master/parse.js
+.. _jcompile.js: https://github.com/cscott/TurtleScript/blob/master/jcompile.js
 .. _maru: http://piumarta.com/software/maru/
 .. _tdop.html: http://cscott.net/Projects/TurtleScript/tdop.html
 .. _parser demonstration: http://javascript.crockford.com/tdop/index.html
@@ -169,7 +198,7 @@ See `Helping out`_ to contribute.
 .. _tile2.html: http://cscott.net/Projects/TurtleScript/tile2.html
 .. _tiles.html: http://cscott.net/Projects/TurtleScript/tiles.html
 .. _ctiles.html: http://cscott.net/Projects/TurtleScript/ctiles.html
-.. _canvas API: http://cscott.net/Projects/TurtleScript/ccanvas.js
+.. _canvas API: https://github.com/cscott/TurtleScript/blob/master/ccanvas.js
 .. _gjs module system: http://cananian.livejournal.com/58744.html
 
 Interesting Parser Tasks
@@ -269,7 +298,7 @@ desirable):
    particular, I've found myself using the standard `Arrays.forEach`_
    method extensively when writing Simplified JavaScript.)
 
-.. _extensions.js: http://cscott.net/Projects/TurtleScript/extensions.js
+.. _extensions.js: https://github.com/cscott/TurtleScript/blob/master/extensions.js
 .. _yada yada yada: http://search.cpan.org/~tmtm/Yada-Yada-Yada-1.00/Yada.pm
 .. _Arrays.forEach: https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/forEach
 
@@ -493,7 +522,7 @@ propagation, and memoization.  Here's a task list:
    during the first execution, propagating constants and memoizable
    function results.
 
-.. _extensions.js: http://cscott.net/Projects/TurtleScript/extensions.js
+.. _extensions.js: https://github.com/cscott/TurtleScript/blob/master/extensions.js
 .. _Typed Array: http://www.khronos.org/registry/typedarray/specs/latest/
 .. _object model: http://piumarta.com/software/cola/objmodel2.pdf
 .. _NaN boxing: http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation/
@@ -648,8 +677,8 @@ rendering tasks:
    that are in scope.  Perhaps combine this with an object browser
    which can display active objects and let you drag/drop slot names.
 
-.. _crender.js: http://cscott.net/Projects/TurtleScript/crender.js
-.. _parse.js: http://cscott.net/Projects/TurtleScript/parse.js
+.. _crender.js: https://github.com/cscott/TurtleScript/blob/master/crender.js
+.. _parse.js: https://github.com/cscott/TurtleScript/blob/master/parse.js
 .. _Lessphic: http://piumarta.com/software/cola/canvas.pdf
 
 Interaction Ideas
@@ -844,7 +873,7 @@ related) work are welcomed.  You can also hack away and contribute code
 using the standard `github`_ fork-and-pull-request mechanism.  Thanks
 for reading!
 
-  -- C. Scott Ananian, 9-14 July 2010, revised 19 May 2011
+  -- C. Scott Ananian, 9-14 July 2010, revised 19 May 2011, revised 3 Jun 2013
 
 .. _github: http://github.com/cscott/TurtleScript
 
