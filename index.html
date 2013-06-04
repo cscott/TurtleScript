@@ -326,7 +326,7 @@ ul.auto-toc {
 <div class="document">
 
 
-<img alt="https://raw.github.com/cscott/TurtleScript/master/images/hello-world.png" class="align-right" src="https://raw.github.com/cscott/TurtleScript/master/images/hello-world.png" />
+<img alt="http://turtlescript.github.cscott.net/images/hello-world.png" class="align-right" src="http://turtlescript.github.cscott.net/images/hello-world.png" />
 <div class="section" id="project-goals">
 <h1>Project Goals</h1>
 <p>The TurtleScript experiment attempts to provide a simple logo-like
@@ -377,7 +377,7 @@ optimizations without resorting to Rust, C, or another low-level
 language.  (Unfortunately <tt class="docutils literal">asm.js</tt> is not a proper subset of
 TurtleScript at present, since TurtleScript doesn't have the <tt class="docutils literal">switch</tt>
 statements or bitwise operators.  This gap can be mended.)
-Accordingly, <a class="reference external" href="https://github.com/cscott/TurtleScript/blob/master/asm-llvm.js">asm-llvm.js</a> is the beginnings of an <tt class="docutils literal">asm.js</tt>-to-LLVM
+Accordingly, <a class="reference external" href="http://turtlescript.github.cscott.net/docco/asm-llvm.html">asm-llvm.js</a> is the beginnings of an <tt class="docutils literal">asm.js</tt>-to-LLVM
 compiler, written in TurtleScript.</p>
 </div>
 <div class="section" id="state-of-the-world-2011-05-19">
@@ -385,7 +385,7 @@ compiler, written in TurtleScript.</p>
 <p>The source code for the project is hosted at
 <a class="reference external" href="http://github.com/cscott/TurtleScript">http://github.com/cscott/TurtleScript</a>.</p>
 <p>It begins with a parser for the &quot;Simplified JavaScript&quot; of
-<a class="reference external" href="http://www.crockford.com/javascript/">Douglas Crockford</a> in <a class="reference external" href="https://github.com/cscott/TurtleScript/blob/master/parse.js">parse.js</a>.  I've extended the language very
+<a class="reference external" href="http://www.crockford.com/javascript/">Douglas Crockford</a> in <a class="reference external" href="http://turtlescript.github.cscott.net/docco/parse.html">parse.js</a>.  I've extended the language very
 slightly: it now supports block comments and '$' in identifiers, and
 represents blocks in the parse tree in a more uniform fashion.  I've
 also hoisted all variable declarations to the top of a block, to more
@@ -393,11 +393,11 @@ accurately reflect their scope.  Some further improvements are
 discussed in <a class="reference internal" href="#interesting-parser-tasks">Interesting Parser Tasks</a>, but the base language is not
 expected to change much more.</p>
 <div class="figure align-right">
-<a class="reference external image-reference" href="https://raw.github.com/cscott/TurtleScript/master/tdop.html"><img alt="Bytecode output" src="https://raw.github.com/cscott/TurtleScript/master/images/compile.png" /></a>
+<a class="reference external image-reference" href="http://turtlescript.github.cscott.net/tdop.html"><img alt="Bytecode output" src="http://turtlescript.github.cscott.net/images/compile.png" /></a>
 <p class="caption">Simple bytecode compiler/interpreter, 2011</p>
 </div>
 <p>There are a few backends which process the parsed text.  The first to
-be implemented (<a class="reference external" href="https://github.com/cscott/TurtleScript/blob/master/jcompile.js">jcompile.js</a>, July 2010) simply emitted JavaScript
+be implemented (<a class="reference external" href="http://turtlescript.github.cscott.net/docco/jcompile.html">jcompile.js</a>, July 2010) simply emitted JavaScript
 from the parse tree which can be <tt class="docutils literal">eval</tt>'ed by the browser's standard
 JavaScript environment.  At the moment, this isn't very interesting—but it allows us to modify the parsed language in various ways
 and still emit ECMA-standard JavaScript which can take advantage of
@@ -405,17 +405,17 @@ browsers' highly-tuned JavaScript implementations.  Some possible
 extensions are described in the <a class="reference internal" href="#interesting-compiler-tasks">Interesting Compiler Tasks</a> section.</p>
 <p>In May 2011 I wrote a simple bytecode compiler/interpreter for the
 language, inspired by Piumarta's <a class="reference external" href="http://piumarta.com/software/maru/">maru</a> system.  You can test the
-parser and the bytecode compiler and interpreter using <a class="reference external" href="https://raw.github.com/cscott/TurtleScript/master/tdop.html">tdop.html</a>,
+parser and the bytecode compiler and interpreter using <a class="reference external" href="http://turtlescript.github.cscott.net/tdop.html">tdop.html</a>,
 which is a highly modified version of Douglas Crockford's original <a class="reference external" href="http://javascript.crockford.com/tdop/index.html">parser
 demonstration</a>.  The bytecode instruction set is simple, but not
 simple enough; <a class="reference internal" href="#simplifying-the-environment">Simplifying the Environment</a> discusses improvements.</p>
 <div class="figure align-right">
-<a class="reference external image-reference" href="https://raw.github.com/cscott/TurtleScript/master/tile2.html"><img alt="2010 graphical tiles" src="https://raw.github.com/cscott/TurtleScript/master/images/tiles1.png" /></a>
+<a class="reference external image-reference" href="http://turtlescript.github.cscott.net/tile2.html"><img alt="2010 graphical tiles" src="http://turtlescript.github.cscott.net/images/tiles1.png" /></a>
 <p class="caption">Original CSS experiments, 2010</p>
 </div>
 <p>Back in 2010 I implemented some simple tile-based renderers for the parse
 tree.  These used <a class="reference external" href="http://jquery.com/">jQuery</a> to render the tree as CSS-styled HTML.
-A CSS-styling demo is at <a class="reference external" href="https://raw.github.com/cscott/TurtleScript/master/tile2.html">tile2.html</a> and <a class="reference external" href="https://raw.github.com/cscott/TurtleScript/master/tiles.html">tiles.html</a> displays
+A CSS-styling demo is at <a class="reference external" href="http://turtlescript.github.cscott.net/tile2.html">tile2.html</a> and <a class="reference external" href="http://turtlescript.github.cscott.net/tiles.html">tiles.html</a> displays
 &quot;editable&quot; interactive source using <a class="reference external" href="http://jqueryui.com/">jQuery UI</a>.  I was dissatisfied
 with these results.  The markup process was very slow, and rendering
 into HTML/CSS added a lot of additional difficulty and complexity.
@@ -426,7 +426,7 @@ model also failed to satisfy: jQuery UI had a lot of problems with
 horizontal layouts, and the real time re-layout during drag operations
 made the display stutter unacceptably.</p>
 <div class="figure align-right">
-<a class="reference external image-reference" href="https://raw.github.com/cscott/TurtleScript/master/ctiles.html"><img alt="2011 graphical tiles" src="https://raw.github.com/cscott/TurtleScript/master/images/tiles2.png" /></a>
+<a class="reference external image-reference" href="http://turtlescript.github.cscott.net/ctiles.html"><img alt="2011 graphical tiles" src="http://turtlescript.github.cscott.net/images/tiles2.png" /></a>
 <p class="caption">Tile Rendering using &lt;canvas&gt;, 2011</p>
 </div>
 <p>I revisited the rendering code in 2011.  As discussed in the <a class="reference internal" href="#rendering-ideas">Rendering
@@ -434,8 +434,8 @@ Ideas</a> section, I wanted to explore tile-based representations that
 were nonetheless faithful to the &quot;traditional&quot; text-based layout of
 source.  This time I decided to skip the complexity of the HTML/CSS
 layers and render directly to a canvas.  The result can be seen at
-<a class="reference external" href="https://raw.github.com/cscott/TurtleScript/master/ctiles.html">ctiles.html</a>.  This renderer is written in Simplified JavaScript
-with a very small <a class="reference external" href="https://github.com/cscott/TurtleScript/blob/master/ccanvas.js">canvas API</a>, and can display itself.
+<a class="reference external" href="http://turtlescript.github.cscott.net/ctiles.html">ctiles.html</a>.  This renderer is written in Simplified JavaScript
+with a very small <a class="reference external" href="http://turtlescript.github.cscott.net/docco/ccanvas.html">canvas API</a>, and can display itself.
 Further discussion can be found in the <a class="reference internal" href="#interaction-ideas">Interaction Ideas</a> and
 <a class="reference internal" href="#renderer-tasks">Renderer Tasks</a> sections.</p>
 <p>It is my intention to drive towards an initial application similar to
@@ -532,7 +532,7 @@ desirable):</p>
 <p>Exceptions add a lot to the expressivity of the language.  I expect
 that their function can be implemented in the library, however,
 without requiring additional syntax in the base language.  The
-<a class="reference external" href="https://github.com/cscott/TurtleScript/blob/master/extensions.js">extensions.js</a> file demonstrates how these might be implemented
+<a class="reference external" href="http://turtlescript.github.cscott.net/docco/extensions.html">extensions.js</a> file demonstrates how these might be implemented
 as library methods.  The implementations of these methods will need
 to be primitive (and thus will not be introspectable), but we can
 retain our simplified syntactic vocabulary.</p>
@@ -684,7 +684,7 @@ primitives, and that the various type coercions are done correctly.</p>
 </li>
 <li><p class="first">Remove jumps from the bytecode.  Use dispatch to the boolean
 results of comparisons instead.  See the <tt class="docutils literal">ifElse</tt> and <tt class="docutils literal">while</tt>
-operators in <a class="reference external" href="https://github.com/cscott/TurtleScript/blob/master/extensions.js">extensions.js</a>.  An example:</p>
+operators in <a class="reference external" href="http://turtlescript.github.cscott.net/docco/extensions.html">extensions.js</a>.  An example:</p>
 <pre class="literal-block">
 var i = 0;
 (function() { i += 1; }).while(this, function() { return i &lt; 5; });
@@ -872,10 +872,10 @@ toggled off to yield more traditional (if verbose) syntax.</p>
 <p>The following is a potential implementation order for additional
 rendering tasks:</p>
 <ol class="arabic simple">
-<li>Split <a class="reference external" href="https://github.com/cscott/TurtleScript/blob/master/crender.js">crender.js</a> to separate out the Widget definitions from the
+<li>Split <a class="reference external" href="http://turtlescript.github.cscott.net/docco/crender.html">crender.js</a> to separate out the Widget definitions from the
 code which transforms a parse tree into widgets.  Perhaps make
 the AST node definitions their own separate module as well, instead
-of conflating them with token objects in <a class="reference external" href="https://github.com/cscott/TurtleScript/blob/master/parse.js">parse.js</a>?</li>
+of conflating them with token objects in <a class="reference external" href="http://turtlescript.github.cscott.net/docco/parse.html">parse.js</a>?</li>
 <li>Move parenthesization of expressions based on precedence from the
 transform code into the widget rendering.  Parentheses should
 automatically appear around a binop if its operator precedence is
