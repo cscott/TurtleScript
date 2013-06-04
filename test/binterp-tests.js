@@ -8,15 +8,7 @@ var metainterpreter = (function() {
     var fake_require =
         "var __modules__ = {};\n"+
         "define = function(name, deps, init_func) {\n"+
-        "  function map(a, f) {\n"+
-        "    var i = 0, r = [];\n"+
-        "    while (i < a.length) {\n"+
-        "      r[i] = f(a[i]);\n"+
-        "      i+=1;\n"+
-        "    }\n"+
-        "    return r;\n"+
-        "  }\n"+
-        "  var d = map(deps, function(m) { return __modules__[m]; });\n"+
+        "  var d = deps.map(function(m) { return __modules__[m]; });\n"+
         "  __modules__[name] = init_func.apply(this, d);\n"+
         "};\n";
     var make_compile_from_source = function(parse, bcompile, binterp, TOP_LEVEL) {
@@ -35,8 +27,9 @@ var metainterpreter = (function() {
     var top_level_source = 'define("top-level", [], '+
         'function() { return '+JSON.stringify(turtlescript.top_level)+'; });';
     var tests = turtlescript.tests;
-    var source = '{\n' + fake_require +
-        tests.lookup("stdlib")+"\n"+
+    var source = '{\n' +
+        turtlescript.stdlib.source()+'\n'+
+        fake_require +
         tests.lookup("tokenize")+"\n"+
         tests.lookup("parse")+"\n"+
         tests.lookup("bytecode-table")+"\n"+
@@ -57,11 +50,11 @@ describe('Verify bytecode interpretation:', function() {
         if (!turtlescript.tests.isExecutable(idx)) { return; }
         // add a fake 'define' which just runs the factory.
         var source = "{\n" +
+            turtlescript.stdlib.source()+'\n'+
             "var test_func;\n" +
             "define = function(name, deps, init_func) {\n" +
             "  test_func = init_func();\n" +
             "};\n" +
-            turtlescript.tests.lookup("stdlib")+"\n"+
             // make the tests run quietly
             "console.log = function() { };\n"+
             // the actual test source

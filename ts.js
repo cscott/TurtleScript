@@ -74,18 +74,12 @@
         };
     }
 
-    define(['parse','jcompile'], function(parse, jcompile) {
-        Object.prototype.error = function (message, t) {
-            t = t || this;
-            t.name = "SyntaxError";
-            t.message = message;
-            throw t;
-        };
+    define(['parse','jcompile','top-level'], function(parse, jcompile, top_level) {
+        if (!Object.Throw) {
+            Object.Throw = function(obj) { throw obj; };
+        }
         function TurtleScript(text, config) {
-            var top_level_defs = "isFinite parseInt isNaN "+
-                "Boolean String Function Math "+
-                "console arguments now define document";
-            tree = parse(text, top_level_defs);
+            tree = parse(text, top_level);
             // find top-level call(s) to 'define()' and hack the dependencies
             // to also use the ts! loader.
             tree.forEach(function(stmt) {

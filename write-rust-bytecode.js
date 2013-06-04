@@ -1,19 +1,11 @@
 // Utility to write bytecode for TurtleScript parser, bytecode compiler,
 // startup code and standard library, as a Rust module.
 // Run it under node with the CLI in bin/write-rust-bytecode.js
-define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escape', './tests', './extensions'], function(parse, bcompile, bytecode_table, top_level, str_escape, tests) {
+define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escape', './tests', './stdlib', './extensions'], function(parse, bcompile, bytecode_table, top_level, str_escape, tests, stdlib) {
     var fake_require =
         "var __modules__ = {};\n"+
         "define = function(name, deps, init_func) {\n"+
-        "  function map(a, f) {\n"+
-        "    var i = 0, r = [];\n"+
-        "    while (i < a.length) {\n"+
-        "      r[i] = f(a[i]);\n"+
-        "      i+=1;\n"+
-        "    }\n"+
-        "    return r;\n"+
-        "  }\n"+
-        "  var d = map(deps, function(m) { return __modules__[m]; });\n"+
+        "  var d = deps.map(function(m) { return __modules__[m]; });\n"+
         "  __modules__[name] = init_func.apply(this, d);\n"+
         "};\n";
     var make_compile_from_source = function(parse, bcompile, TOP_LEVEL) {
@@ -42,8 +34,9 @@ define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escap
         cfs_source + ');';
     var top_level_source = 'define("top-level", [], function() { return ' +
         str_escape(top_level) + '; });';
-    source = '{' + fake_require +
-        tests.lookup("stdlib")+"\n"+
+    var source = '{\n'+
+        stdlib.source()+'\n'+
+        fake_require +
         tests.lookup("tokenize")+"\n"+
         tests.lookup("parse")+"\n"+
         tests.lookup("bytecode-table")+"\n"+

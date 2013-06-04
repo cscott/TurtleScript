@@ -1,4 +1,4 @@
-define(["html-escape", "json2", "ts!parse", "ts!bcompile", "ts!binterp", "ts!tests"], function(html_escape, JSON, parse, bcompile, binterp, tests) {
+define(["html-escape", "json2", "ts!parse", "ts!bcompile", "ts!binterp", "ts!stdlib", "ts!top-level", "ts!tests"], function(html_escape, JSON, parse, bcompile, binterp, stdlib, top_level, tests) {
 
 /*jslint evil: true */
 
@@ -7,15 +7,6 @@ define(["html-escape", "json2", "ts!parse", "ts!bcompile", "ts!binterp", "ts!tes
 */
 
 /*global JSON, make_parse, parse, source, tree */
-
-// Transform a token object into an exception object and throw it.
-// (this conflicts with jQuery, so we're going to keep it out of global.js)
-Object.prototype.error = function (message, t) {
-    t = t || this;
-    t.name = "SyntaxError";
-    t.message = message;
-    throw t;
-};
 
 var CATCH_ERRORS = false;
 var SHOW_SOURCE = true;
@@ -33,14 +24,12 @@ function fill(elem_id, h1, contents, no_escape) {
 function do_it() {
 
 // We are going to make the compiler/interpreter compile itself.
-    var make_self_test = function(parse, bcompile) {
+    var make_self_test = function(parse, bcompile, top_level) {
        return function (source) {
            var result;
            source = source || '{ return 1+2; }';
            //result = tokenize(source, '=<>!+-*&|/%^', '=<>&|');
-           var tree = parse(source, "isFinite parseInt isNaN "+
-                            "Boolean String Function Math "+
-                            "console arguments now define document");
+           var tree = parse(source, top_level);
            //result = tree;
            var bc = bcompile(tree);
            result = bc.decompile(0);
@@ -49,47 +38,43 @@ function do_it() {
            return result;
        };
     };
-    define("self_test", ["parse", "bcompile"], make_self_test);
+    define("self_test", ["parse", "bcompile", "top-level"], make_self_test);
     var self_test_source = make_self_test.toSource ?
         make_self_test.toSource() : make_self_test.toString();
-    self_test_source = 'define("self_test", ["parse","bcompile"], '+
+    self_test_source = 'define("self_test", ["parse","bcompile","top-level"], '+
         self_test_source + ');\n';
 
     // combine sources
-    isource = '{ return 2+3; }'; // input to interpreted version of compiler
+    var isource = '{ return 2+3; }'; // input to interpreted version of compiler
     //isource = 'var f = function() { };';
     //isource = sources[7].replace(/module/, 'library_init');
     var fake_require =
         "var __modules__ = {};\n"+
         "define = function(name, deps, init_func) {\n"+
-        "  function map(a, f) {\n"+
-        "    var i = 0, r = [];\n"+
-        "    while (i < a.length) {\n"+
-        "      r[i] = f(a[i]);\n"+
-        "      i+=1;\n"+
-        "    }\n"+
-        "    return r;\n"+
-        "  }\n"+
-        "  var d = map(deps, function(m) { return __modules__[m]; });\n"+
+        "  var d = deps.map(function(m) { return __modules__[m]; });\n"+
         "  __modules__[name] = init_func.apply(this, d);\n"+
-        "};\n";
-    source = fake_require +
+        "};";
+    var top_level_source = 'define("top-level", [], '+
+        'function() { return '+JSON.stringify(top_level)+'; });';
+    var source = '{\n'+
+        stdlib.source()+'\n'+
+        fake_require+'\n'+
         tests.lookup("tokenize")+"\n"+
         tests.lookup("parse")+"\n"+
         tests.lookup("bytecode-table")+"\n"+
         tests.lookup("bcompile")+"\n"+
         tests.lookup("binterp")+"\n"+
-        tests.lookup("stdlib")+"\n"+
+        top_level_source+"\n"+
         self_test_source+"\n"+
-        "{ return __modules__['self_test'](arguments[0]); }\n";
+        "return __modules__['self_test'](arguments[0]); }\n";
 
     if (0) {
     // HACK to run specific test cases
-    test_case = tests[29].replace(/^define\(/, "define('self_test',");
-    source = fake_require +
-            tests.lookup("stdlib")+"\n"+
+    test_case = tests[29].replace(/^define\([^,]+,/, "define('self_test',");
+    source = '{\n' + stdlib.source() + '\n' + fake_require + '\n' +
             test_case + "\n"+
-            "{ return __modules__['self_test'](arguments[0]); }\n";
+            "return __modules__['self_test'](arguments[0]); }\n";
+        console.log(source);
     // END HACK
     }
 
@@ -114,10 +99,7 @@ function do_it() {
        fill('source', 'Interpreted source', o, 1/*no escape*/);
    }
 
-   top_level_defs = "isFinite parseInt isNaN "+
-        "Boolean String Function Math "+
-        "console arguments now define document";
-    tree = parse(source, top_level_defs);
+    tree = parse(source, top_level);
     if (tree) {
         /* Raw compiled tree */
         if (PRINT_TREE) {

@@ -21,7 +21,7 @@ module.exports = Object.create(null);
 // Things to export.
 ['parse', 'jcompile',
  // bytecode compiler-interpreter
- 'bytecode-table', 'bcompile', 'binterp',
+ 'bytecode-table', 'bcompile', 'binterp', 'stdlib',
  // asm.js project
  'asm-llvm',
  // FRS-style event system

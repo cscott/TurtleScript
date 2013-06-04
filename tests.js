@@ -2,12 +2,13 @@
 define(["str-escape",
         // these are just imported to make test cases out of them
         "tokenize", "parse", "jcompile", "crender", "bytecode-table",
-        "bcompile", "binterp", "events", "asm-llvm"],
+        "bcompile", "binterp", "stdlib", "events", "asm-llvm"],
        function make_tests(str_escape,
                            tokenize, parse, jcompile, crender, bytecode_table,
-                           bcompile, binterp, events, asm_llvm) {
-    var deps = ["str-escape", "tokenize", "parse", "jcompile", "crender",
-                "bytecode-table", "bcompile", "binterp", "events", "asm-llvm"];
+                           bcompile, binterp, stdlib, events, asm_llvm) {
+    var deps = ["str-escape",
+                "tokenize", "parse", "jcompile", "crender", "bytecode-table",
+                "bcompile", "binterp", "stdlib", "events", "asm-llvm"];
     var test=[], i=1/* skip str_escape */;
     // first tests are our own source code, from the arguments.
     while (i < arguments.length) {
@@ -16,9 +17,6 @@ define(["str-escape",
         i += 1;
     }
     i -= 2;
-    // standard library from binterp (should be split out into separate module)
-    binterp.library_init.__module_name__ = "stdlib"; // hack hack
-    test[i+=1] = binterp.library_init;
     // next test case is this function itself.
     if (make_tests) {
         make_tests.__module_name__ = "tests";
