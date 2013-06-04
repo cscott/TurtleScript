@@ -1,6 +1,7 @@
 {
     "name": "turtlescript",
     "description": "TurtleScript is JavaScript with simplified syntax, for pedagogy",
+    "version": "1.0.0",
     "homepage": "http://turtlescript.github.cscott.net",
     "main": "nodemain.js",
     "repository": {

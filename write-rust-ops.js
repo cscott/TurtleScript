@@ -3,8 +3,8 @@
 // Run it under node with the CLI in bin/write-rust-ops.js
 define(['./bytecode-table'], function(bytecode_table) {
     var bops = [];
-    for (var i = 0; ; i++) {
-        var bc = bytecode_table.for_num(i);
+    while(true) {
+        var bc = bytecode_table.for_num(bops.length);
         if (!bc) { break; }
         bops.push(bc);
     }

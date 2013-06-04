@@ -94,7 +94,8 @@ define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escap
         console.log('    nargs: ' + f.nargs + ',');
         console.log('    max_stack: ' + f.max_stack + ',');
         console.log('    bytecode: ~[');
-        for (var j=0; j<f.bytecode.length; ) {
+        var j = 0;
+        while (j < f.bytecode.length) {
             var pc = j;
             var bc = bytecode_table.for_num(f.bytecode[j]);
             var a = f.bytecode.slice(j, j+=bc.args+1);
