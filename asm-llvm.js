@@ -18,7 +18,7 @@ define([], function asm_llvm() {
         __module_deps__: []
     };
 
-    // ## Type system
+    // ## `asm.js` type system
 
     // Set up the [type system of asm.js](http://asmjs.org/spec/latest/#types).
     var Type = {
@@ -52,137 +52,167 @@ define([], function asm_llvm() {
             return ty;
         };
     })();
+
+    var Types = Object.create(null);
+
     // The top-level internal types (which do not escape, and are not
     // a subtype of any other type) are "doublish" and "intish".
 
     // Intish represents the result of a JavaScript integer operation
     // that must be coerced back to an integer with an explicit
     // coercion.
-    Type.Intish = Type.derive("intish", { value: true });
+    Types.Intish = Type.derive("intish", { value: true });
     // Similar to intish, the doublish type represents operations that
     // are expected to produce a double but may produce additional
     // junk that must be coerced back to a number.
-    Type.Doublish = Type.derive("doublish", { value: true });
+    Types.Doublish = Type.derive("doublish", { value: true });
     // Void is the type of functions that are not supposed to return any
     // useful value.
-    Type.Void = Type.derive("void", { value: true });
+    Types.Void = Type.derive("void", { value: true });
 
     // The other internal (non-escaping) types are 'unknown' and 'int'.
     // The unknown type represents a value returned from an FFI call.
-    Type.Unknown = Type.derive("unknown", {
+    Types.Unknown = Type.derive("unknown", {
         value: true,
-        subtypes: [Type.Doublish, Type.Intish]
+        subtypes: [Types.Doublish, Types.Intish]
     });
     // The int type is the type of 32-bit integers where the
     // signedness is not known.
-    Type.Int = Type.derive("int", {
+    Types.Int = Type.derive("int", {
         value: true,
-        subtypes: [Type.Intish]
+        subtypes: [Types.Intish]
     });
 
     // The rest of the value types can escape into non-asm.js code.
-    Type.Extern = Type.derive("extern", { value: true });
-    Type.Double = Type.derive("double", {
+    Types.Extern = Type.derive("extern", { value: true });
+    Types.Double = Type.derive("double", {
         value: true,
-        subtypes: [Type.Doublish, Type.Extern]
+        subtypes: [Types.Doublish, Types.Extern]
     });
-    Type.Signed = Type.derive("signed", {
+    Types.Signed = Type.derive("signed", {
         value: true,
-        subtypes: [Type.Extern, Type.Int]
+        subtypes: [Types.Extern, Types.Int],
+        min: -2147483648, // -2^31
+        max: -1 // range excludes 0
     });
-    Type.Unsigned = Type.derive("unsigned", {
+    Types.Unsigned = Type.derive("unsigned", {
         value: true,
-        subtypes: [Type.Extern, Type.Int]
+        subtypes: [Types.Extern, Types.Int],
+        min: 2147483648, // 2^31
+        max: 4294967295  // (2^32)-1
     });
-    Type.Fixnum = Type.derive("fixnum", {
+    Types.Fixnum = Type.derive("fixnum", {
         value: true,
-        subtypes: [Type.Signed, Type.Unsigned]
+        subtypes: [Types.Signed, Types.Unsigned],
+        min: 0,
+        max: 2147483647 // (2^31)-1
     });
 
     // Global (non-value) types.
-    Type.Function = Type.derive("Function");
-    Type.ArrayBufferView = Type.derive("ArrayBufferView");
+    Types.Function = Type.derive("Function");
+    Types.ArrayBufferView = Type.derive("ArrayBufferView");
     ['Int', 'Uint', 'Float'].forEach(function(elementType) {
-        var view = Type.ArrayBufferView.derive(elementType+'Array');
-        Type[elementType+'Array'] = function(n) {
+        var view = Types.ArrayBufferView.derive(elementType+'Array');
+        Types[elementType+'Array'] = function(n) {
             return view.derive(n, {
-                base: (elementType==='Float') ? Type.Doublish : Type.Intish,
+                base: (elementType==='Float') ? Types.Doublish : Types.Intish,
                 bytes: Math.floor(n/8),
                 toString: function() { return elementType + n + 'Array'; }
             });
         };
     });
-    var arrowToString = function() {
-        var params = [];
-        while (params.length < this.numargs) {
-            params.push(this[params.length].toString());
-        }
-        return '(' + params.join(',') + ')->' + this.rettype.toString();
+    Types.Arrow = (function() {
+        var arrowToString = function() {
+            var params = [];
+            while (params.length < this.numargs) {
+                params.push(this[params.length].toString());
+            }
+            return '(' + params.join(',') + ')->' + this.rettype.toString();
+        };
+        return function(argtypes, rettype) {
+            // We derive a function type starting from the return type, and
+            // proceeding to the argument types in order.
+            var result = rettype.derive('()->', {
+                arrow: true,
+                rettype: rettype,
+                numargs: 0,
+                toString: arrowToString
+            });
+            argtypes.forEach(function(ty, idx) {
+                var param = { numargs: (idx+1), toString: undefined };
+                param[idx] = ty;
+                result = result.derive(ty._id, param);
+            });
+            return result;
+        };
+    })();
+    Types.FunctionTypes = (function() {
+        var functionTypesToString = function() {
+            var types = [];
+            while (types.length < this.numtypes) {
+                types.push(this[types.length].toString());
+            }
+            return '[' + types.join(' ^ ') + ']';
+        };
+        return function(functiontypes) {
+            // Sort the function types by id, to make a canonical ordering,
+            // then derive the `FunctionTypes` type.
+            functiontypes.sort(function(a,b) { return a._id - b._id; });
+            var result = Type.derive('FunctionTypes', {
+                functiontypes: true,
+                numtypes: 0,
+                toString: functionTypesToString
+            });
+            functiontypes.forEach(function(ty, idx) {
+                var param = { numtypes: (idx+1), toString: undefined };
+                param[idx] = ty;
+                result = result.derive(ty._id, param);
+            });
+            return result;
+        };
+    })();
+    Types.Table = (function() {
+        var tableToString = function() {
+            return '(' + this.base.toString() + ')[' + this.size + ']';
+        };
+        return function(functype, size) {
+            var t = functype.derive('Table', { table: true, base: functype });
+            return t.derive(size, { size: size, toString: tableToString });
+        };
+    })();
+
+    // Utility functions.
+    var ceilLog2 = function(x) {
+        var r = 0; x-=1;
+        while (x!==0) { x = Math.floor(x/2); r+=1; } // XXX want shift!
+        return r;
     };
-    Type.Arrow = function(argtypes, rettype) {
-        // We derive a function type starting from the return type, and
-        // proceeding to the argument types in order.
-        var result = rettype.derive('()->', {
-            arrow: true,
-            rettype: rettype,
-            numargs: 0,
-            toString: arrowToString
-        });
-        argtypes.forEach(function(ty, idx) {
-            var param = { numargs: (idx+1), toString: undefined };
-            param[idx] = ty;
-            result = result.derive(ty._id, param);
-        });
-        return result;
-    };
-    var functionTypesToString = function() {
-        var types = [];
-        while (types.length < this.numtypes) {
-            types.push(this[types.length].toString());
-        }
-        return '[' + types.join(' ^ ') + ']';
-    };
-    Type.FunctionTypes = function(functiontypes) {
-        // Sort the function types by id, to make a canonical ordering,
-        // then derive the `FunctionTypes` type.
-        functiontypes.sort(function(a,b) { return a._id - b._id; });
-        var result = Type.derive('FunctionTypes', {
-            functiontypes: true,
-            numtypes: 0,
-            toString: functionTypesToString
-        });
-        functiontypes.forEach(function(ty, idx) {
-            var param = { numtypes: (idx+1), toString: undefined };
-            param[idx] = ty;
-            result = result.derive(ty._id, param);
-        });
-        return result;
-    };
-    var tableToString = function() {
-        return '(' + this.base.toString() + ')[' + this.size + ']';
-    };
-    Type.Table = function(functype, size) {
-        var t = functype.derive('Table', { table: true, base: functype });
-        return t.derive(size, { size: size, toString: tableToString });
+
+    // Only powerOf2 sizes are legit for function tables.
+    var powerOf2 = function(x) {
+        /* return (x & (x - 1)) === 0; // how cool kids do it */
+        return x === Math.pow(2, ceilLog2(x)); // TurtleScript needs bitwise ops
     };
 
     // Quick self-test for the type system.  Ensure that identical types
     // created at two different times still compare ===.
     var test_types = function() {
-        var sqrt1 = Type.FunctionTypes([Type.Arrow([Type.Double],Type.Double)]);
-        var sqrt2 = Type.FunctionTypes([Type.Arrow([Type.Double],Type.Double)]);
+        var sqrt1 = Types.FunctionTypes(
+            [Types.Arrow([Types.Double], Types.Double)]);
+        var sqrt2 = Types.FunctionTypes(
+            [Types.Arrow([Types.Double], Types.Double)]);
         console.assert(sqrt1 === sqrt2);
         console.assert(sqrt1.functiontypes);
         console.assert(sqrt1.numtypes===1);
         console.assert(sqrt1[0].arrow);
         console.assert(sqrt1[0].numargs===1);
-        console.assert(sqrt1[0][0]===Type.Double);
-        console.assert(Type.Arrow([],Type.Double).toString() === '()->double');
+        console.assert(sqrt1[0][0]===Types.Double);
+        console.assert(Types.Arrow([],Types.Double).toString() === '()->double');
         console.assert(sqrt1.toString() === '[(double)->double]');
 
         // table types
-        var t1 = Type.Table(sqrt1[0], 16);
-        var t2 = Type.Table(sqrt2[0], 16);
+        var t1 = Types.Table(sqrt1[0], 16);
+        var t2 = Types.Table(sqrt2[0], 16);
         console.assert(t1 === t2);
         console.assert(t1.table);
         console.assert(t1.size === 16);
@@ -190,34 +220,79 @@ define([], function asm_llvm() {
     };
     test_types();
 
-    // Standard library member types
-    var stdlib = {
-        'Infinity': Type.Double,
-        'NaN': Type.Double,
-        'Math': {
-            E: Type.Double,
-            LN10: Type.Double,
-            LN2: Type.Double,
-            LOG2E: Type.Double,
-            LOG10E: Type.Double,
-            PI: Type.Double,
-            SQRT1_2: Type.Double,
-            SQRT2: Type.Double
-        }
+    // ### Operator and standard library type tables.
+
+    // Unary operator types, from
+    // http://asmjs.org/spec/latest/#unary-operators
+    Types.unary = {
+        '+': Types.FunctionTypes(
+            [ Types.Arrow([Types.Signed], Types.Double),
+              Types.Arrow([Types.Unsigned], Types.Double),
+              Types.Arrow([Types.Doublish], Types.Double) ]),
+        '-': Types.FunctionTypes(
+            [ Types.Arrow([Types.Int], Types.Intish),
+              Types.Arrow([Types.Doublish], Types.Double) ]),
+        '~': Types.FunctionTypes(
+            [ Types.Arrow([Types.Intish], Types.Signed) ]),
+        '!': Types.FunctionTypes(
+            [ Types.Arrow([Types.Int], Types.Int) ])
     };
+
+    // Binary operator types, from
+    // http://asmjs.org/spec/latest/#binary-operators
+    Types.binary = {
+        '+': Types.FunctionTypes(
+            [ Types.Arrow([Types.Double, Types.Double], Types.Double) ]),
+        '-': Types.FunctionTypes(
+            [ Types.Arrow([Types.Doublish, Types.Doublish], Types.Double) ]),
+        '*': Types.FunctionTypes(
+            [ Types.Arrow([Types.Doublish, Types.Doublish], Types.Double) ]),
+        '/': Types.FunctionTypes(
+            [ Types.Arrow([Types.Signed, Types.Signed], Types.Intish),
+              Types.Arrow([Types.Unsigned, Types.Unsigned], Types.Intish),
+              Types.Arrow([Types.Doublish, Types.Doublish], Types.Double) ]),
+        '%': Types.FunctionTypes(
+            [ Types.Arrow([Types.Signed, Types.Signed], Types.Int),
+              Types.Arrow([Types.Unsigned, Types.Unsigned], Types.Int),
+              Types.Arrow([Types.Doublish, Types.Doublish], Types.Double) ]),
+        '>>>': Types.FunctionTypes(
+            [ Types.Arrow([Types.Intish, Types.Intish], Types.Unsigned) ])
+    };
+    ['|','&','^','<<','>>'].forEach(function(op) {
+        Types.binary[op] = Types.FunctionTypes(
+            [ Types.Arrow([Types.Intish, Types.Intish], Types.Signed) ]);
+    });
+    ['<','<=','>','>=','==','!='].forEach(function(op) {
+        Types.binary[op] = Types.FunctionTypes(
+            [ Types.Arrow([Types.Signed, Types.Signed], Types.Int),
+              Types.Arrow([Types.Unsigned, Types.Unsigned], Types.Int),
+              Types.Arrow([Types.Double, Types.Double], Types.Int) ]);
+    });
+
+    // Standard library member types, from
+    // http://asmjs.org/spec/latest/#standard-library
+    Types.stdlib = {
+        'Infinity': Types.Double,
+        'NaN': Types.Double
+    };
+    ['E','LN10','LN2','LOG2E','LOG10E','PI','SQRT1_2','SQRT2'].
+        forEach(function(f) {
+            Types.stdlib['Math.'+f] = Types.Double;
+        });
     ['acos','asin','atan','cos','sin','tan','ceil','floor','exp','log','sqrt'].
         forEach(function(f) {
-            stdlib.Math[f] = Type.FunctionTypes(
-                [Type.Arrow([Type.Doublish], Type.Double)]);
+            Types.stdlib['Math.'+f] = Types.FunctionTypes(
+                [Types.Arrow([Types.Doublish], Types.Double)]);
         });
-    stdlib.Math.abs = Type.FunctionTypes(
-        [Type.Arrow([Type.Signed], Type.Unsigned),
-         Type.Arrow([Type.Doublish], Type.Double)]);
-    stdlib.Math.atan2 = stdlib.Math.pow = Type.FunctionTypes(
-        [Type.Arrow([Type.Doublish, Type.Doublish], Type.Double)]);
-    stdlib.Math.imul = Type.FunctionTypes(
-        [Type.Arrow([Type.Int, Type.Int], Type.Signed)]);
+    Types.stdlib['Math.abs'] = Types.FunctionTypes(
+        [Types.Arrow([Types.Signed], Types.Unsigned),
+         Types.Arrow([Types.Doublish], Types.Double)]);
+    Types.stdlib['Math.atan2'] = Types.stdlib['Math.pow'] = Types.FunctionTypes(
+        [Types.Arrow([Types.Doublish, Types.Doublish], Types.Double)]);
+    Types.stdlib['Math.imul'] = Types.FunctionTypes(
+        [Types.Arrow([Types.Int, Types.Int], Types.Signed)]);
 
+    // ## Tokens
 
     // Some tokenizer functions will have alternate implementations in a
     // TurtleScript environment -- for example, we'll try to avoid
@@ -228,8 +303,7 @@ define([], function asm_llvm() {
     // We move the token types into module context, since they are
     // (for all practical purposes) constants.
 
-    // ## Token types
-
+    // ### Token Types
     // The assignment of fine-grained, information-carrying type objects
     // allows the tokenizer to store the information it has about a
     // token in a way that is very cheap for the parser to look up.
@@ -245,6 +319,10 @@ define([], function asm_llvm() {
     var _string = {type: "string"};
     var _name = {type: "name"};
     var _eof = {type: "eof"};
+
+    // `_dotnum` is a number with a `.` character in it; `asm.js` uses
+    // this to distinguish `double` from integer literals.
+    var _dotnum = {type: "dotnum"};
 
     // Keyword tokens. The `keyword` property (also used in keyword-like
     // operators) indicates that the token originated from an
@@ -365,7 +443,7 @@ define([], function asm_llvm() {
         braceR: _braceR, parenL: _parenL, parenR: _parenR, comma: _comma,
         semi: _semi, colon: _colon, dot: _dot, question: _question,
         slash: _slash, eq: _eq, name: _name, eof: _eof, num: _num,
-        regexp: _regexp, string: _string
+        regexp: _regexp, string: _string, dotnum: _dotnum
     };
     Object.keys(keywordTypes).forEach(function(kw) {
         module.tokTypes[kw] = keywordTypes[kw];
@@ -1099,14 +1177,15 @@ define([], function asm_llvm() {
         // Read an integer, octal integer, or floating-point number.
 
         readNumber = function(startsWithDot) {
-            var start = tokPos, isFloat = false, octal = input.charCodeAt(tokPos) === 48;
+            var start = tokPos, isFloat = false, hasDot = false;
+            var octal = input.charCodeAt(tokPos) === 48;
             if (!startsWithDot && readInt(10) === null) {
                 raise(start, "Invalid number");
             }
-            if (input.charCodeAt(tokPos) === 46) {
+            if (input.charCodeAt(tokPos) === 46) { // '.'
                 tokPos += 1;
                 readInt(10);
-                isFloat = true;
+                isFloat = hasDot = true;
             }
             var next = input.charCodeAt(tokPos);
             if (next === 69 || next === 101) { // 'eE'
@@ -1127,7 +1206,7 @@ define([], function asm_llvm() {
                 raise(start, "Invalid number");
             }
             else { val = parseInt(str, 8); }
-            return finishToken(_num, val);
+            return finishToken(hasDot ? _dotnum : _num, val);
         };
 
         // Used to read character escape sequences ('\x', '\u', '\U').
@@ -1303,6 +1382,48 @@ define([], function asm_llvm() {
             return finishToken(type, word);
         };
 
+        // ## Environments
+
+        // Environments track global and local variable definitions.
+        var Env = function() {
+            // use an object for a cheap hashtable.
+            this._map = Object.create(null);
+        };
+        Env.prototype.lookup = function(x) {
+            return this._map['$'+x] || null;
+        };
+        Env.prototype.bind = function(x, t, loc) {
+            if (x === 'arguments' || x === 'eval') {
+                raise(loc || tokPos, "illegal binding for '"  + x + "'");
+            }
+            x = '$' + x;
+            if (Object.prototype.hasOwnProperty.call(this._map, x)) {
+                raise(loc || tokPos, "duplicate binding for '" + x + "'");
+            }
+            this._map[x] = t;
+        };
+
+        // We will need a symbol source
+        var gensym = (function() {
+            var cnt = 0;
+            return function() {
+                cnt += 1;
+                return '%tmp' + cnt;
+            };
+        })();
+
+        // Global environments map to a type as well as a mutability boolean.
+        var GlobalBinding = function(type, mutable) {
+            this.type = type;
+            this.mutable = !!mutable;
+        };
+
+        // Local environments map to a type and a local temporary.
+        var LocalBinding = function(type, temp) {
+            this.type = type;
+            this.temp = temp || gensym();
+        };
+
         // ## Parser
 
         // A recursive descent parser operates by defining functions for all
@@ -1408,9 +1529,30 @@ define([], function asm_llvm() {
             return name;
         };
 
+        // Parse a numeric literal, returning a type and a value.
         var parseNumericLiteral = function() {
-            expect(_num);
-            // XXX should determine type of literal
+            var result = {
+                type: Type.Double,
+                value: tokVal
+            };
+            if (tokType === _num) {
+                if (tokVal >= Types.Signed.min &&
+                    tokVal <= Types.Signed.max) {
+                    result.type = Types.Signed;
+                } else if (tokVal >= Types.Fixnum.min &&
+                           tokVal <= Types.Fixnum.max) {
+                    result.type = Types.Fixnum;
+                } else if (tokVal >= Types.Unsigned.min &&
+                           tokVal <= Types.Unsigned.max) {
+                    result.type = Types.Unsigned;
+                } else {
+                    raise(tokPos, "Invalid integer literal");
+                }
+            } else if (tokType !== _dotnum) {
+                raise(tokPos, "expected a numeric literal");
+            }
+            next();
+            return result;
         };
 
         // ### Expression parsing
@@ -1457,7 +1599,8 @@ define([], function asm_llvm() {
             if (tokType === _name) {
                 return parseIdent();
 
-            } else if (tokType === _num || tokType === _string || tokType === _regexp) {
+            } else if (tokType === _num || tokType === _dotnum ||
+                       tokType === _string || tokType === _regexp) {
                 node = Object.create(null);//startNode();
                 node.value = tokVal;
                 node.raw = input.slice(tokStart, tokEnd);
@@ -1875,7 +2018,6 @@ define([], function asm_llvm() {
                     if (!(tokType === _bin3 && tokVal === '|')) {
                         return bail();
                     } else { next(); }
-                    // XXX use parseNumericLiteral here
                     if (!(tokType === _num && tokVal === 0)) {
                         return bail();
                     } else { next(); }
@@ -1936,35 +2078,59 @@ define([], function asm_llvm() {
 
         // Parse a variable statement within a module.
         var parseModuleVariableStatement = function(module) {
-            var x, y;
+            var x, y, ty, startPos, yPos;
             expect(_var);
+            startPos = tokPos;
             x = parseIdent();
             expect(_eq);
             // There are five types of variable statements:
             if (tokType === _bracketL) {
                 // 1. A function table.  (Only allowed at end of module.)
-                next();
-                var table = [];
+                yPos = tokPos; next();
+                var table = [], lastType;
                 while (!eat(_bracketR)) {
-                    if (table.length !== 0) { expect(_comma); }
-                    table.push(parseIdent());
+                    if (table.length > 0) { expect(_comma); }
+                    y = parseIdent();
+                    ty = module.global.lookup(y);
+                    /* validate consistent types of named functions */
+                    if (!ty) { raise(lastStart, "Unknown function '"+y+"'"); }
+                    if (ty.mutable) {
+                        raise(lastStart, "'"+y+"' must be immutable");
+                    }
+                    if (table.length > 0 &&
+                        ty.type !== lastType) {
+                        raise(lastStart, "Inconsistent function type in table");
+                    }
+                    lastType = ty.type;
+                    table.push(ty);
                 }
-                // XXX add to environment.
+                /* check that the length is a power of 2. */
+                if (table.length===0) {
+                    raise(yPos, "Empty function table.");
+                } else if (!powerOf2(table.length)) {
+                    raise(yPos, "Function table length is not a power of 2.");
+                }
+                ty = Types.Table(lastType, table.length);
+                module.global.bind(x, GlobalBinding.New(ty, false), startPos);
                 module.seenTable = true;
             } else if (module.seenTable) {
                 raise(tokPos, "expected function table");
-            } else if (tokType === _num) {
+            } else if (tokType === _num || tokType === _dotnum) {
                 // 2. A global program variable, initialized to a literal.
-                parseNumericLiteral();
-                // XXX add to environment.
+                y = parseNumericLiteral();
+                module.global.bind(x, GlobalBinding.New(y.type, true),
+                                   startPos);
             } else if (tokType === _name && tokVal === module.stdlib) {
                 // 3. A standard library import.
                 next(); expect(_dot);
+                yPos = tokPos;
                 y = parseIdent();
                 if (y==='Math') {
                     expect(_dot); y += '.' + parseIdent();
                 }
-                // XXX add to environment.
+                ty = Types.stdlib[y];
+                if (!ty) { raise(yPos, "Unknown library import"); }
+                module.global.bind(x, GlobalBinding.New(ty, false), startPos);
             } else if ((tokType === _plusmin && tokVal==='+') ||
                        (tokType === _name && tokVal === module.foreign)) {
                 // 4. A foreign import.
@@ -1972,24 +2138,33 @@ define([], function asm_llvm() {
                 if (tokType===_plusmin) { next(); sawPlus = true; }
                 expectName(module.foreign, "<foreign>"); expect(_dot);
                 y = parseIdent();
-                if (tokType === _bin3 && tokVal ==='|') {
+                if (tokType === _bin3 && tokVal ==='|' && !sawPlus) {
                     next(); sawBar = true;
-                    // XXX use parseNumericLiteral here, probably
                     if (tokType !== _num || tokVal !== 0) {
                         raise(tokPos, "expected 0");
                     }
                     next();
                 }
-                // XXX add to environment.
+                ty = sawPlus ? Type.Double : sawBar ? Type.Int : Type.Function;
+                module.global.bind(x, GlobalBinding.New(ty, false), startPos);
             } else if (tokType === _new) {
                 // 5. A global heap view.
                 next(); expectName(module.stdlib, "<stdlib>"); expect(_dot);
+                yPos = tokPos;
                 var view = parseIdent();
-                // XXX validate view
+                if (view === 'Int8Array') { ty = Types.IntArray(8); }
+                else if (view === 'Uint8Array') { ty = Types.UintArray(8); }
+                else if (view === 'Int16Array') { ty = Types.IntArray(16); }
+                else if (view === 'Uint16Array') { ty = Types.UintArray(16); }
+                else if (view === 'Int32Array') { ty = Types.IntArray(32); }
+                else if (view === 'Uint32Array') { ty = Types.UintArray(32); }
+                else if (view === 'Float32Array') { ty = Types.FloatArray(32); }
+                else if (view === 'Float64Array') { ty = Types.FloatArray(64); }
+                else { raise(yPos, "unknown ArrayBufferView type"); }
                 expect(_parenL);
                 expectName(module.heap, "<heap>");
                 expect(_parenR);
-                // XXX add to environment.
+                module.global.bind(x, GlobalBinding.New(ty, false), startPos);
             } else { unexpected(); }
             semicolon();
         };
@@ -2038,7 +2213,8 @@ define([], function asm_llvm() {
             var module = {
                 id: null,
                 stdlib: null, foreign: null, heap: null,
-                seenTable: false
+                seenTable: false,
+                global: Env.New() // new global environment
             };
             expect(_function);
             if (tokType === _name) { module.id = parseIdent(); }
