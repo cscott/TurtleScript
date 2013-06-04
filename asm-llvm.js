@@ -8,6 +8,14 @@
 // of Marijn Haverbeke, which in turn borrowed from
 // [Esprima](http://esprima.org) by Ariya Hidayat.
 //
+// `asm-llvm.js` attempts to do parsing, type-checking, and compilation to
+// LLVM bytecode in a single pass.  Mozilla
+// [bug 854061](https://bugzilla.mozilla.org/show_bug.cgi?id=854061)
+// describes a similar attempt in the Firefox/SpiderMonkey codebase;
+// [bug 864600](https://bugzilla.mozilla.org/show_bug.cgi?id=864600)
+// describes recent changes to the `asm.js` spec to allow single-pass
+// compilation.
+//
 // Copyright (c) 2013 C. Scott Ananian
 define([], function asm_llvm() {
     // The module object.
