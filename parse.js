@@ -25,7 +25,7 @@ define(["tokenize"], function make_parse(tokenize) {
         t.name = "Syntax Error";
         if (t.from || t.to) { message += ' ['+t.from+'-'+t.to+']'; }
         t.message = message;
-        //console.warn(JSON.stringify(t));
+        /*console.warn(JSON.stringify(t));*/
         Object.Throw(t);
     };
 
@@ -629,7 +629,7 @@ define(["tokenize"], function make_parse(tokenize) {
             }];
             nstate.scope = scope;
         }, function (ee) { // catch(ee)
-            //console.log("FAILED PARSING AS EXPRESSION", ee);
+            /*console.log("FAILED PARSING AS EXPRESSION", ee);*/
             repl_tokens = tokenize(source, TOKEN_PREFIX, TOKEN_SUFFIX);
         });
         if (!tree) {
