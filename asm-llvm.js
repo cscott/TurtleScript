@@ -38,8 +38,16 @@ define([], function asm_llvm() {
             ty = this._derived[spec] = Object.create(this);
             ty._id = id; id += 1;
             ty._derived = [];
+            // simple toString method is good for value types.
+            properties = properties || {};
+            if (!properties.hasOwnProperty('toString')) {
+                properties.toString = function() { return spec; };
+            }
+            // override properties
             Object.keys(properties || {}).forEach(function(k) {
-                ty[k] = properties[k];
+                if (properties[k] !== undefined) {
+                    ty[k] = properties[k];
+                }
             });
             return ty;
         };
@@ -92,30 +100,46 @@ define([], function asm_llvm() {
     });
 
     // Global (non-value) types.
-    Type.ArrayBufferView = Type.derive("ArrayBufferView");
     Type.Function = Type.derive("Function");
-    Type.IntNArray = function(n) {
-        return Type.ArrayBufferView.derive('Int' + n + 'Array');
+    Type.ArrayBufferView = Type.derive("ArrayBufferView");
+    ['Int', 'Uint', 'Float'].forEach(function(elementType) {
+        var view = Type.ArrayBufferView.derive(elementType+'Array');
+        Type[elementType+'Array'] = function(n) {
+            return view.derive(n, {
+                bytes: n,
+                toString: function() { return elementType + n + 'Array'; }
+            });
+        };
+    });
+    var arrowToString = function() {
+        var params = [];
+        while (params.length < this.numargs) {
+            params.push(this[params.length].toString());
+        }
+        return '(' + params.join(',') + ')->' + this.rettype.toString();
     };
-    Type.UintNArray = function(n) {
-        return Type.ArrayBufferView.derive('Uint' + n + 'Array');
-    };
-    Type.FloatNArray = function(n) {
-        return Type.ArrayBufferView.derive('Float' + n + 'Array');
-    };
-    Type.FunctionType = function(argtypes, rettype) {
+    Type.Arrow = function(argtypes, rettype) {
         // We derive a function type starting from the return type, and
         // proceeding to the argument types in order.
         var result = rettype.derive('()->', {
-            'function': true,
+            arrow: true,
             rettype: rettype,
-            numargs: 0
+            numargs: 0,
+            toString: arrowToString
         });
         argtypes.forEach(function(ty, idx) {
-            var param = { numargs: (idx+1) }; param[idx] = ty;
+            var param = { numargs: (idx+1), toString: undefined };
+            param[idx] = ty;
             result = result.derive(ty._id, param);
         });
         return result;
+    };
+    var functionTypesToString = function() {
+        var types = [];
+        while (types.length < this.numtypes) {
+            types.push(this[types.length].toString());
+        }
+        return '[' + types.join(' ^ ') + ']';
     };
     Type.FunctionTypes = function(functiontypes) {
         // Sort the function types by id, to make a canonical ordering,
@@ -123,10 +147,12 @@ define([], function asm_llvm() {
         functiontypes.sort(function(a,b) { return a._id - b._id; });
         var result = Type.derive('FunctionTypes', {
             functiontypes: true,
-            numtypes: 0
+            numtypes: 0,
+            toString: functionTypesToString
         });
         functiontypes.forEach(function(ty, idx) {
-            var param = { numtypes: (idx+1) }; param[idx] = ty;
+            var param = { numtypes: (idx+1), toString: undefined };
+            param[idx] = ty;
             result = result.derive(ty._id, param);
         });
         return result;
@@ -135,14 +161,16 @@ define([], function asm_llvm() {
     // Quick self-test for the type system.  Ensure that identical types
     // created at two different times still compare ===.
     var test_types = function() {
-        var sqrt1 = Type.FunctionTypes([Type.FunctionType([Type.Double],Type.Double)]);
-        var sqrt2 = Type.FunctionTypes([Type.FunctionType([Type.Double],Type.Double)]);
+        var sqrt1 = Type.FunctionTypes([Type.Arrow([Type.Double],Type.Double)]);
+        var sqrt2 = Type.FunctionTypes([Type.Arrow([Type.Double],Type.Double)]);
         console.assert(sqrt1 === sqrt2);
         console.assert(sqrt1.functiontypes);
         console.assert(sqrt1.numtypes===1);
-        console.assert(sqrt1[0]['function']);
+        console.assert(sqrt1[0].arrow);
         console.assert(sqrt1[0].numargs===1);
         console.assert(sqrt1[0][0]===Type.Double);
+        console.assert(Type.Arrow([],Type.Double).toString() === '()->double');
+        console.assert(sqrt1.toString() === '[(double)->double]');
     };
     test_types();
 
