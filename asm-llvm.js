@@ -512,7 +512,7 @@ define([], function asm_llvm() {
 
     // Let's start with the tokenizer.  Unlike acorn, we
     // encapsulate the tokenizer state so that it is re-entrant.
-    var Tokenizer = function() {
+    var Compiler = function() {
 
         var options, input, inputLen, sourceFile;
 
@@ -1302,12 +1302,159 @@ define([], function asm_llvm() {
             return finishToken(type, word);
         };
 
+        // ## Parser
+
+        // A recursive descent parser operates by defining functions for all
+        // syntactic elements, and recursively calling those, each function
+        // advancing the input stream and returning an AST node. Precedence
+        // of constructs (for example, the fact that `!x[1]` means `!(x[1])`
+        // instead of `(!x)[1]` is handled by the fact that the parser
+        // function that parses unary prefix operators is called first, and
+        // in turn calls the function that parses `[]` subscripts — that
+        // way, it'll receive the node for `x[1]` already parsed, and wraps
+        // *that* in the unary operator node.
+        //
+        // Following acorn, we use an [operator precedence
+        // parser][opp] to handle binary operator precedence, because
+        // it is much more compact than using the technique outlined
+        // above, which uses different, nesting functions to specify
+        // precedence, for all of the ten binary precedence levels
+        // that JavaScript defines.
+        //
+        // [opp]: http://en.wikipedia.org/wiki/Operator-precedence_parser
+
+        var parseTopLevel; // forward declaration
+
+        // The main exported interface.
+        this.parse = function(inpt, opts) {
+            input = String(inpt); inputLen = input.length;
+            setOptions(opts);
+            initTokenState();
+            return parseTopLevel();
+        };
+
+        // ### Parser utilities
+
+        // Raise an unexpected token error.
+
+        var unexpected = function() {
+            raise(tokStart, "Unexpected token");
+        };
+
+        // Continue to the next token.
+        var next = function() {
+            lastStart = tokStart;
+            lastEnd = tokEnd;
+            lastEndLoc = tokEndLoc;
+            readToken();
+        };
+
+        // Predicate that tests whether the next token is of the given
+        // type, and if yes, consumes it as a side effect.
+
+        var eat = function(type) {
+            if (tokType === type) {
+                next();
+                return true;
+            }
+        };
+
+        // Test whether a semicolon can be inserted at the current position.
+
+        var canInsertSemicolon = function() {
+            return !options.strictSemicolons &&
+                (tokType === _eof || tokType === _braceR ||
+                 newline.test(input.slice(lastEnd, tokStart)));
+        };
+
+        // Consume a semicolon, or, failing that, see if we are allowed to
+        // pretend that there is a semicolon at this position.
+
+        var semicolon = function() {
+            if (!eat(_semi) && !canInsertSemicolon()) { unexpected(); }
+        };
+
+        // Expect a token of a given type. If found, consume it, otherwise,
+        // raise an unexpected token error.
+
+        var expect = function(type) {
+            if (tokType === type) { next(); }
+            else { unexpected(); }
+        };
+
+        // ### Literal parsing
+
+        // Parse the next token as an identifier. If `liberal` is true (used
+        // when parsing properties), it will also convert keywords into
+        // identifiers.
+        var parseIdent = function(liberal) {
+            var name = (tokType === _name) ? tokVal :
+                (liberal && (!options.forbidReserved) && tokType.keyword) ||
+                unexpected();
+            next();
+            return name;
+        };
+
+        // ### Module parsing
+        // Parse one asm.js module; it should start with 'function' keyword.
+        // XXX support the FunctionExpression form.
+        var parseModule = function() {
+            var node = { id: null, stdlib: null, foreign: null, heap: null };
+            expect(_function);
+            if (tokType === _name) { node.id = parseIdent(); }
+            expect(_parenL);
+            if (!eat(_parenR)) {
+                node.stdlib = parseIdent();
+                if (!eat(_parenR)) {
+                    expect(_comma);
+                    node.foreign = parseIdent();
+                    if (!eat(_parenR)) {
+                        expect(_comma);
+                        node.heap = parseIdent();
+                        expect(_parenR);
+                    }
+                }
+            }
+            expect(_braceL);
+            // check for "use asm";
+            if (tokType !== _string ||
+                tokVal !== "use asm") {
+                raise(tokPos, "Expected to see 'use asm'");
+            }
+            next();
+            semicolon();
+            console.log(node);
+
+            // XXX parse VariableStatement
+            // XXX parse FunctionDeclaration
+            // XXX parse VariableStatement
+            // XXX parse ReturnStatement
+
+            expect(_braceR);
+        };
+
+        // Parse a sequence of asm.js modules.
+        parseTopLevel = function() {
+            lastStart = lastEnd = tokPos;
+            if (options.locations) { lastEndLoc = line_loc_t.New(); }
+            readToken();
+
+            var modules = [];
+            while (tokType !== _eof) {
+                var module = parseModule();
+                modules.push(module);
+            }
+            return modules;
+        };
+
     };
 
-    var compile = module.compile = function(source, debug) {
-        var t = Tokenizer.New().tokenize(source, { debug: !!debug });
-        // xxx
+    var tokenize = module.tokenize = function(source, opts) {
+        return Compiler.New().tokenize(source, opts);
+    };
 
+    var compile = module.compile = function(source, opts) {
+        return Compiler.New().parse(source, opts);
     };
 
     return module;
