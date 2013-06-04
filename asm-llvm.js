@@ -1382,6 +1382,14 @@ define([], function asm_llvm() {
             else { unexpected(); }
         };
 
+        // Expect a _name token matching the given identifier.  If found,
+        // consume it, otherwise raise an error.
+        var expectName = function(value, defaultValue) {
+            if (tokType !== _name || tokVal !== value) {
+                raise("expected " + (value || defaultValue));
+            } else { next(); }
+        };
+
         // ### Literal parsing
 
         // Parse the next token as an identifier. If `liberal` is true (used
@@ -1395,22 +1403,144 @@ define([], function asm_llvm() {
             return name;
         };
 
+        var parseNumericLiteral = function() {
+            expect(_num);
+            // XXX should determine type of literal
+        };
+
+        var parseVariableStatement = function(module) {
+            var x, y;
+            expect(_var);
+            x = parseIdent();
+            expect(_eq);
+            // There are five types of variable statements:
+            if (tokType === _bracketL) {
+                // 1. A function table.  (Only allowed at end of module.)
+                next();
+                var table = [];
+                while (!eat(_bracketR)) {
+                    if (table.length !== 0) { expect(_comma); }
+                    table.push(parseIdent());
+                }
+                // XXX add to environment.
+                module.seenTable = true;
+            } else if (module.seenTable) {
+                raise(tokPos, "expected function table");
+            } else if (tokType === _num) {
+                // 2. A global program variable, initialized to a literal.
+                parseNumericLiteral();
+                // XXX add to environment.
+            } else if (tokType === _name && tokVal === module.stdlib) {
+                // 3. A standard library import.
+                next(); expect(_dot);
+                y = parseIdent();
+                if (y==='Math') {
+                    expect(_dot); y += '.' + parseIdent();
+                }
+                // XXX add to environment.
+            } else if ((tokType === _plusmin && tokVal==='+') ||
+                       (tokType === _name && tokVal === module.foreign)) {
+                // 4. A foreign import.
+                var sawPlus = false, sawBar = false;
+                if (tokType===_plusmin) { next(); sawPlus = true; }
+                expectName(module.foreign, "<foreign>"); expect(_dot);
+                y = parseIdent();
+                if (tokType === _bin3 && tokVal ==='|') {
+                    next(); sawBar = true;
+                    // XXX use parseNumericLiteral here, probably
+                    if (tokType !== _num || tokVal !== 0) {
+                        raise(tokPos, "expected 0");
+                    }
+                    next();
+                }
+                // XXX add to environment.
+            } else if (tokType === _new) {
+                // 5. A global heap view.
+                next(); expectName(module.stdlib, "<stdlib>"); expect(_dot);
+                var view = parseIdent();
+                // XXX validate view
+                expect(_parenL);
+                expectName(module.heap, "<heap>");
+                expect(_parenR);
+                // XXX add to environment.
+            } else { unexpected(); }
+            semicolon();
+        };
+
+        // Parse a series of variable declaration statements.
+        var parseVariableStatements = function(module) {
+            while (tokType === _var) {
+                parseVariableStatement(module);
+            }
+        };
+
+        var parseFunctionDeclaration = function(module) {
+            expect(_function);
+            var f = parseIdent();
+            expect(_parenL);
+            var params = [];
+            while (!eat(_parenR)) {
+                if (params.length !== 0) { expect(_comma); }
+                params.push(parseIdent());
+            }
+            expect(_braceL);
+            // XXX parameter type coercions
+            // XXX variable declarations
+            // XXX body statements
+            expect(_braceR);
+        };
+
+        // Parse a series of (module-internal) function declarations.
+        var parseFunctionDeclarations = function(module) {
+            while (tokType === _function) {
+                parseFunctionDeclaration(module);
+            }
+        };
+
+        // Parse the module export declaration (return statement).
+        var parseExportDeclaration = function(module) {
+            expect(_return);
+            var exports = Object.create(null), first = true;
+            if (tokType !== _braceL) {
+                exports['$'] = parseIdent();
+            } else {
+                next();
+                var x = parseIdent();
+                expect(_colon);
+                var f = parseIdent();
+                exports[x] = f;
+                while (!eat(_braceR)) {
+                    expect(_comma);
+                    x = parseIdent();
+                    expect(_colon);
+                    f = parseIdent();
+                    exports[x] = f;
+                }
+            }
+            semicolon();
+            // XXX do something with exports
+        };
+
         // ### Module parsing
         // Parse one asm.js module; it should start with 'function' keyword.
         // XXX support the FunctionExpression form.
         var parseModule = function() {
-            var node = { id: null, stdlib: null, foreign: null, heap: null };
+            var module = {
+                id: null,
+                stdlib: null, foreign: null, heap: null,
+                seenTable: false
+            };
             expect(_function);
-            if (tokType === _name) { node.id = parseIdent(); }
+            if (tokType === _name) { module.id = parseIdent(); }
             expect(_parenL);
             if (!eat(_parenR)) {
-                node.stdlib = parseIdent();
+                module.stdlib = parseIdent();
                 if (!eat(_parenR)) {
                     expect(_comma);
-                    node.foreign = parseIdent();
+                    module.foreign = parseIdent();
                     if (!eat(_parenR)) {
                         expect(_comma);
-                        node.heap = parseIdent();
+                        module.heap = parseIdent();
                         expect(_parenR);
                     }
                 }
@@ -1423,12 +1553,14 @@ define([], function asm_llvm() {
             }
             next();
             semicolon();
-            console.log(node);
 
-            // XXX parse VariableStatement
-            // XXX parse FunctionDeclaration
-            // XXX parse VariableStatement
-            // XXX parse ReturnStatement
+            parseVariableStatements(module);
+            if (!module.seenTable) {
+                module.seenTable = true;
+                parseFunctionDeclarations(module);
+                parseVariableStatements(module);
+            }
+            parseExportDeclaration(module);
 
             expect(_braceR);
         };
