@@ -988,6 +988,7 @@ define([], function asm_llvm() {
             function() { return finishOp(_prefix, 1); };
 
 
+        // XXX: forceRegexp is never true for asm.js
         readToken = function(forceRegexp) {
             if (!forceRegexp) { tokStart = tokPos; }
             else { tokPos = tokStart + 1; }
@@ -1390,6 +1391,10 @@ define([], function asm_llvm() {
             } else { next(); }
         };
 
+        var checkLVal = function(expr) {
+            // XXX
+        };
+
         // ### Literal parsing
 
         // Parse the next token as an identifier. If `liberal` is true (used
@@ -1408,7 +1413,529 @@ define([], function asm_llvm() {
             // XXX should determine type of literal
         };
 
-        var parseVariableStatement = function(module) {
+        // ### Expression parsing
+
+        // These nest, from the most general expression type at the top to
+        // 'atomic', nondivisible expression types at the bottom. Most of
+        // the functions will simply let the function(s) below them parse,
+        // and, *if* the syntactic construct they handle is present, wrap
+        // the AST node that the inner parser gave them in another node.
+
+        var parseExpression; // forward declaration
+
+        // Parses a comma-separated list of expressions, and returns them as
+        // an array. `close` is the token type that ends the list, and
+        // `allowEmpty` can be turned on to allow subsequent commas with
+        // nothing in between them to be parsed as `null` (which is needed
+        // for array literals).
+
+        var parseExprList = function(close, allowTrailingComma, allowEmpty) {
+            var elts = [], first = true;
+            while (!eat(close)) {
+                if (first) { first = false; }
+                else {
+                    expect(_comma);
+                    if (allowTrailingComma && options.allowTrailingCommas &&
+                        eat(close)) {
+                        break;
+                    }
+                }
+
+                if (allowEmpty && tokType === _comma) { elts.push(null); }
+                else { elts.push(parseExpression(true)); }
+            }
+            return elts;
+        };
+
+        // Parse an atomic expression — either a single token that is an
+        // expression, an expression started by a keyword like `function` or
+        // `new`, or an expression wrapped in punctuation like `()`, `[]`,
+        // or `{}`.
+
+        var parseExprAtom = function() {
+            var node;
+            if (tokType === _name) {
+                return parseIdent();
+
+            } else if (tokType === _num || tokType === _string || tokType === _regexp) {
+                node = Object.create(null);//startNode();
+                node.value = tokVal;
+                node.raw = input.slice(tokStart, tokEnd);
+                next();
+                return;// finishNode(node, "Literal");
+
+            } else if (tokType === _null || tokType === _true || tokType === _false) {
+                node = Object.create(null);//startNode();
+                node.value = tokType.atomValue;
+                node.raw = tokType.keyword;
+                next();
+                return;// finishNode(node, "Literal");
+
+            } else if (tokType === _parenL) {
+                var tokStartLoc1 = tokStartLoc, tokStart1 = tokStart;
+                next();
+                var val = parseExpression();
+                val.start = tokStart1;
+                val.end = tokEnd;
+                if (options.locations) {
+                    val.loc.start = tokStartLoc1;
+                    val.loc.end = tokEndLoc;
+                }
+                if (options.ranges) {
+                    val.range = [tokStart1, tokEnd];
+                }
+                expect(_parenR);
+                return val;
+
+            } else if (tokType === _bracketL) {
+                node = Object.create(null);//startNode();
+                next();
+                node.elements = parseExprList(_bracketR, true, true);
+                return;// finishNode(node, "ArrayExpression");
+
+            } else {
+                unexpected();
+            }
+        };
+
+        // Parse call, dot, and `[]`-subscript expressions.
+
+        var parseSubscripts = function(base, noCalls) {
+            var finishNode = function(node) { return node; }; // XXX
+            var node;
+            if (eat(_dot)) {
+                node = {};//startNodeFrom(base);
+                node.object = base;
+                node.property = parseIdent(true);
+                node.computed = false;
+                return parseSubscripts(finishNode(node, "MemberExpression"), noCalls);
+            } else if (eat(_bracketL)) {
+                node = {};//startNodeFrom(base);
+                node.object = base;
+                node.property = parseExpression();
+                node.computed = true;
+                expect(_bracketR);
+                return parseSubscripts(finishNode(node, "MemberExpression"), noCalls);
+            } else if (!noCalls && eat(_parenL)) {
+                node = {};//startNodeFrom(base);
+                node.callee = base;
+                node.arguments = parseExprList(_parenR, false);
+                return parseSubscripts(finishNode(node, "CallExpression"), noCalls);
+            } else { return base; }
+        };
+
+        var parseExprSubscripts = function() {
+            return parseSubscripts(parseExprAtom());
+        };
+
+        // Parse unary operators, both prefix and postfix.
+
+        function parseMaybeUnary(noIn) {
+            var node;
+            if (tokType.prefix) {
+                node = {};//startNode();
+                var update = tokType.isUpdate;
+                node.operator = tokVal;
+                node.prefix = true;
+                next();
+                node.argument = parseMaybeUnary(noIn);
+                if (update) { checkLVal(node.argument); }
+                else if (strict && node.operator === "delete" &&
+                         node.argument.type === "Identifier") {
+                    // XXX
+                    raise(node.start, "Deleting local variable in strict mode");
+                }
+                return;// finishNode(node, update ? "UpdateExpression" : "UnaryExpression");
+            }
+            var expr = parseExprSubscripts();
+            while (tokType.postfix && !canInsertSemicolon()) {
+                node = {};//startNodeFrom(expr);
+                node.operator = tokVal;
+                node.prefix = false;
+                node.argument = expr;
+                checkLVal(expr);
+                next();
+                expr = node;//finishNode(node, "UpdateExpression");
+            }
+            return expr;
+        };
+
+
+        // Start the precedence parser.
+
+        // Parse binary operators with the operator precedence parsing
+        // algorithm. `left` is the left-hand side of the operator.
+        // `minPrec` provides context that allows the function to stop and
+        // defer further parser to one of its callers when it encounters an
+        // operator that has a lower precedence than the set it is parsing.
+
+        var parseExprOp = function(left, minPrec, noIn) {
+            var prec = tokType.binop;
+            console.assert(prec !== null, tokType);
+            if (prec !== undefined && (!noIn || tokType !== _in)) {
+                if (prec > minPrec) {
+                    var node = {};//startNodeFrom(left);
+                    node.left = left;
+                    node.operator = tokVal;
+                    next();
+                    node.right = parseExprOp(parseMaybeUnary(noIn), prec, noIn);
+                    //var node = finishNode(node, /&&|\|\|/.test(node.operator) ? "LogicalExpression" : "BinaryExpression");
+                    return parseExprOp(node, minPrec, noIn);
+                }
+            }
+            return left;
+        };
+
+        var parseExprOps = function(noIn) {
+            return parseExprOp(parseMaybeUnary(noIn), -1, noIn);
+        };
+
+        // Parse a ternary conditional (`?:`) operator.
+
+        var parseMaybeConditional = function(noIn) {
+            var expr = parseExprOps(noIn);
+            if (eat(_question)) {
+                var node = Object.create(null);//startNodeFrom(expr);
+                node.test = expr;
+                node.consequent = parseExpression(true);
+                expect(_colon);
+                node.alternate = parseExpression(true, noIn);
+                return;// finishNode(node, "ConditionalExpression");
+            }
+            return expr;
+        };
+
+        // Parse an assignment expression. This includes applications of
+        // operators like `+=`.
+
+        var parseMaybeAssign = function(noIn) {
+            var left = parseMaybeConditional(noIn);
+            if (tokType.isAssign) {
+                var node = Object.create(null);//startNodeFrom(left);
+                node.operator = tokVal;
+                node.left = left;
+                next();
+                node.right = parseMaybeAssign(noIn);
+                checkLVal(left);
+                return;// finishNode(node, "AssignmentExpression");
+            }
+            return left;
+        };
+
+        // Parse a full expression. The arguments are used to forbid comma
+        // sequences (in argument lists, array literals, or object literals)
+        // or the `in` operator (in for loops initalization expressions).
+
+        parseExpression = function(noComma, noIn) {
+            var expr = parseMaybeAssign(noIn);
+            if (!noComma && tokType === _comma) {
+                var node = Object.create(null);//startNodeFrom(expr);
+                node.expressions = [expr];
+                while (eat(_comma)) {
+                    node.expressions.push(parseMaybeAssign(noIn));
+                }
+                return;// finishNode(node, "SequenceExpression");
+            }
+            return expr;
+        };
+
+        // Used for constructs like `switch` and `if` that insist on
+        // parentheses around their expression.
+
+        var parseParenExpression = function() {
+            expect(_parenL);
+            var val = parseExpression();
+            expect(_parenR);
+            return val;
+        };
+
+        // ### Statement parsing
+
+        var loopLabel = {kind: "loop"}, switchLabel = {kind: "switch"};
+
+        var parseStatement; // forward declaration
+
+        // Parse a regular `for` loop. The disambiguation code in
+        // `parseStatement` will already have parsed the init statement or
+        // expression.
+
+        var parseFor = function(node, init) {
+            var labels=[];//XXX
+            node.init = init;
+            expect(_semi);
+            node.test = tokType === _semi ? null : parseExpression();
+            expect(_semi);
+            node.update = tokType === _parenR ? null : parseExpression();
+            expect(_parenR);
+            node.body = parseStatement();
+            labels.pop();
+            return;// finishNode(node, "ForStatement");
+        };
+
+        // Parse a semicolon-enclosed block of statements.
+
+        var parseBlock = function() {
+            expect(_braceL);
+            while (!eat(_braceR)) {
+                var stmt = parseStatement();
+            }
+        };
+
+        // Parse a single statement.
+
+        parseStatement = function(module, func) {
+            var node = Object.create(null);//xxx
+            var labels = []; //xxx
+
+            var starttype = tokType;
+
+            // Most types of statements are recognized by the keyword they
+            // start with. Many are trivial to parse, some require a bit of
+            // complexity.
+
+            if (starttype===_break || starttype===_continue) {
+                next();
+                var isBreak = starttype === _break;
+                if (eat(_semi) || canInsertSemicolon()) { node.label = null; }
+                else if (tokType !== _name) { unexpected(); }
+                else {
+                    node.label = parseIdent();
+                    semicolon();
+                }
+
+                // Verify that there is an actual destination to break or
+                // continue to.
+                /*
+                for (var i = 0; i < labels.length; ++i) {
+                    var lab = labels[i];
+                    if (node.label == null || lab.name === node.label.name) {
+                        if (lab.kind != null && (isBreak || lab.kind === "loop")) break;
+                        if (node.label && isBreak) break;
+                    }
+                }
+                if (i === labels.length) raise(node.start, "Unsyntactic " + starttype.keyword);
+                */
+                return;// finishNode(node, isBreak ? "BreakStatement" : "ContinueStatement");
+            } else if (starttype===_do) {
+                next();
+                labels.push(loopLabel);
+                node.body = parseStatement();
+                labels.pop();
+                expect(_while);
+                node.test = parseParenExpression();
+                semicolon();
+                return;// finishNode(node, "DoWhileStatement");
+            } else if (starttype===_for) {
+                // Disambiguating between a `for` and a `for`/`in` loop is
+                // non-trivial. Luckily, `for`/`in` loops aren't allowed in
+                // `asm.js`!
+
+                //Basically, we have to parse the init `var`
+                // statement or expression, disallowing the `in` operator (see
+                // the second parameter to `parseExpression`), and then check
+                // whether the next token is `in`. When there is no init part
+                // (semicolon immediately after the opening parenthesis), it is
+                // a regular `for` loop.
+                next();
+                labels.push(loopLabel);
+                expect(_parenL);
+                if (tokType === _semi) { return parseFor(node, null); }
+                var init = parseExpression(false, true);
+                return parseFor(node, init);
+            } else if (starttype===_if) {
+                next();
+                node.test = parseParenExpression();
+                node.consequent = parseStatement();
+                node.alternate = eat(_else) ? parseStatement() : null;
+                return;// finishNode(node, "IfStatement");
+
+            } else if (starttype===_return) {
+                next();
+
+                // In `return` (and `break`/`continue`), the keywords with
+                // optional arguments, we eagerly look for a semicolon or the
+                // possibility to insert one.
+
+                if (eat(_semi) || canInsertSemicolon()){ node.argument = null; }
+                else { node.argument = parseExpression(); semicolon(); }
+                return;// finishNode(node, "ReturnStatement");
+
+                /*
+            } else if (starttype===_switch) {
+                next();
+                node.discriminant = parseParenExpression();
+                node.cases = [];
+                expect(_braceL);
+                labels.push(switchLabel);
+
+                // Statements under must be grouped (by label) in SwitchCase
+                // nodes. `cur` is used to keep the node that we are currently
+                // adding statements to.
+
+                for (var cur, sawDefault; tokType != _braceR;) {
+                    if (tokType === _case || tokType === _default) {
+                        var isCase = tokType === _case;
+                        if (cur) finishNode(cur, "SwitchCase");
+                        node.cases.push(cur = startNode());
+                        cur.consequent = [];
+                        next();
+                        if (isCase) cur.test = parseExpression();
+                        else {
+                            if (sawDefault) raise(lastStart, "Multiple default clauses"); sawDefault = true;
+                            cur.test = null;
+                        }
+                        expect(_colon);
+                    } else {
+                        if (!cur) unexpected();
+                        cur.consequent.push(parseStatement());
+                    }
+                }
+                if (cur) finishNode(cur, "SwitchCase");
+                next(); // Closing brace
+                labels.pop();
+                return finishNode(node, "SwitchStatement");
+                */
+            } else if (starttype===_while) {
+                next();
+                node.test = parseParenExpression();
+                labels.push(loopLabel);
+                node.body = parseStatement();
+                labels.pop();
+                return;// finishNode(node, "WhileStatement");
+
+            } else if (starttype===_braceL) {
+                return parseBlock();
+
+            } else if (starttype===_semi) {
+                next();
+                return;// finishNode(node, "EmptyStatement");
+
+            } else {
+                // If the statement does not start with a statement keyword or a
+                // brace, it's an ExpressionStatement or LabeledStatement. We
+                // simply start parsing an expression, and afterwards, if the
+                // next token is a colon and the expression was a simple
+                // Identifier node, we switch to interpreting it as a label.
+                var maybeName = tokVal, maybeStart = tokStart;
+                var expr = parseExpression();
+                if (starttype === _name /*&& expr.type === "Identifier"*/ && eat(_colon)) {
+                    labels.forEach(function(l) {
+                        if (l.name === maybeName) {
+                            raise(maybeStart, "Label '" + maybeName + "' is already declared");
+                        }
+                    });
+                    var kind = tokType.isLoop ? "loop" : tokType === _switch ? "switch" : null;
+                    labels.push({name: maybeName, kind: kind});
+                    node.body = parseStatement();
+                    labels.pop();
+                    node.label = expr;
+                    return;// finishNode(node, "LabeledStatement");
+                } else {
+                    node.expression = expr;
+                    semicolon();
+                    return;// finishNode(node, "ExpressionStatement");
+                }
+            }
+        };
+
+        // XXX second parameter to parseExpression is never true for asm.js
+
+        // ### Module-internal function parsing
+
+        // Parse a list of parameter type coercions.
+        // Note that we can't always tell these apart from body statements;
+        // we might have to backtrack.
+        var parseParameterTypeCoercions = function(module, func) {
+            var ptPos;
+            func.paramTypes = [];
+            var bail = function() {
+                // Restore old token position before returning.
+                tokPos = ptPos;
+                while (tokPos < tokLineStart) {
+                    tokLineStart =
+                        input.lastIndexOf("\n", tokLineStart - 2) + 1;
+                    tokCurLine -= 1;
+                }
+                skipSpace();
+                readToken();
+            };
+
+            while (tokType === _name) {
+                // Save position of this token before starting to parse!
+                ptPos = lastEnd;
+                var x = parseIdent();
+                var x_idx = func.params.indexOf(x);
+                if (x_idx < 0 || func.paramTypes[x_idx] !== undefined) {
+                    return bail(); // not a parameter name, or already coerced
+                }
+                if (tokType === _eq) { next(); } else { return bail(); }
+                if (tokType === _name && tokVal === x) {
+                    // This is an `int` type annotation.
+                    next();
+                    if (!(tokType === _bin3 && tokVal === '|')) {
+                        return bail();
+                    } else { next(); }
+                    // XXX use parseNumericLiteral here
+                    if (!(tokType === _num && tokVal === 0)) {
+                        return bail();
+                    } else { next(); }
+                    if (!(tokType === _semi)) { return bail(); }
+                    func.paramTypes[x_idx] = Type.Int; // record the type
+                } else if (tokType === _plusmin && tokVal==='+') {
+                    // This is a `double` type annotation.
+                    next();
+                    if (tokType === _name && tokVal === x) {
+                        next();
+                    } else { return bail(); }
+                    if (!(tokType === _semi)) { return bail(); }
+                    func.paramTypes[x_idx] = Type.Double; // record the type
+                } else {
+                    return bail();
+                }
+                expect(_semi);
+            }
+        };
+
+        // Parse local variable declarations.
+        var parseLocalVariableDeclarations = function(module, func) {
+            while (tokType === _var) {
+                expect(_var);
+                while (true) {
+                    var y = parseIdent();
+                    expect(_eq);
+                    var n = parseNumericLiteral();
+                    // XXX do something with y and n
+                    if (!eat(_comma)) { break; }
+                }
+                semicolon();
+            }
+        };
+
+        // Parse a module-internal function
+        var parseFunctionDeclaration = function(module) {
+            var func = Object.create(null);
+            expect(_function);
+            func.id = parseIdent();
+            expect(_parenL);
+            func.params = [];
+            while (!eat(_parenR)) {
+                if (func.params.length !== 0) { expect(_comma); }
+                func.params.push(parseIdent());
+            }
+            expect(_braceL);
+
+            parseParameterTypeCoercions(module, func);
+            parseLocalVariableDeclarations(module, func);
+            // body statements.
+            while (!eat(_braceR)) {
+                parseStatement(module, func);
+            }
+        };
+
+        // ### Module parsing
+
+        // Parse a variable statement within a module.
+        var parseModuleVariableStatement = function(module) {
             var x, y;
             expect(_var);
             x = parseIdent();
@@ -1467,38 +1994,22 @@ define([], function asm_llvm() {
             semicolon();
         };
 
-        // Parse a series of variable declaration statements.
-        var parseVariableStatements = function(module) {
+        // Parse a series of module variable declaration statements.
+        var parseModuleVariableStatements = function(module) {
             while (tokType === _var) {
-                parseVariableStatement(module);
+                parseModuleVariableStatement(module);
             }
-        };
-
-        var parseFunctionDeclaration = function(module) {
-            expect(_function);
-            var f = parseIdent();
-            expect(_parenL);
-            var params = [];
-            while (!eat(_parenR)) {
-                if (params.length !== 0) { expect(_comma); }
-                params.push(parseIdent());
-            }
-            expect(_braceL);
-            // XXX parameter type coercions
-            // XXX variable declarations
-            // XXX body statements
-            expect(_braceR);
         };
 
         // Parse a series of (module-internal) function declarations.
-        var parseFunctionDeclarations = function(module) {
+        var parseModuleFunctionDeclarations = function(module) {
             while (tokType === _function) {
                 parseFunctionDeclaration(module);
             }
         };
 
         // Parse the module export declaration (return statement).
-        var parseExportDeclaration = function(module) {
+        var parseModuleExportDeclaration = function(module) {
             expect(_return);
             var exports = Object.create(null), first = true;
             if (tokType !== _braceL) {
@@ -1521,7 +2032,6 @@ define([], function asm_llvm() {
             // XXX do something with exports
         };
 
-        // ### Module parsing
         // Parse one asm.js module; it should start with 'function' keyword.
         // XXX support the FunctionExpression form.
         var parseModule = function() {
@@ -1554,13 +2064,13 @@ define([], function asm_llvm() {
             next();
             semicolon();
 
-            parseVariableStatements(module);
+            parseModuleVariableStatements(module);
             if (!module.seenTable) {
                 module.seenTable = true;
-                parseFunctionDeclarations(module);
-                parseVariableStatements(module);
+                parseModuleFunctionDeclarations(module);
+                parseModuleVariableStatements(module);
             }
-            parseExportDeclaration(module);
+            parseModuleExportDeclaration(module);
 
             expect(_braceR);
         };
