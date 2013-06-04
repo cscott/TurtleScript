@@ -8,6 +8,14 @@
 // of Marijn Haverbeke, which in turn borrowed from
 // [Esprima](http://esprima.org) by Ariya Hidayat.
 //
+// `asm-llvm.js` attempts to do parsing, type-checking, and compilation to
+// LLVM bytecode in a single pass.  Mozilla
+// [bug 854061](https://bugzilla.mozilla.org/show_bug.cgi?id=854061)
+// describes a similar attempt in the Firefox/SpiderMonkey codebase;
+// [bug 864600](https://bugzilla.mozilla.org/show_bug.cgi?id=864600)
+// describes recent changes to the `asm.js` spec to allow single-pass
+// compilation.
+//
 // Copyright (c) 2013 C. Scott Ananian
 define([], function asm_llvm() {
     // The module object.
@@ -18,7 +26,7 @@ define([], function asm_llvm() {
         __module_deps__: []
     };
 
-    // ## Type system
+    // ## `asm.js` type system
 
     // Set up the [type system of asm.js](http://asmjs.org/spec/latest/#types).
     var Type = {
@@ -38,115 +46,263 @@ define([], function asm_llvm() {
             ty = this._derived[spec] = Object.create(this);
             ty._id = id; id += 1;
             ty._derived = [];
+            // simple toString method is good for value types.
+            properties = properties || {};
+            if (!properties.hasOwnProperty('toString')) {
+                properties.toString = function() { return spec; };
+            }
+            // override properties
             Object.keys(properties || {}).forEach(function(k) {
-                ty[k] = properties[k];
+                if (properties[k] !== undefined) {
+                    ty[k] = properties[k];
+                }
             });
             return ty;
         };
     })();
+
+    var Types = Object.create(null);
+
     // The top-level internal types (which do not escape, and are not
     // a subtype of any other type) are "doublish" and "intish".
 
     // Intish represents the result of a JavaScript integer operation
     // that must be coerced back to an integer with an explicit
     // coercion.
-    Type.Intish = Type.derive("intish", { value: true });
+    Types.Intish = Type.derive("intish", { value: true });
     // Similar to intish, the doublish type represents operations that
     // are expected to produce a double but may produce additional
     // junk that must be coerced back to a number.
-    Type.Doublish = Type.derive("doublish", { value: true });
+    Types.Doublish = Type.derive("doublish", { value: true });
     // Void is the type of functions that are not supposed to return any
     // useful value.
-    Type.Void = Type.derive("void", { value: true });
+    Types.Void = Type.derive("void", { value: true });
 
     // The other internal (non-escaping) types are 'unknown' and 'int'.
     // The unknown type represents a value returned from an FFI call.
-    Type.Unknown = Type.derive("unknown", {
+    Types.Unknown = Type.derive("unknown", {
         value: true,
-        subtypes: [Type.Doublish, Type.Intish]
+        subtypes: [Types.Doublish, Types.Intish]
     });
     // The int type is the type of 32-bit integers where the
     // signedness is not known.
-    Type.Int = Type.derive("int", {
+    Types.Int = Type.derive("int", {
         value: true,
-        subtypes: [Type.Intish]
+        subtypes: [Types.Intish]
     });
 
     // The rest of the value types can escape into non-asm.js code.
-    Type.Extern = Type.derive("extern", { value: true });
-    Type.Double = Type.derive("double", {
+    Types.Extern = Type.derive("extern", { value: true });
+    Types.Double = Type.derive("double", {
         value: true,
-        subtypes: [Type.Doublish, Type.Extern]
+        subtypes: [Types.Doublish, Types.Extern]
     });
-    Type.Signed = Type.derive("signed", {
+    Types.Signed = Type.derive("signed", {
         value: true,
-        subtypes: [Type.Extern, Type.Int]
+        subtypes: [Types.Extern, Types.Int],
+        min: -2147483648, // -2^31
+        max: -1 // range excludes 0
     });
-    Type.Unsigned = Type.derive("unsigned", {
+    Types.Unsigned = Type.derive("unsigned", {
         value: true,
-        subtypes: [Type.Extern, Type.Int]
+        subtypes: [Types.Extern, Types.Int],
+        min: 2147483648, // 2^31
+        max: 4294967295  // (2^32)-1
     });
-    Type.Fixnum = Type.derive("fixnum", {
+    Types.Fixnum = Type.derive("fixnum", {
         value: true,
-        subtypes: [Type.Signed, Type.Unsigned]
+        subtypes: [Types.Signed, Types.Unsigned],
+        min: 0,
+        max: 2147483647 // (2^31)-1
     });
 
     // Global (non-value) types.
-    Type.ArrayBufferView = Type.derive("ArrayBufferView");
-    Type.Function = Type.derive("Function");
-    Type.IntNArray = function(n) {
-        return Type.ArrayBufferView.derive('Int' + n + 'Array');
+    Types.Function = Type.derive("Function");
+    Types.ArrayBufferView = Type.derive("ArrayBufferView");
+    ['Int', 'Uint', 'Float'].forEach(function(elementType) {
+        var view = Types.ArrayBufferView.derive(elementType+'Array');
+        Types[elementType+'Array'] = function(n) {
+            return view.derive(n, {
+                base: (elementType==='Float') ? Types.Doublish : Types.Intish,
+                bytes: Math.floor(n/8),
+                toString: function() { return elementType + n + 'Array'; }
+            });
+        };
+    });
+    Types.Arrow = (function() {
+        var arrowToString = function() {
+            var params = [];
+            while (params.length < this.numargs) {
+                params.push(this[params.length].toString());
+            }
+            return '(' + params.join(',') + ')->' + this.rettype.toString();
+        };
+        return function(argtypes, rettype) {
+            // We derive a function type starting from the return type, and
+            // proceeding to the argument types in order.
+            var result = rettype.derive('()->', {
+                arrow: true,
+                rettype: rettype,
+                numargs: 0,
+                toString: arrowToString
+            });
+            argtypes.forEach(function(ty, idx) {
+                var param = { numargs: (idx+1), toString: undefined };
+                param[idx] = ty;
+                result = result.derive(ty._id, param);
+            });
+            return result;
+        };
+    })();
+    Types.FunctionTypes = (function() {
+        var functionTypesToString = function() {
+            var types = [];
+            while (types.length < this.numtypes) {
+                types.push(this[types.length].toString());
+            }
+            return '[' + types.join(' ^ ') + ']';
+        };
+        return function(functiontypes) {
+            // Sort the function types by id, to make a canonical ordering,
+            // then derive the `FunctionTypes` type.
+            functiontypes.sort(function(a,b) { return a._id - b._id; });
+            var result = Type.derive('FunctionTypes', {
+                functiontypes: true,
+                numtypes: 0,
+                toString: functionTypesToString
+            });
+            functiontypes.forEach(function(ty, idx) {
+                var param = { numtypes: (idx+1), toString: undefined };
+                param[idx] = ty;
+                result = result.derive(ty._id, param);
+            });
+            return result;
+        };
+    })();
+    Types.Table = (function() {
+        var tableToString = function() {
+            return '(' + this.base.toString() + ')[' + this.size + ']';
+        };
+        return function(functype, size) {
+            var t = functype.derive('Table', { table: true, base: functype });
+            return t.derive(size, { size: size, toString: tableToString });
+        };
+    })();
+
+    // Utility functions.
+    var ceilLog2 = function(x) {
+        var r = 0; x-=1;
+        while (x!==0) { x = Math.floor(x/2); r+=1; } // XXX want shift!
+        return r;
     };
-    Type.UintNArray = function(n) {
-        return Type.ArrayBufferView.derive('Uint' + n + 'Array');
-    };
-    Type.FloatNArray = function(n) {
-        return Type.ArrayBufferView.derive('Float' + n + 'Array');
-    };
-    Type.FunctionType = function(argtypes, rettype) {
-        // We derive a function type starting from the return type, and
-        // proceeding to the argument types in order.
-        var result = rettype.derive('()->', {
-            'function': true,
-            rettype: rettype,
-            numargs: 0
-        });
-        argtypes.forEach(function(ty, idx) {
-            var param = { numargs: (idx+1) }; param[idx] = ty;
-            result = result.derive(ty._id, param);
-        });
-        return result;
-    };
-    Type.FunctionTypes = function(functiontypes) {
-        // Sort the function types by id, to make a canonical ordering,
-        // then derive the `FunctionTypes` type.
-        functiontypes.sort(function(a,b) { return a._id - b._id; });
-        var result = Type.derive('FunctionTypes', {
-            functiontypes: true,
-            numtypes: 0
-        });
-        functiontypes.forEach(function(ty, idx) {
-            var param = { numtypes: (idx+1) }; param[idx] = ty;
-            result = result.derive(ty._id, param);
-        });
-        return result;
+
+    // Only powerOf2 sizes are legit for function tables.
+    var powerOf2 = function(x) {
+        /* return (x & (x - 1)) === 0; // how cool kids do it */
+        return x === Math.pow(2, ceilLog2(x)); // TurtleScript needs bitwise ops
     };
 
     // Quick self-test for the type system.  Ensure that identical types
     // created at two different times still compare ===.
     var test_types = function() {
-        var sqrt1 = Type.FunctionTypes([Type.FunctionType([Type.Double],Type.Double)]);
-        var sqrt2 = Type.FunctionTypes([Type.FunctionType([Type.Double],Type.Double)]);
+        var sqrt1 = Types.FunctionTypes(
+            [Types.Arrow([Types.Double], Types.Double)]);
+        var sqrt2 = Types.FunctionTypes(
+            [Types.Arrow([Types.Double], Types.Double)]);
         console.assert(sqrt1 === sqrt2);
         console.assert(sqrt1.functiontypes);
         console.assert(sqrt1.numtypes===1);
-        console.assert(sqrt1[0]['function']);
+        console.assert(sqrt1[0].arrow);
         console.assert(sqrt1[0].numargs===1);
-        console.assert(sqrt1[0][0]===Type.Double);
+        console.assert(sqrt1[0][0]===Types.Double);
+        console.assert(Types.Arrow([],Types.Double).toString() === '()->double');
+        console.assert(sqrt1.toString() === '[(double)->double]');
+
+        // table types
+        var t1 = Types.Table(sqrt1[0], 16);
+        var t2 = Types.Table(sqrt2[0], 16);
+        console.assert(t1 === t2);
+        console.assert(t1.table);
+        console.assert(t1.size === 16);
+        console.assert(t1.toString() === '((double)->double)[16]');
     };
     test_types();
 
-    // Some functions will have alternate implementations in a
+    // ### Operator and standard library type tables.
+
+    // Unary operator types, from
+    // http://asmjs.org/spec/latest/#unary-operators
+    Types.unary = {
+        '+': Types.FunctionTypes(
+            [ Types.Arrow([Types.Signed], Types.Double),
+              Types.Arrow([Types.Unsigned], Types.Double),
+              Types.Arrow([Types.Doublish], Types.Double) ]),
+        '-': Types.FunctionTypes(
+            [ Types.Arrow([Types.Int], Types.Intish),
+              Types.Arrow([Types.Doublish], Types.Double) ]),
+        '~': Types.FunctionTypes(
+            [ Types.Arrow([Types.Intish], Types.Signed) ]),
+        '!': Types.FunctionTypes(
+            [ Types.Arrow([Types.Int], Types.Int) ])
+    };
+
+    // Binary operator types, from
+    // http://asmjs.org/spec/latest/#binary-operators
+    Types.binary = {
+        '+': Types.FunctionTypes(
+            [ Types.Arrow([Types.Double, Types.Double], Types.Double) ]),
+        '-': Types.FunctionTypes(
+            [ Types.Arrow([Types.Doublish, Types.Doublish], Types.Double) ]),
+        '*': Types.FunctionTypes(
+            [ Types.Arrow([Types.Doublish, Types.Doublish], Types.Double) ]),
+        '/': Types.FunctionTypes(
+            [ Types.Arrow([Types.Signed, Types.Signed], Types.Intish),
+              Types.Arrow([Types.Unsigned, Types.Unsigned], Types.Intish),
+              Types.Arrow([Types.Doublish, Types.Doublish], Types.Double) ]),
+        '%': Types.FunctionTypes(
+            [ Types.Arrow([Types.Signed, Types.Signed], Types.Int),
+              Types.Arrow([Types.Unsigned, Types.Unsigned], Types.Int),
+              Types.Arrow([Types.Doublish, Types.Doublish], Types.Double) ]),
+        '>>>': Types.FunctionTypes(
+            [ Types.Arrow([Types.Intish, Types.Intish], Types.Unsigned) ])
+    };
+    ['|','&','^','<<','>>'].forEach(function(op) {
+        Types.binary[op] = Types.FunctionTypes(
+            [ Types.Arrow([Types.Intish, Types.Intish], Types.Signed) ]);
+    });
+    ['<','<=','>','>=','==','!='].forEach(function(op) {
+        Types.binary[op] = Types.FunctionTypes(
+            [ Types.Arrow([Types.Signed, Types.Signed], Types.Int),
+              Types.Arrow([Types.Unsigned, Types.Unsigned], Types.Int),
+              Types.Arrow([Types.Double, Types.Double], Types.Int) ]);
+    });
+
+    // Standard library member types, from
+    // http://asmjs.org/spec/latest/#standard-library
+    Types.stdlib = {
+        'Infinity': Types.Double,
+        'NaN': Types.Double
+    };
+    ['E','LN10','LN2','LOG2E','LOG10E','PI','SQRT1_2','SQRT2'].
+        forEach(function(f) {
+            Types.stdlib['Math.'+f] = Types.Double;
+        });
+    ['acos','asin','atan','cos','sin','tan','ceil','floor','exp','log','sqrt'].
+        forEach(function(f) {
+            Types.stdlib['Math.'+f] = Types.FunctionTypes(
+                [Types.Arrow([Types.Doublish], Types.Double)]);
+        });
+    Types.stdlib['Math.abs'] = Types.FunctionTypes(
+        [Types.Arrow([Types.Signed], Types.Unsigned),
+         Types.Arrow([Types.Doublish], Types.Double)]);
+    Types.stdlib['Math.atan2'] = Types.stdlib['Math.pow'] = Types.FunctionTypes(
+        [Types.Arrow([Types.Doublish, Types.Doublish], Types.Double)]);
+    Types.stdlib['Math.imul'] = Types.FunctionTypes(
+        [Types.Arrow([Types.Int, Types.Int], Types.Signed)]);
+
+    // ## Tokens
+
+    // Some tokenizer functions will have alternate implementations in a
     // TurtleScript environment -- for example, we'll try to avoid
     // using regular expressions and dynamic eval.
     var runningInTS = false; // XXX replace with an appropriate dynamic test
@@ -155,8 +311,7 @@ define([], function asm_llvm() {
     // We move the token types into module context, since they are
     // (for all practical purposes) constants.
 
-    // ## Token types
-
+    // ### Token Types
     // The assignment of fine-grained, information-carrying type objects
     // allows the tokenizer to store the information it has about a
     // token in a way that is very cheap for the parser to look up.
@@ -172,6 +327,10 @@ define([], function asm_llvm() {
     var _string = {type: "string"};
     var _name = {type: "name"};
     var _eof = {type: "eof"};
+
+    // `_dotnum` is a number with a `.` character in it; `asm.js` uses
+    // this to distinguish `double` from integer literals.
+    var _dotnum = {type: "dotnum"};
 
     // Keyword tokens. The `keyword` property (also used in keyword-like
     // operators) indicates that the token originated from an
@@ -292,7 +451,7 @@ define([], function asm_llvm() {
         braceR: _braceR, parenL: _parenL, parenR: _parenR, comma: _comma,
         semi: _semi, colon: _colon, dot: _dot, question: _question,
         slash: _slash, eq: _eq, name: _name, eof: _eof, num: _num,
-        regexp: _regexp, string: _string
+        regexp: _regexp, string: _string, dotnum: _dotnum
     };
     Object.keys(keywordTypes).forEach(function(kw) {
         module.tokTypes[kw] = keywordTypes[kw];
@@ -439,7 +598,7 @@ define([], function asm_llvm() {
 
     // Let's start with the tokenizer.  Unlike acorn, we
     // encapsulate the tokenizer state so that it is re-entrant.
-    var Tokenizer = function() {
+    var Compiler = function() {
 
         var options, input, inputLen, sourceFile;
 
@@ -915,6 +1074,7 @@ define([], function asm_llvm() {
             function() { return finishOp(_prefix, 1); };
 
 
+        // XXX: forceRegexp is never true for asm.js
         readToken = function(forceRegexp) {
             if (!forceRegexp) { tokStart = tokPos; }
             else { tokPos = tokStart + 1; }
@@ -1025,14 +1185,15 @@ define([], function asm_llvm() {
         // Read an integer, octal integer, or floating-point number.
 
         readNumber = function(startsWithDot) {
-            var start = tokPos, isFloat = false, octal = input.charCodeAt(tokPos) === 48;
+            var start = tokPos, isFloat = false, hasDot = false;
+            var octal = input.charCodeAt(tokPos) === 48;
             if (!startsWithDot && readInt(10) === null) {
                 raise(start, "Invalid number");
             }
-            if (input.charCodeAt(tokPos) === 46) {
+            if (input.charCodeAt(tokPos) === 46) { // '.'
                 tokPos += 1;
                 readInt(10);
-                isFloat = true;
+                isFloat = hasDot = true;
             }
             var next = input.charCodeAt(tokPos);
             if (next === 69 || next === 101) { // 'eE'
@@ -1053,7 +1214,7 @@ define([], function asm_llvm() {
                 raise(start, "Invalid number");
             }
             else { val = parseInt(str, 8); }
-            return finishToken(_num, val);
+            return finishToken(hasDot ? _dotnum : _num, val);
         };
 
         // Used to read character escape sequences ('\x', '\u', '\U').
@@ -1229,12 +1390,897 @@ define([], function asm_llvm() {
             return finishToken(type, word);
         };
 
+        // ## Environments
+
+        // Environments track global and local variable definitions.
+        var Env = function() {
+            // use an object for a cheap hashtable.
+            this._map = Object.create(null);
+        };
+        Env.prototype.lookup = function(x) {
+            return this._map['$'+x] || null;
+        };
+        Env.prototype.bind = function(x, t, loc) {
+            if (x === 'arguments' || x === 'eval') {
+                raise(loc || tokPos, "illegal binding for '"  + x + "'");
+            }
+            x = '$' + x;
+            if (Object.prototype.hasOwnProperty.call(this._map, x)) {
+                raise(loc || tokPos, "duplicate binding for '" + x + "'");
+            }
+            this._map[x] = t;
+        };
+
+        // We will need a symbol source
+        var gensym = (function() {
+            var cnt = 0;
+            return function() {
+                cnt += 1;
+                return '%tmp' + cnt;
+            };
+        })();
+
+        // Global environments map to a type as well as a mutability boolean.
+        var GlobalBinding = function(type, mutable) {
+            this.type = type;
+            this.mutable = !!mutable;
+        };
+
+        // Local environments map to a type and a local temporary.
+        var LocalBinding = function(type, temp) {
+            this.type = type;
+            this.temp = temp || gensym();
+        };
+
+        // ## Parser
+
+        // A recursive descent parser operates by defining functions for all
+        // syntactic elements, and recursively calling those, each function
+        // advancing the input stream and returning an AST node. Precedence
+        // of constructs (for example, the fact that `!x[1]` means `!(x[1])`
+        // instead of `(!x)[1]` is handled by the fact that the parser
+        // function that parses unary prefix operators is called first, and
+        // in turn calls the function that parses `[]` subscripts — that
+        // way, it'll receive the node for `x[1]` already parsed, and wraps
+        // *that* in the unary operator node.
+        //
+        // Following acorn, we use an [operator precedence
+        // parser][opp] to handle binary operator precedence, because
+        // it is much more compact than using the technique outlined
+        // above, which uses different, nesting functions to specify
+        // precedence, for all of the ten binary precedence levels
+        // that JavaScript defines.
+        //
+        // [opp]: http://en.wikipedia.org/wiki/Operator-precedence_parser
+
+        var parseTopLevel; // forward declaration
+
+        // The main exported interface.
+        this.parse = function(inpt, opts) {
+            input = String(inpt); inputLen = input.length;
+            setOptions(opts);
+            initTokenState();
+            return parseTopLevel();
+        };
+
+        // ### Parser utilities
+
+        // Raise an unexpected token error.
+
+        var unexpected = function() {
+            raise(tokStart, "Unexpected token");
+        };
+
+        // Continue to the next token.
+        var next = function() {
+            lastStart = tokStart;
+            lastEnd = tokEnd;
+            lastEndLoc = tokEndLoc;
+            readToken();
+        };
+
+        // Predicate that tests whether the next token is of the given
+        // type, and if yes, consumes it as a side effect.
+
+        var eat = function(type) {
+            if (tokType === type) {
+                next();
+                return true;
+            }
+        };
+
+        // Test whether a semicolon can be inserted at the current position.
+
+        var canInsertSemicolon = function() {
+            return !options.strictSemicolons &&
+                (tokType === _eof || tokType === _braceR ||
+                 newline.test(input.slice(lastEnd, tokStart)));
+        };
+
+        // Consume a semicolon, or, failing that, see if we are allowed to
+        // pretend that there is a semicolon at this position.
+
+        var semicolon = function() {
+            if (!eat(_semi) && !canInsertSemicolon()) { unexpected(); }
+        };
+
+        // Expect a token of a given type. If found, consume it, otherwise,
+        // raise an unexpected token error.
+
+        var expect = function(type) {
+            if (tokType === type) { next(); }
+            else { unexpected(); }
+        };
+
+        // Expect a _name token matching the given identifier.  If found,
+        // consume it, otherwise raise an error.
+        var expectName = function(value, defaultValue) {
+            if (tokType !== _name || tokVal !== value) {
+                raise("expected " + (value || defaultValue));
+            } else { next(); }
+        };
+
+        var checkLVal = function(expr) {
+            // XXX
+        };
+
+        // ### Literal parsing
+
+        // Parse the next token as an identifier. If `liberal` is true (used
+        // when parsing properties), it will also convert keywords into
+        // identifiers.
+        var parseIdent = function(liberal) {
+            var name = (tokType === _name) ? tokVal :
+                (liberal && (!options.forbidReserved) && tokType.keyword) ||
+                unexpected();
+            next();
+            return name;
+        };
+
+        // Parse a numeric literal, returning a type and a value.
+        var parseNumericLiteral = function() {
+            var result = {
+                type: Type.Double,
+                value: tokVal
+            };
+            if (tokType === _num) {
+                if (tokVal >= Types.Signed.min &&
+                    tokVal <= Types.Signed.max) {
+                    result.type = Types.Signed;
+                } else if (tokVal >= Types.Fixnum.min &&
+                           tokVal <= Types.Fixnum.max) {
+                    result.type = Types.Fixnum;
+                } else if (tokVal >= Types.Unsigned.min &&
+                           tokVal <= Types.Unsigned.max) {
+                    result.type = Types.Unsigned;
+                } else {
+                    raise(tokPos, "Invalid integer literal");
+                }
+            } else if (tokType !== _dotnum) {
+                raise(tokPos, "expected a numeric literal");
+            }
+            next();
+            return result;
+        };
+
+        // ### Expression parsing
+
+        // These nest, from the most general expression type at the top to
+        // 'atomic', nondivisible expression types at the bottom. Most of
+        // the functions will simply let the function(s) below them parse,
+        // and, *if* the syntactic construct they handle is present, wrap
+        // the AST node that the inner parser gave them in another node.
+
+        var parseExpression; // forward declaration
+
+        // Parses a comma-separated list of expressions, and returns them as
+        // an array. `close` is the token type that ends the list, and
+        // `allowEmpty` can be turned on to allow subsequent commas with
+        // nothing in between them to be parsed as `null` (which is needed
+        // for array literals).
+
+        var parseExprList = function(close, allowTrailingComma, allowEmpty) {
+            var elts = [], first = true;
+            while (!eat(close)) {
+                if (first) { first = false; }
+                else {
+                    expect(_comma);
+                    if (allowTrailingComma && options.allowTrailingCommas &&
+                        eat(close)) {
+                        break;
+                    }
+                }
+
+                if (allowEmpty && tokType === _comma) { elts.push(null); }
+                else { elts.push(parseExpression(true)); }
+            }
+            return elts;
+        };
+
+        // Parse an atomic expression — either a single token that is an
+        // expression, an expression started by a keyword like `function` or
+        // `new`, or an expression wrapped in punctuation like `()`, `[]`,
+        // or `{}`.
+
+        var parseExprAtom = function() {
+            var node;
+            if (tokType === _name) {
+                return parseIdent();
+
+            } else if (tokType === _num || tokType === _dotnum ||
+                       tokType === _string || tokType === _regexp) {
+                node = Object.create(null);//startNode();
+                node.value = tokVal;
+                node.raw = input.slice(tokStart, tokEnd);
+                next();
+                return;// finishNode(node, "Literal");
+
+            } else if (tokType === _null || tokType === _true || tokType === _false) {
+                node = Object.create(null);//startNode();
+                node.value = tokType.atomValue;
+                node.raw = tokType.keyword;
+                next();
+                return;// finishNode(node, "Literal");
+
+            } else if (tokType === _parenL) {
+                var tokStartLoc1 = tokStartLoc, tokStart1 = tokStart;
+                next();
+                var val = parseExpression();
+                val.start = tokStart1;
+                val.end = tokEnd;
+                if (options.locations) {
+                    val.loc.start = tokStartLoc1;
+                    val.loc.end = tokEndLoc;
+                }
+                if (options.ranges) {
+                    val.range = [tokStart1, tokEnd];
+                }
+                expect(_parenR);
+                return val;
+
+            } else if (tokType === _bracketL) {
+                node = Object.create(null);//startNode();
+                next();
+                node.elements = parseExprList(_bracketR, true, true);
+                return;// finishNode(node, "ArrayExpression");
+
+            } else {
+                unexpected();
+            }
+        };
+
+        // Parse call, dot, and `[]`-subscript expressions.
+
+        var parseSubscripts = function(base, noCalls) {
+            var finishNode = function(node) { return node; }; // XXX
+            var node;
+            if (eat(_dot)) {
+                node = {};//startNodeFrom(base);
+                node.object = base;
+                node.property = parseIdent(true);
+                node.computed = false;
+                return parseSubscripts(finishNode(node, "MemberExpression"), noCalls);
+            } else if (eat(_bracketL)) {
+                node = {};//startNodeFrom(base);
+                node.object = base;
+                node.property = parseExpression();
+                node.computed = true;
+                expect(_bracketR);
+                return parseSubscripts(finishNode(node, "MemberExpression"), noCalls);
+            } else if (!noCalls && eat(_parenL)) {
+                node = {};//startNodeFrom(base);
+                node.callee = base;
+                node.arguments = parseExprList(_parenR, false);
+                return parseSubscripts(finishNode(node, "CallExpression"), noCalls);
+            } else { return base; }
+        };
+
+        var parseExprSubscripts = function() {
+            return parseSubscripts(parseExprAtom());
+        };
+
+        // Parse unary operators, both prefix and postfix.
+
+        function parseMaybeUnary(noIn) {
+            var node;
+            if (tokType.prefix) {
+                node = {};//startNode();
+                var update = tokType.isUpdate;
+                node.operator = tokVal;
+                node.prefix = true;
+                next();
+                node.argument = parseMaybeUnary(noIn);
+                if (update) { checkLVal(node.argument); }
+                else if (strict && node.operator === "delete" &&
+                         node.argument.type === "Identifier") {
+                    // XXX
+                    raise(node.start, "Deleting local variable in strict mode");
+                }
+                return;// finishNode(node, update ? "UpdateExpression" : "UnaryExpression");
+            }
+            var expr = parseExprSubscripts();
+            while (tokType.postfix && !canInsertSemicolon()) {
+                node = {};//startNodeFrom(expr);
+                node.operator = tokVal;
+                node.prefix = false;
+                node.argument = expr;
+                checkLVal(expr);
+                next();
+                expr = node;//finishNode(node, "UpdateExpression");
+            }
+            return expr;
+        };
+
+
+        // Start the precedence parser.
+
+        // Parse binary operators with the operator precedence parsing
+        // algorithm. `left` is the left-hand side of the operator.
+        // `minPrec` provides context that allows the function to stop and
+        // defer further parser to one of its callers when it encounters an
+        // operator that has a lower precedence than the set it is parsing.
+
+        var parseExprOp = function(left, minPrec, noIn) {
+            var prec = tokType.binop;
+            console.assert(prec !== null, tokType);
+            if (prec !== undefined && (!noIn || tokType !== _in)) {
+                if (prec > minPrec) {
+                    var node = {};//startNodeFrom(left);
+                    node.left = left;
+                    node.operator = tokVal;
+                    next();
+                    node.right = parseExprOp(parseMaybeUnary(noIn), prec, noIn);
+                    //var node = finishNode(node, /&&|\|\|/.test(node.operator) ? "LogicalExpression" : "BinaryExpression");
+                    return parseExprOp(node, minPrec, noIn);
+                }
+            }
+            return left;
+        };
+
+        var parseExprOps = function(noIn) {
+            return parseExprOp(parseMaybeUnary(noIn), -1, noIn);
+        };
+
+        // Parse a ternary conditional (`?:`) operator.
+
+        var parseMaybeConditional = function(noIn) {
+            var expr = parseExprOps(noIn);
+            if (eat(_question)) {
+                var node = Object.create(null);//startNodeFrom(expr);
+                node.test = expr;
+                node.consequent = parseExpression(true);
+                expect(_colon);
+                node.alternate = parseExpression(true, noIn);
+                return;// finishNode(node, "ConditionalExpression");
+            }
+            return expr;
+        };
+
+        // Parse an assignment expression. This includes applications of
+        // operators like `+=`.
+
+        var parseMaybeAssign = function(noIn) {
+            var left = parseMaybeConditional(noIn);
+            if (tokType.isAssign) {
+                var node = Object.create(null);//startNodeFrom(left);
+                node.operator = tokVal;
+                node.left = left;
+                next();
+                node.right = parseMaybeAssign(noIn);
+                checkLVal(left);
+                return;// finishNode(node, "AssignmentExpression");
+            }
+            return left;
+        };
+
+        // Parse a full expression. The arguments are used to forbid comma
+        // sequences (in argument lists, array literals, or object literals)
+        // or the `in` operator (in for loops initalization expressions).
+
+        parseExpression = function(noComma, noIn) {
+            var expr = parseMaybeAssign(noIn);
+            if (!noComma && tokType === _comma) {
+                var node = Object.create(null);//startNodeFrom(expr);
+                node.expressions = [expr];
+                while (eat(_comma)) {
+                    node.expressions.push(parseMaybeAssign(noIn));
+                }
+                return;// finishNode(node, "SequenceExpression");
+            }
+            return expr;
+        };
+
+        // Used for constructs like `switch` and `if` that insist on
+        // parentheses around their expression.
+
+        var parseParenExpression = function() {
+            expect(_parenL);
+            var val = parseExpression();
+            expect(_parenR);
+            return val;
+        };
+
+        // ### Statement parsing
+
+        var loopLabel = {kind: "loop"}, switchLabel = {kind: "switch"};
+
+        var parseStatement; // forward declaration
+
+        // Parse a regular `for` loop. The disambiguation code in
+        // `parseStatement` will already have parsed the init statement or
+        // expression.
+
+        var parseFor = function(node, init) {
+            var labels=[];//XXX
+            node.init = init;
+            expect(_semi);
+            node.test = tokType === _semi ? null : parseExpression();
+            expect(_semi);
+            node.update = tokType === _parenR ? null : parseExpression();
+            expect(_parenR);
+            node.body = parseStatement();
+            labels.pop();
+            return;// finishNode(node, "ForStatement");
+        };
+
+        // Parse a semicolon-enclosed block of statements.
+
+        var parseBlock = function() {
+            expect(_braceL);
+            while (!eat(_braceR)) {
+                var stmt = parseStatement();
+            }
+        };
+
+        // Parse a single statement.
+
+        parseStatement = function(module, func) {
+            var node = Object.create(null);//xxx
+            var labels = []; //xxx
+
+            var starttype = tokType;
+
+            // Most types of statements are recognized by the keyword they
+            // start with. Many are trivial to parse, some require a bit of
+            // complexity.
+
+            if (starttype===_break || starttype===_continue) {
+                next();
+                var isBreak = starttype === _break;
+                if (eat(_semi) || canInsertSemicolon()) { node.label = null; }
+                else if (tokType !== _name) { unexpected(); }
+                else {
+                    node.label = parseIdent();
+                    semicolon();
+                }
+
+                // Verify that there is an actual destination to break or
+                // continue to.
+                /*
+                for (var i = 0; i < labels.length; ++i) {
+                    var lab = labels[i];
+                    if (node.label == null || lab.name === node.label.name) {
+                        if (lab.kind != null && (isBreak || lab.kind === "loop")) break;
+                        if (node.label && isBreak) break;
+                    }
+                }
+                if (i === labels.length) raise(node.start, "Unsyntactic " + starttype.keyword);
+                */
+                return;// finishNode(node, isBreak ? "BreakStatement" : "ContinueStatement");
+            } else if (starttype===_do) {
+                next();
+                labels.push(loopLabel);
+                node.body = parseStatement();
+                labels.pop();
+                expect(_while);
+                node.test = parseParenExpression();
+                semicolon();
+                return;// finishNode(node, "DoWhileStatement");
+            } else if (starttype===_for) {
+                // Disambiguating between a `for` and a `for`/`in` loop is
+                // non-trivial. Luckily, `for`/`in` loops aren't allowed in
+                // `asm.js`!
+
+                //Basically, we have to parse the init `var`
+                // statement or expression, disallowing the `in` operator (see
+                // the second parameter to `parseExpression`), and then check
+                // whether the next token is `in`. When there is no init part
+                // (semicolon immediately after the opening parenthesis), it is
+                // a regular `for` loop.
+                next();
+                labels.push(loopLabel);
+                expect(_parenL);
+                if (tokType === _semi) { return parseFor(node, null); }
+                var init = parseExpression(false, true);
+                return parseFor(node, init);
+            } else if (starttype===_if) {
+                next();
+                node.test = parseParenExpression();
+                node.consequent = parseStatement();
+                node.alternate = eat(_else) ? parseStatement() : null;
+                return;// finishNode(node, "IfStatement");
+
+            } else if (starttype===_return) {
+                next();
+
+                // In `return` (and `break`/`continue`), the keywords with
+                // optional arguments, we eagerly look for a semicolon or the
+                // possibility to insert one.
+
+                if (eat(_semi) || canInsertSemicolon()){ node.argument = null; }
+                else { node.argument = parseExpression(); semicolon(); }
+                return;// finishNode(node, "ReturnStatement");
+
+                /*
+            } else if (starttype===_switch) {
+                next();
+                node.discriminant = parseParenExpression();
+                node.cases = [];
+                expect(_braceL);
+                labels.push(switchLabel);
+
+                // Statements under must be grouped (by label) in SwitchCase
+                // nodes. `cur` is used to keep the node that we are currently
+                // adding statements to.
+
+                for (var cur, sawDefault; tokType != _braceR;) {
+                    if (tokType === _case || tokType === _default) {
+                        var isCase = tokType === _case;
+                        if (cur) finishNode(cur, "SwitchCase");
+                        node.cases.push(cur = startNode());
+                        cur.consequent = [];
+                        next();
+                        if (isCase) cur.test = parseExpression();
+                        else {
+                            if (sawDefault) raise(lastStart, "Multiple default clauses"); sawDefault = true;
+                            cur.test = null;
+                        }
+                        expect(_colon);
+                    } else {
+                        if (!cur) unexpected();
+                        cur.consequent.push(parseStatement());
+                    }
+                }
+                if (cur) finishNode(cur, "SwitchCase");
+                next(); // Closing brace
+                labels.pop();
+                return finishNode(node, "SwitchStatement");
+                */
+            } else if (starttype===_while) {
+                next();
+                node.test = parseParenExpression();
+                labels.push(loopLabel);
+                node.body = parseStatement();
+                labels.pop();
+                return;// finishNode(node, "WhileStatement");
+
+            } else if (starttype===_braceL) {
+                return parseBlock();
+
+            } else if (starttype===_semi) {
+                next();
+                return;// finishNode(node, "EmptyStatement");
+
+            } else {
+                // If the statement does not start with a statement keyword or a
+                // brace, it's an ExpressionStatement or LabeledStatement. We
+                // simply start parsing an expression, and afterwards, if the
+                // next token is a colon and the expression was a simple
+                // Identifier node, we switch to interpreting it as a label.
+                var maybeName = tokVal, maybeStart = tokStart;
+                var expr = parseExpression();
+                if (starttype === _name /*&& expr.type === "Identifier"*/ && eat(_colon)) {
+                    labels.forEach(function(l) {
+                        if (l.name === maybeName) {
+                            raise(maybeStart, "Label '" + maybeName + "' is already declared");
+                        }
+                    });
+                    var kind = tokType.isLoop ? "loop" : tokType === _switch ? "switch" : null;
+                    labels.push({name: maybeName, kind: kind});
+                    node.body = parseStatement();
+                    labels.pop();
+                    node.label = expr;
+                    return;// finishNode(node, "LabeledStatement");
+                } else {
+                    node.expression = expr;
+                    semicolon();
+                    return;// finishNode(node, "ExpressionStatement");
+                }
+            }
+        };
+
+        // XXX second parameter to parseExpression is never true for asm.js
+
+        // ### Module-internal function parsing
+
+        // Parse a list of parameter type coercions.
+        // Note that we can't always tell these apart from body statements;
+        // we might have to backtrack.
+        var parseParameterTypeCoercions = function(module, func) {
+            var ptPos;
+            func.paramTypes = [];
+            var bail = function() {
+                // Restore old token position before returning.
+                tokPos = ptPos;
+                while (tokPos < tokLineStart) {
+                    tokLineStart =
+                        input.lastIndexOf("\n", tokLineStart - 2) + 1;
+                    tokCurLine -= 1;
+                }
+                skipSpace();
+                readToken();
+            };
+
+            while (tokType === _name) {
+                // Save position of this token before starting to parse!
+                ptPos = lastEnd;
+                var x = parseIdent();
+                var x_idx = func.params.indexOf(x);
+                if (x_idx < 0 || func.paramTypes[x_idx] !== undefined) {
+                    return bail(); // not a parameter name, or already coerced
+                }
+                if (tokType === _eq) { next(); } else { return bail(); }
+                if (tokType === _name && tokVal === x) {
+                    // This is an `int` type annotation.
+                    next();
+                    if (!(tokType === _bin3 && tokVal === '|')) {
+                        return bail();
+                    } else { next(); }
+                    if (!(tokType === _num && tokVal === 0)) {
+                        return bail();
+                    } else { next(); }
+                    if (!(tokType === _semi)) { return bail(); }
+                    func.paramTypes[x_idx] = Type.Int; // record the type
+                } else if (tokType === _plusmin && tokVal==='+') {
+                    // This is a `double` type annotation.
+                    next();
+                    if (tokType === _name && tokVal === x) {
+                        next();
+                    } else { return bail(); }
+                    if (!(tokType === _semi)) { return bail(); }
+                    func.paramTypes[x_idx] = Type.Double; // record the type
+                } else {
+                    return bail();
+                }
+                expect(_semi);
+            }
+        };
+
+        // Parse local variable declarations.
+        var parseLocalVariableDeclarations = function(module, func) {
+            while (tokType === _var) {
+                expect(_var);
+                while (true) {
+                    var y = parseIdent();
+                    expect(_eq);
+                    var n = parseNumericLiteral();
+                    // XXX do something with y and n
+                    if (!eat(_comma)) { break; }
+                }
+                semicolon();
+            }
+        };
+
+        // Parse a module-internal function
+        var parseFunctionDeclaration = function(module) {
+            var func = Object.create(null);
+            expect(_function);
+            func.id = parseIdent();
+            expect(_parenL);
+            func.params = [];
+            while (!eat(_parenR)) {
+                if (func.params.length !== 0) { expect(_comma); }
+                func.params.push(parseIdent());
+            }
+            expect(_braceL);
+
+            parseParameterTypeCoercions(module, func);
+            parseLocalVariableDeclarations(module, func);
+            // body statements.
+            while (!eat(_braceR)) {
+                parseStatement(module, func);
+            }
+        };
+
+        // ### Module parsing
+
+        // Parse a variable statement within a module.
+        var parseModuleVariableStatement = function(module) {
+            var x, y, ty, startPos, yPos;
+            expect(_var);
+            startPos = tokPos;
+            x = parseIdent();
+            expect(_eq);
+            // There are five types of variable statements:
+            if (tokType === _bracketL) {
+                // 1. A function table.  (Only allowed at end of module.)
+                yPos = tokPos; next();
+                var table = [], lastType;
+                while (!eat(_bracketR)) {
+                    if (table.length > 0) { expect(_comma); }
+                    y = parseIdent();
+                    ty = module.global.lookup(y);
+                    /* validate consistent types of named functions */
+                    if (!ty) { raise(lastStart, "Unknown function '"+y+"'"); }
+                    if (ty.mutable) {
+                        raise(lastStart, "'"+y+"' must be immutable");
+                    }
+                    if (table.length > 0 &&
+                        ty.type !== lastType) {
+                        raise(lastStart, "Inconsistent function type in table");
+                    }
+                    lastType = ty.type;
+                    table.push(ty);
+                }
+                /* check that the length is a power of 2. */
+                if (table.length===0) {
+                    raise(yPos, "Empty function table.");
+                } else if (!powerOf2(table.length)) {
+                    raise(yPos, "Function table length is not a power of 2.");
+                }
+                ty = Types.Table(lastType, table.length);
+                module.global.bind(x, GlobalBinding.New(ty, false), startPos);
+                module.seenTable = true;
+            } else if (module.seenTable) {
+                raise(tokPos, "expected function table");
+            } else if (tokType === _num || tokType === _dotnum) {
+                // 2. A global program variable, initialized to a literal.
+                y = parseNumericLiteral();
+                module.global.bind(x, GlobalBinding.New(y.type, true),
+                                   startPos);
+            } else if (tokType === _name && tokVal === module.stdlib) {
+                // 3. A standard library import.
+                next(); expect(_dot);
+                yPos = tokPos;
+                y = parseIdent();
+                if (y==='Math') {
+                    expect(_dot); y += '.' + parseIdent();
+                }
+                ty = Types.stdlib[y];
+                if (!ty) { raise(yPos, "Unknown library import"); }
+                module.global.bind(x, GlobalBinding.New(ty, false), startPos);
+            } else if ((tokType === _plusmin && tokVal==='+') ||
+                       (tokType === _name && tokVal === module.foreign)) {
+                // 4. A foreign import.
+                var sawPlus = false, sawBar = false;
+                if (tokType===_plusmin) { next(); sawPlus = true; }
+                expectName(module.foreign, "<foreign>"); expect(_dot);
+                y = parseIdent();
+                if (tokType === _bin3 && tokVal ==='|' && !sawPlus) {
+                    next(); sawBar = true;
+                    if (tokType !== _num || tokVal !== 0) {
+                        raise(tokPos, "expected 0");
+                    }
+                    next();
+                }
+                ty = sawPlus ? Type.Double : sawBar ? Type.Int : Type.Function;
+                module.global.bind(x, GlobalBinding.New(ty, false), startPos);
+            } else if (tokType === _new) {
+                // 5. A global heap view.
+                next(); expectName(module.stdlib, "<stdlib>"); expect(_dot);
+                yPos = tokPos;
+                var view = parseIdent();
+                if (view === 'Int8Array') { ty = Types.IntArray(8); }
+                else if (view === 'Uint8Array') { ty = Types.UintArray(8); }
+                else if (view === 'Int16Array') { ty = Types.IntArray(16); }
+                else if (view === 'Uint16Array') { ty = Types.UintArray(16); }
+                else if (view === 'Int32Array') { ty = Types.IntArray(32); }
+                else if (view === 'Uint32Array') { ty = Types.UintArray(32); }
+                else if (view === 'Float32Array') { ty = Types.FloatArray(32); }
+                else if (view === 'Float64Array') { ty = Types.FloatArray(64); }
+                else { raise(yPos, "unknown ArrayBufferView type"); }
+                expect(_parenL);
+                expectName(module.heap, "<heap>");
+                expect(_parenR);
+                module.global.bind(x, GlobalBinding.New(ty, false), startPos);
+            } else { unexpected(); }
+            semicolon();
+        };
+
+        // Parse a series of module variable declaration statements.
+        var parseModuleVariableStatements = function(module) {
+            while (tokType === _var) {
+                parseModuleVariableStatement(module);
+            }
+        };
+
+        // Parse a series of (module-internal) function declarations.
+        var parseModuleFunctionDeclarations = function(module) {
+            while (tokType === _function) {
+                parseFunctionDeclaration(module);
+            }
+        };
+
+        // Parse the module export declaration (return statement).
+        var parseModuleExportDeclaration = function(module) {
+            expect(_return);
+            var exports = Object.create(null), first = true;
+            if (tokType !== _braceL) {
+                exports['$'] = parseIdent();
+            } else {
+                next();
+                var x = parseIdent();
+                expect(_colon);
+                var f = parseIdent();
+                exports[x] = f;
+                while (!eat(_braceR)) {
+                    expect(_comma);
+                    x = parseIdent();
+                    expect(_colon);
+                    f = parseIdent();
+                    exports[x] = f;
+                }
+            }
+            semicolon();
+            // XXX do something with exports
+        };
+
+        // Parse one asm.js module; it should start with 'function' keyword.
+        // XXX support the FunctionExpression form.
+        var parseModule = function() {
+            var module = {
+                id: null,
+                stdlib: null, foreign: null, heap: null,
+                seenTable: false,
+                global: Env.New() // new global environment
+            };
+            expect(_function);
+            if (tokType === _name) { module.id = parseIdent(); }
+            expect(_parenL);
+            if (!eat(_parenR)) {
+                module.stdlib = parseIdent();
+                if (!eat(_parenR)) {
+                    expect(_comma);
+                    module.foreign = parseIdent();
+                    if (!eat(_parenR)) {
+                        expect(_comma);
+                        module.heap = parseIdent();
+                        expect(_parenR);
+                    }
+                }
+            }
+            expect(_braceL);
+            // check for "use asm";
+            if (tokType !== _string ||
+                tokVal !== "use asm") {
+                raise(tokPos, "Expected to see 'use asm'");
+            }
+            next();
+            semicolon();
+
+            parseModuleVariableStatements(module);
+            if (!module.seenTable) {
+                module.seenTable = true;
+                parseModuleFunctionDeclarations(module);
+                parseModuleVariableStatements(module);
+            }
+            parseModuleExportDeclaration(module);
+
+            expect(_braceR);
+        };
+
+        // Parse a sequence of asm.js modules.
+        parseTopLevel = function() {
+            lastStart = lastEnd = tokPos;
+            if (options.locations) { lastEndLoc = line_loc_t.New(); }
+            readToken();
+
+            var modules = [];
+            while (tokType !== _eof) {
+                var module = parseModule();
+                modules.push(module);
+            }
+            return modules;
+        };
+
     };
 
-    var compile = module.compile = function(source, debug) {
-        var t = Tokenizer.New().tokenize(source, { debug: !!debug });
-        // xxx
+    var tokenize = module.tokenize = function(source, opts) {
+        return Compiler.New().tokenize(source, opts);
+    };
 
+    var compile = module.compile = function(source, opts) {
+        return Compiler.New().parse(source, opts);
     };
 
     return module;
