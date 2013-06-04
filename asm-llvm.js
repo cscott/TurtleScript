@@ -106,7 +106,8 @@ define([], function asm_llvm() {
         var view = Type.ArrayBufferView.derive(elementType+'Array');
         Type[elementType+'Array'] = function(n) {
             return view.derive(n, {
-                bytes: n,
+                base: (elementType==='Float') ? Type.Doublish : Type.Intish,
+                bytes: Math.floor(n/8),
                 toString: function() { return elementType + n + 'Array'; }
             });
         };
@@ -189,7 +190,36 @@ define([], function asm_llvm() {
     };
     test_types();
 
-    // Some functions will have alternate implementations in a
+    // Standard library member types
+    var stdlib = {
+        'Infinity': Type.Double,
+        'NaN': Type.Double,
+        'Math': {
+            E: Type.Double,
+            LN10: Type.Double,
+            LN2: Type.Double,
+            LOG2E: Type.Double,
+            LOG10E: Type.Double,
+            PI: Type.Double,
+            SQRT1_2: Type.Double,
+            SQRT2: Type.Double
+        }
+    };
+    ['acos','asin','atan','cos','sin','tan','ceil','floor','exp','log','sqrt'].
+        forEach(function(f) {
+            stdlib.Math[f] = Type.FunctionTypes(
+                [Type.Arrow([Type.Doublish], Type.Double)]);
+        });
+    stdlib.Math.abs = Type.FunctionTypes(
+        [Type.Arrow([Type.Signed], Type.Unsigned),
+         Type.Arrow([Type.Doublish], Type.Double)]);
+    stdlib.Math.atan2 = stdlib.Math.pow = Type.FunctionTypes(
+        [Type.Arrow([Type.Doublish, Type.Doublish], Type.Double)]);
+    stdlib.Math.imul = Type.FunctionTypes(
+        [Type.Arrow([Type.Int, Type.Int], Type.Signed)]);
+
+
+    // Some tokenizer functions will have alternate implementations in a
     // TurtleScript environment -- for example, we'll try to avoid
     // using regular expressions and dynamic eval.
     var runningInTS = false; // XXX replace with an appropriate dynamic test
