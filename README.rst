@@ -1,4 +1,4 @@
-.. image:: http://cscott.net/Projects/TurtleScript/images/hello-world.png
+.. image:: http://turtlescript.github.cscott.net/images/hello-world.png
    :align: right
 
 Project Goals
@@ -83,7 +83,7 @@ compiler, written in TurtleScript.
 .. _node: http://nodejs.org
 .. _asm.js: http://asmjs.org
 .. _LLVM: http://llvm.org/
-.. _asm-llvm.js: https://github.com/cscott/TurtleScript/blob/master/asm-llvm.js
+.. _asm-llvm.js: http://turtlescript.github.cscott.net/docco/asm-llvm.html
 
 State of the world: 2011-05-19
 ------------------------------
@@ -100,7 +100,7 @@ accurately reflect their scope.  Some further improvements are
 discussed in `Interesting Parser Tasks`_, but the base language is not
 expected to change much more.
 
-.. figure:: http://cscott.net/Projects/TurtleScript/images/compile.png
+.. figure:: http://turtlescript.github.cscott.net/images/compile.png
    :alt: Bytecode output
    :align: right
    :target: tdop.html_
@@ -123,7 +123,7 @@ which is a highly modified version of Douglas Crockford's original `parser
 demonstration`_.  The bytecode instruction set is simple, but not
 simple enough; `Simplifying the Environment`_ discusses improvements.
 
-.. figure:: http://cscott.net/Projects/TurtleScript/images/tiles1.png
+.. figure:: http://turtlescript.github.cscott.net/images/tiles1.png
    :alt: 2010 graphical tiles
    :align: right
    :target: tile2.html_
@@ -143,7 +143,7 @@ model also failed to satisfy: jQuery UI had a lot of problems with
 horizontal layouts, and the real time re-layout during drag operations
 made the display stutter unacceptably.
 
-.. figure:: http://cscott.net/Projects/TurtleScript/images/tiles2.png
+.. figure:: http://turtlescript.github.cscott.net/images/tiles2.png
    :alt: 2011 graphical tiles
    :align: right
    :target: ctiles.html_
@@ -188,17 +188,17 @@ way into the object system and runtime.  Turtles all the way down!
 See `Helping out`_ to contribute.
 
 .. _Douglas Crockford: http://www.crockford.com/javascript/
-.. _parse.js: https://github.com/cscott/TurtleScript/blob/master/parse.js
-.. _jcompile.js: https://github.com/cscott/TurtleScript/blob/master/jcompile.js
+.. _parse.js: http://turtlescript.github.cscott.net/docco/parse.html
+.. _jcompile.js: http://turtlescript.github.cscott.net/docco/jcompile.html
 .. _maru: http://piumarta.com/software/maru/
-.. _tdop.html: http://cscott.net/Projects/TurtleScript/tdop.html
+.. _tdop.html: http://turtlescript.github.cscott.net/tdop.html
 .. _parser demonstration: http://javascript.crockford.com/tdop/index.html
 .. _jQuery: http://jquery.com/
 .. _jQuery UI: http://jqueryui.com/
-.. _tile2.html: http://cscott.net/Projects/TurtleScript/tile2.html
-.. _tiles.html: http://cscott.net/Projects/TurtleScript/tiles.html
-.. _ctiles.html: http://cscott.net/Projects/TurtleScript/ctiles.html
-.. _canvas API: https://github.com/cscott/TurtleScript/blob/master/ccanvas.js
+.. _tile2.html: http://turtlescript.github.cscott.net/tile2.html
+.. _tiles.html: http://turtlescript.github.cscott.net/tiles.html
+.. _ctiles.html: http://turtlescript.github.cscott.net/ctiles.html
+.. _canvas API: http://turtlescript.github.cscott.net/docco/ccanvas.html
 .. _gjs module system: http://cananian.livejournal.com/58744.html
 
 Interesting Parser Tasks
@@ -298,7 +298,7 @@ desirable):
    particular, I've found myself using the standard `Arrays.forEach`_
    method extensively when writing Simplified JavaScript.)
 
-.. _extensions.js: https://github.com/cscott/TurtleScript/blob/master/extensions.js
+.. _extensions.js: http://turtlescript.github.cscott.net/docco/extensions.html
 .. _yada yada yada: http://search.cpan.org/~tmtm/Yada-Yada-Yada-1.00/Yada.pm
 .. _Arrays.forEach: https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/forEach
 
@@ -522,7 +522,7 @@ propagation, and memoization.  Here's a task list:
    during the first execution, propagating constants and memoizable
    function results.
 
-.. _extensions.js: https://github.com/cscott/TurtleScript/blob/master/extensions.js
+.. _extensions.js: http://turtlescript.github.cscott.net/docco/extensions.html
 .. _Typed Array: http://www.khronos.org/registry/typedarray/specs/latest/
 .. _object model: http://piumarta.com/software/cola/objmodel2.pdf
 .. _NaN boxing: http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation/
@@ -677,8 +677,8 @@ rendering tasks:
    that are in scope.  Perhaps combine this with an object browser
    which can display active objects and let you drag/drop slot names.
 
-.. _crender.js: https://github.com/cscott/TurtleScript/blob/master/crender.js
-.. _parse.js: https://github.com/cscott/TurtleScript/blob/master/parse.js
+.. _crender.js: http://turtlescript.github.cscott.net/docco/crender.html
+.. _parse.js: http://turtlescript.github.cscott.net/docco/parse.html
 .. _Lessphic: http://piumarta.com/software/cola/canvas.pdf
 
 Interaction Ideas
