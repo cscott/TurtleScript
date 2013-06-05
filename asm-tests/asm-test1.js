@@ -19,7 +19,7 @@ function mymodule(stdlib, foreign, heap) {
         x = x|0; y = y|0; z = z|0; // parameters are all int
         var result = 0;
         // here's the AdditiveExpression chain
-        result = x + y + z + inttest + g_i;
+        result = (x + y + z + inttest + g_i) >>> 0;
         return result|0;
     }
 
