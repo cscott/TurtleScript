@@ -34,7 +34,7 @@ function mymodule(stdlib, foreign, heap) {
         log(y);       // call into FFI -- already know it's a double
 
         // SECTION C: unconditional return
-        //return (((x+1)|0)/(x|0))>>>0; // compound expression
+        return (((x+1)|0)/(x|0))>>>0; // compound expression
     }
 
     function g() {
