@@ -34,11 +34,11 @@ function mymodule(stdlib, foreign, heap) {
         log(y);       // call into FFI -- already know it's a double
 
         // SECTION C: unconditional return
-        //return ((((x+1)|0)>>>0)/(x|0))>>>0; // compound expression
+        //return (((x+1)|0)/(x|0))>>>0; // compound expression
     }
 
     function g() {
-        g_f = +g_i; // read/write globals
+        g_f = +(g_i>>>0); // read/write globals
         return;
     }
 
@@ -50,7 +50,7 @@ function mymodule(stdlib, foreign, heap) {
         i = i|0;
         x = x|0;
         H32[i>>2] = x;       // shifted by log2(byte count)
-        //ftable_2[(x-2)&2](); // dynamic call of functions in table 2
+        //ftable_2[(x-2)&1](); // dynamic call of functions in table 2
 
         // no return necessary when return type is void
     }
@@ -59,7 +59,7 @@ function mymodule(stdlib, foreign, heap) {
         j = +j;
         var k = 3.;
         j = j + k;
-        //return +k;
+        return +k;
     }
 
     // -------------------------------------------------------------------------
