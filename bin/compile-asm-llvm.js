@@ -24,6 +24,7 @@ requirejs(['./extensions', './asm-llvm', './parse', './jcompile', './top-level']
     }
     var i = 2;
     while (i < process.argv.length) {
+        if (process.argv.length > 3) { console.log(process.argv[i]); }
         var asm_js_source = fs.readFileSync(process.argv[i], 'utf8');
         var llvm_source = asm_llvm.compile(asm_js_source);
         console.log(llvm_source);
