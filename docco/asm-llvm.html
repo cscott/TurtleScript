@@ -79,11 +79,6 @@
               </a>
             
               
-              <a class="source" href="example-asm.html">
-                example-asm.js
-              </a>
-            
-              
               <a class="source" href="extensions.html">
                 extensions.js
               </a>
@@ -303,7 +298,7 @@ another.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
-              <p>simple toString method is good for value types.</p>
+              <p>Default to a simple toString method, good for value types.</p>
 
             </div>
             
@@ -321,7 +316,7 @@ another.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
-              <p>override properties</p>
+              <p>Allow the caller to override arbitrary properties.</p>
 
             </div>
             
@@ -343,7 +338,8 @@ another.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
-              <p>Subtype relation.</p>
+              <p>Compute the subtype relation between types, based on the
+<code>supertypes</code> field.</p>
 
             </div>
             
@@ -699,7 +695,7 @@ created at two different times still compare ===.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-21">&#182;</a>
               </div>
-              <p>table types</p>
+              <p>Test function table types.</p>
 
             </div>
             
@@ -2817,7 +2813,8 @@ words when necessary.</p>
                 <a class="pilcrow" href="#section-103">&#182;</a>
               </div>
               <h2>Environments</h2>
-<p>Environments track global and local variable definitions.</p>
+<p>Environments track global and local variable definitions
+as we parse the <code>asm.js</code> module source.</p>
 
             </div>
             
@@ -2832,24 +2829,11 @@ words when necessary.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-104">&#182;</a>
               </div>
-              <p>use an object for a cheap hashtable.</p>
+              <p>Internally we use an object for a quick-and-dirty hashtable.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>._map = Object.create(<span class="literal">null</span>);
-        };
-        Env.prototype.lookup = <span class="keyword">function</span>(x) {
-            <span class="keyword">return</span> <span class="keyword">this</span>._map[<span class="string">'$'</span>+x] || <span class="literal">null</span>;
-        };
-        Env.prototype.bind = <span class="keyword">function</span>(x, t, loc) {
-            <span class="keyword">if</span> (x === <span class="string">'arguments'</span> || x === <span class="string">'eval'</span>) {
-                raise(loc || tokPos, <span class="string">"illegal binding for '"</span>  + x + <span class="string">"'"</span>);
-            }
-            x = <span class="string">'$'</span> + x;
-            <span class="keyword">if</span> (Object.prototype.hasOwnProperty.call(<span class="keyword">this</span>._map, x)) {
-                raise(loc || tokPos, <span class="string">"duplicate binding for '"</span> + x + <span class="string">"'"</span>);
-            }
-            <span class="keyword">this</span>._map[x] = t;
         };</pre></div></div>
             
         </li>
@@ -2861,7 +2845,64 @@ words when necessary.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-105">&#182;</a>
               </div>
-              <p>We will need a symbol source</p>
+              <p>Lookup an identifier in the environment.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        Env.prototype.lookup = <span class="keyword">function</span>(x) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-106">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-106">&#182;</a>
+              </div>
+              <p>Prefix the identifier to avoid conflicts with built-in
+properties.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">return</span> <span class="keyword">this</span>._map[<span class="string">'$'</span>+x] || <span class="literal">null</span>;
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-107">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-107">&#182;</a>
+              </div>
+              <p>Bind a new identifier <code>x</code> to binding <code>t</code> in this environment.
+If something goes wrong, use <code>loc</code> in the error message.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        Env.prototype.bind = <span class="keyword">function</span>(x, t, loc) {
+            <span class="keyword">if</span> (x === <span class="string">'arguments'</span> || x === <span class="string">'eval'</span>) {
+                raise(loc || tokStart, <span class="string">"illegal binding for '"</span>  + x + <span class="string">"'"</span>);
+            }
+            x = <span class="string">'$'</span> + x;
+            <span class="keyword">if</span> (Object.prototype.hasOwnProperty.call(<span class="keyword">this</span>._map, x)) {
+                raise(loc || tokStart, <span class="string">"duplicate binding for '"</span> + x + <span class="string">"'"</span>);
+            }
+            <span class="keyword">this</span>._map[x] = t;
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-108">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-108">&#182;</a>
+              </div>
+              <p>We will need a unique symbol source for bindings.</p>
 
             </div>
             
@@ -2876,11 +2917,11 @@ words when necessary.</p>
         </li>
         
         
-        <li id="section-106">
+        <li id="section-109">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-106">&#182;</a>
+                <a class="pilcrow" href="#section-109">&#182;</a>
               </div>
               <p>Global environments map to a type as well as a mutability boolean.</p>
 
@@ -2894,11 +2935,11 @@ words when necessary.</p>
         </li>
         
         
-        <li id="section-107">
+        <li id="section-110">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-107">&#182;</a>
+                <a class="pilcrow" href="#section-110">&#182;</a>
               </div>
               <p>Local environments map to a type and a local temporary.</p>
 
@@ -2912,11 +2953,11 @@ words when necessary.</p>
         </li>
         
         
-        <li id="section-108">
+        <li id="section-111">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-108">&#182;</a>
+                <a class="pilcrow" href="#section-111">&#182;</a>
               </div>
               <p>Constants are a type and a value.</p>
 
@@ -2930,11 +2971,64 @@ words when necessary.</p>
         </li>
         
         
-        <li id="section-109">
+        <li id="section-112">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-112">&#182;</a>
+              </div>
+              <p>Sets the type field for a <code>ConstantBinding</code>
+based on the value field, according to the rules for
+NumericLiteral.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        ConstantBinding.prototype.setIntType = <span class="keyword">function</span>() {
+            <span class="keyword">var</span> value = <span class="keyword">this</span>.value;
+            <span class="keyword">if</span> (value &gt;= Types.Signed.min &amp;&amp;
+                value &lt;= Types.Signed.max) {
+                <span class="keyword">this</span>.type = Types.Signed;
+            } <span class="keyword">else</span> <span class="keyword">if</span> (value &gt;= Types.Fixnum.min &amp;&amp;
+                       value &lt;= Types.Fixnum.max) {
+                <span class="keyword">this</span>.type = Types.Fixnum;
+            } <span class="keyword">else</span> <span class="keyword">if</span> (value &gt;= Types.Unsigned.min &amp;&amp;
+                       value &lt;= Types.Unsigned.max) {
+                <span class="keyword">this</span>.type = Types.Unsigned;
+            } <span class="keyword">else</span> {
+                <span class="keyword">this</span>.type = <span class="literal">null</span>; <span class="comment">// caller must raise()</span>
+            }
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-113">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-113">&#182;</a>
+              </div>
+              <p>Negate the value stored in a <code>ConstantBinding</code>, adjusting its
+type as necessary.  Used to finesse unary negation of literals.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        ConstantBinding.prototype.negate = <span class="keyword">function</span>() {
+            <span class="keyword">this</span>.value = -<span class="keyword">this</span>.value;
+            <span class="keyword">if</span> (<span class="keyword">this</span>.type !== Types.Double) {
+                <span class="keyword">this</span>.setIntType();
+            }
+            <span class="keyword">return</span> <span class="keyword">this</span>;
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-114">
             <div class="annotation">
               
               <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-109">&#182;</a>
+                <a class="pilcrow" href="#section-114">&#182;</a>
               </div>
               <h2>Parser</h2>
 <p>A recursive descent parser operates by defining functions for all
@@ -2960,11 +3054,11 @@ that JavaScript defines.</p>
         </li>
         
         
-        <li id="section-110">
+        <li id="section-115">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-110">&#182;</a>
+                <a class="pilcrow" href="#section-115">&#182;</a>
               </div>
               <p>As we parse, there will always be an active module.</p>
 
@@ -2975,11 +3069,11 @@ that JavaScript defines.</p>
         </li>
         
         
-        <li id="section-111">
+        <li id="section-116">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-111">&#182;</a>
+                <a class="pilcrow" href="#section-116">&#182;</a>
               </div>
               <p>The main exported interface.</p>
 
@@ -2996,11 +3090,11 @@ that JavaScript defines.</p>
         </li>
         
         
-        <li id="section-112">
+        <li id="section-117">
             <div class="annotation">
               
               <div class="pilwrap for-h3">
-                <a class="pilcrow" href="#section-112">&#182;</a>
+                <a class="pilcrow" href="#section-117">&#182;</a>
               </div>
               <h3>Parser utilities</h3>
 <p>Raise an unexpected token error.</p>
@@ -3014,11 +3108,11 @@ that JavaScript defines.</p>
         </li>
         
         
-        <li id="section-113">
+        <li id="section-118">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-113">&#182;</a>
+                <a class="pilcrow" href="#section-118">&#182;</a>
               </div>
               <p>Continue to the next token.</p>
 
@@ -3034,11 +3128,11 @@ that JavaScript defines.</p>
         </li>
         
         
-        <li id="section-114">
+        <li id="section-119">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-114">&#182;</a>
+                <a class="pilcrow" href="#section-119">&#182;</a>
               </div>
               <p>Predicate that tests whether the next token is of the given
 type, and if yes, consumes it as a side effect.</p>
@@ -3055,11 +3149,11 @@ type, and if yes, consumes it as a side effect.</p>
         </li>
         
         
-        <li id="section-115">
+        <li id="section-120">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-115">&#182;</a>
+                <a class="pilcrow" href="#section-120">&#182;</a>
               </div>
               <p>Test whether a semicolon can be inserted at the current position.</p>
 
@@ -3074,11 +3168,11 @@ type, and if yes, consumes it as a side effect.</p>
         </li>
         
         
-        <li id="section-116">
+        <li id="section-121">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-116">&#182;</a>
+                <a class="pilcrow" href="#section-121">&#182;</a>
               </div>
               <p>Consume a semicolon, or, failing that, see if we are allowed to
 pretend that there is a semicolon at this position.</p>
@@ -3092,11 +3186,11 @@ pretend that there is a semicolon at this position.</p>
         </li>
         
         
-        <li id="section-117">
+        <li id="section-122">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-117">&#182;</a>
+                <a class="pilcrow" href="#section-122">&#182;</a>
               </div>
               <p>Expect a token of a given type. If found, consume it, otherwise,
 raise an unexpected token error.</p>
@@ -3111,11 +3205,11 @@ raise an unexpected token error.</p>
         </li>
         
         
-        <li id="section-118">
+        <li id="section-123">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-118">&#182;</a>
+                <a class="pilcrow" href="#section-123">&#182;</a>
               </div>
               <p>Expect a _name token matching the given identifier.  If found,
 consume it, otherwise raise an error.</p>
@@ -3126,35 +3220,131 @@ consume it, otherwise raise an error.</p>
             <span class="keyword">if</span> (tokType !== _name || tokVal !== value) {
                 raise(<span class="string">"expected "</span> + (value || defaultValue));
             } <span class="keyword">else</span> { next(); }
-        };
-
-        <span class="keyword">var</span> checkLVal = <span class="keyword">function</span>(expr) {</pre></div></div>
+        };</pre></div></div>
             
         </li>
         
         
-        <li id="section-119">
+        <li id="section-124">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-119">&#182;</a>
+                <a class="pilcrow" href="#section-124">&#182;</a>
               </div>
-              <p>XXX</p>
+              <p>Restore old token position, prior to reparsing.
+This lets us implement &gt;1 token lookahead, which is needed
+in a few places in the grammar (search for uses of backtrack()
+to find them).</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        };</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> backtrack = <span class="keyword">function</span>(oldPos, retval) {</pre></div></div>
             
         </li>
         
         
-        <li id="section-120">
+        <li id="section-125">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-120">&#182;</a>
+                <a class="pilcrow" href="#section-125">&#182;</a>
               </div>
-              <p>Merge types</p>
+              <p>Restore old position.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            tokPos = oldPos;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-126">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-126">&#182;</a>
+              </div>
+              <p>Adjust the line counter.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">while</span> (tokPos &lt; tokLineStart) {
+                tokLineStart =
+                    input.lastIndexOf(<span class="string">"\n"</span>, tokLineStart - <span class="number">2</span>) + <span class="number">1</span>;
+                tokCurLine -= <span class="number">1</span>;
+            }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-127">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-127">&#182;</a>
+              </div>
+              <p>Re-read the token at that position.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            skipSpace();
+            readToken();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-128">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-128">&#182;</a>
+              </div>
+              <p>Optionally, return a value (useful for <code>return backtrack(...)</code>
+statements).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">return</span> retval;
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-129">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-129">&#182;</a>
+              </div>
+              <p>Raise with a nice error message if the given type isn&#39;t
+a subtype of that provided.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> typecheck = <span class="keyword">function</span>(actual, should, message, pos) {
+            <span class="keyword">if</span> (actual.isSubtypeOf(should)) { <span class="keyword">return</span> actual; }
+            raise(pos || tokStart, <span class="string">"validation error ("</span>+message+<span class="string">"): "</span> +
+                  <span class="string">"should be "</span> + should.toString() +
+                  <span class="string">", but was "</span> + actual.toString());
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-130">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-130">&#182;</a>
+              </div>
+              <p>Merge types.  This is used for single-forward-pass compilation:
+when we first see a reference to a function (or its return type)
+infer an appropriate type from its use site.  At subsequent
+references we will continue to merge inferred types.  Raise
+an error if some use site requires a type inconsistent with
+the inferred type at that point.  See
+<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=864600">https://bugzilla.mozilla.org/show_bug.cgi?id=864600</a> for
+more discussion of the single-forward-pass strategy.</p>
 
             </div>
             
@@ -3163,19 +3353,36 @@ consume it, otherwise raise an error.</p>
                 newType.isSubtypeOf(prevType)) {
                 <span class="keyword">return</span> newType;
             }
-            raise(pos || tokPos,
+            raise(pos || tokStart,
                   <span class="string">"Inconsistent type (was "</span> + prevType.toString() +
                   <span class="string">", now "</span> + newType.toString()+<span class="string">")"</span>);
-        };</pre></div></div>
+        };
+
+        <span class="keyword">var</span> checkLVal = <span class="keyword">function</span>(expr) {</pre></div></div>
             
         </li>
         
         
-        <li id="section-121">
+        <li id="section-131">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-131">&#182;</a>
+              </div>
+              <p>XXX used in acorn, probably not necessary for asm-llvm.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-132">
             <div class="annotation">
               
               <div class="pilwrap for-h3">
-                <a class="pilcrow" href="#section-121">&#182;</a>
+                <a class="pilcrow" href="#section-132">&#182;</a>
               </div>
               <h3>Literal parsing</h3>
 <p>Parse the next token as an identifier. If <code>liberal</code> is true (used
@@ -3195,11 +3402,11 @@ identifiers.</p>
         </li>
         
         
-        <li id="section-122">
+        <li id="section-133">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-122">&#182;</a>
+                <a class="pilcrow" href="#section-133">&#182;</a>
               </div>
               <p>Look up an identifier in the local and global environments.</p>
 
@@ -3216,46 +3423,42 @@ identifiers.</p>
         </li>
         
         
-        <li id="section-123">
+        <li id="section-134">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-123">&#182;</a>
+                <a class="pilcrow" href="#section-134">&#182;</a>
               </div>
               <p>Parse a numeric literal, returning a type and a value.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseNumericLiteral = <span class="keyword">function</span>() {
+            <span class="keyword">var</span> numStart = tokStart;
+            <span class="keyword">var</span> negate = (tokType===_plusmin &amp;&amp; tokVal===<span class="string">'-'</span>);
+            <span class="keyword">if</span> (negate) { next(); }
             <span class="keyword">var</span> result = ConstantBinding.New(Types.Double, tokVal);
             <span class="keyword">if</span> (tokType === _num) {
-                <span class="keyword">if</span> (tokVal &gt;= Types.Signed.min &amp;&amp;
-                    tokVal &lt;= Types.Signed.max) {
-                    result.type = Types.Signed;
-                } <span class="keyword">else</span> <span class="keyword">if</span> (tokVal &gt;= Types.Fixnum.min &amp;&amp;
-                           tokVal &lt;= Types.Fixnum.max) {
-                    result.type = Types.Fixnum;
-                } <span class="keyword">else</span> <span class="keyword">if</span> (tokVal &gt;= Types.Unsigned.min &amp;&amp;
-                           tokVal &lt;= Types.Unsigned.max) {
-                    result.type = Types.Unsigned;
-                } <span class="keyword">else</span> {
-                    raise(tokPos, <span class="string">"Invalid integer literal"</span>);
+                result.setIntType();
+                <span class="keyword">if</span> (result.type===<span class="literal">null</span>) {
+                    raise(numStart, <span class="string">"Invalid integer literal"</span>);
                 }
             } <span class="keyword">else</span> <span class="keyword">if</span> (tokType !== _dotnum) {
-                raise(tokPos, <span class="string">"expected a numeric literal"</span>);
+                raise(numStart, <span class="string">"expected a numeric literal"</span>);
             }
             next();
+            <span class="keyword">if</span> (negate) { result.negate(); }
             <span class="keyword">return</span> result;
         };</pre></div></div>
             
         </li>
         
         
-        <li id="section-124">
+        <li id="section-135">
             <div class="annotation">
               
               <div class="pilwrap for-h3">
-                <a class="pilcrow" href="#section-124">&#182;</a>
+                <a class="pilcrow" href="#section-135">&#182;</a>
               </div>
               <h3>Expression parsing</h3>
 <p>These nest, from the most general expression type at the top to
@@ -3271,11 +3474,11 @@ the AST node that the inner parser gave them in another node.</p>
         </li>
         
         
-        <li id="section-125">
+        <li id="section-136">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-125">&#182;</a>
+                <a class="pilcrow" href="#section-136">&#182;</a>
               </div>
               <p>Parses a comma-separated list of expressions, and returns them as
 an array. <code>close</code> is the token type that ends the list, and
@@ -3306,11 +3509,11 @@ for array literals).</p>
         </li>
         
         
-        <li id="section-126">
+        <li id="section-137">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-126">&#182;</a>
+                <a class="pilcrow" href="#section-137">&#182;</a>
               </div>
               <p>Parse an atomic expression — either a single token that is an
 expression, an expression started by a keyword like <code>function</code> or
@@ -3345,11 +3548,11 @@ or <code>{}</code>.</p>
         </li>
         
         
-        <li id="section-127">
+        <li id="section-138">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-127">&#182;</a>
+                <a class="pilcrow" href="#section-138">&#182;</a>
               </div>
               <p>Parse call, dot, and <code>[]</code>-subscript expressions.</p>
 
@@ -3386,11 +3589,11 @@ or <code>{}</code>.</p>
         </li>
         
         
-        <li id="section-128">
+        <li id="section-139">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-128">&#182;</a>
+                <a class="pilcrow" href="#section-139">&#182;</a>
               </div>
               <p>Parse unary operators, both prefix and postfix.</p>
 
@@ -3399,7 +3602,7 @@ or <code>{}</code>.</p>
             <div class="content"><div class='highlight'><pre>        <span class="function"><span class="keyword">function</span> <span class="title">parseMaybeUnary</span><span class="params">(noIn)</span> {</span>
             <span class="keyword">var</span> node;
             <span class="keyword">if</span> (tokType.prefix) {
-                <span class="keyword">var</span> opPos = tokPos;
+                <span class="keyword">var</span> opPos = tokStart;
                 <span class="keyword">var</span> update = tokType.isUpdate; <span class="comment">// for ++/--</span>
                 <span class="keyword">var</span> operator = tokVal;
                 <span class="keyword">var</span> ty = Types.unary[operator];
@@ -3408,16 +3611,34 @@ or <code>{}</code>.</p>
                 }
                 console.assert(!update);
                 next();
-                <span class="keyword">var</span> argument = parseMaybeUnary(noIn);
+                <span class="keyword">var</span> argument = parseMaybeUnary(noIn);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-140">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-140">&#182;</a>
+              </div>
+              <p>Special case the negation of a constant.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (ConstantBinding.hasInstance(argument) &amp;&amp; operator===<span class="string">'-'</span>) {
+                    <span class="keyword">return</span> argument.negate();
+                }
                 ty = ty.apply([argument.type]);
                 <span class="keyword">if</span> (ty===<span class="literal">null</span>) {
-                    raise(opPos, <span class="string">"unary operation fails to validate"</span>);
+                    raise(opPos, <span class="string">"unary "</span>+operator+<span class="string">" fails to validate: "</span>+
+                          operator+<span class="string">" "</span>+argument.type.toString());
                 }
                 <span class="keyword">return</span> LocalBinding.New(ty);
             }
             <span class="keyword">var</span> expr = parseExprSubscripts();
             <span class="keyword">if</span> (tokType.postfix &amp;&amp; !canInsertSemicolon()) {
-                raise(tokPos, <span class="string">"postfix operators not allowed"</span>);
+                raise(tokStart, <span class="string">"postfix operators not allowed"</span>);
             }
             <span class="keyword">return</span> expr;
         };</pre></div></div>
@@ -3425,11 +3646,11 @@ or <code>{}</code>.</p>
         </li>
         
         
-        <li id="section-129">
+        <li id="section-141">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-129">&#182;</a>
+                <a class="pilcrow" href="#section-141">&#182;</a>
               </div>
               <p>Start the precedence parser.</p>
 <p>Parse binary operators with the operator precedence parsing
@@ -3441,30 +3662,59 @@ operator that has a lower precedence than the set it is parsing.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseExprOp = <span class="keyword">function</span>(left, minPrec, noIn) {
+            <span class="keyword">var</span> TWO_TO_THE_TWENTY = <span class="number">0x100000</span>;
             <span class="keyword">var</span> prec = tokType.binop;
             console.assert(prec !== <span class="literal">null</span>, tokType);
             <span class="keyword">if</span> (prec !== <span class="literal">undefined</span> &amp;&amp; (!noIn || tokType !== _<span class="keyword">in</span>)) {
                 <span class="keyword">if</span> (prec &gt; minPrec) {
-                    <span class="keyword">var</span> node = {};<span class="comment">//startNodeFrom(left);</span>
-                    node.left = left;
-                    node.operator = tokVal;
+                    <span class="keyword">var</span> additiveChain = <span class="number">0</span>;
+                    <span class="keyword">var</span> opPos = tokStart;
+                    <span class="keyword">var</span> operator = tokVal;
+                    <span class="keyword">var</span> ty = Types.binary[operator];
+                    <span class="keyword">if</span> (!ty) {
+                        raise(opPos, operator+<span class="string">" not allowed"</span>);
+                    }
                     next();
-                    node.right = parseExprOp(parseMaybeUnary(noIn), prec, noIn);</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-130">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-130">&#182;</a>
-              </div>
-              <p>var node = finishNode(node, /&amp;&amp;|||/.test(node.operator) ? &quot;LogicalExpression&quot; : &quot;BinaryExpression&quot;);</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>                    <span class="keyword">return</span> parseExprOp(node, minPrec, noIn);
+                    <span class="keyword">var</span> right = parseExprOp(parseMaybeUnary(noIn), prec, noIn);
+                    ty = ty.apply([left.type, right.type]);
+                    <span class="keyword">if</span> (ty===<span class="literal">null</span> &amp;&amp; (operator===<span class="string">'+'</span> || operator===<span class="string">'-'</span>)) {
+                        <span class="comment">/* Special validation for "AdditiveExpression" */</span>
+                        <span class="keyword">if</span> ((left.additiveChain ||
+                             left.type.isSubtypeOf(Types.Int)) &amp;&amp;
+                            right.type.isSubtypeOf(Types.Int)) {
+                            ty = Types.Intish;
+                            additiveChain = (left.additiveChain||<span class="number">1</span>) + <span class="number">1</span>;
+                            <span class="keyword">if</span> (additiveChain &gt; TWO_TO_THE_TWENTY) { <span class="comment">// 2^20</span>
+                                raise(opPos, <span class="string">"too many additive operations"</span>);
+                            }
+                        }
+                    }
+                    <span class="keyword">if</span> (ty===<span class="literal">null</span> &amp;&amp; operator===<span class="string">'*'</span>) {
+                        <span class="comment">/* Special validation for MultiplicativeExpression */</span>
+                        <span class="keyword">var</span> isGoodLiteral = <span class="keyword">function</span>(b) {
+                            <span class="keyword">return</span> ConstantBinding.hasInstance(b) &amp;&amp;
+                                b.type !== Types.Double &amp;&amp;
+                                (-TWO_TO_THE_TWENTY) &lt; b.value &amp;&amp;
+                                b.value &lt; TWO_TO_THE_TWENTY;
+                        };
+                        <span class="keyword">if</span> ((isGoodLiteral(left) &amp;&amp;
+                            right.type.isSubtypeOf(Types.Int)) ||
+                            (isGoodLiteral(right) &amp;&amp;
+                             left.type.isSubtypeOf(Types.Int))) {
+                            ty = Types.Intish;
+                        }
+                    }
+                    <span class="keyword">if</span> (ty===<span class="literal">null</span>) {
+                        raise(opPos, <span class="string">"binary "</span>+operator+<span class="string">" fails to validate: "</span>+
+                              left.type.toString() +
+                              <span class="string">" "</span> + operator + <span class="string">" "</span> +
+                              right.type.toString());
+                    }
+                    <span class="keyword">var</span> binding = LocalBinding.New(ty);
+                    <span class="keyword">if</span> (additiveChain) {
+                        binding.additiveChain = additiveChain;
+                    }
+                    <span class="keyword">return</span> parseExprOp(binding, minPrec, noIn);
                 }
             }
             <span class="keyword">return</span> left;
@@ -3477,11 +3727,11 @@ operator that has a lower precedence than the set it is parsing.</p>
         </li>
         
         
-        <li id="section-131">
+        <li id="section-142">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-131">&#182;</a>
+                <a class="pilcrow" href="#section-142">&#182;</a>
               </div>
               <p>Parse a ternary conditional (<code>?:</code>) operator.</p>
 
@@ -3489,13 +3739,28 @@ operator that has a lower precedence than the set it is parsing.</p>
             
             <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseMaybeConditional = <span class="keyword">function</span>(noIn) {
             <span class="keyword">var</span> expr = parseExprOps(noIn);
+            <span class="keyword">var</span> startpos = tokStart;
             <span class="keyword">if</span> (eat(_question)) {
-                <span class="keyword">var</span> node = Object.create(<span class="literal">null</span>);<span class="comment">//startNodeFrom(expr);</span>
-                node.test = expr;
-                node.consequent = parseExpression(<span class="literal">true</span>);
+                <span class="keyword">var</span> test = expr;
+                typecheck(test.type, Types.Int, <span class="string">"conditional test"</span>, startpos);
+                <span class="keyword">var</span> consequent = parseExpression(<span class="literal">true</span>);
                 expect(_colon);
-                node.alternate = parseExpression(<span class="literal">true</span>, noIn);
-                <span class="keyword">return</span>;<span class="comment">// finishNode(node, "ConditionalExpression");</span>
+                <span class="keyword">var</span> alternate = parseExpression(<span class="literal">true</span>, noIn);
+                <span class="keyword">var</span> ty;
+                <span class="keyword">if</span> (consequent.type.isSubtypeOf(Types.Int) &amp;&amp;
+                    alternate.type.isSubtypeOf(Types.Int)) {
+                    ty = Types.Int;
+                } <span class="keyword">else</span> <span class="keyword">if</span> (consequent.type.isSubtypeOf(Types.Double) &amp;&amp;
+                           alternate.type.isSubtypeOf(Types.Double)) {
+                    ty = Types.Double;
+                } <span class="keyword">else</span> {
+                    raise(startpos, <span class="string">"validation error: "</span>+
+                          test.type.toString() + <span class="string">" ? "</span> +
+                          consequent.type.toString() + <span class="string">" : "</span> +
+                          alternate.type.toString());
+                }
+                <span class="keyword">var</span> binding = LocalBinding.New(ty);
+                <span class="keyword">return</span> binding;
             }
             <span class="keyword">return</span> expr;
         };</pre></div></div>
@@ -3503,11 +3768,11 @@ operator that has a lower precedence than the set it is parsing.</p>
         </li>
         
         
-        <li id="section-132">
+        <li id="section-143">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-132">&#182;</a>
+                <a class="pilcrow" href="#section-143">&#182;</a>
               </div>
               <p>Parse an assignment expression. This includes applications of
 operators like <code>+=</code>.</p>
@@ -3531,11 +3796,11 @@ operators like <code>+=</code>.</p>
         </li>
         
         
-        <li id="section-133">
+        <li id="section-144">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-133">&#182;</a>
+                <a class="pilcrow" href="#section-144">&#182;</a>
               </div>
               <p>Parse a full expression. The arguments are used to forbid comma
 sequences (in argument lists, array literals, or object literals)
@@ -3546,12 +3811,10 @@ or the <code>in</code> operator (in for loops initalization expressions).</p>
             <div class="content"><div class='highlight'><pre>        parseExpression = <span class="keyword">function</span>(noComma, noIn) {
             <span class="keyword">var</span> expr = parseMaybeAssign(noIn);
             <span class="keyword">if</span> (!noComma &amp;&amp; tokType === _comma) {
-                <span class="keyword">var</span> node = Object.create(<span class="literal">null</span>);<span class="comment">//startNodeFrom(expr);</span>
-                node.expressions = [expr];
+                <span class="keyword">var</span> expressions = [expr];
                 <span class="keyword">while</span> (eat(_comma)) {
-                    node.expressions.push(parseMaybeAssign(noIn));
+                    expressions.push(expr = parseMaybeAssign(noIn));
                 }
-                <span class="keyword">return</span>;<span class="comment">// finishNode(node, "SequenceExpression");</span>
             }
             <span class="keyword">return</span> expr;
         };</pre></div></div>
@@ -3559,11 +3822,11 @@ or the <code>in</code> operator (in for loops initalization expressions).</p>
         </li>
         
         
-        <li id="section-134">
+        <li id="section-145">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-134">&#182;</a>
+                <a class="pilcrow" href="#section-145">&#182;</a>
               </div>
               <p>Used for constructs like <code>switch</code> and <code>if</code> that insist on
 parentheses around their expression.</p>
@@ -3580,11 +3843,11 @@ parentheses around their expression.</p>
         </li>
         
         
-        <li id="section-135">
+        <li id="section-146">
             <div class="annotation">
               
               <div class="pilwrap for-h3">
-                <a class="pilcrow" href="#section-135">&#182;</a>
+                <a class="pilcrow" href="#section-146">&#182;</a>
               </div>
               <h3>Statement parsing</h3>
 
@@ -3592,50 +3855,483 @@ parentheses around their expression.</p>
             
             <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> loopLabel = {kind: <span class="string">"loop"</span>}, switchLabel = {kind: <span class="string">"switch"</span>};
 
-        <span class="keyword">var</span> parseStatement; <span class="comment">// forward declaration</span></pre></div></div>
+        <span class="keyword">var</span> parseStatement, parseFor, parseBlock; <span class="comment">// forward declaration</span></pre></div></div>
             
         </li>
         
         
-        <li id="section-136">
+        <li id="section-147">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-136">&#182;</a>
+                <a class="pilcrow" href="#section-147">&#182;</a>
               </div>
-              <p>Parse a regular <code>for</code> loop. The disambiguation code in
-<code>parseStatement</code> will already have parsed the init statement or
-expression.</p>
+              <p>Parse a single statement.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseFor = <span class="keyword">function</span>(node, init) {
-            <span class="keyword">var</span> labels=[];<span class="comment">//XXX</span>
-            node.init = init;
-            expect(_semi);
-            node.test = tokType === _semi ? <span class="literal">null</span> : parseExpression();
-            expect(_semi);
-            node.update = tokType === _parenR ? <span class="literal">null</span> : parseExpression();
-            expect(_parenR);
-            node.body = parseStatement();
-            labels.pop();
-            <span class="keyword">return</span>;<span class="comment">// finishNode(node, "ForStatement");</span>
+            <div class="content"><div class='highlight'><pre>        parseStatement = <span class="keyword">function</span>() {
+            <span class="keyword">var</span> starttype = tokType;
+            <span class="keyword">var</span> startpos = tokStart;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-148">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-148">&#182;</a>
+              </div>
+              <p>Most types of statements are recognized by the keyword they
+start with. Many are trivial to parse, some require a bit of
+complexity.</p>
+<h4>BreakStatement / ContinueStatement</h4>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (starttype===_<span class="keyword">break</span> || starttype===_<span class="keyword">continue</span>) {
+                next();
+                <span class="keyword">var</span> isBreak = (starttype === _<span class="keyword">break</span>), label;
+                <span class="keyword">if</span> (eat(_semi) || canInsertSemicolon()) { label = <span class="literal">null</span>; }
+                <span class="keyword">else</span> <span class="keyword">if</span> (tokType !== _name) { unexpected(); }
+                <span class="keyword">else</span> {
+                    label = parseIdent();
+                    semicolon();
+                }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-149">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-149">&#182;</a>
+              </div>
+              <p>Verify that there is an actual destination to break or
+continue to.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> found = <span class="literal">false</span>;
+                module.func.labels.forEach(<span class="keyword">function</span>(lab, i) {
+                    <span class="keyword">if</span> (label === <span class="literal">null</span> || lab.name === label.name) {
+                        <span class="keyword">if</span> (lab.kind !== <span class="literal">null</span> &amp;&amp; <span class="comment">// no 'continue' in switch</span>
+                            (isBreak || lab.kind === <span class="string">"loop"</span>)) {
+                            found = <span class="literal">true</span>;
+                            <span class="comment">/* XXX break out of forEach */</span>
+                        }
+                        <span class="keyword">if</span> (label &amp;&amp; isBreak) { <span class="comment">// always 'break' if names match</span>
+                            found = <span class="literal">true</span>;
+                            <span class="comment">/* XXX break out of forEach */</span>
+                        }
+                    }
+                });
+                <span class="keyword">if</span> (!found) {
+                    raise(startpos, <span class="string">"Unsyntactic "</span> + starttype.keyword);
+                }
+                <span class="keyword">return</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-150">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h4">
+                <a class="pilcrow" href="#section-150">&#182;</a>
+              </div>
+              <h4>IterationStatement</h4>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            } <span class="keyword">else</span> <span class="keyword">if</span> (starttype===_<span class="keyword">while</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-151">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-151">&#182;</a>
+              </div>
+              <p>Parse a while loop.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                next();
+                startpos = tokStart;
+                <span class="keyword">var</span> whileTest = parseParenExpression();
+                typecheck(whileTest.type, Types.Int, <span class="string">"while loop condition"</span>,
+                          startpos);
+                module.func.labels.push(loopLabel);
+                <span class="keyword">var</span> whileBody = parseStatement();
+                module.func.labels.pop();
+                <span class="keyword">return</span>;
+
+            } <span class="keyword">else</span> <span class="keyword">if</span> (starttype===_<span class="keyword">do</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-152">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-152">&#182;</a>
+              </div>
+              <p>Parse a do-while loop.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                next();
+                module.func.labels.push(loopLabel);
+                <span class="keyword">var</span> doBody = parseStatement();
+                module.func.labels.pop();
+                expect(_<span class="keyword">while</span>);
+                startpos = tokStart;
+                <span class="keyword">var</span> doTest = parseParenExpression();
+                semicolon();
+                typecheck(doTest.type, Types.Int, <span class="string">"do-while loop condition"</span>,
+                          startpos);
+                <span class="keyword">return</span>;
+
+            } <span class="keyword">else</span> <span class="keyword">if</span> (starttype===_<span class="keyword">for</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-153">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-153">&#182;</a>
+              </div>
+              <p>Parse a for loop.</p>
+<p>Disambiguating between a <code>for</code> and a <code>for</code>/<code>in</code> loop is
+non-trivial. Luckily, <code>for</code>/<code>in</code> loops aren&#39;t allowed in
+<code>asm.js</code>!</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                next();
+                module.func.labels.push(loopLabel);
+                expect(_parenL);
+                <span class="keyword">if</span> (tokType === _semi) { <span class="keyword">return</span> parseFor(<span class="literal">null</span>); }
+                <span class="keyword">var</span> init = parseExpression(<span class="literal">false</span>, <span class="literal">true</span>);
+                <span class="keyword">return</span> parseFor(init);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-154">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h4">
+                <a class="pilcrow" href="#section-154">&#182;</a>
+              </div>
+              <h4>IfStatement</h4>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            } <span class="keyword">else</span> <span class="keyword">if</span> (starttype===_<span class="keyword">if</span>) {
+                next();
+                startpos = tokStart;
+                <span class="keyword">var</span> ifTest = parseParenExpression();
+                typecheck(ifTest.type, Types.Int, <span class="string">"if statement condition"</span>,
+                          startpos);
+                <span class="keyword">var</span> consequent = parseStatement();
+                <span class="keyword">var</span> alternate = eat(_<span class="keyword">else</span>) ? parseStatement() : <span class="literal">null</span>;
+                <span class="keyword">return</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-155">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h4">
+                <a class="pilcrow" href="#section-155">&#182;</a>
+              </div>
+              <h4>ReturnStatement</h4>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            } <span class="keyword">else</span> <span class="keyword">if</span> (starttype===_<span class="keyword">return</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-156">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-156">&#182;</a>
+              </div>
+              <p>In <code>return</code> (and <code>break</code>/<code>continue</code>), the keywords with
+optional arguments, we eagerly look for a semicolon or the
+possibility to insert one.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> ty;
+                next();
+                startpos = tokStart;
+                <span class="keyword">if</span> (eat(_semi) || canInsertSemicolon()) {
+                    ty = Types.Void;
+                } <span class="keyword">else</span> {
+                    <span class="keyword">var</span> binding = parseExpression(); semicolon();
+                    ty = binding.type;
+                }
+                module.func.retType =
+                    mergeTypes(module.func.retType, ty, startpos);
+                <span class="keyword">return</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-157">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h4">
+                <a class="pilcrow" href="#section-157">&#182;</a>
+              </div>
+              <h4>SwitchStatement</h4>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            } <span class="keyword">else</span> <span class="keyword">if</span> (starttype===_<span class="keyword">switch</span>) {
+                next();
+                startpos = tokStart;
+                <span class="keyword">var</span> switchTest = parseParenExpression();
+                typecheck(switchTest, Types.Signed, <span class="string">"switch discriminant"</span>,
+                          startpos);
+                <span class="keyword">var</span> cases = [];
+                expect(_braceL);
+                module.func.labels.push(switchLabel);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-158">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-158">&#182;</a>
+              </div>
+              <p>Statements under must be grouped (by label) in SwitchCase
+nodes. <code>cur</code> is used to keep the node that we are currently
+adding statements to.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> cur, seen = [], defaultCase = <span class="literal">null</span>;
+                <span class="keyword">while</span> (!eat(_braceR)) {
+                    <span class="keyword">if</span> (tokType === _<span class="keyword">case</span> || tokType === _<span class="keyword">default</span>) {
+                        <span class="keyword">var</span> isCase = (tokType === _<span class="keyword">case</span>);
+                        <span class="keyword">if</span> (cur) { <span class="comment">/* finish case */</span> }
+                        cur = {test:<span class="literal">null</span>,consequent:[]};
+                        next();
+                        <span class="keyword">if</span> (isCase) {
+                            startpos = tokStart;
+                            cur.test = parseNumericLiteral();
+                            typecheck(cur.test.type, Types.Signed,
+                                      <span class="string">"switch case"</span>, startpos);
+                            <span class="keyword">if</span> (seen[cur.test.value]) {
+                                raise(startpos, <span class="string">"Duplicate case"</span>);
+                            } <span class="keyword">else</span> { seen[cur.test.value] = cur; }
+                        } <span class="keyword">else</span> {
+                            <span class="keyword">if</span> (defaultCase !== <span class="literal">null</span>) {
+                                raise(lastStart, <span class="string">"Multiple default clauses"</span>);
+                            }
+                            defaultCase = cur;
+                        }
+                        expect(_colon);
+                    } <span class="keyword">else</span> {
+                        <span class="keyword">if</span> (!cur) { unexpected(); }
+                        cur.consequent.push(parseStatement());
+                    }
+                }
+                <span class="keyword">if</span> (cur) { <span class="comment">/* finish case */</span> }
+                module.func.labels.pop();
+                <span class="comment">/* verify that range of switch cases is reasonable */</span>
+                <span class="keyword">var</span> nums = Object.keys(seen);
+                <span class="keyword">if</span> (nums.length &gt; <span class="number">0</span>) {
+                    <span class="keyword">var</span> min = nums.reduce(Math.min);
+                    <span class="keyword">var</span> max = nums.reduce(Math.max);
+                    <span class="keyword">if</span> ((max - min) &gt;= Math.pow(<span class="number">2</span>,<span class="number">31</span>)) {
+                        raise(lastStart, <span class="string">"Range between minimum and maximum "</span>+
+                              <span class="string">"case label is too large."</span>);
+                    }
+                }
+                <span class="keyword">return</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-159">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h4">
+                <a class="pilcrow" href="#section-159">&#182;</a>
+              </div>
+              <h4>BlockStatement</h4>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            } <span class="keyword">else</span> <span class="keyword">if</span> (starttype===_braceL) {
+                <span class="keyword">return</span> parseBlock();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-160">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h4">
+                <a class="pilcrow" href="#section-160">&#182;</a>
+              </div>
+              <h4>EmptyStatement</h4>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            } <span class="keyword">else</span> <span class="keyword">if</span> (starttype===_semi) {
+                next();
+                <span class="keyword">return</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-161">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h4">
+                <a class="pilcrow" href="#section-161">&#182;</a>
+              </div>
+              <h4>ExpressionStatement / LabeledStatement</h4>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            } <span class="keyword">else</span> {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-162">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-162">&#182;</a>
+              </div>
+              <p>If the statement does not start with a statement keyword or a
+brace, it&#39;s an ExpressionStatement or LabeledStatement.</p>
+<p>We look ahead to see if the next two tokens are
+an identifier followed by a colon.  If not, we have to
+backtrack and reparse as an ExpressionStatement.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (starttype===_name) {
+                    <span class="keyword">var</span> maybeStart = tokStart;
+                    <span class="keyword">var</span> maybeName = parseIdent();
+                    <span class="keyword">if</span> (eat(_colon)) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-163">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-163">&#182;</a>
+              </div>
+              <p>Sure enough, this was a LabeledStatement.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                        module.func.labels.forEach(<span class="keyword">function</span>(l) {
+                            <span class="keyword">if</span> (l.name === maybeName) {
+                                raise(maybeStart, <span class="string">"Label '"</span> + maybeName +
+                                      <span class="string">"' is already declared"</span>);
+                            }
+                        });
+                        <span class="keyword">var</span> kind = tokType.isLoop ? <span class="string">"loop"</span> :
+                            (tokType === _<span class="keyword">switch</span>) ? <span class="string">"switch"</span> : <span class="literal">null</span>;
+                        module.func.labels.push({name: maybeName, kind: kind});
+                        <span class="keyword">var</span> labeledStatement = parseStatement();
+                        module.func.labels.pop();
+                        <span class="keyword">return</span>;
+                    } <span class="keyword">else</span> {
+                        backtrack(maybeStart);
+                    }
+                }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-164">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-164">&#182;</a>
+              </div>
+              <p>Nope, this is an ExpressionStatement.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> expr = parseExpression();
+                semicolon();
+                <span class="keyword">return</span>;
+            }
         };</pre></div></div>
             
         </li>
         
         
-        <li id="section-137">
+        <li id="section-165">
             <div class="annotation">
               
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-137">&#182;</a>
+              <div class="pilwrap for-h4">
+                <a class="pilcrow" href="#section-165">&#182;</a>
               </div>
-              <p>Parse a semicolon-enclosed block of statements.</p>
+              <h4>ForStatement</h4>
+<p>Parse a regular <code>for</code> loop. The disambiguation code in
+<code>parseStatement</code> will already have parsed the init statement or
+expression.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseBlock = <span class="keyword">function</span>() {
+            <div class="content"><div class='highlight'><pre>        parseFor = <span class="keyword">function</span>(init) {
+            expect(_semi);
+            <span class="keyword">var</span> startpos = tokStart;
+            <span class="keyword">var</span> test = (tokType === _semi) ? <span class="literal">null</span> : parseExpression();
+            <span class="keyword">if</span> (test!==<span class="literal">null</span>) {
+                typecheck(test.type, Types.Int, <span class="string">"for-loop condition"</span>, startpos);
+            }
+            expect(_semi);
+            <span class="keyword">var</span> update = (tokType === _parenR) ? <span class="literal">null</span> : parseExpression();
+            expect(_parenR);
+            <span class="keyword">var</span> body = parseStatement();
+            module.func.labels.pop();
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-166">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h4">
+                <a class="pilcrow" href="#section-166">&#182;</a>
+              </div>
+              <h4>Block</h4>
+<p>Parse a semicolon-enclosed block of statements.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        parseBlock = <span class="keyword">function</span>() {
             expect(_braceL);
             <span class="keyword">while</span> (!eat(_braceR)) {
                 parseStatement();
@@ -3645,255 +4341,11 @@ expression.</p>
         </li>
         
         
-        <li id="section-138">
+        <li id="section-167">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-138">&#182;</a>
-              </div>
-              <p>Parse a single statement.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>        parseStatement = <span class="keyword">function</span>() {
-            <span class="keyword">var</span> node = Object.create(<span class="literal">null</span>);<span class="comment">//xxx</span>
-            <span class="keyword">var</span> labels = []; <span class="comment">//xxx</span>
-
-            <span class="keyword">var</span> starttype = tokType;</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-139">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-139">&#182;</a>
-              </div>
-              <p>Most types of statements are recognized by the keyword they
-start with. Many are trivial to parse, some require a bit of
-complexity.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (starttype===_<span class="keyword">break</span> || starttype===_<span class="keyword">continue</span>) {
-                next();
-                <span class="keyword">var</span> isBreak = starttype === _<span class="keyword">break</span>;
-                <span class="keyword">if</span> (eat(_semi) || canInsertSemicolon()) { node.label = <span class="literal">null</span>; }
-                <span class="keyword">else</span> <span class="keyword">if</span> (tokType !== _name) { unexpected(); }
-                <span class="keyword">else</span> {
-                    node.label = parseIdent();
-                    semicolon();
-                }</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-140">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-140">&#182;</a>
-              </div>
-              <p>Verify that there is an actual destination to break or
-continue to.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>                <span class="comment">/*
-                for (var i = 0; i &lt; labels.length; ++i) {
-                    var lab = labels[i];
-                    if (node.label == null || lab.name === node.label.name) {
-                        if (lab.kind != null &amp;&amp; (isBreak || lab.kind === "loop")) break;
-                        if (node.label &amp;&amp; isBreak) break;
-                    }
-                }
-                if (i === labels.length) raise(node.start, "Unsyntactic " + starttype.keyword);
-                */</span>
-                <span class="keyword">return</span>;<span class="comment">// finishNode(node, isBreak ? "BreakStatement" : "ContinueStatement");</span>
-            } <span class="keyword">else</span> <span class="keyword">if</span> (starttype===_<span class="keyword">do</span>) {
-                next();
-                labels.push(loopLabel);
-                node.body = parseStatement();
-                labels.pop();
-                expect(_<span class="keyword">while</span>);
-                node.test = parseParenExpression();
-                semicolon();
-                <span class="keyword">return</span>;<span class="comment">// finishNode(node, "DoWhileStatement");</span>
-            } <span class="keyword">else</span> <span class="keyword">if</span> (starttype===_<span class="keyword">for</span>) {</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-141">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-141">&#182;</a>
-              </div>
-              <p>Disambiguating between a <code>for</code> and a <code>for</code>/<code>in</code> loop is
-non-trivial. Luckily, <code>for</code>/<code>in</code> loops aren&#39;t allowed in
-<code>asm.js</code>!</p>
-<p>Basically, we have to parse the init <code>var</code>
-statement or expression, disallowing the <code>in</code> operator (see
-the second parameter to <code>parseExpression</code>), and then check
-whether the next token is <code>in</code>. When there is no init part
-(semicolon immediately after the opening parenthesis), it is
-a regular <code>for</code> loop.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>                next();
-                labels.push(loopLabel);
-                expect(_parenL);
-                <span class="keyword">if</span> (tokType === _semi) { <span class="keyword">return</span> parseFor(node, <span class="literal">null</span>); }
-                <span class="keyword">var</span> init = parseExpression(<span class="literal">false</span>, <span class="literal">true</span>);
-                <span class="keyword">return</span> parseFor(node, init);
-            } <span class="keyword">else</span> <span class="keyword">if</span> (starttype===_<span class="keyword">if</span>) {
-                next();
-                node.test = parseParenExpression();
-                node.consequent = parseStatement();
-                node.alternate = eat(_<span class="keyword">else</span>) ? parseStatement() : <span class="literal">null</span>;
-                <span class="keyword">return</span>;<span class="comment">// finishNode(node, "IfStatement");</span>
-
-            } <span class="keyword">else</span> <span class="keyword">if</span> (starttype===_<span class="keyword">return</span>) {
-                next();</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-142">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-142">&#182;</a>
-              </div>
-              <p>In <code>return</code> (and <code>break</code>/<code>continue</code>), the keywords with
-optional arguments, we eagerly look for a semicolon or the
-possibility to insert one.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> rPos = tokPos, ty;
-                <span class="keyword">if</span> (eat(_semi) || canInsertSemicolon()) {
-                    ty = Types.Void;
-                } <span class="keyword">else</span> {
-                    <span class="keyword">var</span> binding = parseExpression(); semicolon();
-                    ty = binding.type;
-                }
-                module.func.retType = mergeTypes(module.func.retType, ty, rPos);
-                <span class="keyword">return</span>;
-
-                <span class="comment">/*
-            } else if (starttype===_switch) {
-                next();
-                node.discriminant = parseParenExpression();
-                node.cases = [];
-                expect(_braceL);
-                labels.push(switchLabel);</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-143">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-143">&#182;</a>
-              </div>
-              <p>Statements under must be grouped (by label) in SwitchCase
-nodes. <code>cur</code> is used to keep the node that we are currently
-adding statements to.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>                for (var cur, sawDefault; tokType != _braceR;) {
-                    if (tokType === _case || tokType === _default) {
-                        var isCase = tokType === _case;
-                        if (cur) finishNode(cur, "SwitchCase");
-                        node.cases.push(cur = startNode());
-                        cur.consequent = [];
-                        next();
-                        if (isCase) cur.test = parseExpression();
-                        else {
-                            if (sawDefault) raise(lastStart, "Multiple default clauses"); sawDefault = true;
-                            cur.test = null;
-                        }
-                        expect(_colon);
-                    } else {
-                        if (!cur) unexpected();
-                        cur.consequent.push(parseStatement());
-                    }
-                }
-                if (cur) finishNode(cur, "SwitchCase");
-                next(); // Closing brace
-                labels.pop();
-                return finishNode(node, "SwitchStatement");
-                */
-            } else if (starttype===_while) {
-                next();
-                node.test = parseParenExpression();
-                labels.push(loopLabel);
-                node.body = parseStatement();
-                labels.pop();
-                return;// finishNode(node, "WhileStatement");
-
-            } else if (starttype===_braceL) {
-                return parseBlock();
-
-            } else if (starttype===_semi) {
-                next();
-                return;// finishNode(node, "EmptyStatement");
-
-            } else {</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-144">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-144">&#182;</a>
-              </div>
-              <p>If the statement does not start with a statement keyword or a
-brace, it&#39;s an ExpressionStatement or LabeledStatement. We
-simply start parsing an expression, and afterwards, if the
-next token is a colon and the expression was a simple
-Identifier node, we switch to interpreting it as a label.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> maybeName = tokVal, maybeStart = tokStart;
-                <span class="keyword">var</span> expr = parseExpression();
-                <span class="keyword">if</span> (starttype === _name <span class="comment">/*&amp;&amp; expr.type === "Identifier"*/</span> &amp;&amp; eat(_colon)) {
-                    labels.forEach(<span class="keyword">function</span>(l) {
-                        <span class="keyword">if</span> (l.name === maybeName) {
-                            raise(maybeStart, <span class="string">"Label '"</span> + maybeName + <span class="string">"' is already declared"</span>);
-                        }
-                    });
-                    <span class="keyword">var</span> kind = tokType.isLoop ? <span class="string">"loop"</span> : tokType === _<span class="keyword">switch</span> ? <span class="string">"switch"</span> : <span class="literal">null</span>;
-                    labels.push({name: maybeName, kind: kind});
-                    node.body = parseStatement();
-                    labels.pop();
-                    node.label = expr;
-                    <span class="keyword">return</span>;<span class="comment">// finishNode(node, "LabeledStatement");</span>
-                } <span class="keyword">else</span> {
-                    node.expression = expr;
-                    semicolon();
-                    <span class="keyword">return</span>;<span class="comment">// finishNode(node, "ExpressionStatement");</span>
-                }
-            }
-        };</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-145">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-145">&#182;</a>
+                <a class="pilcrow" href="#section-167">&#182;</a>
               </div>
               <p>XXX second parameter to parseExpression is never true for asm.js</p>
 <h3>Module-internal function parsing</h3>
@@ -3905,48 +4357,38 @@ we might have to backtrack.</p>
             
             <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseParameterTypeCoercions = <span class="keyword">function</span>() {
             <span class="keyword">var</span> func = module.func;
-            <span class="keyword">var</span> ptPos;
-            <span class="keyword">var</span> bail = <span class="keyword">function</span>() {</pre></div></div>
+            <span class="keyword">var</span> ptPos;</pre></div></div>
             
         </li>
         
         
-        <li id="section-146">
+        <li id="section-168">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-146">&#182;</a>
+                <a class="pilcrow" href="#section-168">&#182;</a>
               </div>
               <p>Restore old token position before returning.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                tokPos = ptPos;
-                <span class="keyword">while</span> (tokPos &lt; tokLineStart) {
-                    tokLineStart =
-                        input.lastIndexOf(<span class="string">"\n"</span>, tokLineStart - <span class="number">2</span>) + <span class="number">1</span>;
-                    tokCurLine -= <span class="number">1</span>;
-                }
-                skipSpace();
-                readToken();
-            };
-
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> bail = <span class="keyword">function</span>() { <span class="keyword">return</span> backtrack(ptPos); };
             <span class="keyword">while</span> (tokType === _name) {</pre></div></div>
             
         </li>
         
         
-        <li id="section-147">
+        <li id="section-169">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-147">&#182;</a>
+                <a class="pilcrow" href="#section-169">&#182;</a>
               </div>
               <p>Save position of this token before starting to parse!</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                ptPos = lastEnd;
+            <div class="content"><div class='highlight'><pre>                ptPos = tokStart;
                 <span class="keyword">var</span> x = parseIdent();
                 <span class="keyword">if</span> (func.params.indexOf(x) &lt; <span class="number">0</span> ||
                     func.env.lookup(x) !== <span class="literal">null</span>) {
@@ -3958,11 +4400,11 @@ we might have to backtrack.</p>
         </li>
         
         
-        <li id="section-148">
+        <li id="section-170">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-148">&#182;</a>
+                <a class="pilcrow" href="#section-170">&#182;</a>
               </div>
               <p>This is an <code>int</code> type annotation.</p>
 
@@ -3982,11 +4424,11 @@ we might have to backtrack.</p>
         </li>
         
         
-        <li id="section-149">
+        <li id="section-171">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-149">&#182;</a>
+                <a class="pilcrow" href="#section-171">&#182;</a>
               </div>
               <p>This is a <code>double</code> type annotation.</p>
 
@@ -4008,11 +4450,11 @@ we might have to backtrack.</p>
         </li>
         
         
-        <li id="section-150">
+        <li id="section-172">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-150">&#182;</a>
+                <a class="pilcrow" href="#section-172">&#182;</a>
               </div>
               <p>Parse local variable declarations.</p>
 
@@ -4023,7 +4465,7 @@ we might have to backtrack.</p>
             <span class="keyword">while</span> (tokType === _<span class="keyword">var</span>) {
                 expect(_<span class="keyword">var</span>);
                 <span class="keyword">while</span> (<span class="literal">true</span>) {
-                    <span class="keyword">var</span> yPos = tokPos;
+                    <span class="keyword">var</span> yPos = tokStart;
                     <span class="keyword">var</span> y = parseIdent();
                     expect(_eq);
                     <span class="keyword">var</span> n = parseNumericLiteral();
@@ -4038,20 +4480,21 @@ we might have to backtrack.</p>
         </li>
         
         
-        <li id="section-151">
+        <li id="section-173">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-151">&#182;</a>
+                <a class="pilcrow" href="#section-173">&#182;</a>
               </div>
               <p>Parse a module-internal function</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseFunctionDeclaration = <span class="keyword">function</span>() {
-            <span class="keyword">var</span> fPos = tokPos;
+            <span class="keyword">var</span> fPos = tokStart;
             <span class="keyword">var</span> func = module.func = {
-                id: <span class="literal">null</span>, params: [], env: Env.New(), retType: <span class="literal">null</span>
+                id: <span class="literal">null</span>, params: [], env: Env.New(), retType: <span class="literal">null</span>,
+                labels: []
             };
             module.functions.push(func);
             expect(_<span class="keyword">function</span>);
@@ -4066,11 +4509,11 @@ we might have to backtrack.</p>
         </li>
         
         
-        <li id="section-152">
+        <li id="section-174">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-152">&#182;</a>
+                <a class="pilcrow" href="#section-174">&#182;</a>
               </div>
               <p>Parse the parameter type coercion statements, then
 verify that all the parameters were coerced to a type.</p>
@@ -4080,7 +4523,7 @@ verify that all the parameters were coerced to a type.</p>
             <div class="content"><div class='highlight'><pre>            parseParameterTypeCoercions();
             func.params.forEach(<span class="keyword">function</span>(p) {
                 <span class="keyword">if</span> (func.env.lookup(p)===<span class="literal">null</span>) {
-                    raise(tokPos, <span class="string">"No parameter type annotation found for '"</span>+
+                    raise(fPos, <span class="string">"No parameter type annotation found for '"</span>+
                           p+<span class="string">"'"</span>);
                 }
             });
@@ -4090,11 +4533,11 @@ verify that all the parameters were coerced to a type.</p>
         </li>
         
         
-        <li id="section-153">
+        <li id="section-175">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-153">&#182;</a>
+                <a class="pilcrow" href="#section-175">&#182;</a>
               </div>
               <p>Parse the body statements.</p>
 
@@ -4107,11 +4550,11 @@ verify that all the parameters were coerced to a type.</p>
         </li>
         
         
-        <li id="section-154">
+        <li id="section-176">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-154">&#182;</a>
+                <a class="pilcrow" href="#section-176">&#182;</a>
               </div>
               <p>Now reconcile the type of the function.</p>
 
@@ -4135,11 +4578,11 @@ verify that all the parameters were coerced to a type.</p>
         </li>
         
         
-        <li id="section-155">
+        <li id="section-177">
             <div class="annotation">
               
               <div class="pilwrap for-h3">
-                <a class="pilcrow" href="#section-155">&#182;</a>
+                <a class="pilcrow" href="#section-177">&#182;</a>
               </div>
               <h3>Module parsing</h3>
 <p>Parse a variable statement within a module.</p>
@@ -4149,18 +4592,18 @@ verify that all the parameters were coerced to a type.</p>
             <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseModuleVariableStatement = <span class="keyword">function</span>() {
             <span class="keyword">var</span> x, y, ty, startPos, yPos;
             expect(_<span class="keyword">var</span>);
-            startPos = tokPos;
+            startPos = tokStart;
             x = parseIdent();
             expect(_eq);</pre></div></div>
             
         </li>
         
         
-        <li id="section-156">
+        <li id="section-178">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-156">&#182;</a>
+                <a class="pilcrow" href="#section-178">&#182;</a>
               </div>
               <p>There are five types of variable statements:</p>
 
@@ -4171,19 +4614,17 @@ verify that all the parameters were coerced to a type.</p>
         </li>
         
         
-        <li id="section-157">
+        <li id="section-179">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-157">&#182;</a>
+                <a class="pilcrow" href="#section-179">&#182;</a>
               </div>
-              <ol>
-<li>A function table.  (Only allowed at end of module.)</li>
-</ol>
+              <p>1. A function table.  (Only allowed at end of module.)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                yPos = tokPos; next();
+            <div class="content"><div class='highlight'><pre>                yPos = tokStart; next();
                 <span class="keyword">var</span> table = [], lastType;
                 <span class="keyword">while</span> (!eat(_bracketR)) {
                     <span class="keyword">if</span> (table.length &gt; <span class="number">0</span>) { expect(_comma); }
@@ -4214,21 +4655,20 @@ verify that all the parameters were coerced to a type.</p>
                 module.env.bind(x, GlobalBinding.New(ty, <span class="literal">false</span>), startPos);
                 module.seenTable = <span class="literal">true</span>;
             } <span class="keyword">else</span> <span class="keyword">if</span> (module.seenTable) {
-                raise(tokPos, <span class="string">"expected function table"</span>);
-            } <span class="keyword">else</span> <span class="keyword">if</span> (tokType === _num || tokType === _dotnum) {</pre></div></div>
+                raise(tokStart, <span class="string">"expected function table"</span>);
+            } <span class="keyword">else</span> <span class="keyword">if</span> (tokType === _num || tokType === _dotnum ||
+                       (tokType === _plusmin &amp;&amp; tokVal===<span class="string">'-'</span>)) {</pre></div></div>
             
         </li>
         
         
-        <li id="section-158">
+        <li id="section-180">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-158">&#182;</a>
+                <a class="pilcrow" href="#section-180">&#182;</a>
               </div>
-              <ol>
-<li>A global program variable, initialized to a literal.</li>
-</ol>
+              <p>2. A global program variable, initialized to a literal.</p>
 
             </div>
             
@@ -4240,20 +4680,18 @@ verify that all the parameters were coerced to a type.</p>
         </li>
         
         
-        <li id="section-159">
+        <li id="section-181">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-159">&#182;</a>
+                <a class="pilcrow" href="#section-181">&#182;</a>
               </div>
-              <ol>
-<li>A standard library import.</li>
-</ol>
+              <p>3. A standard library import.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>                next(); expect(_dot);
-                yPos = tokPos;
+                yPos = tokStart;
                 y = parseIdent();
                 <span class="keyword">if</span> (y===<span class="string">'Math'</span>) {
                     expect(_dot); y += <span class="string">'.'</span> + parseIdent();
@@ -4267,15 +4705,13 @@ verify that all the parameters were coerced to a type.</p>
         </li>
         
         
-        <li id="section-160">
+        <li id="section-182">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-160">&#182;</a>
+                <a class="pilcrow" href="#section-182">&#182;</a>
               </div>
-              <ol>
-<li>A foreign import.</li>
-</ol>
+              <p>4. A foreign import.</p>
 
             </div>
             
@@ -4286,7 +4722,7 @@ verify that all the parameters were coerced to a type.</p>
                 <span class="keyword">if</span> (tokType === _bin3 &amp;&amp; tokVal ===<span class="string">'|'</span> &amp;&amp; !sawPlus) {
                     next(); sawBar = <span class="literal">true</span>;
                     <span class="keyword">if</span> (tokType !== _num || tokVal !== <span class="number">0</span>) {
-                        raise(tokPos, <span class="string">"expected 0"</span>);
+                        raise(tokStart, <span class="string">"expected 0"</span>);
                     }
                     next();
                 }
@@ -4298,20 +4734,18 @@ verify that all the parameters were coerced to a type.</p>
         </li>
         
         
-        <li id="section-161">
+        <li id="section-183">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-161">&#182;</a>
+                <a class="pilcrow" href="#section-183">&#182;</a>
               </div>
-              <ol>
-<li>A global heap view.</li>
-</ol>
+              <p>5. A global heap view.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>                next(); expectName(module.stdlib, <span class="string">"&lt;stdlib&gt;"</span>); expect(_dot);
-                yPos = tokPos;
+                yPos = tokStart;
                 <span class="keyword">var</span> view = parseIdent();
                 <span class="keyword">if</span> (view === <span class="string">'Int8Array'</span>) { ty = Types.IntArray(<span class="number">8</span>); }
                 <span class="keyword">else</span> <span class="keyword">if</span> (view === <span class="string">'Uint8Array'</span>) { ty = Types.UintArray(<span class="number">8</span>); }
@@ -4333,11 +4767,11 @@ verify that all the parameters were coerced to a type.</p>
         </li>
         
         
-        <li id="section-162">
+        <li id="section-184">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-162">&#182;</a>
+                <a class="pilcrow" href="#section-184">&#182;</a>
               </div>
               <p>Parse a series of module variable declaration statements.</p>
 
@@ -4352,11 +4786,11 @@ verify that all the parameters were coerced to a type.</p>
         </li>
         
         
-        <li id="section-163">
+        <li id="section-185">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-163">&#182;</a>
+                <a class="pilcrow" href="#section-185">&#182;</a>
               </div>
               <p>Parse a series of (module-internal) function declarations.</p>
 
@@ -4371,11 +4805,11 @@ verify that all the parameters were coerced to a type.</p>
         </li>
         
         
-        <li id="section-164">
+        <li id="section-186">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-164">&#182;</a>
+                <a class="pilcrow" href="#section-186">&#182;</a>
               </div>
               <p>Parse the module export declaration (return statement).</p>
 
@@ -4384,7 +4818,7 @@ verify that all the parameters were coerced to a type.</p>
             <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseModuleExportDeclaration = <span class="keyword">function</span>() {
             expect(_<span class="keyword">return</span>);
             <span class="keyword">var</span> exports = module.exports = Object.create(<span class="literal">null</span>), first = <span class="literal">true</span>;
-            <span class="keyword">var</span> fStart = tokPos;
+            <span class="keyword">var</span> fStart = tokStart;
             <span class="keyword">var</span> check = <span class="keyword">function</span>(f) {
                 <span class="keyword">var</span> binding = module.env.lookup(f);
                 <span class="keyword">if</span> (!binding) { raise(fStart, <span class="string">"Unknown function '"</span>+f+<span class="string">"'"</span>); }
@@ -4398,7 +4832,7 @@ verify that all the parameters were coerced to a type.</p>
                 next();
                 <span class="keyword">var</span> x = parseIdent();
                 expect(_colon);
-                fStart = tokPos;
+                fStart = tokStart;
                 <span class="keyword">var</span> f = parseIdent();
                 exports[x] = check(f);
                 <span class="keyword">while</span> (!eat(_braceR)) {
@@ -4415,29 +4849,29 @@ verify that all the parameters were coerced to a type.</p>
         </li>
         
         
-        <li id="section-165">
+        <li id="section-187">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-165">&#182;</a>
+                <a class="pilcrow" href="#section-187">&#182;</a>
               </div>
-              <p>Parse one asm.js module; it should start with &#39;function&#39; keyword.
-XXX support the FunctionExpression form.</p>
+              <p>Parse one asm.js module; it should start with &#39;function&#39; keyword.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseModule = <span class="keyword">function</span>() {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="comment">/* XXX support the FunctionExpression form. */</span>
+        <span class="keyword">var</span> parseModule = <span class="keyword">function</span>() {</pre></div></div>
             
         </li>
         
         
-        <li id="section-166">
+        <li id="section-188">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-166">&#182;</a>
+                <a class="pilcrow" href="#section-188">&#182;</a>
               </div>
-              <p>set up a new module in the parse context.</p>
+              <p>Set up a new module in the parse context.</p>
 
             </div>
             
@@ -4450,12 +4884,40 @@ XXX support the FunctionExpression form.</p>
                 func: <span class="literal">null</span> <span class="comment">// the function we are currently parsing.</span>
             };
             <span class="keyword">var</span> modbinding = GlobalBinding.New(Types.Module, <span class="literal">false</span>);
-            expect(_<span class="keyword">function</span>);
-            <span class="keyword">if</span> (tokType === _name) {
+            expect(_<span class="keyword">function</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-189">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-189">&#182;</a>
+              </div>
+              <p>Parse the (optional) module name.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (tokType === _name) {
                 module.id = parseIdent();
                 module.env.bind(module.id, modbinding, lastStart);
-            }
-            expect(_parenL);
+            }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-190">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-190">&#182;</a>
+              </div>
+              <p>Parse the module parameters.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            expect(_parenL);
             <span class="keyword">if</span> (!eat(_parenR)) {
                 module.stdlib = parseIdent();
                 module.env.bind(module.stdlib, modbinding, lastStart);
@@ -4476,24 +4938,41 @@ XXX support the FunctionExpression form.</p>
         </li>
         
         
-        <li id="section-167">
+        <li id="section-191">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-167">&#182;</a>
+                <a class="pilcrow" href="#section-191">&#182;</a>
               </div>
-              <p>check for &quot;use asm&quot;;</p>
+              <p>Check for &quot;use asm&quot;.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (tokType !== _string ||
                 tokVal !== <span class="string">"use asm"</span>) {
-                raise(tokPos, <span class="string">"Expected to see 'use asm'"</span>);
+                raise(tokStart, <span class="string">"Expected to see 'use asm'"</span>);
             }
             next();
-            semicolon();
+            semicolon();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-192">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-192">&#182;</a>
+              </div>
+              <p>Parse the body of the module.  Note that
+the <code>parseModuleVariableStatements</code> function also handles
+function table declaration statements.  If there are no
+module function declarations, we might parse the whole
+thing in one go... so check for this case.</p>
 
-            parseModuleVariableStatements();
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            parseModuleVariableStatements();
             <span class="keyword">if</span> (!module.seenTable) {
                 module.seenTable = <span class="literal">true</span>;
                 parseModuleFunctionDeclarations();
@@ -4508,11 +4987,11 @@ XXX support the FunctionExpression form.</p>
         </li>
         
         
-        <li id="section-168">
+        <li id="section-193">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-168">&#182;</a>
+                <a class="pilcrow" href="#section-193">&#182;</a>
               </div>
               <p>Parse a sequence of asm.js modules.</p>
 
@@ -4530,9 +5009,24 @@ XXX support the FunctionExpression form.</p>
             <span class="keyword">return</span> modules;
         };
 
-    };
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-194">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-194">&#182;</a>
+              </div>
+              <h2>Exported interface functions</h2>
+<p>Finally, set up the exported functions, which encapsulate the
+compiler/tokenizer state.</p>
 
-    <span class="keyword">var</span> tokenize = asm_llvm_module.tokenize = <span class="keyword">function</span>(source, opts) {
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> tokenize = asm_llvm_module.tokenize = <span class="keyword">function</span>(source, opts) {
         <span class="keyword">return</span> Compiler.New().tokenize(source, opts);
     };
 
