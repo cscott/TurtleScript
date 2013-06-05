@@ -48,6 +48,11 @@ environment which is truly "`turtles all the way down`_".
 .. _OOPSLA 89: http://selflanguage.org/documentation/published/implementation.html
 .. _turtles all the way down: http://en.wikipedia.org/wiki/Turtles_all_the_way_down
 
+.. image:: https://travis-ci.org/cscott/TurtleScript.png
+   :target: https://travis-ci.org/cscott/TurtleScript
+   :align: right
+   :alt:
+
 Warnings and Caveats
 --------------------
 
