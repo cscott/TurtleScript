@@ -22,7 +22,11 @@ requirejs(['./extensions', './asm-llvm', './parse', './jcompile', './top-level']
         console.error("Missing input file argument.");
         process.exit(1);
     }
-    var asm_js_source = fs.readFileSync(process.argv[2], 'utf8');
-    var llvm_source = asm_llvm.compile(asm_js_source);
-    console.log(llvm_source);
+    var i = 2;
+    while (i < process.argv.length) {
+        var asm_js_source = fs.readFileSync(process.argv[i], 'utf8');
+        var llvm_source = asm_llvm.compile(asm_js_source);
+        console.log(llvm_source);
+        i += 1;
+    }
 });
