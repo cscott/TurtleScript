@@ -1472,6 +1472,29 @@ define([], function asm_llvm() {
             this.type = type;
             this.value = value;
         };
+        // Sets the type field, based on the value field.
+        ConstantBinding.prototype.setIntType = function() {
+            var value = this.value;
+            if (value >= Types.Signed.min &&
+                value <= Types.Signed.max) {
+                this.type = Types.Signed;
+            } else if (value >= Types.Fixnum.min &&
+                       value <= Types.Fixnum.max) {
+                this.type = Types.Fixnum;
+            } else if (value >= Types.Unsigned.min &&
+                       value <= Types.Unsigned.max) {
+                this.type = Types.Unsigned;
+            } else {
+                this.type = null; // caller must raise()
+            }
+        };
+        ConstantBinding.prototype.negate = function() {
+            this.value = -this.value;
+            if (this.type !== Types.Double) {
+                this.setIntType();
+            }
+            return this;
+        };
 
         // ## Parser
 
@@ -1606,24 +1629,19 @@ define([], function asm_llvm() {
 
         // Parse a numeric literal, returning a type and a value.
         var parseNumericLiteral = function() {
+            var negate = (tokType===_plusmin && tokVal==='-');
+            if (negate) { next(); }
             var result = ConstantBinding.New(Types.Double, tokVal);
             if (tokType === _num) {
-                if (tokVal >= Types.Signed.min &&
-                    tokVal <= Types.Signed.max) {
-                    result.type = Types.Signed;
-                } else if (tokVal >= Types.Fixnum.min &&
-                           tokVal <= Types.Fixnum.max) {
-                    result.type = Types.Fixnum;
-                } else if (tokVal >= Types.Unsigned.min &&
-                           tokVal <= Types.Unsigned.max) {
-                    result.type = Types.Unsigned;
-                } else {
+                result.setIntType();
+                if (result.type===null) {
                     raise(tokPos, "Invalid integer literal");
                 }
             } else if (tokType !== _dotnum) {
                 raise(tokPos, "expected a numeric literal");
             }
             next();
+            if (negate) { result.negate(); }
             return result;
         };
 
@@ -1734,9 +1752,14 @@ define([], function asm_llvm() {
                 console.assert(!update);
                 next();
                 var argument = parseMaybeUnary(noIn);
+                // special case for negations of constants.
+                if (ConstantBinding.hasInstance(argument) && operator==='-') {
+                    return argument.negate();
+                }
                 ty = ty.apply([argument.type]);
                 if (ty===null) {
-                    raise(opPos, "unary operation fails to validate");
+                    raise(opPos, "unary "+operator+" fails to validate: "+
+                          operator+" "+argument.type.toString());
                 }
                 return LocalBinding.New(ty);
             }
@@ -1757,17 +1780,59 @@ define([], function asm_llvm() {
         // operator that has a lower precedence than the set it is parsing.
 
         var parseExprOp = function(left, minPrec, noIn) {
+            var TWO_TO_THE_TWENTY = 0x100000;
             var prec = tokType.binop;
             console.assert(prec !== null, tokType);
             if (prec !== undefined && (!noIn || tokType !== _in)) {
                 if (prec > minPrec) {
-                    var node = {};//startNodeFrom(left);
-                    node.left = left;
-                    node.operator = tokVal;
+                    var additiveChain = 0;
+                    var opPos = tokPos;
+                    var operator = tokVal;
+                    var ty = Types.binary[operator];
+                    if (!ty) {
+                        raise(opPos, operator+" not allowed");
+                    }
                     next();
-                    node.right = parseExprOp(parseMaybeUnary(noIn), prec, noIn);
-                    //var node = finishNode(node, /&&|\|\|/.test(node.operator) ? "LogicalExpression" : "BinaryExpression");
-                    return parseExprOp(node, minPrec, noIn);
+                    var right = parseExprOp(parseMaybeUnary(noIn), prec, noIn);
+                    ty = ty.apply([left.type, right.type]);
+                    if (ty===null && (operator==='+' || operator==='-')) {
+                        /* Special validation for "AdditiveExpression" */
+                        if ((left.additiveChain ||
+                             left.type.isSubtypeOf(Types.Int)) &&
+                            right.type.isSubtypeOf(Types.Int)) {
+                            ty = Types.Intish;
+                            additiveChain = (left.additiveChain||1) + 1;
+                            if (additiveChain > TWO_TO_THE_TWENTY) { // 2^20
+                                raise(opPos, "too many additive operations");
+                            }
+                        }
+                    }
+                    if (ty===null && operator==='*') {
+                        /* Special validation for MultiplicativeExpression */
+                        var isGoodLiteral = function(b) {
+                            return ConstantBinding.hasInstance(b) &&
+                                b.type !== Types.Double &&
+                                (-TWO_TO_THE_TWENTY) < b.value &&
+                                b.value < TWO_TO_THE_TWENTY;
+                        };
+                        if ((isGoodLiteral(left) &&
+                            right.type.isSubtypeOf(Types.Int)) ||
+                            (isGoodLiteral(right) &&
+                             left.type.isSubtypeOf(Types.Int))) {
+                            ty = Types.Intish;
+                        }
+                    }
+                    if (ty===null) {
+                        raise(opPos, "binary "+operator+" fails to validate: "+
+                              left.type.toString() +
+                              " " + operator + " " +
+                              right.type.toString());
+                    }
+                    var binding = LocalBinding.New(ty);
+                    if (additiveChain) {
+                        binding.additiveChain = additiveChain;
+                    }
+                    return parseExprOp(binding, minPrec, noIn);
                 }
             }
             return left;
@@ -2199,7 +2264,8 @@ define([], function asm_llvm() {
                 module.seenTable = true;
             } else if (module.seenTable) {
                 raise(tokPos, "expected function table");
-            } else if (tokType === _num || tokType === _dotnum) {
+            } else if (tokType === _num || tokType === _dotnum ||
+                       (tokType === _plusmin && tokVal==='-')) {
                 // 2. A global program variable, initialized to a literal.
                 y = parseNumericLiteral();
                 ty = (y.type===Types.Double) ? Types.Double : Types.Int;
