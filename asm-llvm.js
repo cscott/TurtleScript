@@ -1954,7 +1954,7 @@ define([], function asm_llvm() {
         // `parseStatement` will already have parsed the init statement or
         // expression.
 
-        var parseFor = function(node, init) {
+        var parseFor = function(init) {
             expect(_semi);
             var startpos = tokStart;
             var test = (tokType === _semi) ? null : parseExpression();
@@ -1964,7 +1964,7 @@ define([], function asm_llvm() {
             expect(_semi);
             var update = (tokType === _parenR) ? null : parseExpression();
             expect(_parenR);
-            node.body = parseStatement();
+            var body = parseStatement();
             module.func.labels.pop();
         };
 
@@ -1980,9 +1980,6 @@ define([], function asm_llvm() {
         // Parse a single statement.
 
         parseStatement = function() {
-            var node = Object.create(null);//xxx
-            var labels = []; //xxx
-
             var starttype = tokType;
             var startpos = tokStart;
 
@@ -2028,14 +2025,14 @@ define([], function asm_llvm() {
                 typecheck(whileTest.type, Types.Int, "while loop condition",
                           startpos);
                 module.func.labels.push(loopLabel);
-                var body = parseStatement();
+                var whileBody = parseStatement();
                 module.func.labels.pop();
                 return;
 
             } else if (starttype===_do) {
                 next();
                 module.func.labels.push(loopLabel);
-                node.body = parseStatement();
+                var doBody = parseStatement();
                 module.func.labels.pop();
                 expect(_while);
                 startpos = tokStart;
@@ -2053,9 +2050,9 @@ define([], function asm_llvm() {
                 next();
                 module.func.labels.push(loopLabel);
                 expect(_parenL);
-                if (tokType === _semi) { return parseFor(node, null); }
+                if (tokType === _semi) { return parseFor(null); }
                 var init = parseExpression(false, true);
-                return parseFor(node, init);
+                return parseFor(init);
 
             } else if (starttype===_if) {
                 next();
@@ -2068,63 +2065,85 @@ define([], function asm_llvm() {
                 return;
 
             } else if (starttype===_return) {
-                next();
 
                 // In `return` (and `break`/`continue`), the keywords with
                 // optional arguments, we eagerly look for a semicolon or the
                 // possibility to insert one.
 
-                var rPos = tokStart, ty;
+                var ty;
+                next();
+                startpos = tokStart;
                 if (eat(_semi) || canInsertSemicolon()) {
                     ty = Types.Void;
                 } else {
                     var binding = parseExpression(); semicolon();
                     ty = binding.type;
                 }
-                module.func.retType = mergeTypes(module.func.retType, ty, rPos);
+                module.func.retType =
+                    mergeTypes(module.func.retType, ty, startpos);
                 return;
 
-                /*
             } else if (starttype===_switch) {
                 next();
-                node.discriminant = parseParenExpression();
-                node.cases = [];
+                startpos = tokStart;
+                var switchTest = parseParenExpression();
+                typecheck(switchTest, Types.Signed, "switch discriminant",
+                          startpos);
+                var cases = [];
                 expect(_braceL);
-                labels.push(switchLabel);
+                module.func.labels.push(switchLabel);
 
                 // Statements under must be grouped (by label) in SwitchCase
                 // nodes. `cur` is used to keep the node that we are currently
                 // adding statements to.
 
-                for (var cur, sawDefault; tokType != _braceR;) {
+                var cur, seen = [], defaultCase = null;
+                while (!eat(_braceR)) {
                     if (tokType === _case || tokType === _default) {
-                        var isCase = tokType === _case;
-                        if (cur) finishNode(cur, "SwitchCase");
-                        node.cases.push(cur = startNode());
-                        cur.consequent = [];
+                        var isCase = (tokType === _case);
+                        if (cur) { /* finish case */ }
+                        cur = {test:null,consequent:[]};
                         next();
-                        if (isCase) cur.test = parseExpression();
-                        else {
-                            if (sawDefault) raise(lastStart, "Multiple default clauses"); sawDefault = true;
-                            cur.test = null;
+                        if (isCase) {
+                            startpos = tokStart;
+                            cur.test = parseNumericLiteral();
+                            typecheck(cur.test.type, Types.Signed,
+                                      "switch case", startpos);
+                            if (seen[cur.test.value]) {
+                                raise(startpos, "Duplicate case");
+                            } else { seen[cur.test.value] = cur; }
+                        } else {
+                            if (defaultCase !== null) {
+                                raise(lastStart, "Multiple default clauses");
+                            }
+                            defaultCase = cur;
                         }
                         expect(_colon);
                     } else {
-                        if (!cur) unexpected();
+                        if (!cur) { unexpected(); }
                         cur.consequent.push(parseStatement());
                     }
                 }
-                if (cur) finishNode(cur, "SwitchCase");
-                next(); // Closing brace
-                labels.pop();
-                return finishNode(node, "SwitchStatement");
-                */
+                if (cur) { /* finish case */ }
+                module.func.labels.pop();
+                /* verify that range of switch cases is reasonable */
+                var nums = Object.keys(seen);
+                if (nums.length > 0) {
+                    var min = nums.reduce(Math.min);
+                    var max = nums.reduce(Math.max);
+                    if ((max - min) >= Math.pow(2,31)) {
+                        raise(lastStart, "Range between minimum and maximum "+
+                              "case label is too large.");
+                    }
+                }
+                return;
+
             } else if (starttype===_braceL) {
                 return parseBlock();
 
             } else if (starttype===_semi) {
                 next();
-                return;// finishNode(node, "EmptyStatement");
+                return;
 
             } else {
                 // If the statement does not start with a statement keyword or a
