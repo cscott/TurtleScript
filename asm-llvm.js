@@ -46,12 +46,12 @@ define([], function asm_llvm() {
             ty = this._derived[spec] = Object.create(this);
             ty._id = id; id += 1;
             ty._derived = [];
-            // simple toString method is good for value types.
+            // Default to a simple toString method, good for value types.
             properties = properties || {};
             if (!properties.hasOwnProperty('toString')) {
                 properties.toString = function() { return spec; };
             }
-            // override properties
+            // Allow the caller to override arbitrary properties.
             Object.keys(properties || {}).forEach(function(k) {
                 if (properties[k] !== undefined) {
                     ty[k] = properties[k];
@@ -61,7 +61,8 @@ define([], function asm_llvm() {
         };
     })();
 
-    // Subtype relation.
+    // Compute the subtype relation between types, based on the
+    // `supertypes` field.
     Type.isSubtypeOf = function(ty) {
         if (this === ty) { return true; } // common case
         return this.supertypes.some(function(t) {
@@ -245,7 +246,7 @@ define([], function asm_llvm() {
         console.assert(Types.Arrow([],Types.Double).toString() === '()->double');
         console.assert(sqrt1.toString() === '[(double)->double]');
 
-        // table types
+        // Test function table types.
         var t1 = Types.Table(sqrt1[0], 16);
         var t2 = Types.Table(sqrt2[0], 16);
         console.assert(t1 === t2);
@@ -1427,14 +1428,20 @@ define([], function asm_llvm() {
 
         // ## Environments
 
-        // Environments track global and local variable definitions.
+        // Environments track global and local variable definitions
+        // as we parse the `asm.js` module source.
         var Env = function() {
-            // use an object for a cheap hashtable.
+            // Internally we use an object for a quick-and-dirty hashtable.
             this._map = Object.create(null);
         };
+        // Lookup an identifier in the environment.
         Env.prototype.lookup = function(x) {
+            // Prefix the identifier to avoid conflicts with built-in
+            // properties.
             return this._map['$'+x] || null;
         };
+        // Bind a new identifier `x` to binding `t` in this environment.
+        // If something goes wrong, use `loc` in the error message.
         Env.prototype.bind = function(x, t, loc) {
             if (x === 'arguments' || x === 'eval') {
                 raise(loc || tokStart, "illegal binding for '"  + x + "'");
@@ -1446,7 +1453,7 @@ define([], function asm_llvm() {
             this._map[x] = t;
         };
 
-        // We will need a symbol source
+        // We will need a unique symbol source for bindings.
         var gensym = (function() {
             var cnt = 0;
             return function() {
@@ -1472,7 +1479,10 @@ define([], function asm_llvm() {
             this.type = type;
             this.value = value;
         };
-        // Sets the type field, based on the value field.
+
+        // Sets the type field for a `ConstantBinding`
+        // based on the value field, according to the rules for
+        // NumericLiteral.
         ConstantBinding.prototype.setIntType = function() {
             var value = this.value;
             if (value >= Types.Signed.min &&
@@ -1488,6 +1498,9 @@ define([], function asm_llvm() {
                 this.type = null; // caller must raise()
             }
         };
+
+        // Negate the value stored in a `ConstantBinding`, adjusting its
+        // type as necessary.  Used to finesse unary negation of literals.
         ConstantBinding.prototype.negate = function() {
             this.value = -this.value;
             if (this.type !== Types.Double) {
@@ -1611,7 +1624,8 @@ define([], function asm_llvm() {
             return retval;
         };
 
-        // Raise if the given type isn't a subtype of that provided.
+        // Raise with a nice error message if the given type isn't
+        // a subtype of that provided.
         var typecheck = function(actual, should, message, pos) {
             if (actual.isSubtypeOf(should)) { return actual; }
             raise(pos || tokStart, "validation error ("+message+"): " +
@@ -1619,11 +1633,14 @@ define([], function asm_llvm() {
                   ", but was " + actual.toString());
         };
 
-        var checkLVal = function(expr) {
-            // XXX
-        };
-
-        // Merge types
+        // Merge types.  This is used for single-forward-pass compilation:
+        // when we first see a reference to a function (or its return type)
+        // infer an appropriate type from its use site.  At subsequent
+        // references we will continue to merge inferred types.  Raise
+        // an error if some use site requires a type inconsistent with
+        // the inferred type at that point.  See
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=864600 for
+        // more discussion of the single-forward-pass strategy.
         var mergeTypes = function(prevType, newType, pos) {
             if (prevType===null ||
                 newType.isSubtypeOf(prevType)) {
@@ -1632,6 +1649,10 @@ define([], function asm_llvm() {
             raise(pos || tokStart,
                   "Inconsistent type (was " + prevType.toString() +
                   ", now " + newType.toString()+")");
+        };
+
+        var checkLVal = function(expr) {
+            // XXX used in acorn, probably not necessary for asm-llvm.
         };
 
         // ### Literal parsing
@@ -1782,7 +1803,7 @@ define([], function asm_llvm() {
                 console.assert(!update);
                 next();
                 var argument = parseMaybeUnary(noIn);
-                // special case for negations of constants.
+                // Special case the negation of a constant.
                 if (ConstantBinding.hasInstance(argument) && operator==='-') {
                     return argument.negate();
                 }
@@ -1948,37 +1969,9 @@ define([], function asm_llvm() {
 
         var loopLabel = {kind: "loop"}, switchLabel = {kind: "switch"};
 
-        var parseStatement; // forward declaration
-
-        // Parse a regular `for` loop. The disambiguation code in
-        // `parseStatement` will already have parsed the init statement or
-        // expression.
-
-        var parseFor = function(init) {
-            expect(_semi);
-            var startpos = tokStart;
-            var test = (tokType === _semi) ? null : parseExpression();
-            if (test!==null) {
-                typecheck(test.type, Types.Int, "for-loop condition", startpos);
-            }
-            expect(_semi);
-            var update = (tokType === _parenR) ? null : parseExpression();
-            expect(_parenR);
-            var body = parseStatement();
-            module.func.labels.pop();
-        };
-
-        // Parse a semicolon-enclosed block of statements.
-
-        var parseBlock = function() {
-            expect(_braceL);
-            while (!eat(_braceR)) {
-                parseStatement();
-            }
-        };
+        var parseStatement, parseFor, parseBlock; // forward declaration
 
         // Parse a single statement.
-
         parseStatement = function() {
             var starttype = tokType;
             var startpos = tokStart;
@@ -1987,6 +1980,7 @@ define([], function asm_llvm() {
             // start with. Many are trivial to parse, some require a bit of
             // complexity.
 
+            // #### BreakStatement / ContinueStatement
             if (starttype===_break || starttype===_continue) {
                 next();
                 var isBreak = (starttype === _break), label;
@@ -2018,7 +2012,9 @@ define([], function asm_llvm() {
                 }
                 return;
 
+            // #### IterationStatement
             } else if (starttype===_while) {
+                // Parse a while loop.
                 next();
                 startpos = tokStart;
                 var whileTest = parseParenExpression();
@@ -2030,6 +2026,7 @@ define([], function asm_llvm() {
                 return;
 
             } else if (starttype===_do) {
+                // Parse a do-while loop.
                 next();
                 module.func.labels.push(loopLabel);
                 var doBody = parseStatement();
@@ -2043,6 +2040,8 @@ define([], function asm_llvm() {
                 return;
 
             } else if (starttype===_for) {
+                // Parse a for loop.
+
                 // Disambiguating between a `for` and a `for`/`in` loop is
                 // non-trivial. Luckily, `for`/`in` loops aren't allowed in
                 // `asm.js`!
@@ -2054,6 +2053,7 @@ define([], function asm_llvm() {
                 var init = parseExpression(false, true);
                 return parseFor(init);
 
+            // #### IfStatement
             } else if (starttype===_if) {
                 next();
                 startpos = tokStart;
@@ -2064,6 +2064,7 @@ define([], function asm_llvm() {
                 var alternate = eat(_else) ? parseStatement() : null;
                 return;
 
+            // #### ReturnStatement
             } else if (starttype===_return) {
 
                 // In `return` (and `break`/`continue`), the keywords with
@@ -2083,6 +2084,7 @@ define([], function asm_llvm() {
                     mergeTypes(module.func.retType, ty, startpos);
                 return;
 
+            // #### SwitchStatement
             } else if (starttype===_switch) {
                 next();
                 startpos = tokStart;
@@ -2138,13 +2140,16 @@ define([], function asm_llvm() {
                 }
                 return;
 
+            // #### BlockStatement
             } else if (starttype===_braceL) {
                 return parseBlock();
 
+            // #### EmptyStatement
             } else if (starttype===_semi) {
                 next();
                 return;
 
+            // #### ExpressionStatement / LabeledStatement
             } else {
                 // If the statement does not start with a statement keyword or a
                 // brace, it's an ExpressionStatement or LabeledStatement.
@@ -2173,10 +2178,38 @@ define([], function asm_llvm() {
                         backtrack(maybeStart);
                     }
                 }
-                // This is an ExpressionStatement.
+                // Nope, this is an ExpressionStatement.
                 var expr = parseExpression();
                 semicolon();
                 return;
+            }
+        };
+
+        // #### ForStatement
+        // Parse a regular `for` loop. The disambiguation code in
+        // `parseStatement` will already have parsed the init statement or
+        // expression.
+
+        parseFor = function(init) {
+            expect(_semi);
+            var startpos = tokStart;
+            var test = (tokType === _semi) ? null : parseExpression();
+            if (test!==null) {
+                typecheck(test.type, Types.Int, "for-loop condition", startpos);
+            }
+            expect(_semi);
+            var update = (tokType === _parenR) ? null : parseExpression();
+            expect(_parenR);
+            var body = parseStatement();
+            module.func.labels.pop();
+        };
+
+        // #### Block
+        // Parse a semicolon-enclosed block of statements.
+        parseBlock = function() {
+            expect(_braceL);
+            while (!eat(_braceR)) {
+                parseStatement();
             }
         };
 
@@ -2306,7 +2339,7 @@ define([], function asm_llvm() {
             expect(_eq);
             // There are five types of variable statements:
             if (tokType === _bracketL) {
-                // 1. A function table.  (Only allowed at end of module.)
+                // 1\. A function table.  (Only allowed at end of module.)
                 yPos = tokStart; next();
                 var table = [], lastType;
                 while (!eat(_bracketR)) {
@@ -2341,12 +2374,12 @@ define([], function asm_llvm() {
                 raise(tokStart, "expected function table");
             } else if (tokType === _num || tokType === _dotnum ||
                        (tokType === _plusmin && tokVal==='-')) {
-                // 2. A global program variable, initialized to a literal.
+                // 2\. A global program variable, initialized to a literal.
                 y = parseNumericLiteral();
                 ty = (y.type===Types.Double) ? Types.Double : Types.Int;
                 module.env.bind(x, GlobalBinding.New(ty, true), startPos);
             } else if (tokType === _name && tokVal === module.stdlib) {
-                // 3. A standard library import.
+                // 3\. A standard library import.
                 next(); expect(_dot);
                 yPos = tokStart;
                 y = parseIdent();
@@ -2358,7 +2391,7 @@ define([], function asm_llvm() {
                 module.env.bind(x, GlobalBinding.New(ty, false), startPos);
             } else if ((tokType === _plusmin && tokVal==='+') ||
                        (tokType === _name && tokVal === module.foreign)) {
-                // 4. A foreign import.
+                // 4\. A foreign import.
                 var sawPlus = false, sawBar = false;
                 if (tokType===_plusmin) { next(); sawPlus = true; }
                 expectName(module.foreign, "<foreign>"); expect(_dot);
@@ -2374,7 +2407,7 @@ define([], function asm_llvm() {
                     Types.Function;
                 module.env.bind(x, GlobalBinding.New(ty, false), startPos);
             } else if (tokType === _new) {
-                // 5. A global heap view.
+                // 5\. A global heap view.
                 next(); expectName(module.stdlib, "<stdlib>"); expect(_dot);
                 yPos = tokStart;
                 var view = parseIdent();
@@ -2442,9 +2475,9 @@ define([], function asm_llvm() {
         };
 
         // Parse one asm.js module; it should start with 'function' keyword.
-        // XXX support the FunctionExpression form.
+        /* XXX support the FunctionExpression form. */
         var parseModule = function() {
-            // set up a new module in the parse context.
+            // Set up a new module in the parse context.
             module = {
                 id: null,
                 stdlib: null, foreign: null, heap: null,
@@ -2455,10 +2488,12 @@ define([], function asm_llvm() {
             };
             var modbinding = GlobalBinding.New(Types.Module, false);
             expect(_function);
+            // Parse the (optional) module name.
             if (tokType === _name) {
                 module.id = parseIdent();
                 module.env.bind(module.id, modbinding, lastStart);
             }
+            // Parse the module parameters.
             expect(_parenL);
             if (!eat(_parenR)) {
                 module.stdlib = parseIdent();
@@ -2476,7 +2511,7 @@ define([], function asm_llvm() {
                 }
             }
             expect(_braceL);
-            // check for "use asm";
+            // Check for "use asm".
             if (tokType !== _string ||
                 tokVal !== "use asm") {
                 raise(tokStart, "Expected to see 'use asm'");
@@ -2484,6 +2519,11 @@ define([], function asm_llvm() {
             next();
             semicolon();
 
+            // Parse the body of the module.  Note that
+            // the `parseModuleVariableStatements` function also handles
+            // function table declaration statements.  If there are no
+            // module function declarations, we might parse the whole
+            // thing in one go... so check for this case.
             parseModuleVariableStatements();
             if (!module.seenTable) {
                 module.seenTable = true;
@@ -2510,6 +2550,11 @@ define([], function asm_llvm() {
         };
 
     };
+
+    // ## Exported interface functions
+
+    // Finally, set up the exported functions, which encapsulate the
+    // compiler/tokenizer state.
 
     var tokenize = asm_llvm_module.tokenize = function(source, opts) {
         return Compiler.New().tokenize(source, opts);
