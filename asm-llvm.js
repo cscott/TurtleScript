@@ -132,6 +132,7 @@ define([], function asm_llvm() {
         var view = Types.ArrayBufferView.derive(elementType+'Array');
         Types[elementType+'Array'] = function(n) {
             return view.derive(n, {
+                arrayBufferView: true,
                 base: (elementType==='Float') ? Types.Doublish : Types.Intish,
                 bytes: Math.floor(n/8),
                 toString: function() { return elementType + n + 'Array'; }
@@ -1469,7 +1470,25 @@ define([], function asm_llvm() {
         };
 
         // Local environments map to a type and a local temporary.
+        // (This isn't quite right for compilation; local variables
+        // are mutable so we'll either need a map of temps as we
+        // do SSA conversion, or else the temp should point to
+        // alloca'ed memory.)
         var LocalBinding = function(type, temp) {
+            this.type = type;
+            this.temp = temp || gensym();
+        };
+
+        // Temporary values are a type and a local temporary.
+        var TempBinding = function(type, temp) {
+            this.type = type;
+            this.temp = temp || gensym();
+        };
+
+        // View references can be assigned to.  They have a type, and
+        // a local temporary, but the temporary is a pointer (not the
+        // value itself).
+        var ViewBinding = function(type, temp) {
             this.type = type;
             this.temp = temp || gensym();
         };
@@ -1629,8 +1648,8 @@ define([], function asm_llvm() {
         var typecheck = function(actual, should, message, pos) {
             if (actual.isSubtypeOf(should)) { return actual; }
             raise(pos || tokStart, "validation error ("+message+"): " +
-                  "should be " + should.toString() +
-                  ", but was " + actual.toString());
+                  "should be " + (should ? should.toString() : '?') +
+                  ", but was " + (actual ? actual.toString() : '?'));
         };
 
         // Merge types.  This is used for single-forward-pass compilation:
@@ -1758,29 +1777,81 @@ define([], function asm_llvm() {
             }
         };
 
+        // Parse expression inside `[]`-subscript.
+        var parseBracketExpression = function(base) {
+            var startPos = tokStart;
+            var property = parseExpression();
+            // This will be a MemberExpression (or a CallExpression
+            // through function table).
+            if (base.type.arrayBufferView) {
+                // `MemberExpression := x:Identifier[n:NumericLiteral]`
+                if (ConstantBinding.hasInstance(property)) {
+                    if (property.type !== Types.Fixnum &&
+                        property.type !== Types.Unsigned) {
+                        raise(startPos, "view offset out of bounds");
+                    }
+                    return ViewBinding.New(base.type.base);
+                }
+                // `MemberExpression := x:Identifier[expr:Expression]`
+                if (base.type.bytes===1 && base.type.base===Types.Intish) {
+                    typecheck(property.type, Types.Int,
+                              "offset on 1-byte view", startPos);
+                    return ViewBinding.New(base.type.base);
+                }
+                // `MemberExpression := x:Identifier[expr:Expression >> n:NumericLiteral]`
+                if (property.shifty && powerOf2(base.type.bytes)) {
+                    typecheck(property.shifty.type, Types.Intish,
+                              "view offset", startPos);
+                    if (property.shiftAmount !== ceilLog2(base.type.bytes)) {
+                        raise(startPos, "shift amount should be "+
+                              ceilLog2(base.type.bytes));
+                    }
+                    return ViewBinding.New(base.type.base);
+                }
+                raise(startPos, "bad ArrayBufferView member expression");
+            } else if (property.andy) {
+                // Try to parse as a function table lookup:
+                // `x:Identifier[index:Expression & n:NumericLiteral](arg:Expression,...)`
+                raise(startPos, "unimplemented");
+            } else {
+                raise(startPos, "bad member expression");
+            }
+        };
+
         // Parse call, dot, and `[]`-subscript expressions.
 
         var parseSubscripts = function(base, noCalls) {
-            var finishNode = function(node) { return node; }; // XXX
-            var node;
             if (eat(_dot)) {
-                node = {};//startNodeFrom(base);
-                node.object = base;
-                node.property = parseIdent(true);
-                node.computed = false;
-                return parseSubscripts(finishNode(node, "MemberExpression"), noCalls);
+                raise(lastStart, "operator not allowed: .");
             } else if (eat(_bracketL)) {
-                node = {};//startNodeFrom(base);
-                node.object = base;
-                node.property = parseExpression();
-                node.computed = true;
+                base = parseBracketExpression(base);
                 expect(_bracketR);
-                return parseSubscripts(finishNode(node, "MemberExpression"), noCalls);
+                return parseSubscripts(base, noCalls);
             } else if (!noCalls && eat(_parenL)) {
-                node = {};//startNodeFrom(base);
-                node.callee = base;
-                node.arguments = parseExprList(_parenR, false);
-                return parseSubscripts(finishNode(node, "CallExpression"), noCalls);
+                /* XXX handle base=ForwardRef */
+                var startPos = lastStart;
+                var callArguments = parseExprList(_parenR, false);
+                // type-check
+                var binding;
+                if (base.type===Types.Function) {
+                    callArguments.forEach(function(b, i) {
+                        typecheck(b.type, Types.Extern,
+                                  "argument "+i+" to foreign function",
+                                  startPos);
+                    });
+                    binding = TempBinding.New(Types.Unknown);
+                } else if (base.type.arrow || base.type.functiontypes) {
+                    var ty = base.type.apply(
+                        callArguments.map(function(b){ return b.type; }));
+                    if (ty===null) {
+                        raise(startPos, "call argument mismatch; wants "+
+                              base.type.toString());
+                    }
+                    binding = TempBinding.New(ty);
+                } else {
+                    raise(startPos, "bad call expression");
+                }
+                return parseSubscripts(binding, noCalls);
             } else { return base; }
         };
 
@@ -1812,7 +1883,7 @@ define([], function asm_llvm() {
                     raise(opPos, "unary "+operator+" fails to validate: "+
                           operator+" "+argument.type.toString());
                 }
-                return LocalBinding.New(ty);
+                return TempBinding.New(ty);
             }
             var expr = parseExprSubscripts();
             if (tokType.postfix && !canInsertSemicolon()) {
@@ -1879,9 +1950,24 @@ define([], function asm_llvm() {
                               " " + operator + " " +
                               right.type.toString());
                     }
-                    var binding = LocalBinding.New(ty);
+                    var binding = TempBinding.New(ty);
                     if (additiveChain) {
                         binding.additiveChain = additiveChain;
+                    }
+                    if (ConstantBinding.hasInstance(right) &&
+                        right.type !== Types.Double) {
+                        if (operator==='>>') {
+                            // Record the pre-shift value and the shift amount,
+                            // for later use in `parseBracketExpression()`.
+                            binding.shifty = left;
+                            binding.shiftAmount = right.value;
+                        } else if (operator==='&') {
+                            // Record the rhs for later use in
+                            // `parseBracketExpression` (in case this is a
+                            // function table dereference).
+                            binding.andy = true;
+                            binding.andAmount = right.value;
+                        }
                     }
                     return parseExprOp(binding, minPrec, noIn);
                 }
@@ -1897,10 +1983,10 @@ define([], function asm_llvm() {
 
         var parseMaybeConditional = function(noIn) {
             var expr = parseExprOps(noIn);
-            var startpos = tokStart;
+            var startPos = tokStart;
             if (eat(_question)) {
                 var test = expr;
-                typecheck(test.type, Types.Int, "conditional test", startpos);
+                typecheck(test.type, Types.Int, "conditional test", startPos);
                 var consequent = parseExpression(true);
                 expect(_colon);
                 var alternate = parseExpression(true, noIn);
@@ -1912,12 +1998,12 @@ define([], function asm_llvm() {
                            alternate.type.isSubtypeOf(Types.Double)) {
                     ty = Types.Double;
                 } else {
-                    raise(startpos, "validation error: "+
+                    raise(startPos, "validation error: "+
                           test.type.toString() + " ? " +
                           consequent.type.toString() + " : " +
                           alternate.type.toString());
                 }
-                var binding = LocalBinding.New(ty);
+                var binding = TempBinding.New(ty);
                 return binding;
             }
             return expr;
@@ -1929,13 +2015,32 @@ define([], function asm_llvm() {
         var parseMaybeAssign = function(noIn) {
             var left = parseMaybeConditional(noIn);
             if (tokType.isAssign) {
-                var node = Object.create(null);//startNodeFrom(left);
-                node.operator = tokVal;
-                node.left = left;
+                var startPos = tokStart;
+                var operator = tokVal;
+                if (operator !== '=') {
+                    raise(startPos, "Operator disallowed: "+operator);
+                }
                 next();
-                node.right = parseMaybeAssign(noIn);
-                checkLVal(left);
-                return;// finishNode(node, "AssignmentExpression");
+                var right = parseMaybeAssign(noIn);
+                // Check that `left` is an lval.  First, let's check
+                // the `x:Identifier = ...` case.
+                if (LocalBinding.hasInstance(left)) {
+                    typecheck(right.type, left.type, "rhs of assignment",
+                              startPos);
+                } else if (GlobalBinding.hasInstance(left)) {
+                    typecheck(right.type, left.type, "rhs of assignment",
+                              startPos);
+                    if (!left.mutable) {
+                        raise(startPos, "not mutable");
+                    }
+                // Now check `lhs:MemberExpression = rhs:AssignmentExpression`.
+                } else if (ViewBinding.hasInstance(left)) {
+                    typecheck(right.type, left.type, "rhs of assignment",
+                              startPos);
+                } else {
+                    raise(startPos, "assignment to non-lval");
+                }
+                return;
             }
             return left;
         };
@@ -1974,7 +2079,7 @@ define([], function asm_llvm() {
         // Parse a single statement.
         parseStatement = function() {
             var starttype = tokType;
-            var startpos = tokStart;
+            var startPos = tokStart;
 
             // Most types of statements are recognized by the keyword they
             // start with. Many are trivial to parse, some require a bit of
@@ -2008,7 +2113,7 @@ define([], function asm_llvm() {
                     }
                 });
                 if (!found) {
-                    raise(startpos, "Unsyntactic " + starttype.keyword);
+                    raise(startPos, "Unsyntactic " + starttype.keyword);
                 }
                 return;
 
@@ -2016,10 +2121,10 @@ define([], function asm_llvm() {
             } else if (starttype===_while) {
                 // Parse a while loop.
                 next();
-                startpos = tokStart;
+                startPos = tokStart;
                 var whileTest = parseParenExpression();
                 typecheck(whileTest.type, Types.Int, "while loop condition",
-                          startpos);
+                          startPos);
                 module.func.labels.push(loopLabel);
                 var whileBody = parseStatement();
                 module.func.labels.pop();
@@ -2032,11 +2137,11 @@ define([], function asm_llvm() {
                 var doBody = parseStatement();
                 module.func.labels.pop();
                 expect(_while);
-                startpos = tokStart;
+                startPos = tokStart;
                 var doTest = parseParenExpression();
                 semicolon();
                 typecheck(doTest.type, Types.Int, "do-while loop condition",
-                          startpos);
+                          startPos);
                 return;
 
             } else if (starttype===_for) {
@@ -2056,10 +2161,10 @@ define([], function asm_llvm() {
             // #### IfStatement
             } else if (starttype===_if) {
                 next();
-                startpos = tokStart;
+                startPos = tokStart;
                 var ifTest = parseParenExpression();
                 typecheck(ifTest.type, Types.Int, "if statement condition",
-                          startpos);
+                          startPos);
                 var consequent = parseStatement();
                 var alternate = eat(_else) ? parseStatement() : null;
                 return;
@@ -2073,7 +2178,7 @@ define([], function asm_llvm() {
 
                 var ty;
                 next();
-                startpos = tokStart;
+                startPos = tokStart;
                 if (eat(_semi) || canInsertSemicolon()) {
                     ty = Types.Void;
                 } else {
@@ -2081,16 +2186,16 @@ define([], function asm_llvm() {
                     ty = binding.type;
                 }
                 module.func.retType =
-                    mergeTypes(module.func.retType, ty, startpos);
+                    mergeTypes(module.func.retType, ty, startPos);
                 return;
 
             // #### SwitchStatement
             } else if (starttype===_switch) {
                 next();
-                startpos = tokStart;
+                startPos = tokStart;
                 var switchTest = parseParenExpression();
                 typecheck(switchTest, Types.Signed, "switch discriminant",
-                          startpos);
+                          startPos);
                 var cases = [];
                 expect(_braceL);
                 module.func.labels.push(switchLabel);
@@ -2107,12 +2212,12 @@ define([], function asm_llvm() {
                         cur = {test:null,consequent:[]};
                         next();
                         if (isCase) {
-                            startpos = tokStart;
+                            startPos = tokStart;
                             cur.test = parseNumericLiteral();
                             typecheck(cur.test.type, Types.Signed,
-                                      "switch case", startpos);
+                                      "switch case", startPos);
                             if (seen[cur.test.value]) {
-                                raise(startpos, "Duplicate case");
+                                raise(startPos, "Duplicate case");
                             } else { seen[cur.test.value] = cur; }
                         } else {
                             if (defaultCase !== null) {
@@ -2192,10 +2297,10 @@ define([], function asm_llvm() {
 
         parseFor = function(init) {
             expect(_semi);
-            var startpos = tokStart;
+            var startPos = tokStart;
             var test = (tokType === _semi) ? null : parseExpression();
             if (test!==null) {
-                typecheck(test.type, Types.Int, "for-loop condition", startpos);
+                typecheck(test.type, Types.Int, "for-loop condition", startPos);
             }
             expect(_semi);
             var update = (tokType === _parenR) ? null : parseExpression();

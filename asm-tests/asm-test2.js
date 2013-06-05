@@ -19,8 +19,8 @@ function mymodule(stdlib, foreign, heap) {
         x = x|0; y = y|0; z = z|0; // parameters are all int
         var result = 0;
         // here's the MultiplicativeExpression
-        result = x * 1048575;
-        result = -1048575 * y;
+        result = ~(x * 1048575);
+        result = ~(-1048575 * y);
         return result|0;
     }
 
