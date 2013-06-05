@@ -20,7 +20,7 @@
 define([], function asm_llvm() {
     // The module object.
     // (This is used by `tests.js` to recreate the module source.)
-    var module = {
+    var asm_llvm_module = {
         __module_name__: "asm-llvm",
         __module_init__: asm_llvm,
         __module_deps__: []
@@ -188,6 +188,10 @@ define([], function asm_llvm() {
             return t.derive(size, { size: size, toString: tableToString });
         };
     })();
+
+    // Special types used to mark the module name, stdlib, foreign, and heap
+    // identifiers.
+    Types.Module = Type.derive("Module");
 
     // Utility functions.
     var ceilLog2 = function(x) {
@@ -446,7 +450,7 @@ define([], function asm_llvm() {
     // Provide access to the token types for external users of the
     // tokenizer.
 
-    module.tokTypes = {
+    asm_llvm_module.tokTypes = {
         bracketL: _bracketL, bracketR: _bracketR, braceL: _braceL,
         braceR: _braceR, parenL: _parenL, parenR: _parenR, comma: _comma,
         semi: _semi, colon: _colon, dot: _dot, question: _question,
@@ -454,7 +458,7 @@ define([], function asm_llvm() {
         regexp: _regexp, string: _string, dotnum: _dotnum
     };
     Object.keys(keywordTypes).forEach(function(kw) {
-        module.tokTypes[kw] = keywordTypes[kw];
+        asm_llvm_module.tokTypes[kw] = keywordTypes[kw];
     });
 
     // This is a trick taken from Esprima. It turns out that, on
@@ -568,7 +572,7 @@ define([], function asm_llvm() {
 
     // Test whether a given character code starts an identifier.
 
-    var isIdentifierStart = module.isIdentifierStart = function(code) {
+    var isIdentifierStart = asm_llvm_module.isIdentifierStart = function(code) {
         if (code < 65) { return code === 36; }
         if (code < 91) { return true; }
         if (code < 97) { return code === 95; }
@@ -581,7 +585,7 @@ define([], function asm_llvm() {
 
     // Test whether a given character is part of an identifier.
 
-    var isIdentifierChar = module.isIdentifierChar = function(code) {
+    var isIdentifierChar = asm_llvm_module.isIdentifierChar = function(code) {
         if (code < 48) { return code === 36; }
         if (code < 58) { return true; }
         if (code < 65) { return false; }
@@ -1432,6 +1436,12 @@ define([], function asm_llvm() {
             this.temp = temp || gensym();
         };
 
+        // Constants are a type and a value.
+        var ConstantBinding = function(type, value) {
+            this.type = type;
+            this.value = value;
+        };
+
         // ## Parser
 
         // A recursive descent parser operates by defining functions for all
@@ -1455,13 +1465,19 @@ define([], function asm_llvm() {
 
         var parseTopLevel; // forward declaration
 
+        // As we parse, there will always be an active module.
+        var module;
+
         // The main exported interface.
         this.parse = function(inpt, opts) {
             input = String(inpt); inputLen = input.length;
             setOptions(opts);
             initTokenState();
+            module = null;
             return parseTopLevel();
         };
+
+        //
 
         // ### Parser utilities
 
@@ -1524,6 +1540,18 @@ define([], function asm_llvm() {
             // XXX
         };
 
+        // Merge types
+        var mergeTypes = function(prevType, newType, pos) {
+            if (prevType===null ||
+                prevType===newType ||
+                newType.isSubtypeOf(prevType)) {
+                return newType;
+            }
+            raise(pos || tokPos,
+                  "Inconsistent type (was " + prevType.toString() +
+                  ", now " + newType.toString()+")");
+        };
+
         // ### Literal parsing
 
         // Parse the next token as an identifier. If `liberal` is true (used
@@ -1537,12 +1565,18 @@ define([], function asm_llvm() {
             return name;
         };
 
+        // Look up an identifier in the local and global environments.
+        var moduleLookup = function(id) {
+            if (module.func) {
+                var binding = module.func.env.lookup(id);
+                if (binding !== null) { return binding; }
+            }
+            return module.env.lookup(id);
+        };
+
         // Parse a numeric literal, returning a type and a value.
         var parseNumericLiteral = function() {
-            var result = {
-                type: Type.Double,
-                value: tokVal
-            };
+            var result = ConstantBinding.New(Types.Double, tokVal);
             if (tokType === _num) {
                 if (tokVal >= Types.Signed.min &&
                     tokVal <= Types.Signed.max) {
@@ -1603,46 +1637,22 @@ define([], function asm_llvm() {
         // or `{}`.
 
         var parseExprAtom = function() {
-            var node;
             if (tokType === _name) {
-                return parseIdent();
+                var id = parseIdent();
+                var binding = moduleLookup(id);
+                if (binding===null) {
+                    raise(lastStart, "unknown identifier '"+id+"'");
+                }
+                return binding;
 
-            } else if (tokType === _num || tokType === _dotnum ||
-                       tokType === _string || tokType === _regexp) {
-                node = Object.create(null);//startNode();
-                node.value = tokVal;
-                node.raw = input.slice(tokStart, tokEnd);
-                next();
-                return;// finishNode(node, "Literal");
-
-            } else if (tokType === _null || tokType === _true || tokType === _false) {
-                node = Object.create(null);//startNode();
-                node.value = tokType.atomValue;
-                node.raw = tokType.keyword;
-                next();
-                return;// finishNode(node, "Literal");
+            } else if (tokType === _num || tokType === _dotnum) {
+                return parseNumericLiteral();
 
             } else if (tokType === _parenL) {
-                var tokStartLoc1 = tokStartLoc, tokStart1 = tokStart;
                 next();
                 var val = parseExpression();
-                val.start = tokStart1;
-                val.end = tokEnd;
-                if (options.locations) {
-                    val.loc.start = tokStartLoc1;
-                    val.loc.end = tokEndLoc;
-                }
-                if (options.ranges) {
-                    val.range = [tokStart1, tokEnd];
-                }
                 expect(_parenR);
                 return val;
-
-            } else if (tokType === _bracketL) {
-                node = Object.create(null);//startNode();
-                next();
-                node.elements = parseExprList(_bracketR, true, true);
-                return;// finishNode(node, "ArrayExpression");
 
             } else {
                 unexpected();
@@ -1828,13 +1838,13 @@ define([], function asm_llvm() {
         var parseBlock = function() {
             expect(_braceL);
             while (!eat(_braceR)) {
-                var stmt = parseStatement();
+                parseStatement();
             }
         };
 
         // Parse a single statement.
 
-        parseStatement = function(module, func) {
+        parseStatement = function() {
             var node = Object.create(null);//xxx
             var labels = []; //xxx
 
@@ -1907,9 +1917,15 @@ define([], function asm_llvm() {
                 // optional arguments, we eagerly look for a semicolon or the
                 // possibility to insert one.
 
-                if (eat(_semi) || canInsertSemicolon()){ node.argument = null; }
-                else { node.argument = parseExpression(); semicolon(); }
-                return;// finishNode(node, "ReturnStatement");
+                var rPos = tokPos, ty;
+                if (eat(_semi) || canInsertSemicolon()) {
+                    ty = Types.Void;
+                } else {
+                    var binding = parseExpression(); semicolon();
+                    ty = binding.type;
+                }
+                module.func.retType = mergeTypes(module.func.retType, ty, rPos);
+                return;
 
                 /*
             } else if (starttype===_switch) {
@@ -1996,9 +2012,9 @@ define([], function asm_llvm() {
         // Parse a list of parameter type coercions.
         // Note that we can't always tell these apart from body statements;
         // we might have to backtrack.
-        var parseParameterTypeCoercions = function(module, func) {
+        var parseParameterTypeCoercions = function() {
+            var func = module.func;
             var ptPos;
-            func.paramTypes = [];
             var bail = function() {
                 // Restore old token position before returning.
                 tokPos = ptPos;
@@ -2015,8 +2031,8 @@ define([], function asm_llvm() {
                 // Save position of this token before starting to parse!
                 ptPos = lastEnd;
                 var x = parseIdent();
-                var x_idx = func.params.indexOf(x);
-                if (x_idx < 0 || func.paramTypes[x_idx] !== undefined) {
+                if (func.params.indexOf(x) < 0 ||
+                    func.env.lookup(x) !== null) {
                     return bail(); // not a parameter name, or already coerced
                 }
                 if (tokType === _eq) { next(); } else { return bail(); }
@@ -2030,7 +2046,7 @@ define([], function asm_llvm() {
                         return bail();
                     } else { next(); }
                     if (!(tokType === _semi)) { return bail(); }
-                    func.paramTypes[x_idx] = Type.Int; // record the type
+                    func.env.bind(x, LocalBinding.New(Types.Int), ptPos);
                 } else if (tokType === _plusmin && tokVal==='+') {
                     // This is a `double` type annotation.
                     next();
@@ -2038,7 +2054,7 @@ define([], function asm_llvm() {
                         next();
                     } else { return bail(); }
                     if (!(tokType === _semi)) { return bail(); }
-                    func.paramTypes[x_idx] = Type.Double; // record the type
+                    func.env.bind(x, LocalBinding.New(Types.Double), ptPos);
                 } else {
                     return bail();
                 }
@@ -2047,14 +2063,17 @@ define([], function asm_llvm() {
         };
 
         // Parse local variable declarations.
-        var parseLocalVariableDeclarations = function(module, func) {
+        var parseLocalVariableDeclarations = function() {
+            var func = module.func;
             while (tokType === _var) {
                 expect(_var);
                 while (true) {
+                    var yPos = tokPos;
                     var y = parseIdent();
                     expect(_eq);
                     var n = parseNumericLiteral();
-                    // XXX do something with y and n
+                    var ty = (n.type===Types.Double) ? Types.Double : Types.Int;
+                    func.env.bind(y, LocalBinding.New(ty), yPos);
                     if (!eat(_comma)) { break; }
                 }
                 semicolon();
@@ -2062,30 +2081,58 @@ define([], function asm_llvm() {
         };
 
         // Parse a module-internal function
-        var parseFunctionDeclaration = function(module) {
-            var func = Object.create(null);
+        var parseFunctionDeclaration = function() {
+            var fPos = tokPos;
+            var func = module.func = {
+                id: null, params: [], env: Env.New(), retType: null
+            };
+            module.functions.push(func);
             expect(_function);
             func.id = parseIdent();
             expect(_parenL);
-            func.params = [];
             while (!eat(_parenR)) {
                 if (func.params.length !== 0) { expect(_comma); }
                 func.params.push(parseIdent());
             }
             expect(_braceL);
 
-            parseParameterTypeCoercions(module, func);
-            parseLocalVariableDeclarations(module, func);
-            // body statements.
+            // Parse the parameter type coercion statements, then
+            // verify that all the parameters were coerced to a type.
+            parseParameterTypeCoercions();
+            func.params.forEach(function(p) {
+                if (func.env.lookup(p)===null) {
+                    raise(tokPos, "No parameter type annotation found for '"+
+                          p+"'");
+                }
+            });
+
+            parseLocalVariableDeclarations();
+
+            // Parse the body statements.
             while (!eat(_braceR)) {
-                parseStatement(module, func);
+                parseStatement();
             }
+
+            // Now reconcile the type of the function.
+            if (func.retType === null) { func.retType = Types.Void; }
+            var ty = Types.Arrow(func.params.map(function(p) {
+                return func.env.lookup(p).type;
+            }), func.retType);
+            var binding = module.env.lookup(func.id);
+            if (binding===null) {
+                module.env.bind(func.id, GlobalBinding.New(ty, false));
+            } else {
+                console.assert(!binding.mutable);
+                binding.type = mergeTypes(binding.type, ty, fPos);
+            }
+            /* done with this function */
+            module.func = null;
         };
 
         // ### Module parsing
 
         // Parse a variable statement within a module.
-        var parseModuleVariableStatement = function(module) {
+        var parseModuleVariableStatement = function() {
             var x, y, ty, startPos, yPos;
             expect(_var);
             startPos = tokPos;
@@ -2099,18 +2146,21 @@ define([], function asm_llvm() {
                 while (!eat(_bracketR)) {
                     if (table.length > 0) { expect(_comma); }
                     y = parseIdent();
-                    ty = module.global.lookup(y);
+                    var b = module.env.lookup(y);
                     /* validate consistent types of named functions */
-                    if (!ty) { raise(lastStart, "Unknown function '"+y+"'"); }
-                    if (ty.mutable) {
+                    if (!b) { raise(lastStart, "Unknown function '"+y+"'"); }
+                    if (b.mutable) {
                         raise(lastStart, "'"+y+"' must be immutable");
                     }
+                    if (!b.type.arrow) {
+                        raise(lastStart, "'"+y+"' must be a function");
+                    }
                     if (table.length > 0 &&
-                        ty.type !== lastType) {
+                        b.type !== lastType) {
                         raise(lastStart, "Inconsistent function type in table");
                     }
-                    lastType = ty.type;
-                    table.push(ty);
+                    lastType = b.type;
+                    table.push(b);
                 }
                 /* check that the length is a power of 2. */
                 if (table.length===0) {
@@ -2119,15 +2169,15 @@ define([], function asm_llvm() {
                     raise(yPos, "Function table length is not a power of 2.");
                 }
                 ty = Types.Table(lastType, table.length);
-                module.global.bind(x, GlobalBinding.New(ty, false), startPos);
+                module.env.bind(x, GlobalBinding.New(ty, false), startPos);
                 module.seenTable = true;
             } else if (module.seenTable) {
                 raise(tokPos, "expected function table");
             } else if (tokType === _num || tokType === _dotnum) {
                 // 2. A global program variable, initialized to a literal.
                 y = parseNumericLiteral();
-                module.global.bind(x, GlobalBinding.New(y.type, true),
-                                   startPos);
+                ty = (y.type===Types.Double) ? Types.Double : Types.Int;
+                module.env.bind(x, GlobalBinding.New(ty, true), startPos);
             } else if (tokType === _name && tokVal === module.stdlib) {
                 // 3. A standard library import.
                 next(); expect(_dot);
@@ -2138,7 +2188,7 @@ define([], function asm_llvm() {
                 }
                 ty = Types.stdlib[y];
                 if (!ty) { raise(yPos, "Unknown library import"); }
-                module.global.bind(x, GlobalBinding.New(ty, false), startPos);
+                module.env.bind(x, GlobalBinding.New(ty, false), startPos);
             } else if ((tokType === _plusmin && tokVal==='+') ||
                        (tokType === _name && tokVal === module.foreign)) {
                 // 4. A foreign import.
@@ -2153,8 +2203,9 @@ define([], function asm_llvm() {
                     }
                     next();
                 }
-                ty = sawPlus ? Type.Double : sawBar ? Type.Int : Type.Function;
-                module.global.bind(x, GlobalBinding.New(ty, false), startPos);
+                ty = sawPlus ? Types.Double : sawBar ? Types.Int :
+                    Types.Function;
+                module.env.bind(x, GlobalBinding.New(ty, false), startPos);
             } else if (tokType === _new) {
                 // 5. A global heap view.
                 next(); expectName(module.stdlib, "<stdlib>"); expect(_dot);
@@ -2172,69 +2223,87 @@ define([], function asm_llvm() {
                 expect(_parenL);
                 expectName(module.heap, "<heap>");
                 expect(_parenR);
-                module.global.bind(x, GlobalBinding.New(ty, false), startPos);
+                module.env.bind(x, GlobalBinding.New(ty, false), startPos);
             } else { unexpected(); }
             semicolon();
         };
 
         // Parse a series of module variable declaration statements.
-        var parseModuleVariableStatements = function(module) {
+        var parseModuleVariableStatements = function() {
             while (tokType === _var) {
-                parseModuleVariableStatement(module);
+                parseModuleVariableStatement();
             }
         };
 
         // Parse a series of (module-internal) function declarations.
-        var parseModuleFunctionDeclarations = function(module) {
+        var parseModuleFunctionDeclarations = function() {
             while (tokType === _function) {
-                parseFunctionDeclaration(module);
+                parseFunctionDeclaration();
             }
         };
 
         // Parse the module export declaration (return statement).
-        var parseModuleExportDeclaration = function(module) {
+        var parseModuleExportDeclaration = function() {
             expect(_return);
-            var exports = Object.create(null), first = true;
+            var exports = module.exports = Object.create(null), first = true;
+            var fStart = tokPos;
+            var check = function(f) {
+                var binding = module.env.lookup(f);
+                if (!binding) { raise(fStart, "Unknown function '"+f+"'"); }
+                if (binding.mutable) { raise(fStart, "mutable export"); }
+                if (!binding.type.arrow) { raise(fStart, "not a function"); }
+                return f;
+            };
             if (tokType !== _braceL) {
-                exports['$'] = parseIdent();
+                exports['$'] = check(parseIdent());
             } else {
                 next();
                 var x = parseIdent();
                 expect(_colon);
+                fStart = tokPos;
                 var f = parseIdent();
-                exports[x] = f;
+                exports[x] = check(f);
                 while (!eat(_braceR)) {
                     expect(_comma);
                     x = parseIdent();
                     expect(_colon);
                     f = parseIdent();
-                    exports[x] = f;
+                    exports[x] = check(f);
                 }
             }
             semicolon();
-            // XXX do something with exports
         };
 
         // Parse one asm.js module; it should start with 'function' keyword.
         // XXX support the FunctionExpression form.
         var parseModule = function() {
-            var module = {
+            // set up a new module in the parse context.
+            module = {
                 id: null,
                 stdlib: null, foreign: null, heap: null,
                 seenTable: false,
-                global: Env.New() // new global environment
+                env: Env.New(), // new global environment
+                functions: [],
+                func: null // the function we are currently parsing.
             };
+            var modbinding = GlobalBinding.New(Types.Module, false);
             expect(_function);
-            if (tokType === _name) { module.id = parseIdent(); }
+            if (tokType === _name) {
+                module.id = parseIdent();
+                module.env.bind(module.id, modbinding, lastStart);
+            }
             expect(_parenL);
             if (!eat(_parenR)) {
                 module.stdlib = parseIdent();
+                module.env.bind(module.stdlib, modbinding, lastStart);
                 if (!eat(_parenR)) {
                     expect(_comma);
                     module.foreign = parseIdent();
+                    module.env.bind(module.foreign, modbinding, lastStart);
                     if (!eat(_parenR)) {
                         expect(_comma);
                         module.heap = parseIdent();
+                        module.env.bind(module.heap, modbinding, lastStart);
                         expect(_parenR);
                     }
                 }
@@ -2248,15 +2317,16 @@ define([], function asm_llvm() {
             next();
             semicolon();
 
-            parseModuleVariableStatements(module);
+            parseModuleVariableStatements();
             if (!module.seenTable) {
                 module.seenTable = true;
-                parseModuleFunctionDeclarations(module);
-                parseModuleVariableStatements(module);
+                parseModuleFunctionDeclarations();
+                parseModuleVariableStatements();
             }
-            parseModuleExportDeclaration(module);
+            parseModuleExportDeclaration();
 
             expect(_braceR);
+            return module;
         };
 
         // Parse a sequence of asm.js modules.
@@ -2267,21 +2337,20 @@ define([], function asm_llvm() {
 
             var modules = [];
             while (tokType !== _eof) {
-                var module = parseModule();
-                modules.push(module);
+                modules.push(parseModule());
             }
             return modules;
         };
 
     };
 
-    var tokenize = module.tokenize = function(source, opts) {
+    var tokenize = asm_llvm_module.tokenize = function(source, opts) {
         return Compiler.New().tokenize(source, opts);
     };
 
-    var compile = module.compile = function(source, opts) {
+    var compile = asm_llvm_module.compile = function(source, opts) {
         return Compiler.New().parse(source, opts);
     };
 
-    return module;
+    return asm_llvm_module;
 });
