@@ -326,14 +326,14 @@
                 <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
               <p>SECTION C: unconditional return
-return ((((x+1)|0)&gt;&gt;&gt;0)/(x|0))&gt;&gt;&gt;0; // compound expression</p>
+return (((x+1)|0)/(x|0))&gt;&gt;&gt;0; // compound expression</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>    }
 
     <span class="function"><span class="keyword">function</span> <span class="title">g</span><span class="params">()</span> {</span>
-        g_f = +g_i; <span class="comment">// read/write globals</span>
+        g_f = +(g_i&gt;&gt;&gt;<span class="number">0</span>); <span class="comment">// read/write globals</span>
         <span class="keyword">return</span>;
     }
 
@@ -355,7 +355,7 @@ return ((((x+1)|0)&gt;&gt;&gt;0)/(x|0))&gt;&gt;&gt;0; // compound expression</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
-              <p>ftable_2<a href="">(x-2)&amp;2</a>; // dynamic call of functions in table 2</p>
+              <p>ftable_2<a href="">(x-2)&amp;1</a>; // dynamic call of functions in table 2</p>
 <p>no return necessary when return type is void</p>
 
             </div>
@@ -365,7 +365,9 @@ return ((((x+1)|0)&gt;&gt;&gt;0)/(x|0))&gt;&gt;&gt;0; // compound expression</p>
     <span class="function"><span class="keyword">function</span> <span class="title">i</span><span class="params">(j)</span> {</span>
         j = +j;
         <span class="keyword">var</span> k = <span class="number">3.</span>;
-        j = j + k;</pre></div></div>
+        j = j + k;
+        <span class="keyword">return</span> +k;
+    }</pre></div></div>
             
         </li>
         
@@ -376,11 +378,9 @@ return ((((x+1)|0)&gt;&gt;&gt;0)/(x|0))&gt;&gt;&gt;0; // compound expression</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
-              <p>return +k;</p>
+              <hr>
 
             </div>
-            
-            <div class="content"><div class='highlight'><pre>    }</pre></div></div>
             
         </li>
         
@@ -390,19 +390,6 @@ return ((((x+1)|0)&gt;&gt;&gt;0)/(x|0))&gt;&gt;&gt;0; // compound expression</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-11">&#182;</a>
-              </div>
-              <hr>
-
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-12">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
               <p>SECTION 3: function tables</p>
 
@@ -414,11 +401,11 @@ return ((((x+1)|0)&gt;&gt;&gt;0)/(x|0))&gt;&gt;&gt;0; // compound expression</p>
         </li>
         
         
-        <li id="section-13">
+        <li id="section-12">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
+                <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
               <hr>
 
@@ -427,11 +414,11 @@ return ((((x+1)|0)&gt;&gt;&gt;0)/(x|0))&gt;&gt;&gt;0; // compound expression</p>
         </li>
         
         
-        <li id="section-14">
+        <li id="section-13">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
+                <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
               <p>SECTION 4: exports</p>
 

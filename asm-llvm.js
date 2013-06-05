@@ -32,7 +32,7 @@ define([], function asm_llvm() {
     var Type = {
         _id: 0,
         _derived: {},
-        subtypes: []
+        supertypes: []
     };
     // We do hash-consing of `Type` objects so that we have a singleton object
     // representing every unique type, no matter how it was derived.
@@ -61,10 +61,18 @@ define([], function asm_llvm() {
         };
     })();
 
+    // Subtype relation.
+    Type.isSubtypeOf = function(ty) {
+        if (this === ty) { return true; } // common case
+        return this.supertypes.some(function(t) {
+            return t.isSubtypeOf(ty);
+        });
+    };
+
     var Types = Object.create(null);
 
     // The top-level internal types (which do not escape, and are not
-    // a subtype of any other type) are "doublish" and "intish".
+    // a supertype of any other type) are "doublish" and "intish".
 
     // Intish represents the result of a JavaScript integer operation
     // that must be coerced back to an integer with an explicit
@@ -82,36 +90,36 @@ define([], function asm_llvm() {
     // The unknown type represents a value returned from an FFI call.
     Types.Unknown = Type.derive("unknown", {
         value: true,
-        subtypes: [Types.Doublish, Types.Intish]
+        supertypes: [Types.Doublish, Types.Intish]
     });
     // The int type is the type of 32-bit integers where the
     // signedness is not known.
     Types.Int = Type.derive("int", {
         value: true,
-        subtypes: [Types.Intish]
+        supertypes: [Types.Intish]
     });
 
     // The rest of the value types can escape into non-asm.js code.
     Types.Extern = Type.derive("extern", { value: true });
     Types.Double = Type.derive("double", {
         value: true,
-        subtypes: [Types.Doublish, Types.Extern]
+        supertypes: [Types.Doublish, Types.Extern]
     });
     Types.Signed = Type.derive("signed", {
         value: true,
-        subtypes: [Types.Extern, Types.Int],
+        supertypes: [Types.Extern, Types.Int],
         min: -2147483648, // -2^31
         max: -1 // range excludes 0
     });
     Types.Unsigned = Type.derive("unsigned", {
         value: true,
-        subtypes: [Types.Extern, Types.Int],
+        supertypes: [Types.Extern, Types.Int],
         min: 2147483648, // 2^31
         max: 4294967295  // (2^32)-1
     });
     Types.Fixnum = Type.derive("fixnum", {
         value: true,
-        subtypes: [Types.Signed, Types.Unsigned],
+        supertypes: [Types.Signed, Types.Unsigned],
         min: 0,
         max: 2147483647 // (2^31)-1
     });
@@ -131,23 +139,28 @@ define([], function asm_llvm() {
     });
     Types.Arrow = (function() {
         var arrowToString = function() {
-            var params = [];
-            while (params.length < this.numargs) {
-                params.push(this[params.length].toString());
-            }
-            return '(' + params.join(',') + ')->' + this.rettype.toString();
+            var params = Array.prototype.map.call(this, function(pt) {
+                return pt.toString();
+            });
+            return '(' + params.join(',') + ')->' + this.retType.toString();
         };
-        return function(argtypes, rettype) {
+        var arrowApply = function(args) {
+            return Array.prototype.every.call(this, function(pt, i) {
+                return args[i].isSubtypeOf(pt);
+            }) ? this.retType : null;
+        };
+        return function(argtypes, retType) {
             // We derive a function type starting from the return type, and
             // proceeding to the argument types in order.
-            var result = rettype.derive('()->', {
+            var result = retType.derive('()->', {
                 arrow: true,
-                rettype: rettype,
-                numargs: 0,
+                retType: retType,
+                length: 0, // number of arguments
+                apply: arrowApply,
                 toString: arrowToString
             });
             argtypes.forEach(function(ty, idx) {
-                var param = { numargs: (idx+1), toString: undefined };
+                var param = { length: (idx+1), toString: undefined };
                 param[idx] = ty;
                 result = result.derive(ty._id, param);
             });
@@ -156,11 +169,19 @@ define([], function asm_llvm() {
     })();
     Types.FunctionTypes = (function() {
         var functionTypesToString = function() {
-            var types = [];
-            while (types.length < this.numtypes) {
-                types.push(this[types.length].toString());
-            }
+            var types = Array.prototype.map.call(this, function(f) {
+                return f.toString();
+            });
             return '[' + types.join(' ^ ') + ']';
+        };
+        var functionTypesApply = function(args) {
+            var i = 0;
+            while (i < this.length) {
+                var ty = this[i].apply(args);
+                if (ty!==null) { return ty; }
+                i += 1;
+            }
+            return null;
         };
         return function(functiontypes) {
             // Sort the function types by id, to make a canonical ordering,
@@ -168,11 +189,13 @@ define([], function asm_llvm() {
             functiontypes.sort(function(a,b) { return a._id - b._id; });
             var result = Type.derive('FunctionTypes', {
                 functiontypes: true,
-                numtypes: 0,
+                length: 0, // number of arrow types
+                /* methods */
+                apply: functionTypesApply,
                 toString: functionTypesToString
             });
             functiontypes.forEach(function(ty, idx) {
-                var param = { numtypes: (idx+1), toString: undefined };
+                var param = { length: (idx+1), toString: undefined };
                 param[idx] = ty;
                 result = result.derive(ty._id, param);
             });
@@ -215,9 +238,9 @@ define([], function asm_llvm() {
             [Types.Arrow([Types.Double], Types.Double)]);
         console.assert(sqrt1 === sqrt2);
         console.assert(sqrt1.functiontypes);
-        console.assert(sqrt1.numtypes===1);
+        console.assert(sqrt1.length===1);
         console.assert(sqrt1[0].arrow);
-        console.assert(sqrt1[0].numargs===1);
+        console.assert(sqrt1[0].length===1);
         console.assert(sqrt1[0][0]===Types.Double);
         console.assert(Types.Arrow([],Types.Double).toString() === '()->double');
         console.assert(sqrt1.toString() === '[(double)->double]');
@@ -247,7 +270,9 @@ define([], function asm_llvm() {
         '~': Types.FunctionTypes(
             [ Types.Arrow([Types.Intish], Types.Signed) ]),
         '!': Types.FunctionTypes(
-            [ Types.Arrow([Types.Int], Types.Int) ])
+            [ Types.Arrow([Types.Int], Types.Int) ]),
+        '~~': Types.FunctionTypes(
+            [ Types.Arrow([Types.Double], Types.Signed) ])
     };
 
     // Binary operator types, from
@@ -985,6 +1010,12 @@ define([], function asm_llvm() {
             return finishOp(code === 61 ? _eq : _prefix, 1);
         };
 
+        var readToken_tilde = function(code) {
+            var next = input.charCodeAt(tokPos+1);
+            if (next === code) { return finishOp(_prefix, 2); } // ~~
+            return finishOp(_prefix, 1);
+        };
+
         // This is a switch statement in the original acorn tokenizer.
         // We don't support the 'switch' syntax in TurtleScript, so use
         // an equivalent (but maybe slightly slower) table-of-functions.
@@ -1004,7 +1035,7 @@ define([], function asm_llvm() {
         // The interpretation of a dot depends on whether it is followed
         // by a digit.
         tokenFromCodeTable[46] = // '.'
-            function() { return readToken_dot(); };
+            readToken_dot;
 
         // Punctuation tokens.
         tokenFromCodeTable[40] =
@@ -1054,28 +1085,28 @@ define([], function asm_llvm() {
         // of the type given by its first argument.
 
         tokenFromCodeTable[47] = // '/'
-            function() { return readToken_slash(); };
+            readToken_slash;
 
         tokenFromCodeTable[37] = tokenFromCodeTable[42] = // '%*'
-            function() { return readToken_mult_modulo(); };
+            readToken_mult_modulo;
 
         tokenFromCodeTable[124] = tokenFromCodeTable[38] = // '|&'
-            function(code) { return readToken_pipe_amp(code); };
+            readToken_pipe_amp;
 
         tokenFromCodeTable[94] = // '^'
-            function() { return readToken_caret(); };
+            readToken_caret;
 
         tokenFromCodeTable[43] = tokenFromCodeTable[45] = // '+-'
-            function(code) { return readToken_plus_min(code); };
+            readToken_plus_min;
 
         tokenFromCodeTable[60] = tokenFromCodeTable[62] = // '<>'
-            function(code) { return readToken_lt_gt(code); };
+            readToken_lt_gt;
 
         tokenFromCodeTable[61] = tokenFromCodeTable[33] = // '=!'
-            function(code) { return readToken_eq_excl(code); };
+            readToken_eq_excl;
 
         tokenFromCodeTable[126] = // '~'
-            function() { return finishOp(_prefix, 1); };
+            readToken_tilde;
 
 
         // XXX: forceRegexp is never true for asm.js
@@ -1543,7 +1574,6 @@ define([], function asm_llvm() {
         // Merge types
         var mergeTypes = function(prevType, newType, pos) {
             if (prevType===null ||
-                prevType===newType ||
                 newType.isSubtypeOf(prevType)) {
                 return newType;
             }
@@ -1694,29 +1724,25 @@ define([], function asm_llvm() {
         function parseMaybeUnary(noIn) {
             var node;
             if (tokType.prefix) {
-                node = {};//startNode();
-                var update = tokType.isUpdate;
-                node.operator = tokVal;
-                node.prefix = true;
-                next();
-                node.argument = parseMaybeUnary(noIn);
-                if (update) { checkLVal(node.argument); }
-                else if (strict && node.operator === "delete" &&
-                         node.argument.type === "Identifier") {
-                    // XXX
-                    raise(node.start, "Deleting local variable in strict mode");
+                var opPos = tokPos;
+                var update = tokType.isUpdate; // for ++/--
+                var operator = tokVal;
+                var ty = Types.unary[operator];
+                if (!ty) {
+                    raise(opPos, operator+" not allowed");
                 }
-                return;// finishNode(node, update ? "UpdateExpression" : "UnaryExpression");
+                console.assert(!update);
+                next();
+                var argument = parseMaybeUnary(noIn);
+                ty = ty.apply([argument.type]);
+                if (ty===null) {
+                    raise(opPos, "unary operation fails to validate");
+                }
+                return LocalBinding.New(ty);
             }
             var expr = parseExprSubscripts();
-            while (tokType.postfix && !canInsertSemicolon()) {
-                node = {};//startNodeFrom(expr);
-                node.operator = tokVal;
-                node.prefix = false;
-                node.argument = expr;
-                checkLVal(expr);
-                next();
-                expr = node;//finishNode(node, "UpdateExpression");
+            if (tokType.postfix && !canInsertSemicolon()) {
+                raise(tokPos, "postfix operators not allowed");
             }
             return expr;
         };
