@@ -224,6 +224,8 @@ define([], function asm_llvm() {
     // identifiers.
     Types.Module = Type.derive("Module");
     // Special type used to mark possible forward references.
+    // Note that a value of ForwardReference type should always be actually
+    // of type `Arrow` (local function) or `Table` (global function table).
     Types.ForwardReference = Type.derive("ForwardReference");
 
     // Utility functions.
@@ -1688,6 +1690,19 @@ define([], function asm_llvm() {
                   "should be " + (should ? should.toString() : '?') +
                   ", but was " + (actual ? actual.toString() : '?'));
         };
+        // Raise with a nice error message if the given binding is
+        // a forward reference.  Since `ForwardReference` is only used
+        // in narrow circumstances when parsing a call to a local function
+        // or dereference of a function table, we can get better error
+        // messages by aggressively asserting that a given binding should
+        // not be a forward reference.
+        var defcheck = function(binding, message) {
+            if (binding.type !== Types.ForwardReference) { return binding; }
+            raise(binding.pos || tokStart,
+                  (binding.id ? ("'"+binding.id+"' is ") : "") +"undefined,"+
+                  " or an invalid reference to future function or function"+
+                  " table" + (message ? (" ("+message+")") : ""));
+        };
 
         // Merge types.  This is used for single-forward-pass compilation:
         // when we first see a reference to a function (or its return type)
@@ -1798,6 +1813,7 @@ define([], function asm_llvm() {
                     binding = GlobalBinding.New(Types.ForwardReference, false);
                     binding.pending = true;
                     binding.id = id; // for better error messages
+                    binding.pos = lastStart; // ditto
                     module.env.bind(id, binding, lastStart);
                 }
                 return binding;
@@ -1823,6 +1839,7 @@ define([], function asm_llvm() {
             // This will be a MemberExpression (or a CallExpression
             // through function table).
             if (base.type.arrayBufferView) {
+                defcheck(property);
                 // `MemberExpression := x:Identifier[n:NumericLiteral]`
                 if (ConstantBinding.hasInstance(property)) {
                     if (property.type !== Types.Fixnum &&
@@ -1867,26 +1884,29 @@ define([], function asm_llvm() {
                 expect(_bracketR);
                 return parseSubscripts(base, plusCoerced);
             } else if (eat(_parenL)) {
-                /* XXX handle base=ForwardRef */
                 var startPos = lastStart;
                 var callArguments = parseExprList(_parenR, false);
                 // type-check
                 var binding;
                 if (base.type===Types.Function) {
                     callArguments.forEach(function(b, i) {
-                        typecheck(b.type, Types.Extern,
-                                  "argument "+i+" to foreign function",
-                                  startPos);
+                        var msg = "argument "+i+" to foreign function";
+                        defcheck(b, msg);
+                        typecheck(b.type, Types.Extern, msg, startPos);
                     });
                     binding = TempBinding.New(Types.Unknown);
                 } else if (base.type.arrow || base.type.functiontypes) {
                     var ty = base.type.apply(
-                        callArguments.map(function(b){ return b.type; }));
+                        callArguments.map(function(b){
+                            return defcheck(b).type;
+                        }));
                     if (ty===null) {
                         raise(startPos, "call argument mismatch; wants "+
                               base.type.toString());
                     }
                     binding = TempBinding.New(ty);
+                } else if (base.type === Types.ForwardReference) {
+                    raise(startPos, "references to future functions not implemented");
                 } else {
                     raise(startPos, "bad call expression");
                 }
@@ -1912,7 +1932,7 @@ define([], function asm_llvm() {
                 }
                 console.assert(!update);
                 next();
-                var argument = parseMaybeUnary(operator==='+');
+                var argument = defcheck(parseMaybeUnary(operator==='+'));
                 // Special case the negation of a constant.
                 if (ConstantBinding.hasInstance(argument) && operator==='-') {
                     return argument.negate();
@@ -1955,6 +1975,7 @@ define([], function asm_llvm() {
                     }
                     next();
                     var right = parseExprOp(parseMaybeUnary(false), prec);
+                    defcheck(left); defcheck(right);
                     ty = ty.apply([left.type, right.type]);
                     if (ty===null && (operator==='+' || operator==='-')) {
                         /* Special validation for "AdditiveExpression" */
@@ -2024,7 +2045,7 @@ define([], function asm_llvm() {
             var expr = parseExprOps();
             var startPos = tokStart;
             if (eat(_question)) {
-                var test = expr;
+                var test = defcheck(expr);
                 typecheck(test.type, Types.Int, "conditional test", startPos);
                 var consequent = parseExpression(true);
                 expect(_colon);
@@ -2067,11 +2088,12 @@ define([], function asm_llvm() {
                     typecheck(right.type, left.type, "rhs of assignment",
                               startPos);
                 } else if (GlobalBinding.hasInstance(left)) {
+                    if (!left.mutable) {
+                        raise(startPos, (left.id ? "'"+left.id+"' ":"") +
+                              "not mutable or undefined");
+                    }
                     typecheck(right.type, left.type, "rhs of assignment",
                               startPos);
-                    if (!left.mutable) {
-                        raise(startPos, "not mutable");
-                    }
                 // Now check `lhs:MemberExpression = rhs:AssignmentExpression`.
                 } else if (ViewBinding.hasInstance(left)) {
                     typecheck(right.type, left.type, "rhs of assignment",
@@ -2161,7 +2183,7 @@ define([], function asm_llvm() {
                 // Parse a while loop.
                 next();
                 startPos = tokStart;
-                var whileTest = parseParenExpression();
+                var whileTest = defcheck(parseParenExpression());
                 typecheck(whileTest.type, Types.Int, "while loop condition",
                           startPos);
                 module.func.labels.push(loopLabel);
@@ -2177,7 +2199,7 @@ define([], function asm_llvm() {
                 module.func.labels.pop();
                 expect(_while);
                 startPos = tokStart;
-                var doTest = parseParenExpression();
+                var doTest = defcheck(parseParenExpression());
                 semicolon();
                 typecheck(doTest.type, Types.Int, "do-while loop condition",
                           startPos);
@@ -2194,14 +2216,14 @@ define([], function asm_llvm() {
                 module.func.labels.push(loopLabel);
                 expect(_parenL);
                 if (tokType === _semi) { return parseFor(null); }
-                var init = parseExpression(false);
+                var init = defcheck(parseExpression(false));
                 return parseFor(init);
 
             // #### IfStatement
             } else if (starttype===_if) {
                 next();
                 startPos = tokStart;
-                var ifTest = parseParenExpression();
+                var ifTest = defcheck(parseParenExpression());
                 typecheck(ifTest.type, Types.Int, "if statement condition",
                           startPos);
                 var consequent = parseStatement();
@@ -2221,7 +2243,7 @@ define([], function asm_llvm() {
                 if (eat(_semi) || canInsertSemicolon()) {
                     ty = Types.Void;
                 } else {
-                    var binding = parseExpression(); semicolon();
+                    var binding = defcheck(parseExpression()); semicolon();
                     ty = binding.type;
                 }
                 module.func.retType =
@@ -2232,7 +2254,7 @@ define([], function asm_llvm() {
             } else if (starttype===_switch) {
                 next();
                 startPos = tokStart;
-                var switchTest = parseParenExpression();
+                var switchTest = defcheck(parseParenExpression());
                 typecheck(switchTest, Types.Signed, "switch discriminant",
                           startPos);
                 var cases = [];
@@ -2337,12 +2359,14 @@ define([], function asm_llvm() {
         parseFor = function(init) {
             expect(_semi);
             var startPos = tokStart;
-            var test = (tokType === _semi) ? null : parseExpression();
+            var test = (tokType === _semi) ? null :
+                defcheck(parseExpression());
             if (test!==null) {
                 typecheck(test.type, Types.Int, "for-loop condition", startPos);
             }
             expect(_semi);
-            var update = (tokType === _parenR) ? null : parseExpression();
+            var update = (tokType === _parenR) ? null :
+                defcheck(parseExpression());
             expect(_parenR);
             var body = parseStatement();
             module.func.labels.pop();
