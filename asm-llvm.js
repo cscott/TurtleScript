@@ -1853,14 +1853,14 @@ define([], function asm_llvm() {
 
         // Parse call, dot, and `[]`-subscript expressions.
 
-        var parseSubscripts = function(base, noCalls) {
+        var parseSubscripts = function(base, plusCoerced) {
             if (eat(_dot)) {
                 raise(lastStart, "operator not allowed: .");
             } else if (eat(_bracketL)) {
                 base = parseBracketExpression(base);
                 expect(_bracketR);
-                return parseSubscripts(base, noCalls);
-            } else if (!noCalls && eat(_parenL)) {
+                return parseSubscripts(base, plusCoerced);
+            } else if (eat(_parenL)) {
                 /* XXX handle base=ForwardRef */
                 var startPos = lastStart;
                 var callArguments = parseExprList(_parenR, false);
@@ -1884,17 +1884,17 @@ define([], function asm_llvm() {
                 } else {
                     raise(startPos, "bad call expression");
                 }
-                return parseSubscripts(binding, noCalls);
+                return parseSubscripts(binding, plusCoerced);
             } else { return base; }
         };
 
-        var parseExprSubscripts = function() {
-            return parseSubscripts(parseExprAtom());
+        var parseExprSubscripts = function(plusCoerced) {
+            return parseSubscripts(parseExprAtom(), plusCoerced);
         };
 
         // Parse unary operators, both prefix and postfix.
 
-        var parseMaybeUnary = function(noIn) {
+        var parseMaybeUnary = function(plusCoerced) {
             var node;
             if (tokType.prefix) {
                 var opPos = tokStart;
@@ -1906,7 +1906,7 @@ define([], function asm_llvm() {
                 }
                 console.assert(!update);
                 next();
-                var argument = parseMaybeUnary(noIn);
+                var argument = parseMaybeUnary(operator==='+');
                 // Special case the negation of a constant.
                 if (ConstantBinding.hasInstance(argument) && operator==='-') {
                     return argument.negate();
@@ -1918,7 +1918,7 @@ define([], function asm_llvm() {
                 }
                 return TempBinding.New(ty);
             }
-            var expr = parseExprSubscripts();
+            var expr = parseExprSubscripts(plusCoerced);
             if (tokType.postfix && !canInsertSemicolon()) {
                 raise(tokStart, "postfix operators not allowed");
             }
@@ -1934,11 +1934,11 @@ define([], function asm_llvm() {
         // defer further parser to one of its callers when it encounters an
         // operator that has a lower precedence than the set it is parsing.
 
-        var parseExprOp = function(left, minPrec, noIn) {
+        var parseExprOp = function(left, minPrec) {
             var TWO_TO_THE_TWENTY = 0x100000;
             var prec = tokType.binop;
             console.assert(prec !== null, tokType);
-            if (prec !== undefined && (!noIn || tokType !== _in)) {
+            if (prec !== undefined) {
                 if (prec > minPrec) {
                     var additiveChain = 0;
                     var opPos = tokStart;
@@ -1948,7 +1948,7 @@ define([], function asm_llvm() {
                         raise(opPos, operator+" not allowed");
                     }
                     next();
-                    var right = parseExprOp(parseMaybeUnary(noIn), prec, noIn);
+                    var right = parseExprOp(parseMaybeUnary(false), prec);
                     ty = ty.apply([left.type, right.type]);
                     if (ty===null && (operator==='+' || operator==='-')) {
                         /* Special validation for "AdditiveExpression" */
@@ -2002,27 +2002,27 @@ define([], function asm_llvm() {
                             binding.andAmount = right.value;
                         }
                     }
-                    return parseExprOp(binding, minPrec, noIn);
+                    return parseExprOp(binding, minPrec);
                 }
             }
             return left;
         };
 
-        var parseExprOps = function(noIn) {
-            return parseExprOp(parseMaybeUnary(noIn), -1, noIn);
+        var parseExprOps = function() {
+            return parseExprOp(parseMaybeUnary(false), -1);
         };
 
         // Parse a ternary conditional (`?:`) operator.
 
-        var parseMaybeConditional = function(noIn) {
-            var expr = parseExprOps(noIn);
+        var parseMaybeConditional = function() {
+            var expr = parseExprOps();
             var startPos = tokStart;
             if (eat(_question)) {
                 var test = expr;
                 typecheck(test.type, Types.Int, "conditional test", startPos);
                 var consequent = parseExpression(true);
                 expect(_colon);
-                var alternate = parseExpression(true, noIn);
+                var alternate = parseExpression(true);
                 var ty;
                 if (consequent.type.isSubtypeOf(Types.Int) &&
                     alternate.type.isSubtypeOf(Types.Int)) {
@@ -2045,8 +2045,8 @@ define([], function asm_llvm() {
         // Parse an assignment expression. This includes applications of
         // operators like `+=`.
 
-        var parseMaybeAssign = function(noIn) {
-            var left = parseMaybeConditional(noIn);
+        var parseMaybeAssign = function() {
+            var left = parseMaybeConditional();
             if (tokType.isAssign) {
                 var startPos = tokStart;
                 var operator = tokVal;
@@ -2054,7 +2054,7 @@ define([], function asm_llvm() {
                     raise(startPos, "Operator disallowed: "+operator);
                 }
                 next();
-                var right = parseMaybeAssign(noIn);
+                var right = parseMaybeAssign();
                 // Check that `left` is an lval.  First, let's check
                 // the `x:Identifier = ...` case.
                 if (LocalBinding.hasInstance(left)) {
@@ -2082,12 +2082,12 @@ define([], function asm_llvm() {
         // sequences (in argument lists, array literals, or object literals)
         // or the `in` operator (in for loops initalization expressions).
 
-        parseExpression = function(noComma, noIn) {
-            var expr = parseMaybeAssign(noIn);
+        parseExpression = function(noComma) {
+            var expr = parseMaybeAssign();
             if (!noComma && tokType === _comma) {
                 var expressions = [expr];
                 while (eat(_comma)) {
-                    expressions.push(expr = parseMaybeAssign(noIn));
+                    expressions.push(expr = parseMaybeAssign());
                 }
             }
             return expr;
@@ -2188,7 +2188,7 @@ define([], function asm_llvm() {
                 module.func.labels.push(loopLabel);
                 expect(_parenL);
                 if (tokType === _semi) { return parseFor(null); }
-                var init = parseExpression(false, true);
+                var init = parseExpression(false);
                 return parseFor(init);
 
             // #### IfStatement
