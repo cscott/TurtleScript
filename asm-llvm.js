@@ -1884,9 +1884,10 @@ define([], function asm_llvm() {
                 expect(_bracketR);
                 return parseSubscripts(base, plusCoerced);
             } else if (eat(_parenL)) {
+                // Parse a call expression.
                 var startPos = lastStart;
                 var callArguments = parseExprList(_parenR, false);
-                // type-check
+                // Type check the call based on the argument types.
                 var binding;
                 if (base.type===Types.Function) {
                     callArguments.forEach(function(b, i) {
@@ -1895,18 +1896,36 @@ define([], function asm_llvm() {
                         typecheck(b.type, Types.Extern, msg, startPos);
                     });
                     binding = TempBinding.New(Types.Unknown);
-                } else if (base.type.arrow || base.type.functiontypes) {
-                    var ty = base.type.apply(
-                        callArguments.map(function(b){
-                            return defcheck(b).type;
-                        }));
+                } else if (base.type.arrow || base.type.functiontypes ||
+                           base.type === Types.ForwardReference) {
+                    var argTypes = callArguments.map(function(b){
+                        return defcheck(b).type;
+                    });
+                    var ty;
+                    // If this is a forward reference to a future function,
+                    // infer the function type based on 'plusCoerced' (the
+                    // surrounding context) and the argument types.
+                    if (base.type === Types.ForwardReference) {
+                        // All argument types must be either 'double' or 'int'.
+                        var nt = Types.Arrow(argTypes.map(function(ty) {
+                            if (ty.isSubtypeOf(Types.Double)) {
+                                return Types.Double;
+                            } else if (ty.isSubtypeOf(Types.Int)) {
+                                return Types.Int;
+                            } else {
+                                raise(startPos, "function arguments must be "+
+                                      "coerced to either double or int");
+                            }
+                        // Return type is either 'doublish' or 'intish'
+                        }), plusCoerced ? Types.Doublish : Types.Intish);
+                        base.type = mergeTypes(base.type, nt, startPos);
+                    }
+                    ty = base.type.apply(argTypes);
                     if (ty===null) {
                         raise(startPos, "call argument mismatch; wants "+
                               base.type.toString());
                     }
                     binding = TempBinding.New(ty);
-                } else if (base.type === Types.ForwardReference) {
-                    raise(startPos, "references to future functions not implemented");
                 } else {
                     raise(startPos, "bad call expression");
                 }
