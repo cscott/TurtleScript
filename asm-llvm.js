@@ -86,6 +86,12 @@ define([], function asm_llvm() {
     // Void is the type of functions that are not supposed to return any
     // useful value.
     Types.Void = Type.derive("void", { value: true });
+    // Make void a subtype of intish, since in practice JS functions return
+    // 'undefined', which can be cast to a double or int.  The choice of
+    // intish makes forward declarations easier.
+    // See discussion in mozilla
+    // [bug 854061](https://bugzilla.mozilla.org/show_bug.cgi?id=854061).
+    Types.Void.supertypes = [Types.Intish];
 
     // The other internal (non-escaping) types are 'unknown' and 'int'.
     // The unknown type represents a value returned from an FFI call.
@@ -2462,6 +2468,14 @@ define([], function asm_llvm() {
                 // If no return statement was seen, this function returns
                 // `void`.
                 func.retType = Types.Void;
+            }
+            // Broaden return type to intish or doublish.
+            if (func.retType.isSubtypeOf(Types.Intish)) {
+                func.retType = Types.Intish;
+            } else if (func.retType.isSubtypeOf(Types.Doublish)) {
+                func.retType = Types.Doublish;
+            } else {
+                console.assert(false, func.retType.toString());
             }
             var ty = Types.Arrow(func.params.map(function(p) {
                 return func.env.lookup(p).type;
