@@ -1524,9 +1524,9 @@ define([], function asm_llvm() {
 
         // Function table references propagate some type information
         // so that we can infer the type before seeing the declaration.
-        var TableBinding = function(base, size, temp) {
+        var TableBinding = function(base, index, temp) {
             this.base = base;
-            this.size = size;
+            this.index = index;
             this.type = base.type;
             this.temp = temp || gensym();
         };
@@ -1868,7 +1868,7 @@ define([], function asm_llvm() {
             } else if (property.andy) {
                 // Try to parse as a function table lookup:
                 // `x:Identifier[index:Expression & n:NumericLiteral](arg:Expression,...)`
-                raise(startPos, "unimplemented");
+                return TableBinding.New(base, property);
             } else {
                 raise(startPos, "bad member expression");
             }
@@ -1888,37 +1888,62 @@ define([], function asm_llvm() {
                 var startPos = lastStart;
                 var callArguments = parseExprList(_parenR, false);
                 // Type check the call based on the argument types.
-                var binding;
-                if (base.type===Types.Function) {
-                    callArguments.forEach(function(b, i) {
+                var binding, ty;
+                var argTypes = callArguments.map(function(b){
+                    return defcheck(b).type;
+                });
+                // If this is a forward reference to a future function,
+                // infer the function type based on 'plusCoerced' (the
+                // surrounding context) and the argument types.
+                var makeFunctionTypeFromContext = function() {
+                    return Types.Arrow(argTypes.map(function(ty) {
+                        // All argument types must be either 'double' or 'int'.
+                        if (ty.isSubtypeOf(Types.Double)) {
+                            return Types.Double;
+                        } else if (ty.isSubtypeOf(Types.Int)) {
+                            return Types.Int;
+                        } else {
+                            raise(startPos, "function arguments must be "+
+                                  "coerced to either double or int");
+                        }
+                    // Return type is either 'doublish' or 'intish'
+                    }), plusCoerced ? Types.Doublish : Types.Intish);
+                };
+                if (TableBinding.hasInstance(base)) {
+                    // Handle an indirect invocation through a function table.
+                    if (!powerOf2(base.index.andAmount+1)) {
+                        raise(startPos,
+                              "function table size must be a power of 2");
+                    }
+                    if (base.base.type === Types.ForwardReference) {
+                        base.base.type =
+                            Types.Table(makeFunctionTypeFromContext(),
+                                        base.index.andAmount+1);
+                    }
+                    if (!base.base.type.table) {
+                        raise(startPos, "base should be function table");
+                    }
+                    if (base.base.type.size !== (base.index.andAmount+1)) {
+                        raise(startPos, "function table size mismatch");
+                    }
+                    ty = base.base.type.base.apply(argTypes);
+                    if (ty===null) {
+                        raise(startPos, "call argument mismatch; wants "+
+                              base.type.base.toString());
+                    }
+                    binding = TempBinding.New(ty);
+                } else if (base.type===Types.Function) {
+                    // Handle foreign function invocation.
+                    argTypes.forEach(function(type, i) {
                         var msg = "argument "+i+" to foreign function";
-                        defcheck(b, msg);
-                        typecheck(b.type, Types.Extern, msg, startPos);
+                        typecheck(type, Types.Extern, msg, startPos);
                     });
                     binding = TempBinding.New(Types.Unknown);
                 } else if (base.type.arrow || base.type.functiontypes ||
                            base.type === Types.ForwardReference) {
-                    var argTypes = callArguments.map(function(b){
-                        return defcheck(b).type;
-                    });
-                    var ty;
-                    // If this is a forward reference to a future function,
-                    // infer the function type based on 'plusCoerced' (the
-                    // surrounding context) and the argument types.
+                    // Handle direct invocation of local function.
                     if (base.type === Types.ForwardReference) {
-                        // All argument types must be either 'double' or 'int'.
-                        var nt = Types.Arrow(argTypes.map(function(ty) {
-                            if (ty.isSubtypeOf(Types.Double)) {
-                                return Types.Double;
-                            } else if (ty.isSubtypeOf(Types.Int)) {
-                                return Types.Int;
-                            } else {
-                                raise(startPos, "function arguments must be "+
-                                      "coerced to either double or int");
-                            }
-                        // Return type is either 'doublish' or 'intish'
-                        }), plusCoerced ? Types.Doublish : Types.Intish);
-                        base.type = mergeTypes(base.type, nt, startPos);
+                        base.type = makeFunctionTypeFromContext();
                     }
                     ty = base.type.apply(argTypes);
                     if (ty===null) {
@@ -1934,7 +1959,11 @@ define([], function asm_llvm() {
         };
 
         var parseExprSubscripts = function(plusCoerced) {
-            return parseSubscripts(parseExprAtom(), plusCoerced);
+            var b = parseSubscripts(parseExprAtom(), plusCoerced);
+            if (TableBinding.hasInstance(b)) {
+                raise(tokStart, "incomplete function table lookup");
+            }
+            return b;
         };
 
         // Parse unary operators, both prefix and postfix.
@@ -2578,7 +2607,15 @@ define([], function asm_llvm() {
                     raise(yPos, "Function table length is not a power of 2.");
                 }
                 ty = Types.Table(lastType, table.length);
-                module.env.bind(x, GlobalBinding.New(ty, false), startPos);
+                var binding = module.env.lookup(x);
+                if (binding === null || !binding.pending) {
+                    module.env.bind(x, GlobalBinding.New(ty, false), startPos);
+                } else {
+                    console.assert(GlobalBinding.hasInstance(binding) &&
+                                   !binding.mutable);
+                    binding.type = mergeTypes(binding.type, ty, startPos);
+                    binding.pending = false; // binding is now authoritative.
+                }
                 module.seenTable = true;
             } else if (module.seenTable) {
                 raise(tokStart, "expected function table");
