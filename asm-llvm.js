@@ -525,7 +525,8 @@ define([], function asm_llvm() {
         }
         var compareTo = function(arr) {
             if (arr.length === 1) {
-                return f += "return str === " + JSON.stringify(arr[0]) + ";";
+                f += "return str === " + JSON.stringify(arr[0]) + ";";
+                return;
             }
             f += "switch(str){";
             arr.forEach(function(c) {
@@ -1893,7 +1894,7 @@ define([], function asm_llvm() {
 
         // Parse unary operators, both prefix and postfix.
 
-        function parseMaybeUnary(noIn) {
+        var parseMaybeUnary = function(noIn) {
             var node;
             if (tokType.prefix) {
                 var opPos = tokStart;
@@ -2607,7 +2608,7 @@ define([], function asm_llvm() {
                 return f;
             };
             if (tokType !== _braceL) {
-                exports['$'] = check(parseIdent());
+                exports['#'] = check(parseIdent());
             } else {
                 next();
                 var x = parseIdent();
