@@ -259,6 +259,34 @@ define([], function asm_llvm() {
     };
     test_types();
 
+    // ### Use-site coercions.
+    // The different use types.  This is top-down context for
+    // expression parsing.  (See the "Parser" section below.)
+    var Use = {
+        ToDouble: "ToDouble",
+        ToInt: "ToInt",
+        Void: "Void",
+        NoCoercion: "NoCoercion" // usually works out to "ToInt" in practice
+    };
+    // Utility methods.
+    var Uses = {
+        toType: (function() {
+            var map = Object.create(null);
+            map[Use.ToDouble] = Type.Doublish;
+            map[Use.ToInt] = Type.Intish;
+            map[Use.Void] = Type.Void;
+            // The map of NoCoercion to Intish differs from Mozilla;
+            // we want to default to Intish so we don't have to lookahead
+            // to parse the int-coercion suffix.  We will fail typechecking
+            // later if our assumption turns out to be mistaken.
+            map[Use.NoCoercion] = Type.Intish;
+            return function(use) {
+                console.assert(map[use]);
+                return map[use];
+            };
+        })()
+    };
+
     // ### Operator and standard library type tables.
 
     // Unary operator types, from
@@ -277,6 +305,14 @@ define([], function asm_llvm() {
             [ Types.Arrow([Types.Int], Types.Int) ]),
         '~~': Types.FunctionTypes(
             [ Types.Arrow([Types.Double], Types.Signed) ])
+    };
+    // Use-site coercions.
+    Uses.unary = {
+        '+': Use.ToDouble,
+        '-': Use.ToDouble,
+        '~': Use.ToInt,
+        '~~': Use.ToInt,
+        '!': Use.NoCoercion
     };
 
     // Binary operator types, from
@@ -299,15 +335,25 @@ define([], function asm_llvm() {
         '>>>': Types.FunctionTypes(
             [ Types.Arrow([Types.Intish, Types.Intish], Types.Unsigned) ])
     };
+    Uses.binary = {
+        '+': Use.NoCoercion,
+        '-': Use.NoCoercion,
+        '*': Use.ToDouble,
+        '/': Use.ToDouble,
+        '%': Use.ToDouble,
+        '>>>': Use.ToInt
+    };
     ['|','&','^','<<','>>'].forEach(function(op) {
         Types.binary[op] = Types.FunctionTypes(
             [ Types.Arrow([Types.Intish, Types.Intish], Types.Signed) ]);
+        Uses.binary[op] = Use.ToInt;
     });
     ['<','<=','>','>=','==','!='].forEach(function(op) {
         Types.binary[op] = Types.FunctionTypes(
             [ Types.Arrow([Types.Signed, Types.Signed], Types.Int),
               Types.Arrow([Types.Unsigned, Types.Unsigned], Types.Int),
               Types.Arrow([Types.Double, Types.Double], Types.Int) ]);
+        Uses.binary[op] = Use.NoCoercion;
     });
 
     // Standard library member types, from
@@ -1576,7 +1622,13 @@ define([], function asm_llvm() {
         // precedence, for all of the ten binary precedence levels
         // that JavaScript defines.
         //
+        // Like the [SpiderMonkey asm.js parser][sm], we pass some coercion
+        // information top-down to allow single-pass type checking of
+        // call sites (including function table call sites).  (Unlike
+        // SpiderMonkey, we do additive chain processing bottom-up.)
+
         // [opp]: http://en.wikipedia.org/wiki/Operator-precedence_parser
+        // [sm]: https://hg.mozilla.org/mozilla-central/file/42bcb974cfdd/js/src/ion/AsmJS.cpp#l552
 
         var parseTopLevel; // forward declaration
 
@@ -1770,7 +1822,7 @@ define([], function asm_llvm() {
                 }
 
                 if (allowEmpty && tokType === _comma) { elts.push(null); }
-                else { elts.push(parseExpression(true)); }
+                else { elts.push(parseExpression(true, Use.NoCoercion)); }
             }
             return elts;
         };
@@ -1780,7 +1832,7 @@ define([], function asm_llvm() {
         // `new`, or an expression wrapped in punctuation like `()`, `[]`,
         // or `{}`.
 
-        var parseExprAtom = function() {
+        var parseExprAtom = function(use) {
             if (tokType === _name) {
                 var id = parseIdent();
                 var binding = moduleLookup(id);
@@ -1800,7 +1852,7 @@ define([], function asm_llvm() {
 
             } else if (tokType === _parenL) {
                 next();
-                var val = parseExpression();
+                var val = parseExpression(use);
                 expect(_parenR);
                 return val;
 
@@ -1844,6 +1896,8 @@ define([], function asm_llvm() {
             } else if (property.andy) {
                 // Try to parse as a function table lookup:
                 // `x:Identifier[index:Expression & n:NumericLiteral](arg:Expression,...)`
+
+                //return TableBinding.New(basem
                 raise(startPos, "unimplemented");
             } else {
                 raise(startPos, "bad member expression");
@@ -1852,13 +1906,13 @@ define([], function asm_llvm() {
 
         // Parse call, dot, and `[]`-subscript expressions.
 
-        var parseSubscripts = function(base, noCalls) {
+        var parseSubscripts = function(base, use, noCalls) {
             if (eat(_dot)) {
                 raise(lastStart, "operator not allowed: .");
             } else if (eat(_bracketL)) {
                 base = parseBracketExpression(base);
                 expect(_bracketR);
-                return parseSubscripts(base, noCalls);
+                return parseSubscripts(base, use, noCalls);
             } else if (!noCalls && eat(_parenL)) {
                 /* XXX handle base=ForwardRef */
                 var startPos = lastStart;
@@ -1883,17 +1937,17 @@ define([], function asm_llvm() {
                 } else {
                     raise(startPos, "bad call expression");
                 }
-                return parseSubscripts(binding, noCalls);
+                return parseSubscripts(binding, use, noCalls);
             } else { return base; }
         };
 
-        var parseExprSubscripts = function() {
-            return parseSubscripts(parseExprAtom());
+        var parseExprSubscripts = function(use) {
+            return parseSubscripts(parseExprAtom(use), use);
         };
 
         // Parse unary operators, both prefix and postfix.
 
-        function parseMaybeUnary(noIn) {
+        function parseMaybeUnary(use) {
             var node;
             if (tokType.prefix) {
                 var opPos = tokStart;
@@ -1905,7 +1959,7 @@ define([], function asm_llvm() {
                 }
                 console.assert(!update);
                 next();
-                var argument = parseMaybeUnary(noIn);
+                var argument = parseMaybeUnary(Uses.unary[operator]);
                 // Special case the negation of a constant.
                 if (ConstantBinding.hasInstance(argument) && operator==='-') {
                     return argument.negate();
@@ -1917,7 +1971,7 @@ define([], function asm_llvm() {
                 }
                 return TempBinding.New(ty);
             }
-            var expr = parseExprSubscripts();
+            var expr = parseExprSubscripts(use);
             if (tokType.postfix && !canInsertSemicolon()) {
                 raise(tokStart, "postfix operators not allowed");
             }
@@ -1933,11 +1987,11 @@ define([], function asm_llvm() {
         // defer further parser to one of its callers when it encounters an
         // operator that has a lower precedence than the set it is parsing.
 
-        var parseExprOp = function(left, minPrec, noIn) {
+        var parseExprOp = function(left, minPrec, use) {
             var TWO_TO_THE_TWENTY = 0x100000;
             var prec = tokType.binop;
             console.assert(prec !== null, tokType);
-            if (prec !== undefined && (!noIn || tokType !== _in)) {
+            if (prec !== undefined) {
                 if (prec > minPrec) {
                     var additiveChain = 0;
                     var opPos = tokStart;
@@ -1946,8 +2000,9 @@ define([], function asm_llvm() {
                     if (!ty) {
                         raise(opPos, operator+" not allowed");
                     }
+                    use = Uses.binary[operator];//XXXX probably wrong
                     next();
-                    var right = parseExprOp(parseMaybeUnary(noIn), prec, noIn);
+                    var right = parseExprOp(parseMaybeUnary(use), prec, use);
                     ty = ty.apply([left.type, right.type]);
                     if (ty===null && (operator==='+' || operator==='-')) {
                         /* Special validation for "AdditiveExpression" */
@@ -2001,27 +2056,27 @@ define([], function asm_llvm() {
                             binding.andAmount = right.value;
                         }
                     }
-                    return parseExprOp(binding, minPrec, noIn);
+                    return parseExprOp(binding, minPrec, use);
                 }
             }
             return left;
         };
 
-        var parseExprOps = function(noIn) {
-            return parseExprOp(parseMaybeUnary(noIn), -1, noIn);
+        var parseExprOps = function(use) {
+            return parseExprOp(parseMaybeUnary(use), -1, use);
         };
 
         // Parse a ternary conditional (`?:`) operator.
 
-        var parseMaybeConditional = function(noIn) {
-            var expr = parseExprOps(noIn);
+        var parseMaybeConditional = function(use) {
+            var expr = parseExprOps(use);
             var startPos = tokStart;
             if (eat(_question)) {
                 var test = expr;
                 typecheck(test.type, Types.Int, "conditional test", startPos);
                 var consequent = parseExpression(true);
                 expect(_colon);
-                var alternate = parseExpression(true, noIn);
+                var alternate = parseExpression(true, use);
                 var ty;
                 if (consequent.type.isSubtypeOf(Types.Int) &&
                     alternate.type.isSubtypeOf(Types.Int)) {
@@ -2044,8 +2099,8 @@ define([], function asm_llvm() {
         // Parse an assignment expression. This includes applications of
         // operators like `+=`.
 
-        var parseMaybeAssign = function(noIn) {
-            var left = parseMaybeConditional(noIn);
+        var parseMaybeAssign = function(use) {
+            var left = parseMaybeConditional(use);
             if (tokType.isAssign) {
                 var startPos = tokStart;
                 var operator = tokVal;
@@ -2053,7 +2108,7 @@ define([], function asm_llvm() {
                     raise(startPos, "Operator disallowed: "+operator);
                 }
                 next();
-                var right = parseMaybeAssign(noIn);
+                var right = parseMaybeAssign(use);
                 // Check that `left` is an lval.  First, let's check
                 // the `x:Identifier = ...` case.
                 if (LocalBinding.hasInstance(left)) {
@@ -2081,12 +2136,12 @@ define([], function asm_llvm() {
         // sequences (in argument lists, array literals, or object literals)
         // or the `in` operator (in for loops initalization expressions).
 
-        parseExpression = function(noComma, noIn) {
-            var expr = parseMaybeAssign(noIn);
+        parseExpression = function(noComma, use) {
+            var expr = parseMaybeAssign(use);
             if (!noComma && tokType === _comma) {
                 var expressions = [expr];
                 while (eat(_comma)) {
-                    expressions.push(expr = parseMaybeAssign(noIn));
+                    expressions.push(expr = parseMaybeAssign(use));
                 }
             }
             return expr;
@@ -2095,9 +2150,9 @@ define([], function asm_llvm() {
         // Used for constructs like `switch` and `if` that insist on
         // parentheses around their expression.
 
-        var parseParenExpression = function() {
+        var parseParenExpression = function(use) {
             expect(_parenL);
-            var val = parseExpression();
+            var val = parseExpression(use);
             expect(_parenR);
             return val;
         };
@@ -2154,7 +2209,7 @@ define([], function asm_llvm() {
                 // Parse a while loop.
                 next();
                 startPos = tokStart;
-                var whileTest = parseParenExpression();
+                var whileTest = parseParenExpression(Use.NoCoercion);
                 typecheck(whileTest.type, Types.Int, "while loop condition",
                           startPos);
                 module.func.labels.push(loopLabel);
@@ -2170,7 +2225,7 @@ define([], function asm_llvm() {
                 module.func.labels.pop();
                 expect(_while);
                 startPos = tokStart;
-                var doTest = parseParenExpression();
+                var doTest = parseParenExpression(Use.NoCoercion);
                 semicolon();
                 typecheck(doTest.type, Types.Int, "do-while loop condition",
                           startPos);
@@ -2194,7 +2249,7 @@ define([], function asm_llvm() {
             } else if (starttype===_if) {
                 next();
                 startPos = tokStart;
-                var ifTest = parseParenExpression();
+                var ifTest = parseParenExpression(Use.NoCoercion);
                 typecheck(ifTest.type, Types.Int, "if statement condition",
                           startPos);
                 var consequent = parseStatement();
@@ -2225,7 +2280,7 @@ define([], function asm_llvm() {
             } else if (starttype===_switch) {
                 next();
                 startPos = tokStart;
-                var switchTest = parseParenExpression();
+                var switchTest = parseParenExpression(Use.NoCoercion);
                 typecheck(switchTest, Types.Signed, "switch discriminant",
                           startPos);
                 var cases = [];
