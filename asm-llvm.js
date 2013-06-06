@@ -214,9 +214,11 @@ define([], function asm_llvm() {
         };
     })();
 
-    // Special types used to mark the module name, stdlib, foreign, and heap
+    // Special type used to mark the module name, stdlib, foreign, and heap
     // identifiers.
     Types.Module = Type.derive("Module");
+    // Special type used to mark possible forward references.
+    Types.ForwardReference = Type.derive("ForwardReference");
 
     // Utility functions.
     var ceilLog2 = function(x) {
@@ -1454,12 +1456,30 @@ define([], function asm_llvm() {
             this._map[x] = t;
         };
 
+        // ## Bindings
+
+        // Environments map identifiers to "bindings"; these are also each
+        // parser production returns.  The represent runtime values (or
+        // the means to access them): global variables, local variables,
+        // compiler temporaries (the results of expression evaluation),
+        // particular lvals (ArrayBufferView or function table objects),
+        // or constants.
+
+        // Bindings contain an `unEx` method to turn them into LLVM values
+        // (registers, memory locations, constants) as well as to convert
+        // them for use in expression statements (`unNx`) and conditionals
+        // (`unCx`).  Terminology based on chapter 7 of Andrew Appel's
+        // "Modern Compiler Implementation in ____" series.
+        /* XXX we'll add unEx/unNx/unCx when we start codegen XXX */
+
         // We will need a unique symbol source for bindings.
         var gensym = (function() {
             var cnt = 0;
-            return function() {
+            return function(prefix, base) {
+                prefix = prefix || '%';
+                base = base || 'tmp';
                 cnt += 1;
-                return '%tmp' + cnt;
+                return prefix + base + cnt;
             };
         })();
 
@@ -1490,6 +1510,15 @@ define([], function asm_llvm() {
         // value itself).
         var ViewBinding = function(type, temp) {
             this.type = type;
+            this.temp = temp || gensym();
+        };
+
+        // Function table references propagate some type information
+        // so that we can infer the type before seeing the declaration.
+        var TableBinding = function(base, size, temp) {
+            this.base = base;
+            this.size = size;
+            this.type = base.type;
             this.temp = temp || gensym();
         };
 
@@ -1562,8 +1591,6 @@ define([], function asm_llvm() {
             module = null;
             return parseTopLevel();
         };
-
-        //
 
         // ### Parser utilities
 
@@ -1647,6 +1674,9 @@ define([], function asm_llvm() {
         // a subtype of that provided.
         var typecheck = function(actual, should, message, pos) {
             if (actual.isSubtypeOf(should)) { return actual; }
+            if (actual === Types.ForwardReference) {
+                raise(pos || tokStart, "unknown identifier");
+            }
             raise(pos || tokStart, "validation error ("+message+"): " +
                   "should be " + (should ? should.toString() : '?') +
                   ", but was " + (actual ? actual.toString() : '?'));
@@ -1661,17 +1691,13 @@ define([], function asm_llvm() {
         // https://bugzilla.mozilla.org/show_bug.cgi?id=864600 for
         // more discussion of the single-forward-pass strategy.
         var mergeTypes = function(prevType, newType, pos) {
-            if (prevType===null ||
+            if (prevType===Types.ForwardReference ||
                 newType.isSubtypeOf(prevType)) {
                 return newType;
             }
             raise(pos || tokStart,
                   "Inconsistent type (was " + prevType.toString() +
                   ", now " + newType.toString()+")");
-        };
-
-        var checkLVal = function(expr) {
-            // XXX used in acorn, probably not necessary for asm-llvm.
         };
 
         // ### Literal parsing
@@ -1759,7 +1785,13 @@ define([], function asm_llvm() {
                 var id = parseIdent();
                 var binding = moduleLookup(id);
                 if (binding===null) {
-                    raise(lastStart, "unknown identifier '"+id+"'");
+                    // Let's put a stub global binding in place; maybe this
+                    // is a reference to a function or function table type
+                    // which has not yet been defined.
+                    binding = GlobalBinding.New(Types.ForwardReference, false);
+                    binding.pending = true;
+                    binding.id = id; // for better error messages
+                    module.env.bind(id, binding, lastStart);
                 }
                 return binding;
 
@@ -2334,8 +2366,8 @@ define([], function asm_llvm() {
                 // Save position of this token before starting to parse!
                 ptPos = tokStart;
                 var x = parseIdent();
-                if (func.params.indexOf(x) < 0 ||
-                    func.env.lookup(x) !== null) {
+                var binding = func.env.lookup(x);
+                if (binding===null || binding.type!==Types.ForwardReference) {
                     return bail(); // not a parameter name, or already coerced
                 }
                 if (tokType === _eq) { next(); } else { return bail(); }
@@ -2349,7 +2381,7 @@ define([], function asm_llvm() {
                         return bail();
                     } else { next(); }
                     if (!(tokType === _semi)) { return bail(); }
-                    func.env.bind(x, LocalBinding.New(Types.Int), ptPos);
+                    binding.type = mergeTypes(binding.type, Types.Int, ptPos);
                 } else if (tokType === _plusmin && tokVal==='+') {
                     // This is a `double` type annotation.
                     next();
@@ -2357,7 +2389,7 @@ define([], function asm_llvm() {
                         next();
                     } else { return bail(); }
                     if (!(tokType === _semi)) { return bail(); }
-                    func.env.bind(x, LocalBinding.New(Types.Double), ptPos);
+                    binding.type=mergeTypes(binding.type, Types.Double, ptPos);
                 } else {
                     return bail();
                 }
@@ -2385,9 +2417,12 @@ define([], function asm_llvm() {
 
         // Parse a module-internal function
         var parseFunctionDeclaration = function() {
-            var fPos = tokStart;
+            var fPos = tokStart, param, paramStart;
             var func = module.func = {
-                id: null, params: [], env: Env.New(), retType: null,
+                id: null,
+                params: [],
+                env: Env.New(),
+                retType: Types.ForwardReference,
                 labels: []
             };
             module.functions.push(func);
@@ -2396,17 +2431,21 @@ define([], function asm_llvm() {
             expect(_parenL);
             while (!eat(_parenR)) {
                 if (func.params.length !== 0) { expect(_comma); }
-                func.params.push(parseIdent());
+                paramStart = tokStart;
+                param = parseIdent();
+                func.params.push(param);
+                func.env.bind(param, LocalBinding.New(Types.ForwardReference),
+                              paramStart);
             }
             expect(_braceL);
 
             // Parse the parameter type coercion statements, then
             // verify that all the parameters were coerced to a type.
             parseParameterTypeCoercions();
-            func.params.forEach(function(p) {
-                if (func.env.lookup(p)===null) {
-                    raise(fPos, "No parameter type annotation found for '"+
-                          p+"'");
+            func.params.forEach(function(param) {
+                if (func.env.lookup(param).type===Types.ForwardReference) {
+                    raise(fPos, "No parameter type annotation found for '" +
+                          param + "'");
                 }
             });
 
@@ -2418,16 +2457,24 @@ define([], function asm_llvm() {
             }
 
             // Now reconcile the type of the function.
-            if (func.retType === null) { func.retType = Types.Void; }
+            if (func.retType === Types.ForwardReference) {
+                // If no return statement was seen, this function returns
+                // `void`.
+                func.retType = Types.Void;
+            }
             var ty = Types.Arrow(func.params.map(function(p) {
                 return func.env.lookup(p).type;
             }), func.retType);
             var binding = module.env.lookup(func.id);
-            if (binding===null) {
+            if (binding===null || !binding.pending) {
+                // If the binding is not pending, the attempt to bind will
+                // raise the proper "duplicate definition" error.
                 module.env.bind(func.id, GlobalBinding.New(ty, false));
             } else {
-                console.assert(!binding.mutable);
+                console.assert(GlobalBinding.hasInstance(binding) &&
+                               !binding.mutable);
                 binding.type = mergeTypes(binding.type, ty, fPos);
+                binding.pending = false; // type is now authoritative.
             }
             /* done with this function */
             module.func = null;
@@ -2636,8 +2683,9 @@ define([], function asm_llvm() {
                 parseModuleVariableStatements();
             }
             parseModuleExportDeclaration();
-
             expect(_braceR);
+
+            // XXX Verify that there are no longer any pending global types.
             return module;
         };
 
