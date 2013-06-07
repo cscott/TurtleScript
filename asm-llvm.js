@@ -284,7 +284,8 @@ define([], function asm_llvm() {
         '!': Types.FunctionTypes(
             [ Types.Arrow([Types.Int], Types.Int) ]),
         '~~': Types.FunctionTypes(
-            [ Types.Arrow([Types.Double], Types.Signed) ])
+            [ Types.Arrow([Types.Double], Types.Signed),
+              Types.Arrow([Types.Intish], Types.Signed) ])
     };
 
     // Binary operator types, from
@@ -1721,6 +1722,17 @@ define([], function asm_llvm() {
                   "Inconsistent type (was " + prevType.toString() +
                   ", now " + newType.toString()+")");
         };
+        var broadenReturnType = function(type, pos) {
+            // Broaden return type to intish or doublish.
+            if (type.isSubtypeOf(Types.Intish)) {
+                return Types.Intish;
+            } else if (type.isSubtypeOf(Types.Doublish)) {
+                return Types.Doublish;
+            } else {
+                raise(pos || tokStart,
+                      "Return type must be intish or doublish");
+            }
+        };
 
         // ### Literal parsing
 
@@ -2029,7 +2041,10 @@ define([], function asm_llvm() {
                         /* Special validation for "AdditiveExpression" */
                         if ((left.additiveChain ||
                              left.type.isSubtypeOf(Types.Int)) &&
-                            right.type.isSubtypeOf(Types.Int)) {
+                            /* right is additive chain in parenthesized
+                             * expressions, like "a + (b + 63)" */
+                            (right.additiveChain ||
+                             right.type.isSubtypeOf(Types.Int))) {
                             ty = Types.Intish;
                             additiveChain = (left.additiveChain||1) + 1;
                             if (additiveChain > TWO_TO_THE_TWENTY) { // 2^20
@@ -2149,7 +2164,9 @@ define([], function asm_llvm() {
                 } else {
                     raise(startPos, "assignment to non-lval");
                 }
-                return;
+                // AssignmentExpressions have values; return the right
+                // hand operand to make `a = b = 0` work.
+                return right;
             }
             return left;
         };
@@ -2292,7 +2309,7 @@ define([], function asm_llvm() {
                     ty = Types.Void;
                 } else {
                     var binding = defcheck(parseExpression()); semicolon();
-                    ty = binding.type;
+                    ty = broadenReturnType(binding.type, startPos);
                 }
                 module.func.retType =
                     mergeTypes(module.func.retType, ty, startPos);
@@ -2303,7 +2320,7 @@ define([], function asm_llvm() {
                 next();
                 startPos = tokStart;
                 var switchTest = defcheck(parseParenExpression());
-                typecheck(switchTest, Types.Signed, "switch discriminant",
+                typecheck(switchTest.type, Types.Signed, "switch discriminant",
                           startPos);
                 var cases = [];
                 expect(_braceL);
@@ -2542,13 +2559,7 @@ define([], function asm_llvm() {
                 func.retType = Types.Void;
             }
             // Broaden return type to intish or doublish.
-            if (func.retType.isSubtypeOf(Types.Intish)) {
-                func.retType = Types.Intish;
-            } else if (func.retType.isSubtypeOf(Types.Doublish)) {
-                func.retType = Types.Doublish;
-            } else {
-                console.assert(false, func.retType.toString());
-            }
+            func.retType = broadenReturnType(func.retType);
             var ty = Types.Arrow(func.params.map(function(p) {
                 return func.env.lookup(p).type;
             }), func.retType);
@@ -2573,105 +2584,117 @@ define([], function asm_llvm() {
         var parseModuleVariableStatement = function() {
             var x, y, ty, startPos, yPos;
             expect(_var);
-            startPos = tokStart;
-            x = parseIdent();
-            expect(_eq);
-            // There are five types of variable statements:
-            if (tokType === _bracketL) {
-                // 1\. A function table.  (Only allowed at end of module.)
-                yPos = tokStart; next();
-                var table = [], lastType;
-                while (!eat(_bracketR)) {
-                    if (table.length > 0) { expect(_comma); }
+            // Allow comma-separated var expressions.
+            // (See https://github.com/dherman/asm.js/issues/63 .)
+            while (true) {
+                startPos = tokStart;
+                x = parseIdent();
+                expect(_eq);
+                // There are five types of variable statements:
+                if (tokType === _bracketL) {
+                    // 1\. A function table.  (Only allowed at end of module.)
+                    yPos = tokStart; next();
+                    var table = [], lastType;
+                    while (!eat(_bracketR)) {
+                        if (table.length > 0) { expect(_comma); }
+                        y = parseIdent();
+                        var b = module.env.lookup(y);
+                        /* validate consistent types of named functions */
+                        if (!b) { raise(lastStart, "Unknown function '"+y+"'");}
+                        if (b.mutable) {
+                            raise(lastStart, "'"+y+"' must be immutable");
+                        }
+                        if (!b.type.arrow) {
+                            raise(lastStart, "'"+y+"' must be a function");
+                        }
+                        if (table.length > 0 &&
+                            b.type !== lastType) {
+                            raise(lastStart,
+                                  "Inconsistent function type in table");
+                        }
+                        lastType = b.type;
+                        table.push(b);
+                    }
+                    /* check that the length is a power of 2. */
+                    if (table.length===0) {
+                        raise(yPos, "Empty function table.");
+                    } else if (!powerOf2(table.length)) {
+                        raise(yPos,
+                              "Function table length is not a power of 2.");
+                    }
+                    ty = Types.Table(lastType, table.length);
+                    var binding = module.env.lookup(x);
+                    if (binding === null || !binding.pending) {
+                        module.env.bind(x, GlobalBinding.New(ty, false),
+                                        startPos);
+                    } else {
+                        console.assert(GlobalBinding.hasInstance(binding) &&
+                                       !binding.mutable);
+                        binding.type = mergeTypes(binding.type, ty, startPos);
+                        binding.pending = false; // binding is now authoritative
+                    }
+                    module.seenTable = true;
+                } else if (module.seenTable) {
+                    raise(tokStart, "expected function table");
+                } else if (tokType === _num || tokType === _dotnum ||
+                           (tokType === _plusmin && tokVal==='-')) {
+                    // 2\. A global program variable, initialized to a literal.
+                    y = parseNumericLiteral();
+                    ty = (y.type===Types.Double) ? Types.Double : Types.Int;
+                    module.env.bind(x, GlobalBinding.New(ty, true), startPos);
+                } else if (tokType === _name && tokVal === module.stdlib) {
+                    // 3\. A standard library import.
+                    next(); expect(_dot);
+                    yPos = tokStart;
                     y = parseIdent();
-                    var b = module.env.lookup(y);
-                    /* validate consistent types of named functions */
-                    if (!b) { raise(lastStart, "Unknown function '"+y+"'"); }
-                    if (b.mutable) {
-                        raise(lastStart, "'"+y+"' must be immutable");
+                    if (y==='Math') {
+                        expect(_dot); y += '.' + parseIdent();
                     }
-                    if (!b.type.arrow) {
-                        raise(lastStart, "'"+y+"' must be a function");
-                    }
-                    if (table.length > 0 &&
-                        b.type !== lastType) {
-                        raise(lastStart, "Inconsistent function type in table");
-                    }
-                    lastType = b.type;
-                    table.push(b);
-                }
-                /* check that the length is a power of 2. */
-                if (table.length===0) {
-                    raise(yPos, "Empty function table.");
-                } else if (!powerOf2(table.length)) {
-                    raise(yPos, "Function table length is not a power of 2.");
-                }
-                ty = Types.Table(lastType, table.length);
-                var binding = module.env.lookup(x);
-                if (binding === null || !binding.pending) {
+                    ty = Types.stdlib[y];
+                    if (!ty) { raise(yPos, "Unknown library import"); }
                     module.env.bind(x, GlobalBinding.New(ty, false), startPos);
-                } else {
-                    console.assert(GlobalBinding.hasInstance(binding) &&
-                                   !binding.mutable);
-                    binding.type = mergeTypes(binding.type, ty, startPos);
-                    binding.pending = false; // binding is now authoritative.
-                }
-                module.seenTable = true;
-            } else if (module.seenTable) {
-                raise(tokStart, "expected function table");
-            } else if (tokType === _num || tokType === _dotnum ||
-                       (tokType === _plusmin && tokVal==='-')) {
-                // 2\. A global program variable, initialized to a literal.
-                y = parseNumericLiteral();
-                ty = (y.type===Types.Double) ? Types.Double : Types.Int;
-                module.env.bind(x, GlobalBinding.New(ty, true), startPos);
-            } else if (tokType === _name && tokVal === module.stdlib) {
-                // 3\. A standard library import.
-                next(); expect(_dot);
-                yPos = tokStart;
-                y = parseIdent();
-                if (y==='Math') {
-                    expect(_dot); y += '.' + parseIdent();
-                }
-                ty = Types.stdlib[y];
-                if (!ty) { raise(yPos, "Unknown library import"); }
-                module.env.bind(x, GlobalBinding.New(ty, false), startPos);
-            } else if ((tokType === _plusmin && tokVal==='+') ||
-                       (tokType === _name && tokVal === module.foreign)) {
-                // 4\. A foreign import.
-                var sawPlus = false, sawBar = false;
-                if (tokType===_plusmin) { next(); sawPlus = true; }
-                expectName(module.foreign, "<foreign>"); expect(_dot);
-                y = parseIdent();
-                if (tokType === _bin3 && tokVal ==='|' && !sawPlus) {
-                    next(); sawBar = true;
-                    if (tokType !== _num || tokVal !== 0) {
-                        raise(tokStart, "expected 0");
+                } else if ((tokType === _plusmin && tokVal==='+') ||
+                           (tokType === _name && tokVal === module.foreign)) {
+                    // 4\. A foreign import.
+                    var sawPlus = false, sawBar = false;
+                    if (tokType===_plusmin) { next(); sawPlus = true; }
+                    expectName(module.foreign, "<foreign>"); expect(_dot);
+                    y = parseIdent();
+                    if (tokType === _bin3 && tokVal ==='|' && !sawPlus) {
+                        next(); sawBar = true;
+                        if (tokType !== _num || tokVal !== 0) {
+                            raise(tokStart, "expected 0");
+                        }
+                        next();
                     }
-                    next();
-                }
-                ty = sawPlus ? Types.Double : sawBar ? Types.Int :
-                    Types.Function;
-                module.env.bind(x, GlobalBinding.New(ty, false), startPos);
-            } else if (tokType === _new) {
-                // 5\. A global heap view.
-                next(); expectName(module.stdlib, "<stdlib>"); expect(_dot);
-                yPos = tokStart;
-                var view = parseIdent();
-                if (view === 'Int8Array') { ty = Types.IntArray(8); }
-                else if (view === 'Uint8Array') { ty = Types.UintArray(8); }
-                else if (view === 'Int16Array') { ty = Types.IntArray(16); }
-                else if (view === 'Uint16Array') { ty = Types.UintArray(16); }
-                else if (view === 'Int32Array') { ty = Types.IntArray(32); }
-                else if (view === 'Uint32Array') { ty = Types.UintArray(32); }
-                else if (view === 'Float32Array') { ty = Types.FloatArray(32); }
-                else if (view === 'Float64Array') { ty = Types.FloatArray(64); }
-                else { raise(yPos, "unknown ArrayBufferView type"); }
-                expect(_parenL);
-                expectName(module.heap, "<heap>");
-                expect(_parenR);
-                module.env.bind(x, GlobalBinding.New(ty, false), startPos);
-            } else { unexpected(); }
+                    ty = sawPlus ? Types.Double : sawBar ? Types.Int :
+                        Types.Function;
+                    // Foreign imports are mutable iff they are not
+                    // `Function`s.
+                    // (See https://github.com/dherman/asm.js/issues/64 .)
+                    var mut = (ty !== Types.Function);
+                    module.env.bind(x, GlobalBinding.New(ty, mut), startPos);
+                } else if (tokType === _new) {
+                    // 5\. A global heap view.
+                    next(); expectName(module.stdlib, "<stdlib>"); expect(_dot);
+                    yPos = tokStart;
+                    var view = parseIdent();
+                    if (view === 'Int8Array') { ty = Types.IntArray(8); }
+                    else if (view === 'Uint8Array') { ty = Types.UintArray(8); }
+                    else if (view === 'Int16Array') { ty = Types.IntArray(16); }
+                    else if (view === 'Uint16Array') {ty = Types.UintArray(16);}
+                    else if (view === 'Int32Array') { ty = Types.IntArray(32); }
+                    else if (view === 'Uint32Array') {ty = Types.UintArray(32);}
+                    else if (view === 'Float32Array') {ty=Types.FloatArray(32);}
+                    else if (view === 'Float64Array') {ty=Types.FloatArray(64);}
+                    else { raise(yPos, "unknown ArrayBufferView type"); }
+                    expect(_parenL);
+                    expectName(module.heap, "<heap>");
+                    expect(_parenR);
+                    module.env.bind(x, GlobalBinding.New(ty, false), startPos);
+                } else { unexpected(); }
+                if (!eat(_comma)) { break; }
+            }
             semicolon();
         };
 
