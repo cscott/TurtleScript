@@ -2164,7 +2164,9 @@ define([], function asm_llvm() {
                 } else {
                     raise(startPos, "assignment to non-lval");
                 }
-                return;
+                // AssignmentExpressions have values; return the right
+                // hand operand to make `a = b = 0` work.
+                return right;
             }
             return left;
         };
@@ -2318,7 +2320,7 @@ define([], function asm_llvm() {
                 next();
                 startPos = tokStart;
                 var switchTest = defcheck(parseParenExpression());
-                typecheck(switchTest, Types.Signed, "switch discriminant",
+                typecheck(switchTest.type, Types.Signed, "switch discriminant",
                           startPos);
                 var cases = [];
                 expect(_braceL);
