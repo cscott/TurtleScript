@@ -1722,6 +1722,17 @@ define([], function asm_llvm() {
                   "Inconsistent type (was " + prevType.toString() +
                   ", now " + newType.toString()+")");
         };
+        var broadenReturnType = function(type, pos) {
+            // Broaden return type to intish or doublish.
+            if (type.isSubtypeOf(Types.Intish)) {
+                return Types.Intish;
+            } else if (type.isSubtypeOf(Types.Doublish)) {
+                return Types.Doublish;
+            } else {
+                raise(pos || tokStart,
+                      "Return type must be intish or doublish");
+            }
+        };
 
         // ### Literal parsing
 
@@ -2293,7 +2304,7 @@ define([], function asm_llvm() {
                     ty = Types.Void;
                 } else {
                     var binding = defcheck(parseExpression()); semicolon();
-                    ty = binding.type;
+                    ty = broadenReturnType(binding.type, startPos);
                 }
                 module.func.retType =
                     mergeTypes(module.func.retType, ty, startPos);
@@ -2543,13 +2554,7 @@ define([], function asm_llvm() {
                 func.retType = Types.Void;
             }
             // Broaden return type to intish or doublish.
-            if (func.retType.isSubtypeOf(Types.Intish)) {
-                func.retType = Types.Intish;
-            } else if (func.retType.isSubtypeOf(Types.Doublish)) {
-                func.retType = Types.Doublish;
-            } else {
-                console.assert(false, func.retType.toString());
-            }
+            func.retType = broadenReturnType(func.retType);
             var ty = Types.Arrow(func.params.map(function(p) {
                 return func.env.lookup(p).type;
             }), func.retType);
