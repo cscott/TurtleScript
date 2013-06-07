@@ -2041,7 +2041,10 @@ define([], function asm_llvm() {
                         /* Special validation for "AdditiveExpression" */
                         if ((left.additiveChain ||
                              left.type.isSubtypeOf(Types.Int)) &&
-                            right.type.isSubtypeOf(Types.Int)) {
+                            /* right is additive chain in parenthesized
+                             * expressions, like "a + (b + 63)" */
+                            (right.additiveChain ||
+                             right.type.isSubtypeOf(Types.Int))) {
                             ty = Types.Intish;
                             additiveChain = (left.additiveChain||1) + 1;
                             if (additiveChain > TWO_TO_THE_TWENTY) { // 2^20
