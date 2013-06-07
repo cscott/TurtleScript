@@ -7,7 +7,11 @@ var fs = require('fs');
  'asm-test1','asm-test2','asm-test3',
  'spec','spec2',
  // from "arewefastyet" asm.js benchmarks.
- 'box2d','zlib'
+ 'box2d','zlib',
+ // same, with fixes (see
+ // https://bugzilla.mozilla.org/show_bug.cgi?id=854061#c10
+ // and https://bugzilla.mozilla.org/show_bug.cgi?id=880807#c1
+ 'bullet-fixed','lua-binarytrees-fixed'
 ].forEach(function(f) {
     describe(f+'.js', function() {
         var asm_js_source = fs.readFileSync(__dirname+'/../asm-tests/'+f+'.js',
