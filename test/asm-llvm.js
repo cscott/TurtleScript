@@ -7,7 +7,7 @@ var fs = require('fs');
  'asm-test1','asm-test2','asm-test3',
  'spec','spec2',
  // from "arewefastyet" asm.js benchmarks.
- 'box2d'
+ 'box2d','zlib'
 ].forEach(function(f) {
     describe(f+'.js', function() {
         var asm_js_source = fs.readFileSync(__dirname+'/../asm-tests/'+f+'.js',
