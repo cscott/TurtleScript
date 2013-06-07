@@ -2659,7 +2659,11 @@ define([], function asm_llvm() {
                     }
                     ty = sawPlus ? Types.Double : sawBar ? Types.Int :
                         Types.Function;
-                    module.env.bind(x, GlobalBinding.New(ty, false), startPos);
+                    // Foreign imports are mutable iff they are not
+                    // `Function`s.
+                    // (See https://github.com/dherman/asm.js/issues/64 .)
+                    var mut = (ty !== Types.Function);
+                    module.env.bind(x, GlobalBinding.New(ty, mut), startPos);
                 } else if (tokType === _new) {
                     // 5\. A global heap view.
                     next(); expectName(module.stdlib, "<stdlib>"); expect(_dot);
