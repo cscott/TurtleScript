@@ -2574,105 +2574,113 @@ define([], function asm_llvm() {
         var parseModuleVariableStatement = function() {
             var x, y, ty, startPos, yPos;
             expect(_var);
-            startPos = tokStart;
-            x = parseIdent();
-            expect(_eq);
-            // There are five types of variable statements:
-            if (tokType === _bracketL) {
-                // 1\. A function table.  (Only allowed at end of module.)
-                yPos = tokStart; next();
-                var table = [], lastType;
-                while (!eat(_bracketR)) {
-                    if (table.length > 0) { expect(_comma); }
+            // Allow comma-separated var expressions.
+            // (See https://github.com/dherman/asm.js/issues/63 .)
+            while (true) {
+                startPos = tokStart;
+                x = parseIdent();
+                expect(_eq);
+                // There are five types of variable statements:
+                if (tokType === _bracketL) {
+                    // 1\. A function table.  (Only allowed at end of module.)
+                    yPos = tokStart; next();
+                    var table = [], lastType;
+                    while (!eat(_bracketR)) {
+                        if (table.length > 0) { expect(_comma); }
+                        y = parseIdent();
+                        var b = module.env.lookup(y);
+                        /* validate consistent types of named functions */
+                        if (!b) { raise(lastStart, "Unknown function '"+y+"'");}
+                        if (b.mutable) {
+                            raise(lastStart, "'"+y+"' must be immutable");
+                        }
+                        if (!b.type.arrow) {
+                            raise(lastStart, "'"+y+"' must be a function");
+                        }
+                        if (table.length > 0 &&
+                            b.type !== lastType) {
+                            raise(lastStart,
+                                  "Inconsistent function type in table");
+                        }
+                        lastType = b.type;
+                        table.push(b);
+                    }
+                    /* check that the length is a power of 2. */
+                    if (table.length===0) {
+                        raise(yPos, "Empty function table.");
+                    } else if (!powerOf2(table.length)) {
+                        raise(yPos,
+                              "Function table length is not a power of 2.");
+                    }
+                    ty = Types.Table(lastType, table.length);
+                    var binding = module.env.lookup(x);
+                    if (binding === null || !binding.pending) {
+                        module.env.bind(x, GlobalBinding.New(ty, false),
+                                        startPos);
+                    } else {
+                        console.assert(GlobalBinding.hasInstance(binding) &&
+                                       !binding.mutable);
+                        binding.type = mergeTypes(binding.type, ty, startPos);
+                        binding.pending = false; // binding is now authoritative
+                    }
+                    module.seenTable = true;
+                } else if (module.seenTable) {
+                    raise(tokStart, "expected function table");
+                } else if (tokType === _num || tokType === _dotnum ||
+                           (tokType === _plusmin && tokVal==='-')) {
+                    // 2\. A global program variable, initialized to a literal.
+                    y = parseNumericLiteral();
+                    ty = (y.type===Types.Double) ? Types.Double : Types.Int;
+                    module.env.bind(x, GlobalBinding.New(ty, true), startPos);
+                } else if (tokType === _name && tokVal === module.stdlib) {
+                    // 3\. A standard library import.
+                    next(); expect(_dot);
+                    yPos = tokStart;
                     y = parseIdent();
-                    var b = module.env.lookup(y);
-                    /* validate consistent types of named functions */
-                    if (!b) { raise(lastStart, "Unknown function '"+y+"'"); }
-                    if (b.mutable) {
-                        raise(lastStart, "'"+y+"' must be immutable");
+                    if (y==='Math') {
+                        expect(_dot); y += '.' + parseIdent();
                     }
-                    if (!b.type.arrow) {
-                        raise(lastStart, "'"+y+"' must be a function");
-                    }
-                    if (table.length > 0 &&
-                        b.type !== lastType) {
-                        raise(lastStart, "Inconsistent function type in table");
-                    }
-                    lastType = b.type;
-                    table.push(b);
-                }
-                /* check that the length is a power of 2. */
-                if (table.length===0) {
-                    raise(yPos, "Empty function table.");
-                } else if (!powerOf2(table.length)) {
-                    raise(yPos, "Function table length is not a power of 2.");
-                }
-                ty = Types.Table(lastType, table.length);
-                var binding = module.env.lookup(x);
-                if (binding === null || !binding.pending) {
+                    ty = Types.stdlib[y];
+                    if (!ty) { raise(yPos, "Unknown library import"); }
                     module.env.bind(x, GlobalBinding.New(ty, false), startPos);
-                } else {
-                    console.assert(GlobalBinding.hasInstance(binding) &&
-                                   !binding.mutable);
-                    binding.type = mergeTypes(binding.type, ty, startPos);
-                    binding.pending = false; // binding is now authoritative.
-                }
-                module.seenTable = true;
-            } else if (module.seenTable) {
-                raise(tokStart, "expected function table");
-            } else if (tokType === _num || tokType === _dotnum ||
-                       (tokType === _plusmin && tokVal==='-')) {
-                // 2\. A global program variable, initialized to a literal.
-                y = parseNumericLiteral();
-                ty = (y.type===Types.Double) ? Types.Double : Types.Int;
-                module.env.bind(x, GlobalBinding.New(ty, true), startPos);
-            } else if (tokType === _name && tokVal === module.stdlib) {
-                // 3\. A standard library import.
-                next(); expect(_dot);
-                yPos = tokStart;
-                y = parseIdent();
-                if (y==='Math') {
-                    expect(_dot); y += '.' + parseIdent();
-                }
-                ty = Types.stdlib[y];
-                if (!ty) { raise(yPos, "Unknown library import"); }
-                module.env.bind(x, GlobalBinding.New(ty, false), startPos);
-            } else if ((tokType === _plusmin && tokVal==='+') ||
-                       (tokType === _name && tokVal === module.foreign)) {
-                // 4\. A foreign import.
-                var sawPlus = false, sawBar = false;
-                if (tokType===_plusmin) { next(); sawPlus = true; }
-                expectName(module.foreign, "<foreign>"); expect(_dot);
-                y = parseIdent();
-                if (tokType === _bin3 && tokVal ==='|' && !sawPlus) {
-                    next(); sawBar = true;
-                    if (tokType !== _num || tokVal !== 0) {
-                        raise(tokStart, "expected 0");
+                } else if ((tokType === _plusmin && tokVal==='+') ||
+                           (tokType === _name && tokVal === module.foreign)) {
+                    // 4\. A foreign import.
+                    var sawPlus = false, sawBar = false;
+                    if (tokType===_plusmin) { next(); sawPlus = true; }
+                    expectName(module.foreign, "<foreign>"); expect(_dot);
+                    y = parseIdent();
+                    if (tokType === _bin3 && tokVal ==='|' && !sawPlus) {
+                        next(); sawBar = true;
+                        if (tokType !== _num || tokVal !== 0) {
+                            raise(tokStart, "expected 0");
+                        }
+                        next();
                     }
-                    next();
-                }
-                ty = sawPlus ? Types.Double : sawBar ? Types.Int :
-                    Types.Function;
-                module.env.bind(x, GlobalBinding.New(ty, false), startPos);
-            } else if (tokType === _new) {
-                // 5\. A global heap view.
-                next(); expectName(module.stdlib, "<stdlib>"); expect(_dot);
-                yPos = tokStart;
-                var view = parseIdent();
-                if (view === 'Int8Array') { ty = Types.IntArray(8); }
-                else if (view === 'Uint8Array') { ty = Types.UintArray(8); }
-                else if (view === 'Int16Array') { ty = Types.IntArray(16); }
-                else if (view === 'Uint16Array') { ty = Types.UintArray(16); }
-                else if (view === 'Int32Array') { ty = Types.IntArray(32); }
-                else if (view === 'Uint32Array') { ty = Types.UintArray(32); }
-                else if (view === 'Float32Array') { ty = Types.FloatArray(32); }
-                else if (view === 'Float64Array') { ty = Types.FloatArray(64); }
-                else { raise(yPos, "unknown ArrayBufferView type"); }
-                expect(_parenL);
-                expectName(module.heap, "<heap>");
-                expect(_parenR);
-                module.env.bind(x, GlobalBinding.New(ty, false), startPos);
-            } else { unexpected(); }
+                    ty = sawPlus ? Types.Double : sawBar ? Types.Int :
+                        Types.Function;
+                    module.env.bind(x, GlobalBinding.New(ty, false), startPos);
+                } else if (tokType === _new) {
+                    // 5\. A global heap view.
+                    next(); expectName(module.stdlib, "<stdlib>"); expect(_dot);
+                    yPos = tokStart;
+                    var view = parseIdent();
+                    if (view === 'Int8Array') { ty = Types.IntArray(8); }
+                    else if (view === 'Uint8Array') { ty = Types.UintArray(8); }
+                    else if (view === 'Int16Array') { ty = Types.IntArray(16); }
+                    else if (view === 'Uint16Array') {ty = Types.UintArray(16);}
+                    else if (view === 'Int32Array') { ty = Types.IntArray(32); }
+                    else if (view === 'Uint32Array') {ty = Types.UintArray(32);}
+                    else if (view === 'Float32Array') {ty=Types.FloatArray(32);}
+                    else if (view === 'Float64Array') {ty=Types.FloatArray(64);}
+                    else { raise(yPos, "unknown ArrayBufferView type"); }
+                    expect(_parenL);
+                    expectName(module.heap, "<heap>");
+                    expect(_parenR);
+                    module.env.bind(x, GlobalBinding.New(ty, false), startPos);
+                } else { unexpected(); }
+                if (!eat(_comma)) { break; }
+            }
             semicolon();
         };
 
