@@ -284,7 +284,8 @@ define([], function asm_llvm() {
         '!': Types.FunctionTypes(
             [ Types.Arrow([Types.Int], Types.Int) ]),
         '~~': Types.FunctionTypes(
-            [ Types.Arrow([Types.Double], Types.Signed) ])
+            [ Types.Arrow([Types.Double], Types.Signed),
+              Types.Arrow([Types.Intish], Types.Signed) ])
     };
 
     // Binary operator types, from
