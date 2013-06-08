@@ -11,7 +11,9 @@ var fs = require('fs');
  // same, with fixes (see
  // https://bugzilla.mozilla.org/show_bug.cgi?id=854061#c10
  // and https://bugzilla.mozilla.org/show_bug.cgi?id=880807#c1
- 'bullet-fixed','lua-binarytrees-fixed'
+ 'bullet-fixed','lua-binarytrees-fixed',
+ // test cases from https://bugzilla.mozilla.org/show_bug.cgi?id=878505
+ 'bug878505-1', 'bug878505-2'
 ].forEach(function(f) {
     describe(f+'.js', function() {
         var asm_js_source = fs.readFileSync(__dirname+'/../asm-tests/'+f+'.js',
