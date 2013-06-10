@@ -1026,7 +1026,10 @@ define([], function asm_llvm() {
 
         var readToken_tilde = function(code) {
             var next = input.charCodeAt(tokPos+1);
-            if (next === code) { return finishOp(_prefix, 2); } // ~~
+            // We used to parse ~~ as a single token.  But since we can
+            // have arbitrary parenthesization, we now always parse as
+            // two separate tokens.
+            //if (next === code) { return finishOp(_prefix, 2); } // ~~
             return finishOp(_prefix, 1);
         };
 
@@ -1692,6 +1695,7 @@ define([], function asm_llvm() {
         // in a few places in the grammar (search for uses of backtrack()
         // to find them).
         var backtrack = function(oldPos, retval) {
+            if (tokStart === oldPos) { return retval; } // fast path
             // Restore old position.
             tokPos = oldPos;
             // Adjust the line counter.
@@ -1762,6 +1766,38 @@ define([], function asm_llvm() {
                 raise(pos || tokStart,
                       "Return type must be intish or doublish");
             }
+        };
+
+        // We have to maintain left context when parsing
+        // (possibly-parenthesized) expressions.  Namely: is the nearest
+        // unary operator a `+` or `~`, and how many levels of parentheses
+        // do I have to look ahead past in order to determine if there's
+        // an `|0` cast on this expression?
+        var LeftContext = function(leftOp) {
+            // The most recently-seen unary operator.
+            this.leftOp = leftOp || null;
+            // The number of parentheses since that operator (or the top of
+            // the expression, if `leftOp` is `null`).
+            this.parenLevels = 0;
+        };
+        // Look ahead `parenLevels` tokens, to check that all the open
+        // parentheses are closed.  If they are not, then the unary operator
+        // on the left doesn't actually apply to this expression.
+        // If parameter `f` is given, it will be run after the parenthesis
+        // are closed, and can test right hand context.
+        LeftContext.prototype.isValid = function(f) {
+            var startPos = tokStart;
+            var count = this.parenLevels;
+            var valid = true;
+            while (count > 0 && eat(_parenR)) {
+                count -= 1;
+            }
+            if (count > 0) {
+                valid = false;
+            } else if (f) {
+                valid = f();
+            }
+            return backtrack(startPos, valid);
         };
 
         // ### Literal parsing
@@ -1843,7 +1879,7 @@ define([], function asm_llvm() {
                 }
 
                 if (allowEmpty && tokType === _comma) { elts.push(null); }
-                else { elts.push(parseExpression(true)); }
+                else { elts.push(parseExpression(null, true)); }
             }
             return elts;
         };
@@ -1853,7 +1889,7 @@ define([], function asm_llvm() {
         // `new`, or an expression wrapped in punctuation like `()`, `[]`,
         // or `{}`.
 
-        var parseExprAtom = function() {
+        var parseExprAtom = function(leftContext) {
             if (tokType === _name) {
                 var id = parseIdent();
                 var binding = moduleLookup(id);
@@ -1874,7 +1910,9 @@ define([], function asm_llvm() {
 
             } else if (tokType === _parenL) {
                 next();
-                var val = parseExpression();
+                leftContext.parenLevels += 1;
+                var val = parseExpression(leftContext);
+                leftContext.parenLevels -= 1;
                 expect(_parenR);
                 return val;
 
@@ -1886,7 +1924,7 @@ define([], function asm_llvm() {
         // Parse expression inside `[]`-subscript.
         var parseBracketExpression = function(base) {
             var startPos = tokStart;
-            var property = parseExpression();
+            var property = parseExpression(null);
             // This will be a MemberExpression (or a CallExpression
             // through function table).
             if (base.type.arrayBufferView) {
@@ -1927,13 +1965,13 @@ define([], function asm_llvm() {
 
         // Parse call, dot, and `[]`-subscript expressions.
 
-        var parseSubscripts = function(base, plusCoerced) {
+        var parseSubscripts = function(base, leftContext) {
             if (eat(_dot)) {
                 raise(lastStart, "operator not allowed: .");
             } else if (eat(_bracketL)) {
                 base = parseBracketExpression(base);
                 expect(_bracketR);
-                return parseSubscripts(base, plusCoerced);
+                return parseSubscripts(base, leftContext);
             } else if (eat(_parenL)) {
                 // Parse a call expression.
                 var startPos = lastStart;
@@ -1947,6 +1985,12 @@ define([], function asm_llvm() {
                 // infer the function type based on 'plusCoerced' (the
                 // surrounding context) and the argument types.
                 var makeFunctionTypeFromContext = function() {
+                    // Return type is either 'doublish' or 'intish'
+                    // XXX use leftContext.isValid() to find 'maybe void'
+                    //     return types
+                    var retType =
+                        (leftContext.leftOp==='+' && leftContext.isValid()) ?
+                        Types.Doublish : Types.Intish;
                     return Types.Arrow(argTypes.map(function(ty) {
                         // All argument types must be either 'double' or 'int'.
                         if (ty.isSubtypeOf(Types.Double)) {
@@ -1957,8 +2001,7 @@ define([], function asm_llvm() {
                             raise(startPos, "function arguments must be "+
                                   "coerced to either double or int");
                         }
-                    // Return type is either 'doublish' or 'intish'
-                    }), plusCoerced ? Types.Doublish : Types.Intish);
+                    }), retType);
                 };
                 if (TableBinding.hasInstance(base)) {
                     // Handle an indirect invocation through a function table.
@@ -2005,12 +2048,12 @@ define([], function asm_llvm() {
                 } else {
                     raise(startPos, "bad call expression");
                 }
-                return parseSubscripts(binding, plusCoerced);
+                return parseSubscripts(binding, leftContext);
             } else { return base; }
         };
 
-        var parseExprSubscripts = function(plusCoerced) {
-            var b = parseSubscripts(parseExprAtom(), plusCoerced);
+        var parseExprSubscripts = function(leftContext) {
+            var b = parseSubscripts(parseExprAtom(leftContext), leftContext);
             if (TableBinding.hasInstance(b)) {
                 raise(tokStart, "incomplete function table lookup");
             }
@@ -2019,8 +2062,8 @@ define([], function asm_llvm() {
 
         // Parse unary operators, both prefix and postfix.
 
-        var parseMaybeUnary = function(plusCoerced) {
-            var node;
+        var parseMaybeUnary = function(leftContext) {
+            var node, binding;
             if (tokType.prefix) {
                 var opPos = tokStart;
                 var update = tokType.isUpdate; // for ++/--
@@ -2031,19 +2074,33 @@ define([], function asm_llvm() {
                 }
                 console.assert(!update);
                 next();
-                var argument = defcheck(parseMaybeUnary(operator==='+'));
+                var argument =
+                    defcheck(parseMaybeUnary(LeftContext.New(operator)));
                 // Special case the negation of a constant.
                 if (ConstantBinding.hasInstance(argument) && operator==='-') {
                     return argument.negate();
                 }
+                // Special case the double-tilde operator (~~)
+                if (argument.doubleTilde) {
+                    argument.doubleTilde = false; // careful about ~~~
+                    return argument;
+                }
+                if (operator==='~' && leftContext.leftOp==='~' &&
+                    leftContext.isValid()) {
+                    operator='~~';
+                    ty = Types.unary[operator];
+                }
+                // Type check the operator against the argument type.
                 ty = ty.apply([argument.type]);
                 if (ty===null) {
                     raise(opPos, "unary "+operator+" fails to validate: "+
                           operator+" "+argument.type.toString());
                 }
-                return TempBinding.New(ty);
+                binding = TempBinding.New(ty);
+                if (operator==='~~') { binding.doubleTilde = true; }
+                return binding;
             }
-            var expr = parseExprSubscripts(plusCoerced);
+            var expr = parseExprSubscripts(leftContext);
             if (tokType.postfix && !canInsertSemicolon()) {
                 raise(tokStart, "postfix operators not allowed");
             }
@@ -2073,7 +2130,8 @@ define([], function asm_llvm() {
                         raise(opPos, operator+" not allowed");
                     }
                     next();
-                    var right = parseExprOp(parseMaybeUnary(false), prec);
+                    var right = parseExprOp(parseMaybeUnary(LeftContext.New()),
+                                            prec);
                     defcheck(left); defcheck(right);
                     ty = ty.apply([left.type, right.type]);
                     if (ty===null && (operator==='+' || operator==='-')) {
@@ -2137,21 +2195,21 @@ define([], function asm_llvm() {
             return left;
         };
 
-        var parseExprOps = function() {
-            return parseExprOp(parseMaybeUnary(false), -1);
+        var parseExprOps = function(leftContext) {
+            return parseExprOp(parseMaybeUnary(leftContext), -1);
         };
 
         // Parse a ternary conditional (`?:`) operator.
 
-        var parseMaybeConditional = function() {
-            var expr = parseExprOps();
+        var parseMaybeConditional = function(leftContext) {
+            var expr = parseExprOps(leftContext);
             var startPos = tokStart;
             if (eat(_question)) {
                 var test = defcheck(expr);
                 typecheck(test.type, Types.Int, "conditional test", startPos);
-                var consequent = parseExpression(true);
+                var consequent = parseExpression(null, true);
                 expect(_colon);
-                var alternate = parseExpression(true);
+                var alternate = parseExpression(null, true);
                 var ty;
                 if (consequent.type.isSubtypeOf(Types.Int) &&
                     alternate.type.isSubtypeOf(Types.Int)) {
@@ -2174,8 +2232,8 @@ define([], function asm_llvm() {
         // Parse an assignment expression. This includes applications of
         // operators like `+=`.
 
-        var parseMaybeAssign = function() {
-            var left = parseMaybeConditional();
+        var parseMaybeAssign = function(leftContext) {
+            var left = parseMaybeConditional(leftContext);
             if (tokType.isAssign) {
                 var startPos = tokStart;
                 var operator = tokVal;
@@ -2183,7 +2241,7 @@ define([], function asm_llvm() {
                     raise(startPos, "Operator disallowed: "+operator);
                 }
                 next();
-                var right = parseMaybeAssign();
+                var right = parseMaybeAssign(LeftContext.New());
                 // Check that `left` is an lval.  First, let's check
                 // the `x:Identifier = ...` case.
                 if (LocalBinding.hasInstance(left)) {
@@ -2213,12 +2271,13 @@ define([], function asm_llvm() {
         // Parse a full expression. The argument is used to forbid comma
         // sequences (in argument lists, array literals, or object literals).
 
-        parseExpression = function(noComma) {
-            var expr = parseMaybeAssign();
+        parseExpression = function(leftContext, noComma) {
+            if (leftContext===null) { leftContext = LeftContext.New(); }
+            var expr = parseMaybeAssign(leftContext);
             if (!noComma && tokType === _comma) {
                 var expressions = [expr];
                 while (eat(_comma)) {
-                    expressions.push(expr = parseMaybeAssign());
+                    expressions.push(expr = parseMaybeAssign(leftContext));
                 }
             }
             return expr;
@@ -2229,7 +2288,7 @@ define([], function asm_llvm() {
 
         var parseParenExpression = function() {
             expect(_parenL);
-            var val = parseExpression();
+            var val = parseExpression(null);
             expect(_parenR);
             return val;
         };
@@ -2319,7 +2378,7 @@ define([], function asm_llvm() {
                 module.func.labels.push(loopLabel);
                 expect(_parenL);
                 if (tokType === _semi) { return parseFor(null); }
-                var init = defcheck(parseExpression(false));
+                var init = defcheck(parseExpression(null, false));
                 return parseFor(init);
 
             // #### IfStatement
@@ -2346,7 +2405,7 @@ define([], function asm_llvm() {
                 if (eat(_semi) || canInsertSemicolon()) {
                     ty = Types.Void;
                 } else {
-                    var binding = defcheck(parseExpression()); semicolon();
+                    var binding = defcheck(parseExpression(null)); semicolon();
                     ty = broadenReturnType(binding.type, startPos);
                 }
                 module.func.retType =
@@ -2448,7 +2507,7 @@ define([], function asm_llvm() {
                     }
                 }
                 // Nope, this is an ExpressionStatement.
-                var expr = parseExpression();
+                var expr = parseExpression(null);
                 semicolon();
                 return;
             }
@@ -2463,13 +2522,13 @@ define([], function asm_llvm() {
             expect(_semi);
             var startPos = tokStart;
             var test = (tokType === _semi) ? null :
-                defcheck(parseExpression());
+                defcheck(parseExpression(null));
             if (test!==null) {
                 typecheck(test.type, Types.Int, "for-loop condition", startPos);
             }
             expect(_semi);
             var update = (tokType === _parenR) ? null :
-                defcheck(parseExpression());
+                defcheck(parseExpression(null));
             expect(_parenR);
             var body = parseStatement();
             module.func.labels.pop();

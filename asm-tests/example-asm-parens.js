@@ -41,7 +41,7 @@ function mymodule(stdlib, foreign, heap) {
         log(x|0)     // call into FFI -- must force the sign
         log(y)       // call into FFI -- already know it's a double
 
-        switch(~~zz){ //switch ((~(~(zz)))) {
+        switch ((~(~(zz)))) {
         case (0): ((z) = (2)); break;
         case (-(1024)): ((z) = (0)); break;
         }
@@ -55,8 +55,24 @@ function mymodule(stdlib, foreign, heap) {
         return;
     }
 
+    function g2test() {
+        // call a void function, in a strange comma-using context.
+        // (pre-definition)
+        return +((g2()), 5);
+    }
+
     function g2() {
         return
+    }
+
+    function g3() {
+        return
+    }
+
+    function g3test() {
+        // call a void function, in a strange comma-using context.
+        // (post-definition)
+        return +((g3()), 5);
     }
 
     function h(i, x) {
@@ -74,6 +90,18 @@ function mymodule(stdlib, foreign, heap) {
         j = j + k
         return +k
     }
+
+    function itest() {
+        var d = 0.0;
+        d = +i(5.0);
+        d = +(i(d));
+        d = +(g3(), i(d));
+        d = +((g3()), (i(d)));
+        // call a double function
+        return d;
+    }
+
+
 
     // -------------------------------------------------------------------------
     // SECTION 3: function tables
