@@ -1691,6 +1691,7 @@ define([], function asm_llvm() {
                   "should be " + (should ? should.toString() : '?') +
                   ", but was " + (actual ? actual.toString() : '?'));
         };
+
         // Raise with a nice error message if the given binding is
         // a forward reference.  Since `ForwardReference` is only used
         // in narrow circumstances when parsing a call to a local function
@@ -1722,8 +1723,9 @@ define([], function asm_llvm() {
                   "Inconsistent type (was " + prevType.toString() +
                   ", now " + newType.toString()+")");
         };
+
+        // Broaden return type to intish or doublish.
         var broadenReturnType = function(type, pos) {
-            // Broaden return type to intish or doublish.
             if (type.isSubtypeOf(Types.Intish)) {
                 return Types.Intish;
             } else if (type.isSubtypeOf(Types.Doublish)) {
@@ -2171,9 +2173,8 @@ define([], function asm_llvm() {
             return left;
         };
 
-        // Parse a full expression. The arguments are used to forbid comma
-        // sequences (in argument lists, array literals, or object literals)
-        // or the `in` operator (in for loops initalization expressions).
+        // Parse a full expression. The argument is used to forbid comma
+        // sequences (in argument lists, array literals, or object literals).
 
         parseExpression = function(noComma) {
             var expr = parseMaybeAssign();
