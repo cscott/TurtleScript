@@ -19,7 +19,7 @@ install: build-publish
 	rsync -avz --exclude=.git --exclude='*~' publish/ cscott.net:public_html/Projects/TurtleScript/
 	rsync -avz --exclude=.git --exclude='*~' publish/ dev.laptop.org:public_html/TurtleScript/
 	$(RM) -rf clean
-	git clone -b gh-pages https://github.com/cscott/TurtleScript.git clean
+	git clone --reference . -b gh-pages https://github.com/cscott/TurtleScript.git clean
 	cd clean && git rm -rf .
 	cp -r publish/* publish/.[a-z]* clean/
 	cd clean && git add . && git commit -m "Updated `date`" && \
