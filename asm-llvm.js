@@ -120,7 +120,7 @@ define([], function asm_llvm() {
     });
     Types.Unsigned = Type.derive("unsigned", {
         value: true,
-        supertypes: [Types.Extern, Types.Int],
+        supertypes: [Types.Int],
         min: 2147483648, // 2^31
         max: 4294967295  // (2^32)-1
     });
@@ -1659,6 +1659,34 @@ define([], function asm_llvm() {
             } else { next(); }
         };
 
+        // It's sometimes handle to have a no-op function handy.
+        var noop = function() {};
+
+        // Eat up any left parens, returning a function to eat a
+        // corresponding number of right parens.
+        var parenStart = function() {
+            var numParens = 0;
+            while (eat(_parenL)) {
+                numParens += 1;
+            }
+            // optimize the common no-extra-parentheses case.
+            return (numParens===0) ? noop : function(onlySome) {
+                while (numParens) {
+                    if (onlySome && tokType!==_parenR) { return; }
+                    expect(_parenR);
+                    numParens -= 1;
+                }
+            };
+        };
+
+        // Allow parentheses to be wrapped around the given parser function.
+        var withParens = function(f) {
+            var parenEnd = parenStart();
+            var v = f();
+            parenEnd();
+            return v;
+        };
+
         // Restore old token position, prior to reparsing.
         // This lets us implement >1 token lookahead, which is needed
         // in a few places in the grammar (search for uses of backtrack()
@@ -1691,6 +1719,7 @@ define([], function asm_llvm() {
                   "should be " + (should ? should.toString() : '?') +
                   ", but was " + (actual ? actual.toString() : '?'));
         };
+
         // Raise with a nice error message if the given binding is
         // a forward reference.  Since `ForwardReference` is only used
         // in narrow circumstances when parsing a call to a local function
@@ -1722,8 +1751,9 @@ define([], function asm_llvm() {
                   "Inconsistent type (was " + prevType.toString() +
                   ", now " + newType.toString()+")");
         };
+
+        // Broaden return type to intish or doublish.
         var broadenReturnType = function(type, pos) {
-            // Broaden return type to intish or doublish.
             if (type.isSubtypeOf(Types.Intish)) {
                 return Types.Intish;
             } else if (type.isSubtypeOf(Types.Doublish)) {
@@ -1756,11 +1786,20 @@ define([], function asm_llvm() {
             return module.env.lookup(id);
         };
 
+        // Parse a numeric literal 0 (used for type annotations).
+        var parseLiteralZero = function() {
+            if (tokType !== _num || tokVal !== 0) {
+                raise(tokStart, "expected 0");
+            }
+            next();
+        };
+
         // Parse a numeric literal, returning a type and a value.
         var parseNumericLiteral = function() {
             var numStart = tokStart;
+            var parenClose = noop;
             var negate = (tokType===_plusmin && tokVal==='-');
-            if (negate) { next(); }
+            if (negate) { next(); parenClose = parenStart(); }
             var result = ConstantBinding.New(Types.Double, tokVal);
             if (tokType === _num) {
                 result.setIntType();
@@ -1770,7 +1809,7 @@ define([], function asm_llvm() {
             } else if (tokType !== _dotnum) {
                 raise(numStart, "expected a numeric literal");
             }
-            next();
+            next(); parenClose();
             if (negate) { result.negate(); }
             return result;
         };
@@ -2171,9 +2210,8 @@ define([], function asm_llvm() {
             return left;
         };
 
-        // Parse a full expression. The arguments are used to forbid comma
-        // sequences (in argument lists, array literals, or object literals)
-        // or the `in` operator (in for loops initalization expressions).
+        // Parse a full expression. The argument is used to forbid comma
+        // sequences (in argument lists, array literals, or object literals).
 
         parseExpression = function(noComma) {
             var expr = parseMaybeAssign();
@@ -2339,7 +2377,7 @@ define([], function asm_llvm() {
                         next();
                         if (isCase) {
                             startPos = tokStart;
-                            cur.test = parseNumericLiteral();
+                            cur.test = withParens(parseNumericLiteral);
                             typecheck(cur.test.type, Types.Signed,
                                       "switch case", startPos);
                             if (seen[cur.test.value]) {
@@ -2451,45 +2489,52 @@ define([], function asm_llvm() {
         // ### Module-internal function parsing
 
         // Parse a list of parameter type coercions.
-        // Note that we can't always tell these apart from body statements;
-        // we might have to backtrack.
-        var parseParameterTypeCoercions = function() {
-            var func = module.func;
-            var ptPos;
-            // Restore old token position before returning.
-            var bail = function() { return backtrack(ptPos); };
-            while (tokType === _name) {
-                // Save position of this token before starting to parse!
-                ptPos = tokStart;
+        // There will always be exactly as many of these as there are
+        // formal parameters.
+        var parseParameterTypeCoercions = function(numFormals) {
+            var func = module.func, startPos, parenClose, moreParen, ty;
+            while (numFormals) {
+                numFormals -= 1;
+                parenClose = parenStart();
+                startPos = tokStart;
                 var x = parseIdent();
+                parenClose('some');
+
                 var binding = func.env.lookup(x);
-                if (binding===null || binding.type!==Types.ForwardReference) {
-                    return bail(); // not a parameter name, or already coerced
+                if (binding===null) {
+                    raise(startPos, "expected parameter name");
+                } else if (binding.type!==Types.ForwardReference) {
+                    raise(startPos, "duplicate parameter coercion");
                 }
-                if (tokType === _eq) { next(); } else { return bail(); }
+                expect(_eq);
+                moreParen = parenStart();
                 if (tokType === _name && tokVal === x) {
                     // This is an `int` type annotation.
-                    next();
+                    ty = Types.Int;
+                    next(); moreParen('some');
                     if (!(tokType === _bin3 && tokVal === '|')) {
-                        return bail();
-                    } else { next(); }
-                    if (!(tokType === _num && tokVal === 0)) {
-                        return bail();
-                    } else { next(); }
-                    if (!(tokType === _semi)) { return bail(); }
-                    binding.type = mergeTypes(binding.type, Types.Int, ptPos);
+                        raise(tokStart, "expected | for int type annotation");
+                    }
+                    next();
+                    withParens(parseLiteralZero);
                 } else if (tokType === _plusmin && tokVal==='+') {
                     // This is a `double` type annotation.
+                    ty = Types.Double;
                     next();
-                    if (tokType === _name && tokVal === x) {
-                        next();
-                    } else { return bail(); }
-                    if (!(tokType === _semi)) { return bail(); }
-                    binding.type=mergeTypes(binding.type, Types.Double, ptPos);
+                    withParens(function() {
+                        if (tokType === _name && tokVal === x) {
+                            next();
+                        } else {
+                            raise(tokStart, "expected '"+x+"'");
+                        }
+                    });
                 } else {
-                    return bail();
+                    raise(tokStart, "expected int or double coercion");
                 }
-                expect(_semi);
+                binding.type = mergeTypes(binding.type, ty, startPos);
+                moreParen();
+                parenClose();
+                semicolon();
             }
         };
 
@@ -2502,7 +2547,7 @@ define([], function asm_llvm() {
                     var yPos = tokStart;
                     var y = parseIdent();
                     expect(_eq);
-                    var n = parseNumericLiteral();
+                    var n = withParens(parseNumericLiteral);
                     var ty = (n.type===Types.Double) ? Types.Double : Types.Int;
                     func.env.bind(y, LocalBinding.New(ty), yPos);
                     if (!eat(_comma)) { break; }
@@ -2537,7 +2582,7 @@ define([], function asm_llvm() {
 
             // Parse the parameter type coercion statements, then
             // verify that all the parameters were coerced to a type.
-            parseParameterTypeCoercions();
+            parseParameterTypeCoercions(func.params.length);
             func.params.forEach(function(param) {
                 if (func.env.lookup(param).type===Types.ForwardReference) {
                     raise(fPos, "No parameter type annotation found for '" +
@@ -2582,7 +2627,7 @@ define([], function asm_llvm() {
 
         // Parse a variable statement within a module.
         var parseModuleVariableStatement = function() {
-            var x, y, ty, startPos, yPos;
+            var x, y, ty, startPos, yPos, parenClose, moreParen;
             expect(_var);
             // Allow comma-separated var expressions.
             // (See https://github.com/dherman/asm.js/issues/63 .)
@@ -2590,6 +2635,7 @@ define([], function asm_llvm() {
                 startPos = tokStart;
                 x = parseIdent();
                 expect(_eq);
+                parenClose = parenStart();
                 // There are five types of variable statements:
                 if (tokType === _bracketL) {
                     // 1\. A function table.  (Only allowed at end of module.)
@@ -2597,7 +2643,7 @@ define([], function asm_llvm() {
                     var table = [], lastType;
                     while (!eat(_bracketR)) {
                         if (table.length > 0) { expect(_comma); }
-                        y = parseIdent();
+                        y = withParens(parseIdent);
                         var b = module.env.lookup(y);
                         /* validate consistent types of named functions */
                         if (!b) { raise(lastStart, "Unknown function '"+y+"'");}
@@ -2644,11 +2690,12 @@ define([], function asm_llvm() {
                     module.env.bind(x, GlobalBinding.New(ty, true), startPos);
                 } else if (tokType === _name && tokVal === module.stdlib) {
                     // 3\. A standard library import.
-                    next(); expect(_dot);
+                    next(); parenClose('some'); expect(_dot);
                     yPos = tokStart;
                     y = parseIdent();
                     if (y==='Math') {
-                        expect(_dot); y += '.' + parseIdent();
+                        parenClose('some'); expect(_dot);
+                        y += '.' + parseIdent();
                     }
                     ty = Types.stdlib[y];
                     if (!ty) { raise(yPos, "Unknown library import"); }
@@ -2657,16 +2704,18 @@ define([], function asm_llvm() {
                            (tokType === _name && tokVal === module.foreign)) {
                     // 4\. A foreign import.
                     var sawPlus = false, sawBar = false;
-                    if (tokType===_plusmin) { next(); sawPlus = true; }
-                    expectName(module.foreign, "<foreign>"); expect(_dot);
+                    if (tokType===_plusmin) {
+                        next(); sawPlus = true; moreParen = parenStart();
+                    } else { moreParen = parenClose; }
+                    expectName(module.foreign, "<foreign>");
+                    moreParen('some'); expect(_dot);
                     y = parseIdent();
+                    moreParen('some');
                     if (tokType === _bin3 && tokVal ==='|' && !sawPlus) {
                         next(); sawBar = true;
-                        if (tokType !== _num || tokVal !== 0) {
-                            raise(tokStart, "expected 0");
-                        }
-                        next();
+                        withParens(parseLiteralZero);
                     }
+                    moreParen();
                     ty = sawPlus ? Types.Double : sawBar ? Types.Int :
                         Types.Function;
                     // Foreign imports are mutable iff they are not
@@ -2676,7 +2725,10 @@ define([], function asm_llvm() {
                     module.env.bind(x, GlobalBinding.New(ty, mut), startPos);
                 } else if (tokType === _new) {
                     // 5\. A global heap view.
-                    next(); expectName(module.stdlib, "<stdlib>"); expect(_dot);
+                    next();
+                    moreParen = parenStart();
+                    expectName(module.stdlib, "<stdlib>");
+                    moreParen('some'); expect(_dot);
                     yPos = tokStart;
                     var view = parseIdent();
                     if (view === 'Int8Array') { ty = Types.IntArray(8); }
@@ -2688,11 +2740,15 @@ define([], function asm_llvm() {
                     else if (view === 'Float32Array') {ty=Types.FloatArray(32);}
                     else if (view === 'Float64Array') {ty=Types.FloatArray(64);}
                     else { raise(yPos, "unknown ArrayBufferView type"); }
+                    moreParen();
                     expect(_parenL);
+                    moreParen = parenStart();
                     expectName(module.heap, "<heap>");
+                    moreParen();
                     expect(_parenR);
                     module.env.bind(x, GlobalBinding.New(ty, false), startPos);
                 } else { unexpected(); }
+                parenClose();
                 if (!eat(_comma)) { break; }
             }
             semicolon();
@@ -2714,7 +2770,9 @@ define([], function asm_llvm() {
 
         // Parse the module export declaration (return statement).
         var parseModuleExportDeclaration = function() {
+            var parenClose;
             expect(_return);
+            parenClose = parenStart();
             var exports = module.exports = Object.create(null), first = true;
             var fStart = tokStart;
             var check = function(f) {
@@ -2731,16 +2789,17 @@ define([], function asm_llvm() {
                 var x = parseIdent();
                 expect(_colon);
                 fStart = tokStart;
-                var f = parseIdent();
+                var f = withParens(parseIdent);
                 exports[x] = check(f);
                 while (!eat(_braceR)) {
                     expect(_comma);
                     x = parseIdent();
                     expect(_colon);
-                    f = parseIdent();
+                    f = withParens(parseIdent);
                     exports[x] = check(f);
                 }
             }
+            parenClose();
             semicolon();
         };
 
@@ -2782,11 +2841,13 @@ define([], function asm_llvm() {
             }
             expect(_braceL);
             // Check for "use asm".
-            if (tokType !== _string ||
-                tokVal !== "use asm") {
-                raise(tokStart, "Expected to see 'use asm'");
-            }
-            next();
+            withParens(function() {
+                if (tokType !== _string ||
+                    tokVal !== "use asm") {
+                    raise(tokStart, "Expected to see 'use asm'");
+                }
+                next();
+            });
             semicolon();
 
             // Parse the body of the module.  Note that
