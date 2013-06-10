@@ -1470,6 +1470,13 @@ define([], function asm_llvm() {
             }
             this._map[x] = t;
         };
+        // Iterate over all the bindings in the environment.
+        Env.prototype.forEach = function(f) {
+            var map = this._map;
+            Object.keys(map).forEach(function(x) {
+                f(x.substring(1), map[x]);
+            });
+        };
 
         // ## Bindings
 
@@ -2982,7 +2989,12 @@ define([], function asm_llvm() {
             parseModuleExportDeclaration();
             expect(_braceR);
 
-            // XXX Verify that there are no longer any pending global types.
+            // Verify that there are no longer any pending global types.
+            module.env.forEach(function(name, binding) {
+                if (binding.pending) {
+                    raise(lastStart, "No definition found for '"+name+"'");
+                }
+            });
             return module;
         };
 
