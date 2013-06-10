@@ -47,7 +47,7 @@ function mymodule(stdlib, foreign, heap) {
         }
 
         // SECTION C: unconditional return
-        return (((x+1)|0)/(x|0))>>>0 // compound expression
+        return ((((x+1)|0)/(x|0))>>>0)|0 // compound expression
     }
 
     function g() {
@@ -101,7 +101,18 @@ function mymodule(stdlib, foreign, heap) {
         return d;
     }
 
-
+    // call an int function in a funny context
+    function jtest() {
+        if (!(j1(+itest()) | 0)) {
+            return 0
+        }
+        if (!((j2(+itest())) | 0)) {
+            return 1
+        }
+        return 2
+    }
+    function j1(d) { d=+d; return ~~d }
+    function j2(d) { d=+d; return ~~d }
 
     // -------------------------------------------------------------------------
     // SECTION 3: function tables

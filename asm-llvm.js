@@ -86,12 +86,6 @@ define([], function asm_llvm() {
     // Void is the type of functions that are not supposed to return any
     // useful value.
     Types.Void = Type.derive("void", { value: true });
-    // Make void a subtype of intish, since in practice JS functions return
-    // 'undefined', which can be cast to a double or int.  The choice of
-    // intish makes forward declarations easier.
-    // See discussion in mozilla
-    // [bug 854061](https://bugzilla.mozilla.org/show_bug.cgi?id=854061).
-    Types.Void.supertypes = [Types.Intish];
 
     // The other internal (non-escaping) types are 'unknown' and 'int'.
     // The unknown type represents a value returned from an FFI call.
@@ -167,7 +161,7 @@ define([], function asm_llvm() {
                 apply: arrowApply,
                 toString: arrowToString
             });
-            argtypes.forEach(function(ty, idx) {
+            Array.prototype.forEach.call(argtypes, function(ty, idx) {
                 var param = { length: (idx+1), toString: undefined };
                 param[idx] = ty;
                 result = result.derive(ty._id, param);
@@ -227,6 +221,14 @@ define([], function asm_llvm() {
     // Note that a value of ForwardReference type should always be actually
     // of type `Arrow` (local function) or `Table` (global function table).
     Types.ForwardReference = Type.derive("ForwardReference");
+    // We can't tell if a function/function table is *really void* until
+    // we've either seen the definition or verified that *none* of the use
+    // sites use the value returned.  See discussion in mozilla
+    // [bug 854061](https://bugzilla.mozilla.org/show_bug.cgi?id=854061).
+    // So we introduce a new `MaybeVoid` type, similar to `ForwardReference`.
+    // Functions which return `MaybeVoid` can later be refined so that they
+    // return `intish` or `doublish`.
+    Types.MaybeVoid = Type.derive("MaybeVoid");
 
     // Utility functions.
     var ceilLog2 = function(x) {
@@ -1748,8 +1750,20 @@ define([], function asm_llvm() {
         // more discussion of the single-forward-pass strategy.
         var mergeTypes = function(prevType, newType, pos) {
             if (prevType===Types.ForwardReference ||
+                prevType===Types.MaybeVoid ||
                 newType.isSubtypeOf(prevType)) {
                 return newType;
+            }
+            if (prevType.table && newType.table &&
+                prevType.size === newType.size) {
+                return Types.Table(mergeTypes(prevType.base, newType.base, pos),
+                                   newType.size);
+            }
+            if (prevType.arrow && newType.arrow &&
+                (!prevType.table) && (!newType.table) &&
+                prevType.retType === Types.MaybeVoid) {
+                return mergeTypes(Types.Arrow(prevType, newType.retType),
+                                  newType, pos);
             }
             raise(pos || tokStart,
                   "Inconsistent type (was " + prevType.toString() +
@@ -1758,13 +1772,15 @@ define([], function asm_llvm() {
 
         // Broaden return type to intish or doublish.
         var broadenReturnType = function(type, pos) {
-            if (type.isSubtypeOf(Types.Intish)) {
+            if (type === Types.Signed) {
                 return Types.Intish;
-            } else if (type.isSubtypeOf(Types.Doublish)) {
+            } else if (type === Types.Double) {
                 return Types.Doublish;
+            } else if (type === Types.Void || type === Types.MaybeVoid) {
+                return Types.Void;
             } else {
                 raise(pos || tokStart,
-                      "Return type must be intish or doublish");
+                      "Return type must be signed, double, or void");
             }
         };
 
@@ -1985,12 +2001,43 @@ define([], function asm_llvm() {
                 // infer the function type based on 'plusCoerced' (the
                 // surrounding context) and the argument types.
                 var makeFunctionTypeFromContext = function() {
-                    // Return type is either 'doublish' or 'intish'
-                    // XXX use leftContext.isValid() to find 'maybe void'
-                    //     return types
+                    // Return type is either `doublish`, `intish`, or `void`.
+                    // Have to look ahead past the surrounding parentheses
+                    // to see if the next tokens are `|0` in order to
+                    // distinguish `intish` from `void` contexts.
+                    var validPlusCoercion =
+                        (leftContext.leftOp==='+' && leftContext.isValid());
+                    var validIntCoercion = false;
+                    if (!validPlusCoercion) {
+                        // look for |0.  If there's no leftOp, we can close
+                        // up to leftContext.parenLevels parentheses.  If there
+                        // is a leftOp, it will bind tighter than the |0, so
+                        // don't allow closing the last paren.
+                        var oldPos = tokStart;
+                        var toClose = leftContext.parenLevels;
+                        if (leftContext.leftOp!==null) { toClose -= 1; }
+                        while (toClose > 0 && eat(_parenR)) {
+                            toClose -= 1;
+                        }
+                        if ((tokType === _bin3 && tokVal === '|') ||
+                            (tokType === _bin5 && tokVal === '&')) {
+                            next();
+                            toClose = 0;
+                            while (eat(_parenL)) { toClose+=1; }
+                            if (tokType === _num /*&& tokVal === 0*/) {
+                                next();
+                                while (toClose > 0 && eat(_parenR)) {
+                                    toClose-=1;
+                                }
+                                if (toClose===0) { validIntCoercion = true; }
+                            }
+                        }
+                        backtrack(oldPos);
+                    }
                     var retType =
-                        (leftContext.leftOp==='+' && leftContext.isValid()) ?
-                        Types.Doublish : Types.Intish;
+                        validPlusCoercion ? Types.Doublish :
+                        validIntCoercion ? Types.Intish :
+                        Types.MaybeVoid;
                     return Types.Arrow(argTypes.map(function(ty) {
                         // All argument types must be either 'double' or 'int'.
                         if (ty.isSubtypeOf(Types.Double)) {
@@ -2009,10 +2056,13 @@ define([], function asm_llvm() {
                         raise(startPos,
                               "function table size must be a power of 2");
                     }
-                    if (base.base.type === Types.ForwardReference) {
+                    if (base.base.type === Types.ForwardReference ||
+                        (base.base.type.table &&
+                         base.base.type.base.retType === Types.MaybeVoid)) {
+                        ty = Types.Table(makeFunctionTypeFromContext(),
+                                         base.index.andAmount+1);
                         base.base.type =
-                            Types.Table(makeFunctionTypeFromContext(),
-                                        base.index.andAmount+1);
+                            mergeTypes(base.base.type, ty, startPos);
                     }
                     if (!base.base.type.table) {
                         raise(startPos, "base should be function table");
@@ -2036,8 +2086,11 @@ define([], function asm_llvm() {
                 } else if (base.type.arrow || base.type.functiontypes ||
                            base.type === Types.ForwardReference) {
                     // Handle direct invocation of local function.
-                    if (base.type === Types.ForwardReference) {
-                        base.type = makeFunctionTypeFromContext();
+                    if (base.type === Types.ForwardReference ||
+                        base.type.retType === Types.MaybeVoid) {
+                        base.type = mergeTypes(base.type,
+                                               makeFunctionTypeFromContext(),
+                                               startPos);
                     }
                     ty = base.type.apply(argTypes);
                     if (ty===null) {
@@ -2406,7 +2459,15 @@ define([], function asm_llvm() {
                     ty = Types.Void;
                 } else {
                     var binding = defcheck(parseExpression(null)); semicolon();
-                    ty = broadenReturnType(binding.type, startPos);
+                    ty = binding.type;
+                    // Handle `return 0` which is `fixnum`, not `signed`.
+                    if (ty.isSubtypeOf(Types.Signed)) {
+                        ty = Types.Signed;
+                    }
+                }
+                if (ty!==Types.Void && ty!==Types.Double && ty!==Types.Signed) {
+                    raise(startPos,
+                          'return type must be double, signed, or void');
                 }
                 module.func.retType =
                     mergeTypes(module.func.retType, ty, startPos);
@@ -2622,7 +2683,7 @@ define([], function asm_llvm() {
                 id: null,
                 params: [],
                 env: Env.New(),
-                retType: Types.ForwardReference,
+                retType: Types.MaybeVoid,
                 labels: []
             };
             module.functions.push(func);
@@ -2657,16 +2718,14 @@ define([], function asm_llvm() {
             }
 
             // Now reconcile the type of the function.
-            if (func.retType === Types.ForwardReference) {
+            if (func.retType === Types.MaybeVoid) {
                 // If no return statement was seen, this function returns
                 // `void`.
                 func.retType = Types.Void;
             }
-            // Broaden return type to intish or doublish.
-            func.retType = broadenReturnType(func.retType);
             var ty = Types.Arrow(func.params.map(function(p) {
                 return func.env.lookup(p).type;
-            }), func.retType);
+            }), broadenReturnType(func.retType, fPos));
             var binding = module.env.lookup(func.id);
             if (binding===null || !binding.pending) {
                 // If the binding is not pending, the attempt to bind will
