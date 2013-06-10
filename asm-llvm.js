@@ -120,7 +120,7 @@ define([], function asm_llvm() {
     });
     Types.Unsigned = Type.derive("unsigned", {
         value: true,
-        supertypes: [Types.Extern, Types.Int],
+        supertypes: [Types.Int],
         min: 2147483648, // 2^31
         max: 4294967295  // (2^32)-1
     });
