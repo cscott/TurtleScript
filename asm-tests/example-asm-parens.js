@@ -41,13 +41,13 @@ function mymodule(stdlib, foreign, heap) {
         log(x|0)     // call into FFI -- must force the sign
         log(y)       // call into FFI -- already know it's a double
 
-        switch(~~zz){ //switch ((~(~(zz)))) {
+        switch ((~(~(zz)))) {
         case (0): ((z) = (2)); break;
         case (-(1024)): ((z) = (0)); break;
         }
 
         // SECTION C: unconditional return
-        return (((x+1)|0)/(x|0))>>>0 // compound expression
+        return ((((x+1)|0)/(x|0))>>>0)|0 // compound expression
     }
 
     function g() {
@@ -55,8 +55,24 @@ function mymodule(stdlib, foreign, heap) {
         return;
     }
 
+    function g2test() {
+        // call a void function, in a strange comma-using context.
+        // (pre-definition)
+        return +((g2()), 5);
+    }
+
     function g2() {
         return
+    }
+
+    function g3() {
+        return
+    }
+
+    function g3test() {
+        // call a void function, in a strange comma-using context.
+        // (post-definition)
+        return +((g3()), 5);
     }
 
     function h(i, x) {
@@ -74,6 +90,29 @@ function mymodule(stdlib, foreign, heap) {
         j = j + k
         return +k
     }
+
+    function itest() {
+        var d = 0.0;
+        d = +i(5.0);
+        d = +(i(d));
+        d = +(g3(), i(d));
+        d = +((g3()), (i(d)));
+        // call a double function
+        return d;
+    }
+
+    // call an int function in a funny context
+    function jtest() {
+        if (!(j1(+itest()) | 0)) {
+            return 0
+        }
+        if (!((j2(+itest())) | 0)) {
+            return 1
+        }
+        return 2
+    }
+    function j1(d) { d=+d; return ~~d }
+    function j2(d) { d=+d; return ~~d }
 
     // -------------------------------------------------------------------------
     // SECTION 3: function tables

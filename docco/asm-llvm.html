@@ -413,25 +413,6 @@ useful value.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
-              <p>Make void a subtype of intish, since in practice JS functions return
-&#39;undefined&#39;, which can be cast to a double or int.  The choice of
-intish makes forward declarations easier.
-See discussion in mozilla
-<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=854061">bug 854061</a>.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>    Types.Void.supertypes = [Types.Intish];</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-12">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-12">&#182;</a>
-              </div>
               <p>The other internal (non-escaping) types are &#39;unknown&#39; and &#39;int&#39;.
 The unknown type represents a value returned from an FFI call.</p>
 
@@ -445,11 +426,11 @@ The unknown type represents a value returned from an FFI call.</p>
         </li>
         
         
-        <li id="section-13">
+        <li id="section-12">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
+                <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
               <p>The int type is the type of 32-bit integers where the
 signedness is not known.</p>
@@ -464,11 +445,11 @@ signedness is not known.</p>
         </li>
         
         
-        <li id="section-14">
+        <li id="section-13">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
+                <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
               <p>The rest of the value types can escape into non-asm.js code.</p>
 
@@ -501,11 +482,11 @@ signedness is not known.</p>
         </li>
         
         
-        <li id="section-15">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-15">&#182;</a>
+                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
               <p>Global (non-value) types.</p>
 
@@ -541,11 +522,11 @@ signedness is not known.</p>
         </li>
         
         
-        <li id="section-16">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-16">&#182;</a>
+                <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
               <p>We derive a function type starting from the return type, and
 proceeding to the argument types in order.</p>
@@ -559,7 +540,7 @@ proceeding to the argument types in order.</p>
                 apply: arrowApply,
                 toString: arrowToString
             });
-            argtypes.forEach(<span class="keyword">function</span>(ty, idx) {
+            Array.prototype.forEach.call(argtypes, <span class="keyword">function</span>(ty, idx) {
                 <span class="keyword">var</span> param = { length: (idx+<span class="number">1</span>), toString: <span class="literal">undefined</span> };
                 param[idx] = ty;
                 result = result.derive(ty._id, param);
@@ -588,11 +569,11 @@ proceeding to the argument types in order.</p>
         </li>
         
         
-        <li id="section-17">
+        <li id="section-16">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-17">&#182;</a>
+                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               <p>Sort the function types by id, to make a canonical ordering,
 then derive the <code>FunctionTypes</code> type.</p>
@@ -628,11 +609,11 @@ then derive the <code>FunctionTypes</code> type.</p>
         </li>
         
         
-        <li id="section-18">
+        <li id="section-17">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-18">&#182;</a>
+                <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
               <p>Special type used to mark the module name, stdlib, foreign, and heap
 identifiers.</p>
@@ -644,11 +625,11 @@ identifiers.</p>
         </li>
         
         
-        <li id="section-19">
+        <li id="section-18">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-19">&#182;</a>
+                <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
               <p>Special type used to mark possible forward references.
 Note that a value of ForwardReference type should always be actually
@@ -657,6 +638,27 @@ of type <code>Arrow</code> (local function) or <code>Table</code> (global functi
             </div>
             
             <div class="content"><div class='highlight'><pre>    Types.ForwardReference = Type.derive(<span class="string">"ForwardReference"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>We can&#39;t tell if a function/function table is <em>really void</em> until
+we&#39;ve either seen the definition or verified that <em>none</em> of the use
+sites use the value returned.  See discussion in mozilla
+<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=854061">bug 854061</a>.
+So we introduce a new <code>MaybeVoid</code> type, similar to <code>ForwardReference</code>.
+Functions which return <code>MaybeVoid</code> can later be refined so that they
+return <code>intish</code> or <code>doublish</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    Types.MaybeVoid = Type.derive(<span class="string">"MaybeVoid"</span>);</pre></div></div>
             
         </li>
         
@@ -2181,10 +2183,7 @@ into it.</p>
         };
 
         <span class="keyword">var</span> readToken_tilde = <span class="keyword">function</span>(code) {
-            <span class="keyword">var</span> next = input.charCodeAt(tokPos+<span class="number">1</span>);
-            <span class="keyword">if</span> (next === code) { <span class="keyword">return</span> finishOp(_prefix, <span class="number">2</span>); } <span class="comment">// ~~</span>
-            <span class="keyword">return</span> finishOp(_prefix, <span class="number">1</span>);
-        };</pre></div></div>
+            <span class="keyword">var</span> next = input.charCodeAt(tokPos+<span class="number">1</span>);</pre></div></div>
             
         </li>
         
@@ -2194,6 +2193,25 @@ into it.</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-84">&#182;</a>
+              </div>
+              <p>We used to parse ~~ as a single token.  But since we can
+have arbitrary parenthesization, we now always parse as
+two separate tokens.
+if (next === code) { return finishOp(_prefix, 2); } // ~~</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">return</span> finishOp(_prefix, <span class="number">1</span>);
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-85">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-85">&#182;</a>
               </div>
               <p>This is a switch statement in the original acorn tokenizer.
 We don&#39;t support the &#39;switch&#39; syntax in TurtleScript, so use
@@ -2218,11 +2236,11 @@ an equivalent (but maybe slightly slower) table-of-functions.</p>
         </li>
         
         
-        <li id="section-85">
+        <li id="section-86">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-85">&#182;</a>
+                <a class="pilcrow" href="#section-86">&#182;</a>
               </div>
               <p>The interpretation of a dot depends on whether it is followed
 by a digit.</p>
@@ -2235,11 +2253,11 @@ by a digit.</p>
         </li>
         
         
-        <li id="section-86">
+        <li id="section-87">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-86">&#182;</a>
+                <a class="pilcrow" href="#section-87">&#182;</a>
               </div>
               <p>Punctuation tokens.</p>
 
@@ -2269,11 +2287,11 @@ by a digit.</p>
         </li>
         
         
-        <li id="section-87">
+        <li id="section-88">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-87">&#182;</a>
+                <a class="pilcrow" href="#section-88">&#182;</a>
               </div>
               <p>&#39;0x&#39; is a hexadecimal number.</p>
 
@@ -2287,11 +2305,11 @@ by a digit.</p>
         </li>
         
         
-        <li id="section-88">
+        <li id="section-89">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-88">&#182;</a>
+                <a class="pilcrow" href="#section-89">&#182;</a>
               </div>
               <p>Anything else beginning with a digit is an integer, octal
 number, or float.</p>
@@ -2310,11 +2328,11 @@ number, or float.</p>
         </li>
         
         
-        <li id="section-89">
+        <li id="section-90">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-89">&#182;</a>
+                <a class="pilcrow" href="#section-90">&#182;</a>
               </div>
               <p>Quotes produce strings.</p>
 
@@ -2326,11 +2344,11 @@ number, or float.</p>
         </li>
         
         
-        <li id="section-90">
+        <li id="section-91">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-90">&#182;</a>
+                <a class="pilcrow" href="#section-91">&#182;</a>
               </div>
               <p>Operators are parsed inline in tiny state machines. &#39;=&#39; (61) is
 often referred to. <code>finishOp</code> simply skips the amount of
@@ -2366,11 +2384,11 @@ of the type given by its first argument.</p>
         </li>
         
         
-        <li id="section-91">
+        <li id="section-92">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-91">&#182;</a>
+                <a class="pilcrow" href="#section-92">&#182;</a>
               </div>
               <p>XXX: forceRegexp is never true for asm.js</p>
 
@@ -2388,11 +2406,11 @@ of the type given by its first argument.</p>
         </li>
         
         
-        <li id="section-92">
+        <li id="section-93">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-92">&#182;</a>
+                <a class="pilcrow" href="#section-93">&#182;</a>
               </div>
               <p>Identifier or keyword. &#39;\uXXXX&#39; sequences are allowed in
 identifiers, so &#39;\&#39; also dispatches to that.</p>
@@ -2410,11 +2428,11 @@ identifiers, so &#39;\&#39; also dispatches to that.</p>
         </li>
         
         
-        <li id="section-93">
+        <li id="section-94">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-93">&#182;</a>
+                <a class="pilcrow" href="#section-94">&#182;</a>
               </div>
               <p>If we are here, we either found a non-ASCII identifier
 character, or something that&#39;s entirely disallowed.</p>
@@ -2427,11 +2445,11 @@ character, or something that&#39;s entirely disallowed.</p>
         </li>
         
         
-        <li id="section-94">
+        <li id="section-95">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-94">&#182;</a>
+                <a class="pilcrow" href="#section-95">&#182;</a>
               </div>
               <p>Don&#39;t use the regexp if we&#39;re running under TurtleScript.</p>
 
@@ -2455,11 +2473,11 @@ character, or something that&#39;s entirely disallowed.</p>
         </li>
         
         
-        <li id="section-95">
+        <li id="section-96">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-95">&#182;</a>
+                <a class="pilcrow" href="#section-96">&#182;</a>
               </div>
               <p>Parse a regular expression. Some context-awareness is necessary,
 since a &#39;/&#39; inside a &#39;[]&#39; set does not end the expression.</p>
@@ -2490,11 +2508,11 @@ since a &#39;/&#39; inside a &#39;[]&#39; set does not end the expression.</p>
         </li>
         
         
-        <li id="section-96">
+        <li id="section-97">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-96">&#182;</a>
+                <a class="pilcrow" href="#section-97">&#182;</a>
               </div>
               <p>Need to use <code>readWord1</code> because &#39;\uXXXX&#39; sequences are allowed
 here (don&#39;t ask).</p>
@@ -2511,11 +2529,11 @@ here (don&#39;t ask).</p>
         </li>
         
         
-        <li id="section-97">
+        <li id="section-98">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-97">&#182;</a>
+                <a class="pilcrow" href="#section-98">&#182;</a>
               </div>
               <p>Read an integer in the given radix. Return null if zero digits
 were read, the integer value otherwise. When <code>len</code> is given, this
@@ -2560,11 +2578,11 @@ will return <code>null</code> unless the integer has exactly <code>len</code> di
         </li>
         
         
-        <li id="section-98">
+        <li id="section-99">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-98">&#182;</a>
+                <a class="pilcrow" href="#section-99">&#182;</a>
               </div>
               <p>Read an integer, octal integer, or floating-point number.</p>
 
@@ -2606,11 +2624,11 @@ will return <code>null</code> unless the integer has exactly <code>len</code> di
         </li>
         
         
-        <li id="section-99">
+        <li id="section-100">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-99">&#182;</a>
+                <a class="pilcrow" href="#section-100">&#182;</a>
               </div>
               <p>Used to read character escape sequences (&#39;\x&#39;, &#39;\u&#39;, &#39;\U&#39;).</p>
 
@@ -2627,11 +2645,11 @@ will return <code>null</code> unless the integer has exactly <code>len</code> di
         </li>
         
         
-        <li id="section-100">
+        <li id="section-101">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-100">&#182;</a>
+                <a class="pilcrow" href="#section-101">&#182;</a>
               </div>
               <p>Read a string value, interpreting backslash-escapes.</p>
 
@@ -2678,11 +2696,11 @@ will return <code>null</code> unless the integer has exactly <code>len</code> di
         </li>
         
         
-        <li id="section-101">
+        <li id="section-102">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-101">&#182;</a>
+                <a class="pilcrow" href="#section-102">&#182;</a>
               </div>
               <p>This was a switch statement in acorn; we turned it
 into a binary search tree of ifs instead.</p>
@@ -2753,11 +2771,11 @@ into a binary search tree of ifs instead.</p>
         </li>
         
         
-        <li id="section-102">
+        <li id="section-103">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-102">&#182;</a>
+                <a class="pilcrow" href="#section-103">&#182;</a>
               </div>
               <p>Used to signal to callers of <code>readWord1</code> whether the word
 contained any escape sequences. This is needed because words with
@@ -2770,11 +2788,11 @@ escape sequences must not be interpreted as keywords.</p>
         </li>
         
         
-        <li id="section-103">
+        <li id="section-104">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-103">&#182;</a>
+                <a class="pilcrow" href="#section-104">&#182;</a>
               </div>
               <p>Read an identifier, and return it as a string. Sets <code>containsEsc</code>
 to whether the word contained a &#39;\u&#39; escape.</p>
@@ -2817,11 +2835,11 @@ containeds an escape, as a micro-optimization.</p>
         </li>
         
         
-        <li id="section-104">
+        <li id="section-105">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-104">&#182;</a>
+                <a class="pilcrow" href="#section-105">&#182;</a>
               </div>
               <p>Read an identifier or keyword token. Will check for reserved
 words when necessary.</p>
@@ -2845,11 +2863,11 @@ words when necessary.</p>
         </li>
         
         
-        <li id="section-105">
+        <li id="section-106">
             <div class="annotation">
               
               <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-105">&#182;</a>
+                <a class="pilcrow" href="#section-106">&#182;</a>
               </div>
               <h2>Environments</h2>
 <p>Environments track global and local variable definitions
@@ -2862,11 +2880,11 @@ as we parse the <code>asm.js</code> module source.</p>
         </li>
         
         
-        <li id="section-106">
+        <li id="section-107">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-106">&#182;</a>
+                <a class="pilcrow" href="#section-107">&#182;</a>
               </div>
               <p>Internally we use an object for a quick-and-dirty hashtable.</p>
 
@@ -2878,11 +2896,11 @@ as we parse the <code>asm.js</code> module source.</p>
         </li>
         
         
-        <li id="section-107">
+        <li id="section-108">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-107">&#182;</a>
+                <a class="pilcrow" href="#section-108">&#182;</a>
               </div>
               <p>Lookup an identifier in the environment.</p>
 
@@ -2893,11 +2911,11 @@ as we parse the <code>asm.js</code> module source.</p>
         </li>
         
         
-        <li id="section-108">
+        <li id="section-109">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-108">&#182;</a>
+                <a class="pilcrow" href="#section-109">&#182;</a>
               </div>
               <p>Prefix the identifier to avoid conflicts with built-in
 properties.</p>
@@ -2910,11 +2928,11 @@ properties.</p>
         </li>
         
         
-        <li id="section-109">
+        <li id="section-110">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-109">&#182;</a>
+                <a class="pilcrow" href="#section-110">&#182;</a>
               </div>
               <p>Bind a new identifier <code>x</code> to binding <code>t</code> in this environment.
 If something goes wrong, use <code>loc</code> in the error message.</p>
@@ -2935,11 +2953,31 @@ If something goes wrong, use <code>loc</code> in the error message.</p>
         </li>
         
         
-        <li id="section-110">
+        <li id="section-111">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-111">&#182;</a>
+              </div>
+              <p>Iterate over all the bindings in the environment.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        Env.prototype.forEach = <span class="keyword">function</span>(f) {
+            <span class="keyword">var</span> map = <span class="keyword">this</span>._map;
+            Object.keys(map).forEach(<span class="keyword">function</span>(x) {
+                f(x.substring(<span class="number">1</span>), map[x]);
+            });
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-112">
             <div class="annotation">
               
               <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-110">&#182;</a>
+                <a class="pilcrow" href="#section-112">&#182;</a>
               </div>
               <h2>Bindings</h2>
 <p>Environments map identifiers to &quot;bindings&quot;; these are also each
@@ -2961,11 +2999,11 @@ them for use in expression statements (<code>unNx</code>) and conditionals
         </li>
         
         
-        <li id="section-111">
+        <li id="section-113">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-111">&#182;</a>
+                <a class="pilcrow" href="#section-113">&#182;</a>
               </div>
               <p>We will need a unique symbol source for bindings.</p>
 
@@ -2984,11 +3022,11 @@ them for use in expression statements (<code>unNx</code>) and conditionals
         </li>
         
         
-        <li id="section-112">
+        <li id="section-114">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-112">&#182;</a>
+                <a class="pilcrow" href="#section-114">&#182;</a>
               </div>
               <p>Global environments map to a type as well as a mutability boolean.</p>
 
@@ -3002,11 +3040,11 @@ them for use in expression statements (<code>unNx</code>) and conditionals
         </li>
         
         
-        <li id="section-113">
+        <li id="section-115">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-113">&#182;</a>
+                <a class="pilcrow" href="#section-115">&#182;</a>
               </div>
               <p>Local environments map to a type and a local temporary.
 (This isn&#39;t quite right for compilation; local variables
@@ -3024,11 +3062,11 @@ alloca&#39;ed memory.)</p>
         </li>
         
         
-        <li id="section-114">
+        <li id="section-116">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-114">&#182;</a>
+                <a class="pilcrow" href="#section-116">&#182;</a>
               </div>
               <p>Temporary values are a type and a local temporary.</p>
 
@@ -3042,11 +3080,11 @@ alloca&#39;ed memory.)</p>
         </li>
         
         
-        <li id="section-115">
+        <li id="section-117">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-115">&#182;</a>
+                <a class="pilcrow" href="#section-117">&#182;</a>
               </div>
               <p>View references can be assigned to.  They have a type, and
 a local temporary, but the temporary is a pointer (not the
@@ -3062,11 +3100,11 @@ value itself).</p>
         </li>
         
         
-        <li id="section-116">
+        <li id="section-118">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-116">&#182;</a>
+                <a class="pilcrow" href="#section-118">&#182;</a>
               </div>
               <p>Function table references propagate some type information
 so that we can infer the type before seeing the declaration.</p>
@@ -3083,11 +3121,11 @@ so that we can infer the type before seeing the declaration.</p>
         </li>
         
         
-        <li id="section-117">
+        <li id="section-119">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-117">&#182;</a>
+                <a class="pilcrow" href="#section-119">&#182;</a>
               </div>
               <p>Constants are a type and a value.</p>
 
@@ -3101,11 +3139,11 @@ so that we can infer the type before seeing the declaration.</p>
         </li>
         
         
-        <li id="section-118">
+        <li id="section-120">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-118">&#182;</a>
+                <a class="pilcrow" href="#section-120">&#182;</a>
               </div>
               <p>Sets the type field for a <code>ConstantBinding</code>
 based on the value field, according to the rules for
@@ -3132,11 +3170,11 @@ NumericLiteral.</p>
         </li>
         
         
-        <li id="section-119">
+        <li id="section-121">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-119">&#182;</a>
+                <a class="pilcrow" href="#section-121">&#182;</a>
               </div>
               <p>Negate the value stored in a <code>ConstantBinding</code>, adjusting its
 type as necessary.  Used to finesse unary negation of literals.</p>
@@ -3154,11 +3192,11 @@ type as necessary.  Used to finesse unary negation of literals.</p>
         </li>
         
         
-        <li id="section-120">
+        <li id="section-122">
             <div class="annotation">
               
               <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-120">&#182;</a>
+                <a class="pilcrow" href="#section-122">&#182;</a>
               </div>
               <h2>Parser</h2>
 <p>A recursive descent parser operates by defining functions for all
@@ -3184,11 +3222,11 @@ that JavaScript defines.</p>
         </li>
         
         
-        <li id="section-121">
+        <li id="section-123">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-121">&#182;</a>
+                <a class="pilcrow" href="#section-123">&#182;</a>
               </div>
               <p>As we parse, there will always be an active module.</p>
 
@@ -3199,11 +3237,11 @@ that JavaScript defines.</p>
         </li>
         
         
-        <li id="section-122">
+        <li id="section-124">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-122">&#182;</a>
+                <a class="pilcrow" href="#section-124">&#182;</a>
               </div>
               <p>The main exported interface.</p>
 
@@ -3220,11 +3258,11 @@ that JavaScript defines.</p>
         </li>
         
         
-        <li id="section-123">
+        <li id="section-125">
             <div class="annotation">
               
               <div class="pilwrap for-h3">
-                <a class="pilcrow" href="#section-123">&#182;</a>
+                <a class="pilcrow" href="#section-125">&#182;</a>
               </div>
               <h3>Parser utilities</h3>
 <p>Raise an unexpected token error.</p>
@@ -3238,11 +3276,11 @@ that JavaScript defines.</p>
         </li>
         
         
-        <li id="section-124">
+        <li id="section-126">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-124">&#182;</a>
+                <a class="pilcrow" href="#section-126">&#182;</a>
               </div>
               <p>Continue to the next token.</p>
 
@@ -3258,11 +3296,11 @@ that JavaScript defines.</p>
         </li>
         
         
-        <li id="section-125">
+        <li id="section-127">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-125">&#182;</a>
+                <a class="pilcrow" href="#section-127">&#182;</a>
               </div>
               <p>Predicate that tests whether the next token is of the given
 type, and if yes, consumes it as a side effect.</p>
@@ -3279,11 +3317,11 @@ type, and if yes, consumes it as a side effect.</p>
         </li>
         
         
-        <li id="section-126">
+        <li id="section-128">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-126">&#182;</a>
+                <a class="pilcrow" href="#section-128">&#182;</a>
               </div>
               <p>Test whether a semicolon can be inserted at the current position.</p>
 
@@ -3298,11 +3336,11 @@ type, and if yes, consumes it as a side effect.</p>
         </li>
         
         
-        <li id="section-127">
+        <li id="section-129">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-127">&#182;</a>
+                <a class="pilcrow" href="#section-129">&#182;</a>
               </div>
               <p>Consume a semicolon, or, failing that, see if we are allowed to
 pretend that there is a semicolon at this position.</p>
@@ -3316,11 +3354,11 @@ pretend that there is a semicolon at this position.</p>
         </li>
         
         
-        <li id="section-128">
+        <li id="section-130">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-128">&#182;</a>
+                <a class="pilcrow" href="#section-130">&#182;</a>
               </div>
               <p>Expect a token of a given type. If found, consume it, otherwise,
 raise an unexpected token error.</p>
@@ -3335,11 +3373,11 @@ raise an unexpected token error.</p>
         </li>
         
         
-        <li id="section-129">
+        <li id="section-131">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-129">&#182;</a>
+                <a class="pilcrow" href="#section-131">&#182;</a>
               </div>
               <p>Expect a _name token matching the given identifier.  If found,
 consume it, otherwise raise an error.</p>
@@ -3355,11 +3393,11 @@ consume it, otherwise raise an error.</p>
         </li>
         
         
-        <li id="section-130">
+        <li id="section-132">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-130">&#182;</a>
+                <a class="pilcrow" href="#section-132">&#182;</a>
               </div>
               <p>It&#39;s sometimes handle to have a no-op function handy.</p>
 
@@ -3370,11 +3408,11 @@ consume it, otherwise raise an error.</p>
         </li>
         
         
-        <li id="section-131">
+        <li id="section-133">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-131">&#182;</a>
+                <a class="pilcrow" href="#section-133">&#182;</a>
               </div>
               <p>Eat up any left parens, returning a function to eat a
 corresponding number of right parens.</p>
@@ -3390,11 +3428,11 @@ corresponding number of right parens.</p>
         </li>
         
         
-        <li id="section-132">
+        <li id="section-134">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-132">&#182;</a>
+                <a class="pilcrow" href="#section-134">&#182;</a>
               </div>
               <p>optimize the common no-extra-parentheses case.</p>
 
@@ -3412,11 +3450,11 @@ corresponding number of right parens.</p>
         </li>
         
         
-        <li id="section-133">
+        <li id="section-135">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-133">&#182;</a>
+                <a class="pilcrow" href="#section-135">&#182;</a>
               </div>
               <p>Allow parentheses to be wrapped around the given parser function.</p>
 
@@ -3432,11 +3470,11 @@ corresponding number of right parens.</p>
         </li>
         
         
-        <li id="section-134">
+        <li id="section-136">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-134">&#182;</a>
+                <a class="pilcrow" href="#section-136">&#182;</a>
               </div>
               <p>Restore old token position, prior to reparsing.
 This lets us implement &gt;1 token lookahead, which is needed
@@ -3445,16 +3483,17 @@ to find them).</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> backtrack = <span class="keyword">function</span>(oldPos, retval) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> backtrack = <span class="keyword">function</span>(oldPos, retval) {
+            <span class="keyword">if</span> (tokStart === oldPos) { <span class="keyword">return</span> retval; } <span class="comment">// fast path</span></pre></div></div>
             
         </li>
         
         
-        <li id="section-135">
+        <li id="section-137">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-135">&#182;</a>
+                <a class="pilcrow" href="#section-137">&#182;</a>
               </div>
               <p>Restore old position.</p>
 
@@ -3465,11 +3504,11 @@ to find them).</p>
         </li>
         
         
-        <li id="section-136">
+        <li id="section-138">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-136">&#182;</a>
+                <a class="pilcrow" href="#section-138">&#182;</a>
               </div>
               <p>Adjust the line counter.</p>
 
@@ -3484,11 +3523,11 @@ to find them).</p>
         </li>
         
         
-        <li id="section-137">
+        <li id="section-139">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-137">&#182;</a>
+                <a class="pilcrow" href="#section-139">&#182;</a>
               </div>
               <p>Re-read the token at that position.</p>
 
@@ -3500,11 +3539,11 @@ to find them).</p>
         </li>
         
         
-        <li id="section-138">
+        <li id="section-140">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-138">&#182;</a>
+                <a class="pilcrow" href="#section-140">&#182;</a>
               </div>
               <p>Optionally, return a value (useful for <code>return backtrack(...)</code>
 statements).</p>
@@ -3517,11 +3556,11 @@ statements).</p>
         </li>
         
         
-        <li id="section-139">
+        <li id="section-141">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-139">&#182;</a>
+                <a class="pilcrow" href="#section-141">&#182;</a>
               </div>
               <p>Raise with a nice error message if the given type isn&#39;t
 a subtype of that provided.</p>
@@ -3541,11 +3580,11 @@ a subtype of that provided.</p>
         </li>
         
         
-        <li id="section-140">
+        <li id="section-142">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-140">&#182;</a>
+                <a class="pilcrow" href="#section-142">&#182;</a>
               </div>
               <p>Raise with a nice error message if the given binding is
 a forward reference.  Since <code>ForwardReference</code> is only used
@@ -3567,11 +3606,11 @@ not be a forward reference.</p>
         </li>
         
         
-        <li id="section-141">
+        <li id="section-143">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-141">&#182;</a>
+                <a class="pilcrow" href="#section-143">&#182;</a>
               </div>
               <p>Merge types.  This is used for single-forward-pass compilation:
 when we first see a reference to a function (or its return type)
@@ -3586,8 +3625,20 @@ more discussion of the single-forward-pass strategy.</p>
             
             <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> mergeTypes = <span class="keyword">function</span>(prevType, newType, pos) {
             <span class="keyword">if</span> (prevType===Types.ForwardReference ||
+                prevType===Types.MaybeVoid ||
                 newType.isSubtypeOf(prevType)) {
                 <span class="keyword">return</span> newType;
+            }
+            <span class="keyword">if</span> (prevType.table &amp;&amp; newType.table &amp;&amp;
+                prevType.size === newType.size) {
+                <span class="keyword">return</span> Types.Table(mergeTypes(prevType.base, newType.base, pos),
+                                   newType.size);
+            }
+            <span class="keyword">if</span> (prevType.arrow &amp;&amp; newType.arrow &amp;&amp;
+                (!prevType.table) &amp;&amp; (!newType.table) &amp;&amp;
+                prevType.retType === Types.MaybeVoid) {
+                <span class="keyword">return</span> mergeTypes(Types.Arrow(prevType, newType.retType),
+                                  newType, pos);
             }
             raise(pos || tokStart,
                   <span class="string">"Inconsistent type (was "</span> + prevType.toString() +
@@ -3597,35 +3648,120 @@ more discussion of the single-forward-pass strategy.</p>
         </li>
         
         
-        <li id="section-142">
+        <li id="section-144">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-142">&#182;</a>
+                <a class="pilcrow" href="#section-144">&#182;</a>
               </div>
               <p>Broaden return type to intish or doublish.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> broadenReturnType = <span class="keyword">function</span>(type, pos) {
-            <span class="keyword">if</span> (type.isSubtypeOf(Types.Intish)) {
+            <span class="keyword">if</span> (type === Types.Signed) {
                 <span class="keyword">return</span> Types.Intish;
-            } <span class="keyword">else</span> <span class="keyword">if</span> (type.isSubtypeOf(Types.Doublish)) {
+            } <span class="keyword">else</span> <span class="keyword">if</span> (type === Types.Double) {
                 <span class="keyword">return</span> Types.Doublish;
+            } <span class="keyword">else</span> <span class="keyword">if</span> (type === Types.Void || type === Types.MaybeVoid) {
+                <span class="keyword">return</span> Types.Void;
             } <span class="keyword">else</span> {
                 raise(pos || tokStart,
-                      <span class="string">"Return type must be intish or doublish"</span>);
+                      <span class="string">"Return type must be signed, double, or void"</span>);
             }
         };</pre></div></div>
             
         </li>
         
         
-        <li id="section-143">
+        <li id="section-145">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-145">&#182;</a>
+              </div>
+              <p>We have to maintain left context when parsing
+(possibly-parenthesized) expressions.  Namely: is the nearest
+unary operator a <code>+</code> or <code>~</code>, and how many levels of parentheses
+do I have to look ahead past in order to determine if there&#39;s
+an <code>|0</code> cast on this expression?</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> LeftContext = <span class="keyword">function</span>(leftOp) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-146">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-146">&#182;</a>
+              </div>
+              <p>The most recently-seen unary operator.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.leftOp = leftOp || <span class="literal">null</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-147">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-147">&#182;</a>
+              </div>
+              <p>The number of parentheses since that operator (or the top of
+the expression, if <code>leftOp</code> is <code>null</code>).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.parenLevels = <span class="number">0</span>;
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-148">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-148">&#182;</a>
+              </div>
+              <p>Look ahead <code>parenLevels</code> tokens, to check that all the open
+parentheses are closed.  If they are not, then the unary operator
+on the left doesn&#39;t actually apply to this expression.
+If parameter <code>f</code> is given, it will be run after the parenthesis
+are closed, and can test right hand context.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        LeftContext.prototype.isValid = <span class="keyword">function</span>(f) {
+            <span class="keyword">var</span> startPos = tokStart;
+            <span class="keyword">var</span> count = <span class="keyword">this</span>.parenLevels;
+            <span class="keyword">var</span> valid = <span class="literal">true</span>;
+            <span class="keyword">while</span> (count &gt; <span class="number">0</span> &amp;&amp; eat(_parenR)) {
+                count -= <span class="number">1</span>;
+            }
+            <span class="keyword">if</span> (count &gt; <span class="number">0</span>) {
+                valid = <span class="literal">false</span>;
+            } <span class="keyword">else</span> <span class="keyword">if</span> (f) {
+                valid = f();
+            }
+            <span class="keyword">return</span> backtrack(startPos, valid);
+        };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-149">
             <div class="annotation">
               
               <div class="pilwrap for-h3">
-                <a class="pilcrow" href="#section-143">&#182;</a>
+                <a class="pilcrow" href="#section-149">&#182;</a>
               </div>
               <h3>Literal parsing</h3>
 <p>Parse the next token as an identifier. If <code>liberal</code> is true (used
@@ -3645,11 +3781,11 @@ identifiers.</p>
         </li>
         
         
-        <li id="section-144">
+        <li id="section-150">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-144">&#182;</a>
+                <a class="pilcrow" href="#section-150">&#182;</a>
               </div>
               <p>Look up an identifier in the local and global environments.</p>
 
@@ -3666,11 +3802,11 @@ identifiers.</p>
         </li>
         
         
-        <li id="section-145">
+        <li id="section-151">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-145">&#182;</a>
+                <a class="pilcrow" href="#section-151">&#182;</a>
               </div>
               <p>Parse a numeric literal 0 (used for type annotations).</p>
 
@@ -3686,11 +3822,11 @@ identifiers.</p>
         </li>
         
         
-        <li id="section-146">
+        <li id="section-152">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-146">&#182;</a>
+                <a class="pilcrow" href="#section-152">&#182;</a>
               </div>
               <p>Parse a numeric literal, returning a type and a value.</p>
 
@@ -3718,11 +3854,11 @@ identifiers.</p>
         </li>
         
         
-        <li id="section-147">
+        <li id="section-153">
             <div class="annotation">
               
               <div class="pilwrap for-h3">
-                <a class="pilcrow" href="#section-147">&#182;</a>
+                <a class="pilcrow" href="#section-153">&#182;</a>
               </div>
               <h3>Expression parsing</h3>
 <p>These nest, from the most general expression type at the top to
@@ -3738,11 +3874,11 @@ the AST node that the inner parser gave them in another node.</p>
         </li>
         
         
-        <li id="section-148">
+        <li id="section-154">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-148">&#182;</a>
+                <a class="pilcrow" href="#section-154">&#182;</a>
               </div>
               <p>Parses a comma-separated list of expressions, and returns them as
 an array. <code>close</code> is the token type that ends the list, and
@@ -3765,7 +3901,7 @@ for array literals).</p>
                 }
 
                 <span class="keyword">if</span> (allowEmpty &amp;&amp; tokType === _comma) { elts.push(<span class="literal">null</span>); }
-                <span class="keyword">else</span> { elts.push(parseExpression(<span class="literal">true</span>)); }
+                <span class="keyword">else</span> { elts.push(parseExpression(<span class="literal">null</span>, <span class="literal">true</span>)); }
             }
             <span class="keyword">return</span> elts;
         };</pre></div></div>
@@ -3773,11 +3909,11 @@ for array literals).</p>
         </li>
         
         
-        <li id="section-149">
+        <li id="section-155">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-149">&#182;</a>
+                <a class="pilcrow" href="#section-155">&#182;</a>
               </div>
               <p>Parse an atomic expression — either a single token that is an
 expression, an expression started by a keyword like <code>function</code> or
@@ -3786,7 +3922,7 @@ or <code>{}</code>.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseExprAtom = <span class="keyword">function</span>() {
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseExprAtom = <span class="keyword">function</span>(leftContext) {
             <span class="keyword">if</span> (tokType === _name) {
                 <span class="keyword">var</span> id = parseIdent();
                 <span class="keyword">var</span> binding = moduleLookup(id);
@@ -3795,11 +3931,11 @@ or <code>{}</code>.</p>
         </li>
         
         
-        <li id="section-150">
+        <li id="section-156">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-150">&#182;</a>
+                <a class="pilcrow" href="#section-156">&#182;</a>
               </div>
               <p>Let&#39;s put a stub global binding in place; maybe this
 is a reference to a function or function table type
@@ -3820,7 +3956,9 @@ which has not yet been defined.</p>
 
             } <span class="keyword">else</span> <span class="keyword">if</span> (tokType === _parenL) {
                 next();
-                <span class="keyword">var</span> val = parseExpression();
+                leftContext.parenLevels += <span class="number">1</span>;
+                <span class="keyword">var</span> val = parseExpression(leftContext);
+                leftContext.parenLevels -= <span class="number">1</span>;
                 expect(_parenR);
                 <span class="keyword">return</span> val;
 
@@ -3832,11 +3970,11 @@ which has not yet been defined.</p>
         </li>
         
         
-        <li id="section-151">
+        <li id="section-157">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-151">&#182;</a>
+                <a class="pilcrow" href="#section-157">&#182;</a>
               </div>
               <p>Parse expression inside <code>[]</code>-subscript.</p>
 
@@ -3844,16 +3982,16 @@ which has not yet been defined.</p>
             
             <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseBracketExpression = <span class="keyword">function</span>(base) {
             <span class="keyword">var</span> startPos = tokStart;
-            <span class="keyword">var</span> property = parseExpression();</pre></div></div>
+            <span class="keyword">var</span> property = parseExpression(<span class="literal">null</span>);</pre></div></div>
             
         </li>
         
         
-        <li id="section-152">
+        <li id="section-158">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-152">&#182;</a>
+                <a class="pilcrow" href="#section-158">&#182;</a>
               </div>
               <p>This will be a MemberExpression (or a CallExpression
 through function table).</p>
@@ -3866,11 +4004,11 @@ through function table).</p>
         </li>
         
         
-        <li id="section-153">
+        <li id="section-159">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-153">&#182;</a>
+                <a class="pilcrow" href="#section-159">&#182;</a>
               </div>
               <p><code>MemberExpression := x:Identifier[n:NumericLiteral]</code></p>
 
@@ -3887,11 +4025,11 @@ through function table).</p>
         </li>
         
         
-        <li id="section-154">
+        <li id="section-160">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-154">&#182;</a>
+                <a class="pilcrow" href="#section-160">&#182;</a>
               </div>
               <p><code>MemberExpression := x:Identifier[expr:Expression]</code></p>
 
@@ -3906,11 +4044,11 @@ through function table).</p>
         </li>
         
         
-        <li id="section-155">
+        <li id="section-161">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-155">&#182;</a>
+                <a class="pilcrow" href="#section-161">&#182;</a>
               </div>
               <p><code>MemberExpression := x:Identifier[expr:Expression &gt;&gt; n:NumericLiteral]</code></p>
 
@@ -3931,11 +4069,11 @@ through function table).</p>
         </li>
         
         
-        <li id="section-156">
+        <li id="section-162">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-156">&#182;</a>
+                <a class="pilcrow" href="#section-162">&#182;</a>
               </div>
               <p>Try to parse as a function table lookup:
 <code>x:Identifier[index:Expression &amp; n:NumericLiteral](arg:Expression,...)</code></p>
@@ -3951,33 +4089,33 @@ through function table).</p>
         </li>
         
         
-        <li id="section-157">
+        <li id="section-163">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-157">&#182;</a>
+                <a class="pilcrow" href="#section-163">&#182;</a>
               </div>
               <p>Parse call, dot, and <code>[]</code>-subscript expressions.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseSubscripts = <span class="keyword">function</span>(base, plusCoerced) {
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseSubscripts = <span class="keyword">function</span>(base, leftContext) {
             <span class="keyword">if</span> (eat(_dot)) {
                 raise(lastStart, <span class="string">"operator not allowed: ."</span>);
             } <span class="keyword">else</span> <span class="keyword">if</span> (eat(_bracketL)) {
                 base = parseBracketExpression(base);
                 expect(_bracketR);
-                <span class="keyword">return</span> parseSubscripts(base, plusCoerced);
+                <span class="keyword">return</span> parseSubscripts(base, leftContext);
             } <span class="keyword">else</span> <span class="keyword">if</span> (eat(_parenL)) {</pre></div></div>
             
         </li>
         
         
-        <li id="section-158">
+        <li id="section-164">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-158">&#182;</a>
+                <a class="pilcrow" href="#section-164">&#182;</a>
               </div>
               <p>Parse a call expression.</p>
 
@@ -3989,11 +4127,11 @@ through function table).</p>
         </li>
         
         
-        <li id="section-159">
+        <li id="section-165">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-159">&#182;</a>
+                <a class="pilcrow" href="#section-165">&#182;</a>
               </div>
               <p>Type check the call based on the argument types.</p>
 
@@ -4007,11 +4145,11 @@ through function table).</p>
         </li>
         
         
-        <li id="section-160">
+        <li id="section-166">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-160">&#182;</a>
+                <a class="pilcrow" href="#section-166">&#182;</a>
               </div>
               <p>If this is a forward reference to a future function,
 infer the function type based on &#39;plusCoerced&#39; (the
@@ -4019,17 +4157,80 @@ surrounding context) and the argument types.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> makeFunctionTypeFromContext = <span class="keyword">function</span>() {
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> makeFunctionTypeFromContext = <span class="keyword">function</span>() {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-167">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-167">&#182;</a>
+              </div>
+              <p>Return type is either <code>doublish</code>, <code>intish</code>, or <code>void</code>.
+Have to look ahead past the surrounding parentheses
+to see if the next tokens are <code>|0</code> in order to
+distinguish <code>intish</code> from <code>void</code> contexts.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    <span class="keyword">var</span> validPlusCoercion =
+                        (leftContext.leftOp===<span class="string">'+'</span> &amp;&amp; leftContext.isValid());
+                    <span class="keyword">var</span> validIntCoercion = <span class="literal">false</span>;
+                    <span class="keyword">if</span> (!validPlusCoercion) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-168">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-168">&#182;</a>
+              </div>
+              <p>look for |0.  If there&#39;s no leftOp, we can close
+up to leftContext.parenLevels parentheses.  If there
+is a leftOp, it will bind tighter than the |0, so
+don&#39;t allow closing the last paren.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                        <span class="keyword">var</span> oldPos = tokStart;
+                        <span class="keyword">var</span> toClose = leftContext.parenLevels;
+                        <span class="keyword">if</span> (leftContext.leftOp!==<span class="literal">null</span>) { toClose -= <span class="number">1</span>; }
+                        <span class="keyword">while</span> (toClose &gt; <span class="number">0</span> &amp;&amp; eat(_parenR)) {
+                            toClose -= <span class="number">1</span>;
+                        }
+                        <span class="keyword">if</span> ((tokType === _bin3 &amp;&amp; tokVal === <span class="string">'|'</span>) ||
+                            (tokType === _bin5 &amp;&amp; tokVal === <span class="string">'&amp;'</span>)) {
+                            next();
+                            toClose = <span class="number">0</span>;
+                            <span class="keyword">while</span> (eat(_parenL)) { toClose+=<span class="number">1</span>; }
+                            <span class="keyword">if</span> (tokType === _num <span class="comment">/*&amp;&amp; tokVal === 0*/</span>) {
+                                next();
+                                <span class="keyword">while</span> (toClose &gt; <span class="number">0</span> &amp;&amp; eat(_parenR)) {
+                                    toClose-=<span class="number">1</span>;
+                                }
+                                <span class="keyword">if</span> (toClose===<span class="number">0</span>) { validIntCoercion = <span class="literal">true</span>; }
+                            }
+                        }
+                        backtrack(oldPos);
+                    }
+                    <span class="keyword">var</span> retType =
+                        validPlusCoercion ? Types.Doublish :
+                        validIntCoercion ? Types.Intish :
+                        Types.MaybeVoid;
                     <span class="keyword">return</span> Types.Arrow(argTypes.map(<span class="keyword">function</span>(ty) {</pre></div></div>
             
         </li>
         
         
-        <li id="section-161">
+        <li id="section-169">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-161">&#182;</a>
+                <a class="pilcrow" href="#section-169">&#182;</a>
               </div>
               <p>All argument types must be either &#39;double&#39; or &#39;int&#39;.</p>
 
@@ -4042,33 +4243,19 @@ surrounding context) and the argument types.</p>
                         } <span class="keyword">else</span> {
                             raise(startPos, <span class="string">"function arguments must be "</span>+
                                   <span class="string">"coerced to either double or int"</span>);
-                        }</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-162">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-162">&#182;</a>
-              </div>
-              <p>Return type is either &#39;doublish&#39; or &#39;intish&#39;</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>                    }), plusCoerced ? Types.Doublish : Types.Intish);
+                        }
+                    }), retType);
                 };
                 <span class="keyword">if</span> (TableBinding.hasInstance(base)) {</pre></div></div>
             
         </li>
         
         
-        <li id="section-163">
+        <li id="section-170">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-163">&#182;</a>
+                <a class="pilcrow" href="#section-170">&#182;</a>
               </div>
               <p>Handle an indirect invocation through a function table.</p>
 
@@ -4078,10 +4265,13 @@ surrounding context) and the argument types.</p>
                         raise(startPos,
                               <span class="string">"function table size must be a power of 2"</span>);
                     }
-                    <span class="keyword">if</span> (base.base.type === Types.ForwardReference) {
+                    <span class="keyword">if</span> (base.base.type === Types.ForwardReference ||
+                        (base.base.type.table &amp;&amp;
+                         base.base.type.base.retType === Types.MaybeVoid)) {
+                        ty = Types.Table(makeFunctionTypeFromContext(),
+                                         base.index.andAmount+<span class="number">1</span>);
                         base.base.type =
-                            Types.Table(makeFunctionTypeFromContext(),
-                                        base.index.andAmount+<span class="number">1</span>);
+                            mergeTypes(base.base.type, ty, startPos);
                     }
                     <span class="keyword">if</span> (!base.base.type.table) {
                         raise(startPos, <span class="string">"base should be function table"</span>);
@@ -4100,11 +4290,11 @@ surrounding context) and the argument types.</p>
         </li>
         
         
-        <li id="section-164">
+        <li id="section-171">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-164">&#182;</a>
+                <a class="pilcrow" href="#section-171">&#182;</a>
               </div>
               <p>Handle foreign function invocation.</p>
 
@@ -4121,18 +4311,21 @@ surrounding context) and the argument types.</p>
         </li>
         
         
-        <li id="section-165">
+        <li id="section-172">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-165">&#182;</a>
+                <a class="pilcrow" href="#section-172">&#182;</a>
               </div>
               <p>Handle direct invocation of local function.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    <span class="keyword">if</span> (base.type === Types.ForwardReference) {
-                        base.type = makeFunctionTypeFromContext();
+            <div class="content"><div class='highlight'><pre>                    <span class="keyword">if</span> (base.type === Types.ForwardReference ||
+                        base.type.retType === Types.MaybeVoid) {
+                        base.type = mergeTypes(base.type,
+                                               makeFunctionTypeFromContext(),
+                                               startPos);
                     }
                     ty = base.type.apply(argTypes);
                     <span class="keyword">if</span> (ty===<span class="literal">null</span>) {
@@ -4143,12 +4336,12 @@ surrounding context) and the argument types.</p>
                 } <span class="keyword">else</span> {
                     raise(startPos, <span class="string">"bad call expression"</span>);
                 }
-                <span class="keyword">return</span> parseSubscripts(binding, plusCoerced);
+                <span class="keyword">return</span> parseSubscripts(binding, leftContext);
             } <span class="keyword">else</span> { <span class="keyword">return</span> base; }
         };
 
-        <span class="keyword">var</span> parseExprSubscripts = <span class="keyword">function</span>(plusCoerced) {
-            <span class="keyword">var</span> b = parseSubscripts(parseExprAtom(), plusCoerced);
+        <span class="keyword">var</span> parseExprSubscripts = <span class="keyword">function</span>(leftContext) {
+            <span class="keyword">var</span> b = parseSubscripts(parseExprAtom(leftContext), leftContext);
             <span class="keyword">if</span> (TableBinding.hasInstance(b)) {
                 raise(tokStart, <span class="string">"incomplete function table lookup"</span>);
             }
@@ -4158,18 +4351,18 @@ surrounding context) and the argument types.</p>
         </li>
         
         
-        <li id="section-166">
+        <li id="section-173">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-166">&#182;</a>
+                <a class="pilcrow" href="#section-173">&#182;</a>
               </div>
               <p>Parse unary operators, both prefix and postfix.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseMaybeUnary = <span class="keyword">function</span>(plusCoerced) {
-            <span class="keyword">var</span> node;
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseMaybeUnary = <span class="keyword">function</span>(leftContext) {
+            <span class="keyword">var</span> node, binding;
             <span class="keyword">if</span> (tokType.prefix) {
                 <span class="keyword">var</span> opPos = tokStart;
                 <span class="keyword">var</span> update = tokType.isUpdate; <span class="comment">// for ++/--</span>
@@ -4180,16 +4373,17 @@ surrounding context) and the argument types.</p>
                 }
                 console.assert(!update);
                 next();
-                <span class="keyword">var</span> argument = defcheck(parseMaybeUnary(operator===<span class="string">'+'</span>));</pre></div></div>
+                <span class="keyword">var</span> argument =
+                    defcheck(parseMaybeUnary(LeftContext.New(operator)));</pre></div></div>
             
         </li>
         
         
-        <li id="section-167">
+        <li id="section-174">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-167">&#182;</a>
+                <a class="pilcrow" href="#section-174">&#182;</a>
               </div>
               <p>Special case the negation of a constant.</p>
 
@@ -4197,15 +4391,54 @@ surrounding context) and the argument types.</p>
             
             <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (ConstantBinding.hasInstance(argument) &amp;&amp; operator===<span class="string">'-'</span>) {
                     <span class="keyword">return</span> argument.negate();
+                }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-175">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-175">&#182;</a>
+              </div>
+              <p>Special case the double-tilde operator (~~)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (argument.doubleTilde) {
+                    argument.doubleTilde = <span class="literal">false</span>; <span class="comment">// careful about ~~~</span>
+                    <span class="keyword">return</span> argument;
                 }
-                ty = ty.apply([argument.type]);
+                <span class="keyword">if</span> (operator===<span class="string">'~'</span> &amp;&amp; leftContext.leftOp===<span class="string">'~'</span> &amp;&amp;
+                    leftContext.isValid()) {
+                    operator=<span class="string">'~~'</span>;
+                    ty = Types.unary[operator];
+                }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-176">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-176">&#182;</a>
+              </div>
+              <p>Type check the operator against the argument type.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                ty = ty.apply([argument.type]);
                 <span class="keyword">if</span> (ty===<span class="literal">null</span>) {
                     raise(opPos, <span class="string">"unary "</span>+operator+<span class="string">" fails to validate: "</span>+
                           operator+<span class="string">" "</span>+argument.type.toString());
                 }
-                <span class="keyword">return</span> TempBinding.New(ty);
+                binding = TempBinding.New(ty);
+                <span class="keyword">if</span> (operator===<span class="string">'~~'</span>) { binding.doubleTilde = <span class="literal">true</span>; }
+                <span class="keyword">return</span> binding;
             }
-            <span class="keyword">var</span> expr = parseExprSubscripts(plusCoerced);
+            <span class="keyword">var</span> expr = parseExprSubscripts(leftContext);
             <span class="keyword">if</span> (tokType.postfix &amp;&amp; !canInsertSemicolon()) {
                 raise(tokStart, <span class="string">"postfix operators not allowed"</span>);
             }
@@ -4215,11 +4448,11 @@ surrounding context) and the argument types.</p>
         </li>
         
         
-        <li id="section-168">
+        <li id="section-177">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-168">&#182;</a>
+                <a class="pilcrow" href="#section-177">&#182;</a>
               </div>
               <p>Start the precedence parser.</p>
 <p>Parse binary operators with the operator precedence parsing
@@ -4244,7 +4477,8 @@ operator that has a lower precedence than the set it is parsing.</p>
                         raise(opPos, operator+<span class="string">" not allowed"</span>);
                     }
                     next();
-                    <span class="keyword">var</span> right = parseExprOp(parseMaybeUnary(<span class="literal">false</span>), prec);
+                    <span class="keyword">var</span> right = parseExprOp(parseMaybeUnary(LeftContext.New()),
+                                            prec);
                     defcheck(left); defcheck(right);
                     ty = ty.apply([left.type, right.type]);
                     <span class="keyword">if</span> (ty===<span class="literal">null</span> &amp;&amp; (operator===<span class="string">'+'</span> || operator===<span class="string">'-'</span>)) {
@@ -4294,11 +4528,11 @@ operator that has a lower precedence than the set it is parsing.</p>
         </li>
         
         
-        <li id="section-169">
+        <li id="section-178">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-169">&#182;</a>
+                <a class="pilcrow" href="#section-178">&#182;</a>
               </div>
               <p>Record the pre-shift value and the shift amount,
 for later use in <code>parseBracketExpression()</code>.</p>
@@ -4312,11 +4546,11 @@ for later use in <code>parseBracketExpression()</code>.</p>
         </li>
         
         
-        <li id="section-170">
+        <li id="section-179">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-170">&#182;</a>
+                <a class="pilcrow" href="#section-179">&#182;</a>
               </div>
               <p>Record the rhs for later use in
 <code>parseBracketExpression</code> (in case this is a
@@ -4334,32 +4568,32 @@ function table dereference).</p>
             <span class="keyword">return</span> left;
         };
 
-        <span class="keyword">var</span> parseExprOps = <span class="keyword">function</span>() {
-            <span class="keyword">return</span> parseExprOp(parseMaybeUnary(<span class="literal">false</span>), -<span class="number">1</span>);
+        <span class="keyword">var</span> parseExprOps = <span class="keyword">function</span>(leftContext) {
+            <span class="keyword">return</span> parseExprOp(parseMaybeUnary(leftContext), -<span class="number">1</span>);
         };</pre></div></div>
             
         </li>
         
         
-        <li id="section-171">
+        <li id="section-180">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-171">&#182;</a>
+                <a class="pilcrow" href="#section-180">&#182;</a>
               </div>
               <p>Parse a ternary conditional (<code>?:</code>) operator.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseMaybeConditional = <span class="keyword">function</span>() {
-            <span class="keyword">var</span> expr = parseExprOps();
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseMaybeConditional = <span class="keyword">function</span>(leftContext) {
+            <span class="keyword">var</span> expr = parseExprOps(leftContext);
             <span class="keyword">var</span> startPos = tokStart;
             <span class="keyword">if</span> (eat(_question)) {
                 <span class="keyword">var</span> test = defcheck(expr);
                 typecheck(test.type, Types.Int, <span class="string">"conditional test"</span>, startPos);
-                <span class="keyword">var</span> consequent = parseExpression(<span class="literal">true</span>);
+                <span class="keyword">var</span> consequent = parseExpression(<span class="literal">null</span>, <span class="literal">true</span>);
                 expect(_colon);
-                <span class="keyword">var</span> alternate = parseExpression(<span class="literal">true</span>);
+                <span class="keyword">var</span> alternate = parseExpression(<span class="literal">null</span>, <span class="literal">true</span>);
                 <span class="keyword">var</span> ty;
                 <span class="keyword">if</span> (consequent.type.isSubtypeOf(Types.Int) &amp;&amp;
                     alternate.type.isSubtypeOf(Types.Int)) {
@@ -4382,19 +4616,19 @@ function table dereference).</p>
         </li>
         
         
-        <li id="section-172">
+        <li id="section-181">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-172">&#182;</a>
+                <a class="pilcrow" href="#section-181">&#182;</a>
               </div>
               <p>Parse an assignment expression. This includes applications of
 operators like <code>+=</code>.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseMaybeAssign = <span class="keyword">function</span>() {
-            <span class="keyword">var</span> left = parseMaybeConditional();
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseMaybeAssign = <span class="keyword">function</span>(leftContext) {
+            <span class="keyword">var</span> left = parseMaybeConditional(leftContext);
             <span class="keyword">if</span> (tokType.isAssign) {
                 <span class="keyword">var</span> startPos = tokStart;
                 <span class="keyword">var</span> operator = tokVal;
@@ -4402,16 +4636,16 @@ operators like <code>+=</code>.</p>
                     raise(startPos, <span class="string">"Operator disallowed: "</span>+operator);
                 }
                 next();
-                <span class="keyword">var</span> right = parseMaybeAssign();</pre></div></div>
+                <span class="keyword">var</span> right = parseMaybeAssign(LeftContext.New());</pre></div></div>
             
         </li>
         
         
-        <li id="section-173">
+        <li id="section-182">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-173">&#182;</a>
+                <a class="pilcrow" href="#section-182">&#182;</a>
               </div>
               <p>Check that <code>left</code> is an lval.  First, let&#39;s check
 the <code>x:Identifier = ...</code> case.</p>
@@ -4432,11 +4666,11 @@ the <code>x:Identifier = ...</code> case.</p>
         </li>
         
         
-        <li id="section-174">
+        <li id="section-183">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-174">&#182;</a>
+                <a class="pilcrow" href="#section-183">&#182;</a>
               </div>
               <p>Now check <code>lhs:MemberExpression = rhs:AssignmentExpression</code>.</p>
 
@@ -4452,11 +4686,11 @@ the <code>x:Identifier = ...</code> case.</p>
         </li>
         
         
-        <li id="section-175">
+        <li id="section-184">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-175">&#182;</a>
+                <a class="pilcrow" href="#section-184">&#182;</a>
               </div>
               <p>AssignmentExpressions have values; return the right
 hand operand to make <code>a = b = 0</code> work.</p>
@@ -4471,23 +4705,24 @@ hand operand to make <code>a = b = 0</code> work.</p>
         </li>
         
         
-        <li id="section-176">
+        <li id="section-185">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-176">&#182;</a>
+                <a class="pilcrow" href="#section-185">&#182;</a>
               </div>
               <p>Parse a full expression. The argument is used to forbid comma
 sequences (in argument lists, array literals, or object literals).</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        parseExpression = <span class="keyword">function</span>(noComma) {
-            <span class="keyword">var</span> expr = parseMaybeAssign();
+            <div class="content"><div class='highlight'><pre>        parseExpression = <span class="keyword">function</span>(leftContext, noComma) {
+            <span class="keyword">if</span> (leftContext===<span class="literal">null</span>) { leftContext = LeftContext.New(); }
+            <span class="keyword">var</span> expr = parseMaybeAssign(leftContext);
             <span class="keyword">if</span> (!noComma &amp;&amp; tokType === _comma) {
                 <span class="keyword">var</span> expressions = [expr];
                 <span class="keyword">while</span> (eat(_comma)) {
-                    expressions.push(expr = parseMaybeAssign());
+                    expressions.push(expr = parseMaybeAssign(leftContext));
                 }
             }
             <span class="keyword">return</span> expr;
@@ -4496,11 +4731,11 @@ sequences (in argument lists, array literals, or object literals).</p>
         </li>
         
         
-        <li id="section-177">
+        <li id="section-186">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-177">&#182;</a>
+                <a class="pilcrow" href="#section-186">&#182;</a>
               </div>
               <p>Used for constructs like <code>switch</code> and <code>if</code> that insist on
 parentheses around their expression.</p>
@@ -4509,7 +4744,7 @@ parentheses around their expression.</p>
             
             <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> parseParenExpression = <span class="keyword">function</span>() {
             expect(_parenL);
-            <span class="keyword">var</span> val = parseExpression();
+            <span class="keyword">var</span> val = parseExpression(<span class="literal">null</span>);
             expect(_parenR);
             <span class="keyword">return</span> val;
         };</pre></div></div>
@@ -4517,11 +4752,11 @@ parentheses around their expression.</p>
         </li>
         
         
-        <li id="section-178">
+        <li id="section-187">
             <div class="annotation">
               
               <div class="pilwrap for-h3">
-                <a class="pilcrow" href="#section-178">&#182;</a>
+                <a class="pilcrow" href="#section-187">&#182;</a>
               </div>
               <h3>Statement parsing</h3>
 
@@ -4534,11 +4769,11 @@ parentheses around their expression.</p>
         </li>
         
         
-        <li id="section-179">
+        <li id="section-188">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-179">&#182;</a>
+                <a class="pilcrow" href="#section-188">&#182;</a>
               </div>
               <p>Parse a single statement.</p>
 
@@ -4551,11 +4786,11 @@ parentheses around their expression.</p>
         </li>
         
         
-        <li id="section-180">
+        <li id="section-189">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-180">&#182;</a>
+                <a class="pilcrow" href="#section-189">&#182;</a>
               </div>
               <p>Most types of statements are recognized by the keyword they
 start with. Many are trivial to parse, some require a bit of
@@ -4577,11 +4812,11 @@ complexity.</p>
         </li>
         
         
-        <li id="section-181">
+        <li id="section-190">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-181">&#182;</a>
+                <a class="pilcrow" href="#section-190">&#182;</a>
               </div>
               <p>Verify that there is an actual destination to break or
 continue to.</p>
@@ -4610,11 +4845,11 @@ continue to.</p>
         </li>
         
         
-        <li id="section-182">
+        <li id="section-191">
             <div class="annotation">
               
               <div class="pilwrap for-h4">
-                <a class="pilcrow" href="#section-182">&#182;</a>
+                <a class="pilcrow" href="#section-191">&#182;</a>
               </div>
               <h4>IterationStatement</h4>
 
@@ -4625,11 +4860,11 @@ continue to.</p>
         </li>
         
         
-        <li id="section-183">
+        <li id="section-192">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-183">&#182;</a>
+                <a class="pilcrow" href="#section-192">&#182;</a>
               </div>
               <p>Parse a while loop.</p>
 
@@ -4650,11 +4885,11 @@ continue to.</p>
         </li>
         
         
-        <li id="section-184">
+        <li id="section-193">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-184">&#182;</a>
+                <a class="pilcrow" href="#section-193">&#182;</a>
               </div>
               <p>Parse a do-while loop.</p>
 
@@ -4677,11 +4912,11 @@ continue to.</p>
         </li>
         
         
-        <li id="section-185">
+        <li id="section-194">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-185">&#182;</a>
+                <a class="pilcrow" href="#section-194">&#182;</a>
               </div>
               <p>Parse a for loop.</p>
 <p>Disambiguating between a <code>for</code> and a <code>for</code>/<code>in</code> loop is
@@ -4694,17 +4929,17 @@ non-trivial. Luckily, <code>for</code>/<code>in</code> loops aren&#39;t allowed 
                 module.func.labels.push(loopLabel);
                 expect(_parenL);
                 <span class="keyword">if</span> (tokType === _semi) { <span class="keyword">return</span> parseFor(<span class="literal">null</span>); }
-                <span class="keyword">var</span> init = defcheck(parseExpression(<span class="literal">false</span>));
+                <span class="keyword">var</span> init = defcheck(parseExpression(<span class="literal">null</span>, <span class="literal">false</span>));
                 <span class="keyword">return</span> parseFor(init);</pre></div></div>
             
         </li>
         
         
-        <li id="section-186">
+        <li id="section-195">
             <div class="annotation">
               
               <div class="pilwrap for-h4">
-                <a class="pilcrow" href="#section-186">&#182;</a>
+                <a class="pilcrow" href="#section-195">&#182;</a>
               </div>
               <h4>IfStatement</h4>
 
@@ -4723,11 +4958,11 @@ non-trivial. Luckily, <code>for</code>/<code>in</code> loops aren&#39;t allowed 
         </li>
         
         
-        <li id="section-187">
+        <li id="section-196">
             <div class="annotation">
               
               <div class="pilwrap for-h4">
-                <a class="pilcrow" href="#section-187">&#182;</a>
+                <a class="pilcrow" href="#section-196">&#182;</a>
               </div>
               <h4>ReturnStatement</h4>
 
@@ -4738,11 +4973,11 @@ non-trivial. Luckily, <code>for</code>/<code>in</code> loops aren&#39;t allowed 
         </li>
         
         
-        <li id="section-188">
+        <li id="section-197">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-188">&#182;</a>
+                <a class="pilcrow" href="#section-197">&#182;</a>
               </div>
               <p>In <code>return</code> (and <code>break</code>/<code>continue</code>), the keywords with
 optional arguments, we eagerly look for a semicolon or the
@@ -4756,8 +4991,29 @@ possibility to insert one.</p>
                 <span class="keyword">if</span> (eat(_semi) || canInsertSemicolon()) {
                     ty = Types.Void;
                 } <span class="keyword">else</span> {
-                    <span class="keyword">var</span> binding = defcheck(parseExpression()); semicolon();
-                    ty = broadenReturnType(binding.type, startPos);
+                    <span class="keyword">var</span> binding = defcheck(parseExpression(<span class="literal">null</span>)); semicolon();
+                    ty = binding.type;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-198">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-198">&#182;</a>
+              </div>
+              <p>Handle <code>return 0</code> which is <code>fixnum</code>, not <code>signed</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    <span class="keyword">if</span> (ty.isSubtypeOf(Types.Signed)) {
+                        ty = Types.Signed;
+                    }
+                }
+                <span class="keyword">if</span> (ty!==Types.Void &amp;&amp; ty!==Types.Double &amp;&amp; ty!==Types.Signed) {
+                    raise(startPos,
+                          <span class="string">'return type must be double, signed, or void'</span>);
                 }
                 module.func.retType =
                     mergeTypes(module.func.retType, ty, startPos);
@@ -4766,11 +5022,11 @@ possibility to insert one.</p>
         </li>
         
         
-        <li id="section-189">
+        <li id="section-199">
             <div class="annotation">
               
               <div class="pilwrap for-h4">
-                <a class="pilcrow" href="#section-189">&#182;</a>
+                <a class="pilcrow" href="#section-199">&#182;</a>
               </div>
               <h4>SwitchStatement</h4>
 
@@ -4789,11 +5045,11 @@ possibility to insert one.</p>
         </li>
         
         
-        <li id="section-190">
+        <li id="section-200">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-190">&#182;</a>
+                <a class="pilcrow" href="#section-200">&#182;</a>
               </div>
               <p>Statements under must be grouped (by label) in SwitchCase
 nodes. <code>cur</code> is used to keep the node that we are currently
@@ -4845,11 +5101,11 @@ adding statements to.</p>
         </li>
         
         
-        <li id="section-191">
+        <li id="section-201">
             <div class="annotation">
               
               <div class="pilwrap for-h4">
-                <a class="pilcrow" href="#section-191">&#182;</a>
+                <a class="pilcrow" href="#section-201">&#182;</a>
               </div>
               <h4>BlockStatement</h4>
 
@@ -4861,11 +5117,11 @@ adding statements to.</p>
         </li>
         
         
-        <li id="section-192">
+        <li id="section-202">
             <div class="annotation">
               
               <div class="pilwrap for-h4">
-                <a class="pilcrow" href="#section-192">&#182;</a>
+                <a class="pilcrow" href="#section-202">&#182;</a>
               </div>
               <h4>EmptyStatement</h4>
 
@@ -4878,11 +5134,11 @@ adding statements to.</p>
         </li>
         
         
-        <li id="section-193">
+        <li id="section-203">
             <div class="annotation">
               
               <div class="pilwrap for-h4">
-                <a class="pilcrow" href="#section-193">&#182;</a>
+                <a class="pilcrow" href="#section-203">&#182;</a>
               </div>
               <h4>ExpressionStatement / LabeledStatement</h4>
 
@@ -4893,11 +5149,11 @@ adding statements to.</p>
         </li>
         
         
-        <li id="section-194">
+        <li id="section-204">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-194">&#182;</a>
+                <a class="pilcrow" href="#section-204">&#182;</a>
               </div>
               <p>If the statement does not start with a statement keyword or a
 brace, it&#39;s an ExpressionStatement or LabeledStatement.</p>
@@ -4915,11 +5171,11 @@ backtrack and reparse as an ExpressionStatement.</p>
         </li>
         
         
-        <li id="section-195">
+        <li id="section-205">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-195">&#182;</a>
+                <a class="pilcrow" href="#section-205">&#182;</a>
               </div>
               <p>Sure enough, this was a LabeledStatement.</p>
 
@@ -4945,17 +5201,17 @@ backtrack and reparse as an ExpressionStatement.</p>
         </li>
         
         
-        <li id="section-196">
+        <li id="section-206">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-196">&#182;</a>
+                <a class="pilcrow" href="#section-206">&#182;</a>
               </div>
               <p>Nope, this is an ExpressionStatement.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> expr = parseExpression();
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> expr = parseExpression(<span class="literal">null</span>);
                 semicolon();
                 <span class="keyword">return</span>;
             }
@@ -4964,11 +5220,11 @@ backtrack and reparse as an ExpressionStatement.</p>
         </li>
         
         
-        <li id="section-197">
+        <li id="section-207">
             <div class="annotation">
               
               <div class="pilwrap for-h4">
-                <a class="pilcrow" href="#section-197">&#182;</a>
+                <a class="pilcrow" href="#section-207">&#182;</a>
               </div>
               <h4>ForStatement</h4>
 <p>Parse a regular <code>for</code> loop. The disambiguation code in
@@ -4981,13 +5237,13 @@ expression.</p>
             expect(_semi);
             <span class="keyword">var</span> startPos = tokStart;
             <span class="keyword">var</span> test = (tokType === _semi) ? <span class="literal">null</span> :
-                defcheck(parseExpression());
+                defcheck(parseExpression(<span class="literal">null</span>));
             <span class="keyword">if</span> (test!==<span class="literal">null</span>) {
                 typecheck(test.type, Types.Int, <span class="string">"for-loop condition"</span>, startPos);
             }
             expect(_semi);
             <span class="keyword">var</span> update = (tokType === _parenR) ? <span class="literal">null</span> :
-                defcheck(parseExpression());
+                defcheck(parseExpression(<span class="literal">null</span>));
             expect(_parenR);
             <span class="keyword">var</span> body = parseStatement();
             module.func.labels.pop();
@@ -4996,11 +5252,11 @@ expression.</p>
         </li>
         
         
-        <li id="section-198">
+        <li id="section-208">
             <div class="annotation">
               
               <div class="pilwrap for-h4">
-                <a class="pilcrow" href="#section-198">&#182;</a>
+                <a class="pilcrow" href="#section-208">&#182;</a>
               </div>
               <h4>Block</h4>
 <p>Parse a semicolon-enclosed block of statements.</p>
@@ -5017,11 +5273,11 @@ expression.</p>
         </li>
         
         
-        <li id="section-199">
+        <li id="section-209">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-199">&#182;</a>
+                <a class="pilcrow" href="#section-209">&#182;</a>
               </div>
               <p>XXX second parameter to parseExpression is never true for asm.js</p>
 <h3>Module-internal function parsing</h3>
@@ -5053,11 +5309,11 @@ formal parameters.</p>
         </li>
         
         
-        <li id="section-200">
+        <li id="section-210">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-200">&#182;</a>
+                <a class="pilcrow" href="#section-210">&#182;</a>
               </div>
               <p>This is an <code>int</code> type annotation.</p>
 
@@ -5075,11 +5331,11 @@ formal parameters.</p>
         </li>
         
         
-        <li id="section-201">
+        <li id="section-211">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-201">&#182;</a>
+                <a class="pilcrow" href="#section-211">&#182;</a>
               </div>
               <p>This is a <code>double</code> type annotation.</p>
 
@@ -5107,11 +5363,11 @@ formal parameters.</p>
         </li>
         
         
-        <li id="section-202">
+        <li id="section-212">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-202">&#182;</a>
+                <a class="pilcrow" href="#section-212">&#182;</a>
               </div>
               <p>Parse local variable declarations.</p>
 
@@ -5137,11 +5393,11 @@ formal parameters.</p>
         </li>
         
         
-        <li id="section-203">
+        <li id="section-213">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-203">&#182;</a>
+                <a class="pilcrow" href="#section-213">&#182;</a>
               </div>
               <p>Parse a module-internal function</p>
 
@@ -5153,7 +5409,7 @@ formal parameters.</p>
                 id: <span class="literal">null</span>,
                 params: [],
                 env: Env.New(),
-                retType: Types.ForwardReference,
+                retType: Types.MaybeVoid,
                 labels: []
             };
             module.functions.push(func);
@@ -5173,11 +5429,11 @@ formal parameters.</p>
         </li>
         
         
-        <li id="section-204">
+        <li id="section-214">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-204">&#182;</a>
+                <a class="pilcrow" href="#section-214">&#182;</a>
               </div>
               <p>Parse the parameter type coercion statements, then
 verify that all the parameters were coerced to a type.</p>
@@ -5197,11 +5453,11 @@ verify that all the parameters were coerced to a type.</p>
         </li>
         
         
-        <li id="section-205">
+        <li id="section-215">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-205">&#182;</a>
+                <a class="pilcrow" href="#section-215">&#182;</a>
               </div>
               <p>Parse the body statements.</p>
 
@@ -5214,26 +5470,26 @@ verify that all the parameters were coerced to a type.</p>
         </li>
         
         
-        <li id="section-206">
+        <li id="section-216">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-206">&#182;</a>
+                <a class="pilcrow" href="#section-216">&#182;</a>
               </div>
               <p>Now reconcile the type of the function.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (func.retType === Types.ForwardReference) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (func.retType === Types.MaybeVoid) {</pre></div></div>
             
         </li>
         
         
-        <li id="section-207">
+        <li id="section-217">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-207">&#182;</a>
+                <a class="pilcrow" href="#section-217">&#182;</a>
               </div>
               <p>If no return statement was seen, this function returns
 <code>void</code>.</p>
@@ -5241,36 +5497,21 @@ verify that all the parameters were coerced to a type.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                func.retType = Types.Void;
-            }</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-208">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-208">&#182;</a>
-              </div>
-              <p>Broaden return type to intish or doublish.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>            func.retType = broadenReturnType(func.retType);
+            }
             <span class="keyword">var</span> ty = Types.Arrow(func.params.map(<span class="keyword">function</span>(p) {
                 <span class="keyword">return</span> func.env.lookup(p).type;
-            }), func.retType);
+            }), broadenReturnType(func.retType, fPos));
             <span class="keyword">var</span> binding = module.env.lookup(func.id);
             <span class="keyword">if</span> (binding===<span class="literal">null</span> || !binding.pending) {</pre></div></div>
             
         </li>
         
         
-        <li id="section-209">
+        <li id="section-218">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-209">&#182;</a>
+                <a class="pilcrow" href="#section-218">&#182;</a>
               </div>
               <p>If the binding is not pending, the attempt to bind will
 raise the proper &quot;duplicate definition&quot; error.</p>
@@ -5291,11 +5532,11 @@ raise the proper &quot;duplicate definition&quot; error.</p>
         </li>
         
         
-        <li id="section-210">
+        <li id="section-219">
             <div class="annotation">
               
               <div class="pilwrap for-h3">
-                <a class="pilcrow" href="#section-210">&#182;</a>
+                <a class="pilcrow" href="#section-219">&#182;</a>
               </div>
               <h3>Module parsing</h3>
 <p>Parse a variable statement within a module.</p>
@@ -5309,11 +5550,11 @@ raise the proper &quot;duplicate definition&quot; error.</p>
         </li>
         
         
-        <li id="section-211">
+        <li id="section-220">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-211">&#182;</a>
+                <a class="pilcrow" href="#section-220">&#182;</a>
               </div>
               <p>Allow comma-separated var expressions.
 (See <a href="https://github.com/dherman/asm.js/issues/63">https://github.com/dherman/asm.js/issues/63</a> .)</p>
@@ -5329,11 +5570,11 @@ raise the proper &quot;duplicate definition&quot; error.</p>
         </li>
         
         
-        <li id="section-212">
+        <li id="section-221">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-212">&#182;</a>
+                <a class="pilcrow" href="#section-221">&#182;</a>
               </div>
               <p>There are five types of variable statements:</p>
 
@@ -5344,11 +5585,11 @@ raise the proper &quot;duplicate definition&quot; error.</p>
         </li>
         
         
-        <li id="section-213">
+        <li id="section-222">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-213">&#182;</a>
+                <a class="pilcrow" href="#section-222">&#182;</a>
               </div>
               <p>1. A function table.  (Only allowed at end of module.)</p>
 
@@ -5403,11 +5644,11 @@ raise the proper &quot;duplicate definition&quot; error.</p>
         </li>
         
         
-        <li id="section-214">
+        <li id="section-223">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-214">&#182;</a>
+                <a class="pilcrow" href="#section-223">&#182;</a>
               </div>
               <p>2. A global program variable, initialized to a literal.</p>
 
@@ -5421,11 +5662,11 @@ raise the proper &quot;duplicate definition&quot; error.</p>
         </li>
         
         
-        <li id="section-215">
+        <li id="section-224">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-215">&#182;</a>
+                <a class="pilcrow" href="#section-224">&#182;</a>
               </div>
               <p>3. A standard library import.</p>
 
@@ -5447,11 +5688,11 @@ raise the proper &quot;duplicate definition&quot; error.</p>
         </li>
         
         
-        <li id="section-216">
+        <li id="section-225">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-216">&#182;</a>
+                <a class="pilcrow" href="#section-225">&#182;</a>
               </div>
               <p>4. A foreign import.</p>
 
@@ -5476,11 +5717,11 @@ raise the proper &quot;duplicate definition&quot; error.</p>
         </li>
         
         
-        <li id="section-217">
+        <li id="section-226">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-217">&#182;</a>
+                <a class="pilcrow" href="#section-226">&#182;</a>
               </div>
               <p>Foreign imports are mutable iff they are not
 <code>Function</code>s.
@@ -5495,11 +5736,11 @@ raise the proper &quot;duplicate definition&quot; error.</p>
         </li>
         
         
-        <li id="section-218">
+        <li id="section-227">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-218">&#182;</a>
+                <a class="pilcrow" href="#section-227">&#182;</a>
               </div>
               <p>5. A global heap view.</p>
 
@@ -5537,11 +5778,11 @@ raise the proper &quot;duplicate definition&quot; error.</p>
         </li>
         
         
-        <li id="section-219">
+        <li id="section-228">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-219">&#182;</a>
+                <a class="pilcrow" href="#section-228">&#182;</a>
               </div>
               <p>Parse a series of module variable declaration statements.</p>
 
@@ -5556,11 +5797,11 @@ raise the proper &quot;duplicate definition&quot; error.</p>
         </li>
         
         
-        <li id="section-220">
+        <li id="section-229">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-220">&#182;</a>
+                <a class="pilcrow" href="#section-229">&#182;</a>
               </div>
               <p>Parse a series of (module-internal) function declarations.</p>
 
@@ -5575,11 +5816,11 @@ raise the proper &quot;duplicate definition&quot; error.</p>
         </li>
         
         
-        <li id="section-221">
+        <li id="section-230">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-221">&#182;</a>
+                <a class="pilcrow" href="#section-230">&#182;</a>
               </div>
               <p>Parse the module export declaration (return statement).</p>
 
@@ -5622,11 +5863,11 @@ raise the proper &quot;duplicate definition&quot; error.</p>
         </li>
         
         
-        <li id="section-222">
+        <li id="section-231">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-222">&#182;</a>
+                <a class="pilcrow" href="#section-231">&#182;</a>
               </div>
               <p>Parse one asm.js module; it should start with &#39;function&#39; keyword.</p>
 
@@ -5638,11 +5879,11 @@ raise the proper &quot;duplicate definition&quot; error.</p>
         </li>
         
         
-        <li id="section-223">
+        <li id="section-232">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-223">&#182;</a>
+                <a class="pilcrow" href="#section-232">&#182;</a>
               </div>
               <p>Set up a new module in the parse context.</p>
 
@@ -5662,11 +5903,11 @@ raise the proper &quot;duplicate definition&quot; error.</p>
         </li>
         
         
-        <li id="section-224">
+        <li id="section-233">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-224">&#182;</a>
+                <a class="pilcrow" href="#section-233">&#182;</a>
               </div>
               <p>Parse the (optional) module name.</p>
 
@@ -5680,11 +5921,11 @@ raise the proper &quot;duplicate definition&quot; error.</p>
         </li>
         
         
-        <li id="section-225">
+        <li id="section-234">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-225">&#182;</a>
+                <a class="pilcrow" href="#section-234">&#182;</a>
               </div>
               <p>Parse the module parameters.</p>
 
@@ -5711,11 +5952,11 @@ raise the proper &quot;duplicate definition&quot; error.</p>
         </li>
         
         
-        <li id="section-226">
+        <li id="section-235">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-226">&#182;</a>
+                <a class="pilcrow" href="#section-235">&#182;</a>
               </div>
               <p>Check for &quot;use asm&quot;.</p>
 
@@ -5733,11 +5974,11 @@ raise the proper &quot;duplicate definition&quot; error.</p>
         </li>
         
         
-        <li id="section-227">
+        <li id="section-236">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-227">&#182;</a>
+                <a class="pilcrow" href="#section-236">&#182;</a>
               </div>
               <p>Parse the body of the module.  Note that
 the <code>parseModuleVariableStatements</code> function also handles
@@ -5759,27 +6000,32 @@ thing in one go... so check for this case.</p>
         </li>
         
         
-        <li id="section-228">
+        <li id="section-237">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-228">&#182;</a>
+                <a class="pilcrow" href="#section-237">&#182;</a>
               </div>
-              <p>XXX Verify that there are no longer any pending global types.</p>
+              <p>Verify that there are no longer any pending global types.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">return</span> module;
+            <div class="content"><div class='highlight'><pre>            module.env.forEach(<span class="keyword">function</span>(name, binding) {
+                <span class="keyword">if</span> (binding.pending) {
+                    raise(lastStart, <span class="string">"No definition found for '"</span>+name+<span class="string">"'"</span>);
+                }
+            });
+            <span class="keyword">return</span> module;
         };</pre></div></div>
             
         </li>
         
         
-        <li id="section-229">
+        <li id="section-238">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-229">&#182;</a>
+                <a class="pilcrow" href="#section-238">&#182;</a>
               </div>
               <p>Parse a sequence of asm.js modules.</p>
 
@@ -5802,11 +6048,11 @@ thing in one go... so check for this case.</p>
         </li>
         
         
-        <li id="section-230">
+        <li id="section-239">
             <div class="annotation">
               
               <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-230">&#182;</a>
+                <a class="pilcrow" href="#section-239">&#182;</a>
               </div>
               <h2>Exported interface functions</h2>
 <p>Finally, set up the exported functions, which encapsulate the

@@ -34404,7 +34404,7 @@ function(global, env, buffer) {
                                 break
                             }
                             while (1) {
-                                a_ = aY & mT(y, aR, aU, c[aS + 36 + (aZ << 2) >> 2] | 0, d[aZ + (aS + 56) | 0] | 0, t);
+                                a_ = aY & (mT(y, aR, aU, c[aS + 36 + (aZ << 2) >> 2] | 0, d[aZ + (aS + 56) | 0] | 0, t)|0);
                                 aT = aZ + 1 | 0;
                                 if (aT >>> 0 > 2 | a_ ^ 1) {
                                     break
