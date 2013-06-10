@@ -3,7 +3,7 @@ var assert = require("assert");
 var turtlescript = require('../');
 var fs = require('fs');
 
-['example-asm',
+['example-asm', 'example-asm-parens',
  'asm-test1','asm-test2','asm-test3',
  'spec','spec2',
  // from "arewefastyet" asm.js benchmarks.
