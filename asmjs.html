@@ -1,0 +1,128 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>asm.js Verification Service</title>
+<style>
+body { background: white; }
+.asmjs-input {
+  overflow: hidden;
+  position: relative;
+  padding: 5px;
+  borderx: 2px solid transparent;
+}
+.asmjs-input textarea {
+  width: 100%;
+  min-height: 15em;
+  resize: vertical;
+  margin-top: 0;
+}
+.asmjs-output {
+  width: 100%;
+  font-weight: bold;
+}
+.asmjs-invalid .asmjs-input { background: red; }
+.asmjs-invalid .asmjs-output { color: white; }
+.asmjs-valid .asmjs-output { color: green; }
+.asmjs-valid .asmjs-input {
+  border-color: green;
+}
+.asmjs-invalid .asmjs-input, .asmjs-invalid .asmjs-input textarea {
+  border-color: red;
+}
+.asmjs-button { float: right; }
+</style>
+<!-- now include all our javascript -->
+<script type="text/javascript" src="./global.js"></script>
+<script type="text/javascript" src="./global-es5.js"></script>
+<script type="text/javascript" src="./extensions.js"></script>
+<script type="text/javascript" data-main="asm-llvm.js"
+        src="require.js"></script>
+</head>
+
+<body>
+<h1>asm.js Verification Service</h1>
+<h2>C. Scott Ananian</h2>
+
+This is a single-pass type-checker and verification service for <tt>asm.js</tt>
+using the <a
+href="http://turtlescript.github.cscott.net">TurtleScript</a>
+implementation in <a
+href="http://turtlescript.github.cscott.net/docco/asm-llvm.js">asm-llvm.js</a>.
+It is based on the
+17 March 2013 <a href="http://asmjs.org">asm.js</a>
+<a href="http://asmjs.org/spec/latest/">spec</a>
+with the following fixes:
+<ul>
+  <li><a href="https://github.com/dherman/asm.js/issues/68">Redundant
+  parameter type coercions are disallowed</li>
+  <li><a href="https://github.com/dherman/asm.js/issues/67">Negative
+  numeric literals</a></li>
+  <li><a href="https://github.com/dherman/asm.js/issues/66">Semicolon
+  insertion explicitly allowed</a></li>
+  <li><a href="https://github.com/dherman/asm.js/issues/65">Arbitrary
+  parenthesization of expressions</a></li>
+  <li><a href="https://github.com/dherman/asm.js/issues/64">Mutable
+  foreign imports</a></li>
+  <li><a
+  href="https://github.com/dherman/asm.js/issues/63">Comma-separated
+  global program variable declarations</a></li>
+  <li><a href="https://github.com/dherman/asm.js/issues/62">! and ~~</a></li>
+  <li><a href="https://github.com/dherman/asm.js/issues/61">Required
+  coercion of call expressions</a></li>
+  <li><a href="https://github.com/dherman/asm.js/issues/56">Unsigned
+  is not a subtype of extern</a></li>
+  <li><a
+  href="https://bugzilla.mozilla.org/show_bug.cgi?id=854061#c26">Call
+  parameters coerced based on grammatical form</a></li>
+</ul>
+
+<p style="margin-bottom:0;">Paste your <code>asm.js</code> code here:</p>
+<div class="asmjs-input">
+  <textarea autocapitalize="off" autocorrect="off" wrap="off"
+            placeholder="Enter asm.js code here">
+  </textarea>
+  <button class="asmjs-button">Type check</button>
+  <div class="asmjs-output"></div>
+</div>
+
+<script type="text/javascript">
+// Add a simple demo.
+var democode = "// This is sample asm.js, borrowed from the README for\n// https://github.com/dherman/asm.js\n\nfunction mymodule(stdlib, foreign, heap) {\n    \"use asm\";\n\n    // -------------------------------------------------------------------------\n    // SECTION 1: globals\n\n    var H32 = new stdlib.Int32Array(heap);\n    var HU32 = new stdlib.Uint32Array(heap);\n\n    var dbltest = +foreign.dblTest;\n    var log = foreign.consoleDotLog;\n    var inttest = foreign.intTest|0;\n\n    var importedInfinity = stdlib.Infinity;\n    var importedAbs = stdlib.Math.abs;\n\n    var g_i = 0;   // int global\n    var g_f = 0.0; // double global\n\n    // -------------------------------------------------------------------------\n    // SECTION 2: functions\n\n    function f(x, y) {\n        // SECTION A: parameter type declarations\n        x = x|0;      // int parameter\n        y = +y;       // double parameter\n\n        // SECTION B: function body\n        x = (x+3)|0;  // signed addition\n        log(x|0);     // call into FFI -- must force the sign\n        log(y);       // call into FFI -- already know it's a double\n\n        // SECTION C: unconditional return\n        return ((((x+1)|0)/(x|0))>>>0)|0; // compound expression\n    }\n\n    function g() {\n        g_f = +(g_i>>>0); // read/write globals\n        return;\n    }\n\n    function g2() {\n        return;\n    }\n\n    function h(i, x) {\n        i = i|0;\n        x = x|0;\n        H32[i>>2] = x;       // shifted by log2(byte count)\n        ftable_2[(x-2)&1](); // dynamic call of functions in table 2\n\n        // no return necessary when return type is void\n    }\n\n    function i(j) {\n        j = +j;\n        var k = 3.;\n        j = j + k;\n        return +k;\n    }\n\n    // -------------------------------------------------------------------------\n    // SECTION 3: function tables\n\n    var ftable_1 = [f];\n    var ftable_2 = [g, g2]; // all of the same type\n\n    // -------------------------------------------------------------------------\n    // SECTION 4: exports\n\n    return { f_export: f, goop: g };\n}\n";
+
+require(['asm-llvm'], function(asm_llvm) {
+  var body = document.body;
+  var tarea = document.querySelector('.asmjs-input textarea');
+  var out = document.querySelector('.asmjs-output');
+
+  var update = function() {
+    var c = tarea.value;
+    var valid = true, message = "";
+    try {
+      asm_llvm.compile(c);
+    } catch (e) {
+      valid = false;
+      message = e.message;
+    }
+    body.classList.remove('asmjs-valid');
+    body.classList.remove('asmjs-invalid');
+    if (valid) {
+      body.classList.add('asmjs-valid');
+      out.textContent = "Valid asm.js";
+    } else {
+      body.classList.add('asmjs-invalid');
+      out.textContent = message;
+    }
+  };
+
+  var button = document.querySelector('.asmjs-button');
+  button.addEventListener('click', function() { update(); });
+  tarea.value = democode;
+  tarea.addEventListener('input', function() { update(); });
+  update();
+});
+
+</script>
+
+</body>
+</html>
