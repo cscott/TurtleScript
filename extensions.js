@@ -58,6 +58,7 @@ Object['Try'] = function(_this_, bodyBlock, catchBlock, finallyBlock) {
     }
 };
 
+/*
 // Primitive operations, rephrased as message dispatch
 Object.prototype['+'] = function(operand) { return this + operand; };
 Object.prototype['-'] = function(operand) { return this - operand; };
@@ -76,6 +77,7 @@ Boolean.prototype['='] = function(operand) {
 String.prototype['='] = function(operand) {
     return String(this) === operand;
 };
+*/
 // support for loopless bytecode
 Boolean.prototype["while"] = function(_this_, cond, body) {
     // strange: === gives the wrong value. == works, because (i think)
