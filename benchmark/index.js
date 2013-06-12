@@ -44,10 +44,10 @@ fixtureLists = {
     ],
     asm: [
         //'example-asm',
-        'box2d',
         'zlib',
-        'bullet',
+        'box2d',
         'lua binarytrees',
+        'bullet',
     ],
 };
 
@@ -58,7 +58,7 @@ function slug(name) {
 
 function kb(bytes) {
     'use strict';
-    return (bytes / 1024).toFixed(1);
+    return (bytes / 1024).toFixed(1) + 'kB';
 }
 
 function inject(fname) {
@@ -118,13 +118,15 @@ if (typeof window !== 'undefined') {
                 test = fixtureList[index];
                 name = slug(test);
                 str += '<tr>';
-                str += '<td>' + test + '</td>';
+                str += '<td>' + test + ' ';
+                str += '<span id="' + which + '-' + name + '-size" class="size"></span></td>';
                 for (i = 0; i < parsers.length; i += 1) {
                     str += '<td id="' + which + '-' + name + '-' + slug(parsers[i]) + '-time"></td>';
                 }
                 str += '</tr>';
             }
-            str += '<tr><td><b>Total</b></td>';
+            str += '<tr><td><b>Total</b> ';
+            str += '<span id="' + which + '-total-size" class="size"></span></td>';
             for (i = 0; i < parsers.length; i += 1) {
                 str += '<td id="' + which + '-' + slug(parsers[i]) + '-total"></td>';
             }
@@ -169,8 +171,11 @@ if (typeof window !== 'undefined') {
                             }
                         }
 
-                        if (!success) {
-                            setText('status', 'Please wait. Error loading ' + src);
+                        if (success) {
+                            setText(test + '-size', kb(size));
+                        } else {
+                            setText('status', 'Please wait: Error loading ' + src);
+                            setText(text + '-size', 'Error');
                         }
 
                         callback.apply();
@@ -178,7 +183,7 @@ if (typeof window !== 'undefined') {
 
                     xhr.send(null);
                 } catch (e) {
-                    setText('status', 'Please wait. Error loading ' + src);
+                    setText('status', 'Please wait: Error loading ' + src);
                     callback.apply();
                 }
             }
@@ -189,12 +194,13 @@ if (typeof window !== 'undefined') {
                 if (index < fixtureList.length) {
                     test = fixtureList[index];
                     index += 1;
-                    setText('status', 'Please wait. Loading ' + test +
+                    setText('status', 'Please wait: Loading ' + test +
                             ' (' + index + ' of ' + fixtureList.length + ')');
                     window.setTimeout(function () {
                         load(slug(test), loadNextTest);
                     }, 100);
                 } else {
+                    setText('total-size', kb(totalSize));
                     setText('status', 'Ready.');
                     enableRunButtons();
                 }
@@ -249,7 +255,7 @@ if (typeof window !== 'undefined') {
                 test = slug(fixture) + '-' + slug(parser);
                 setText(test + '-time', 'Running...');
 
-                setText('status', 'Please wait. Parsing ' + fixture + '...');
+                setText('status', 'Please wait: Parsing ' + fixture + '...');
 
                 // Force the result to be held in this array, thus defeating any
                 // possible "dead code elimination" optimization.
@@ -340,7 +346,7 @@ if (typeof window !== 'undefined') {
 
 
             disableRunButtons();
-            setText('status', 'Please wait. Running benchmarks...');
+            setText('status', 'Please wait: Running benchmarks...');
 
             reset();
             run();
