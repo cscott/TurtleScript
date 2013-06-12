@@ -1,4 +1,4 @@
-define(['parse', 'top-level', 'benchmark/3rdParty/domReady!'], function(ts_parse, ts_top_level) {
+define(['asm-llvm', 'parse', 'top-level', 'benchmark/3rdParty/domReady!'], function(ts_asm_llvm, ts_parse, ts_top_level) {
 /*
   Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -28,8 +28,7 @@ define(['parse', 'top-level', 'benchmark/3rdParty/domReady!'], function(ts_parse
 /*global load:true, print:true */
 var setupBenchmarks,
     parsers,
-    fixtureList,
-    suite;
+    fixtureList;
 
 parsers = [
     'TurtleScript',
@@ -39,9 +38,18 @@ parsers = [
     'Traceur',
 ];
 
-fixtureList = [
-    'TurtleScript 1.1.0',
-];
+fixtureLists = {
+    js: [
+        'TurtleScript 1.1.0',
+    ],
+    asm: [
+        //'example-asm',
+        'box2d',
+        'zlib',
+        'bullet',
+        'lua binarytrees',
+    ],
+};
 
 function slug(name) {
     'use strict';
@@ -66,15 +74,17 @@ function inject(fname) {
 if (typeof window !== 'undefined') {
 
     // Run all tests in a browser environment.
-    setupBenchmarks = function () {
+    setupBenchmarks = function (which) {
         'use strict';
+        var fixtureList = fixtureLists[which];
+        var suite;
 
         function id(i) {
-            return document.getElementById(i);
+            return document.getElementById(which+'-'+i);
         }
 
         function setText(id, str) {
-            var el = document.getElementById(id);
+            var el = document.getElementById(which+'-'+id);
             if (typeof el.innerText === 'string') {
                 el.innerText = str;
             } else {
@@ -110,13 +120,13 @@ if (typeof window !== 'undefined') {
                 str += '<tr>';
                 str += '<td>' + test + '</td>';
                 for (i = 0; i < parsers.length; i += 1) {
-                    str += '<td id="' + name + '-' + slug(parsers[i]) + '-time"></td>';
+                    str += '<td id="' + which + '-' + name + '-' + slug(parsers[i]) + '-time"></td>';
                 }
                 str += '</tr>';
             }
             str += '<tr><td><b>Total</b></td>';
             for (i = 0; i < parsers.length; i += 1) {
-                str += '<td id="' + slug(parsers[i]) + '-total"></td>';
+                str += '<td id="' + which + '-' + slug(parsers[i]) + '-total"></td>';
             }
             str += '</tr>';
             str += '</tbody>';
@@ -281,10 +291,24 @@ if (typeof window !== 'undefined') {
                     break;
 
                 case 'TurtleScript':
-                    fn = function() {
+                    var tokenizeOnly = false;
+                    fn = (which === 'js') ? (function() {
                         var tree = ts_parse(source, ts_top_level);
                         window.tree.push(tree);
-                    };
+                    }) : tokenizeOnly ? (function() {
+                        var getToken = ts_asm_llvm.tokenize(source);
+                        var _eof = ts_asm_llvm.tokTypes.eof;
+                        var count = 0;
+                        while (true) {
+                            var t = getToken();
+                            if (t.type===_eof) { break; }
+                            count += 1;
+                        }
+                        window.tree.push(count);
+                    }) : (function() {
+                        var out = ts_asm_llvm.compile(source);
+                        window.tree.push(out);
+                    });
                     break;
 
                 default:
@@ -326,7 +350,9 @@ if (typeof window !== 'undefined') {
             runBenchmarks();
         };
 
+        if (which==='js') {
         setText('benchmarkjs-version', ' version ' + window.Benchmark.version);
+        }
 
         setupParser();
         createTable();
@@ -334,8 +360,12 @@ if (typeof window !== 'undefined') {
         disableRunButtons();
         loadFixtures();
     };
+    var setupAllBenchmarks = function() {
+        setupBenchmarks('js');
+        setupBenchmarks('asm');
+    };
     // dom is ready when we are run
-    window.setTimeout(setupBenchmarks, 211);
+    window.setTimeout(setupAllBenchmarks, 211);
 } else {
     // TODO
     console.log('Not implemented yet!');

@@ -361,7 +361,9 @@ Function.bind.</p>
     } <span class="keyword">finally</span> {
         <span class="keyword">if</span> (finallyBlock) finallyBlock.call(_this_);
     }
-};</pre></div></div>
+};
+
+<span class="comment">/*</pre></div></div>
             
         </li>
         
@@ -397,15 +399,16 @@ Object.prototype[<span class="string">'&gt;='</span>] = <span class="keyword">fu
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Number.prototype[<span class="string">'='</span>] = <span class="keyword">function</span>(operand) {
-    <span class="keyword">return</span> Number(<span class="keyword">this</span>) === operand;
+            <div class="content"><div class='highlight'><pre>Number.prototype['='] = function(operand) {
+    return Number(this) === operand;
 };
-Boolean.prototype[<span class="string">'='</span>] = <span class="keyword">function</span>(operand) {
-    <span class="keyword">return</span> <span class="keyword">this</span> == operand;
+Boolean.prototype['='] = function(operand) {
+    return this == operand;
 };
-String.prototype[<span class="string">'='</span>] = <span class="keyword">function</span>(operand) {
-    <span class="keyword">return</span> String(<span class="keyword">this</span>) === operand;
-};</pre></div></div>
+String.prototype['='] = function(operand) {
+    return String(this) === operand;
+};
+*/</pre></div></div>
             
         </li>
         
