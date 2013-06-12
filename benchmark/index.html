@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>asm.js: Speed Comparisons</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="3rdParty/bootstrap/css/bootstrap.min.css" rel="stylesheet"
+        media="screen">
+  <script src="http://code.jquery.com/jquery.js"></script>
+  <script src="3rdParty/bootstrap/js/bootstrap.min.js"></script>
+  <script src="3rdParty/esprima.js"></script>
+  <script src="3rdParty/json2.js"></script>
+  <script src="index.js"></script>
+  <script src="3rdParty/benchmark.js"></script>
+  <script src="3rdParty/XMLHttpRequest.js"></script>
+<script src="http://traceur-compiler.googlecode.com/git/bin/traceur.js"></script>
+<script src="http://marijnhaverbeke.nl/acorn/acorn.js"></script>
+<script src="http://lisperator.net/s/js/uglifyjs/uglify.js"></script>
+<script>
+/*jslint browser:true, sloppy:true */
+/*global setupBenchmarks:true*/
+window.onload = function () {
+    window.setTimeout(setupBenchmarks, 211);
+};
+</script>
+<style>
+</style>
+</head>
+
+<body>
+
+<div class="navbar navbar-inverse">
+<div class="navbar-inner">
+  <a class="brand" href="../">TurtleScript</a>
+</div>
+</div>
+
+<div class="container">
+
+  <!-- Title and subtitle -->
+  <div class="row-fluid">
+<h3 class="subheader span12"><strong>Speed Comparison</strong> keeps everything in perspective</h3>
+  </div>
+
+  <!-- Main content -->
+  <div class="row-fluid">
+    <div class="span8">
+
+<p>
+<input id="run" class="btn btn-primary" type="submit" value="Run speed comparison" disabled />
+</p>
+
+<p id="status">Please wait...</p>
+<p id="result"></p>
+        <p><strong>Warning:</strong> Since each parser may have a different format for the syntax tree, the speed is not fully comparable (the cost of constructing different result is obviously varying). These tests exist only to ensure that Esprima parser is not ridiculously slow compare to other parsers.</p>
+
+
+    </div>
+
+    <div class="span4">
+      <div class="well">
+
+        <p>More info on the parsers:<br/>
+        <a href="https://github.com/google/traceur-compiler">github.com/google/traceur-compiler</a><br/>
+        <a href="https://github.com/mishoo/UglifyJS2">github.com/mishoo/UglifyJS2</a><br/>
+        <a href="https://github.com/marijnh/acorn">github.com/marijnh/acorn</a><br/>
+        </p>
+        <p>Each parser produces the syntax tree with location marking in every syntax node.</p>
+      </div>
+
+      <p><strong>Note</strong>: Esprima is not completely optimized for location tracking parsing yet. It still receives on-going, continuous performance tweaks.</p>
+      <p>Time measurement is carried out using <a href="http://benchmarkjs.com" target="_blank">Benchmark.js</a><span id="benchmarkjs-version"></span>.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="row-fluid">
+    <div class="span6">
+      <p>Esprima is created and mantained by <a href="http://ariya.ofilabs.com/about">Ariya Hidayat</a>.</p>
+    </div>
+    <div class="span6">
+      <ul class="nav nav-pills pull-right">
+        <li><a href="http://twitter.com/esprima">@Esprima</a></li>
+        <li><a href="https://github.com/ariya/esprima">GitHub</a></li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
