@@ -805,8 +805,8 @@ created at two different times still compare ===.</p>
               Types.Arrow([Types.Unsigned, Types.Unsigned], Types.Intish),
               Types.Arrow([Types.Doublish, Types.Doublish], Types.Double) ]),
         <span class="string">'%'</span>: Types.FunctionTypes(
-            [ Types.Arrow([Types.Signed, Types.Signed], Types.Int),
-              Types.Arrow([Types.Unsigned, Types.Unsigned], Types.Int),
+            [ Types.Arrow([Types.Signed, Types.Signed], Types.Intish),
+              Types.Arrow([Types.Unsigned, Types.Unsigned], Types.Intish),
               Types.Arrow([Types.Doublish, Types.Doublish], Types.Double) ]),
         <span class="string">'&gt;&gt;&gt;'</span>: Types.FunctionTypes(
             [ Types.Arrow([Types.Intish, Types.Intish], Types.Unsigned) ])
@@ -914,7 +914,9 @@ make them recognizeable when debugging.</p>
                 <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
               <p><code>_dotnum</code> is a number with a <code>.</code> character in it; <code>asm.js</code> uses
-this to distinguish <code>double</code> from integer literals.</p>
+this to distinguish <code>double</code> from integer literals.  We also
+use _dotnum to represent constants with negative exponent, such as
+<code>1e-1</code>.</p>
 
             </div>
             
@@ -2618,6 +2620,7 @@ will return <code>null</code> unless the integer has exactly <code>len</code> di
                 raise(start, <span class="string">"Invalid number"</span>);
             }
             <span class="keyword">else</span> { val = parseInt(str, <span class="number">8</span>); }
+            <span class="keyword">if</span> (val !== Math.floor(val)) { hasDot = <span class="literal">true</span>; }
             <span class="keyword">return</span> finishToken(hasDot ? _dotnum : _num, val);
         };</pre></div></div>
             
@@ -4509,6 +4512,17 @@ operator that has a lower precedence than the set it is parsing.</p>
                             (isGoodLiteral(right) &amp;&amp;
                              left.type.isSubtypeOf(Types.Int))) {
                             ty = Types.Intish;
+                        }
+                    }
+                    <span class="keyword">if</span> (operator===<span class="string">'%'</span>) {
+                        <span class="comment">/* Special validation for MultiplicativeExpression */</span>
+                        <span class="keyword">if</span> (ConstantBinding.hasInstance(right) &amp;&amp;
+                            right.value !== <span class="number">0</span> &amp;&amp;
+                            ((left.type.isSubtypeOf(Types.Signed) &amp;&amp;
+                              right.type.isSubtypeOf(Types.Signed)) ||
+                             (left.type.isSubtypeOf(Types.Unsigned) &amp;&amp;
+                              right.type.isSubtypeOf(Types.Unsigned)))) {
+                            ty = Types.Int;
                         }
                     }
                     <span class="keyword">if</span> (ty===<span class="literal">null</span>) {

@@ -304,8 +304,8 @@ define([], function asm_llvm() {
               Types.Arrow([Types.Unsigned, Types.Unsigned], Types.Intish),
               Types.Arrow([Types.Doublish, Types.Doublish], Types.Double) ]),
         '%': Types.FunctionTypes(
-            [ Types.Arrow([Types.Signed, Types.Signed], Types.Int),
-              Types.Arrow([Types.Unsigned, Types.Unsigned], Types.Int),
+            [ Types.Arrow([Types.Signed, Types.Signed], Types.Intish),
+              Types.Arrow([Types.Unsigned, Types.Unsigned], Types.Intish),
               Types.Arrow([Types.Doublish, Types.Doublish], Types.Double) ]),
         '>>>': Types.FunctionTypes(
             [ Types.Arrow([Types.Intish, Types.Intish], Types.Unsigned) ])
@@ -373,7 +373,9 @@ define([], function asm_llvm() {
     var _eof = {type: "eof"};
 
     // `_dotnum` is a number with a `.` character in it; `asm.js` uses
-    // this to distinguish `double` from integer literals.
+    // this to distinguish `double` from integer literals.  We also
+    // use _dotnum to represent constants with negative exponent, such as
+    // `1e-1`.
     var _dotnum = {type: "dotnum"};
 
     // Keyword tokens. The `keyword` property (also used in keyword-like
@@ -1268,6 +1270,7 @@ define([], function asm_llvm() {
                 raise(start, "Invalid number");
             }
             else { val = parseInt(str, 8); }
+            if (val !== Math.floor(val)) { hasDot = true; }
             return finishToken(hasDot ? _dotnum : _num, val);
         };
 
@@ -2222,6 +2225,17 @@ define([], function asm_llvm() {
                             (isGoodLiteral(right) &&
                              left.type.isSubtypeOf(Types.Int))) {
                             ty = Types.Intish;
+                        }
+                    }
+                    if (operator==='%') {
+                        /* Special validation for MultiplicativeExpression */
+                        if (ConstantBinding.hasInstance(right) &&
+                            right.value !== 0 &&
+                            ((left.type.isSubtypeOf(Types.Signed) &&
+                              right.type.isSubtypeOf(Types.Signed)) ||
+                             (left.type.isSubtypeOf(Types.Unsigned) &&
+                              right.type.isSubtypeOf(Types.Unsigned)))) {
+                            ty = Types.Int;
                         }
                     }
                     if (ty===null) {

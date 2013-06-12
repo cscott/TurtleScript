@@ -55,8 +55,12 @@ It is based on the
 <a href="http://asmjs.org/spec/latest/">spec</a>
 with the following fixes:
 <ul>
+  <li><a href="https://github.com/dherman/asm.js/issues/69">Result of
+  % should be intish<a></li>
+  <li><a href="https://bugzilla.mozilla.org/show_bug.cgi?id=878433#c9">Add
+  a special case for <tt>expr % constant</tt>.</a></li>
   <li><a href="https://github.com/dherman/asm.js/issues/68">Redundant
-  parameter type coercions are disallowed</li>
+  parameter type coercions are disallowed</a></li>
   <li><a href="https://github.com/dherman/asm.js/issues/67">Negative
   numeric literals</a></li>
   <li><a href="https://github.com/dherman/asm.js/issues/66">Semicolon
@@ -76,6 +80,8 @@ with the following fixes:
   <li><a
   href="https://bugzilla.mozilla.org/show_bug.cgi?id=854061#c26">Call
   parameters coerced based on grammatical form</a></li>
+  <li><a href="https://github.com/dherman/asm.js/issues/57">1e3 is a
+  valid integer literal, but 1e-3 is not</a></li>
 </ul>
 
 <p style="margin-bottom:0;">Paste your <code>asm.js</code> code here:</p>
