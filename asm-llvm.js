@@ -304,8 +304,8 @@ define([], function asm_llvm() {
               Types.Arrow([Types.Unsigned, Types.Unsigned], Types.Intish),
               Types.Arrow([Types.Doublish, Types.Doublish], Types.Double) ]),
         '%': Types.FunctionTypes(
-            [ Types.Arrow([Types.Signed, Types.Signed], Types.Int),
-              Types.Arrow([Types.Unsigned, Types.Unsigned], Types.Int),
+            [ Types.Arrow([Types.Signed, Types.Signed], Types.Intish),
+              Types.Arrow([Types.Unsigned, Types.Unsigned], Types.Intish),
               Types.Arrow([Types.Doublish, Types.Doublish], Types.Double) ]),
         '>>>': Types.FunctionTypes(
             [ Types.Arrow([Types.Intish, Types.Intish], Types.Unsigned) ])
@@ -2222,6 +2222,17 @@ define([], function asm_llvm() {
                             (isGoodLiteral(right) &&
                              left.type.isSubtypeOf(Types.Int))) {
                             ty = Types.Intish;
+                        }
+                    }
+                    if (operator==='%') {
+                        /* Special validation for MultiplicativeExpression */
+                        if (ConstantBinding.hasInstance(right) &&
+                            right.value !== 0 &&
+                            ((left.type.isSubtypeOf(Types.Signed) &&
+                              right.type.isSubtypeOf(Types.Signed)) ||
+                             (left.type.isSubtypeOf(Types.Unsigned) &&
+                              right.type.isSubtypeOf(Types.Unsigned)))) {
+                            ty = Types.Int;
                         }
                     }
                     if (ty===null) {
