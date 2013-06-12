@@ -84,6 +84,7 @@ Accordingly, `asm-llvm.js`_ is the beginnings of an ``asm.js``-to-LLVM
 compiler, written in TurtleScript.
 
 I've used this codebase to write an `asm.js verification service`_.
+There's also a set of parser speed `benchmarks`_.
 
 .. _Rust: http://www.rust-lang.org
 .. _REPL: http://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop
@@ -92,6 +93,7 @@ I've used this codebase to write an `asm.js verification service`_.
 .. _LLVM: http://llvm.org/
 .. _asm-llvm.js: http://turtlescript.github.cscott.net/docco/asm-llvm.html
 .. _asm.js verification service: http://turtlescript.github.cscott.net/asmjs.html
+.. _benchmarks: http://turtlescript.github.cscott.net/benchmark/
 
 State of the world: 2011-05-19
 ------------------------------
