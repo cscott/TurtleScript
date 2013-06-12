@@ -1,3 +1,4 @@
+define(['parse', 'top-level', 'benchmark/3rdParty/domReady!'], function(ts_parse, ts_top_level) {
 /*
   Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -31,16 +32,15 @@ var setupBenchmarks,
     suite;
 
 parsers = [
+    'TurtleScript',
     'Esprima',
+    'Acorn',
     'UglifyJS2',
     'Traceur',
-    'Acorn',
 ];
 
 fixtureList = [
-    'Underscore 1.4.1',
-    'Backbone 1.0.0',
-    'jQuery 1.9.1'
+    'TurtleScript 1.1.0',
 ];
 
 function slug(name) {
@@ -280,6 +280,13 @@ if (typeof window !== 'undefined') {
                     };
                     break;
 
+                case 'TurtleScript':
+                    fn = function() {
+                        var tree = ts_parse(source, ts_top_level);
+                        window.tree.push(tree);
+                    };
+                    break;
+
                 default:
                     throw 'Unknown parser type ' + parser;
                 }
@@ -327,8 +334,11 @@ if (typeof window !== 'undefined') {
         disableRunButtons();
         loadFixtures();
     };
+    // dom is ready when we are run
+    window.setTimeout(setupBenchmarks, 211);
 } else {
     // TODO
     console.log('Not implemented yet!');
 }
 /* vim: set sw=4 ts=4 et tw=80 : */
+})

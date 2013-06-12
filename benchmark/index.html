@@ -10,20 +10,19 @@
   <script src="3rdParty/bootstrap/js/bootstrap.min.js"></script>
   <script src="3rdParty/esprima.js"></script>
   <script src="3rdParty/json2.js"></script>
-  <script src="index.js"></script>
   <script src="3rdParty/benchmark.js"></script>
   <script src="3rdParty/XMLHttpRequest.js"></script>
 <script src="http://traceur-compiler.googlecode.com/git/bin/traceur.js"></script>
 <script src="http://marijnhaverbeke.nl/acorn/acorn.js"></script>
 <script src="http://lisperator.net/s/js/uglifyjs/uglify.js"></script>
 <script>
-/*jslint browser:true, sloppy:true */
-/*global setupBenchmarks:true*/
-window.onload = function () {
-    window.setTimeout(setupBenchmarks, 211);
+var require = {
+  baseUrl: '..'
 };
 </script>
+<script data-main="benchmark/index" src="3rdParty/require.js"></script>
 <style>
+h3 { font-weight: normal }
 </style>
 </head>
 
@@ -52,8 +51,18 @@ window.onload = function () {
 
 <p id="status">Please wait...</p>
 <p id="result"></p>
-        <p><strong>Warning:</strong> Since each parser may have a different format for the syntax tree, the speed is not fully comparable (the cost of constructing different result is obviously varying). These tests exist only to ensure that Esprima parser is not ridiculously slow compare to other parsers.</p>
 
+<p><strong>Warning:</strong> Since each parser may have a different
+format for the syntax tree, the speed is not fully comparable (the
+cost of constructing different result is obviously varying). These
+tests exist only to ensure that the TurtleScript parser is not
+ridiculously slow compare to other parsers.</p>
+
+<p>Since <a href="http://turtlescript.github.cscott.net">TurtleScript</a>
+is a subset of JavaScript, our set of benchmarks is not large.  We use
+source of the TurtleScript project (all written in TurtleScript) which
+includes the parser, several compilers, a reactive event library, and
+a test suite, and is 352K of unminified source.</p>
 
     </div>
 
@@ -61,6 +70,8 @@ window.onload = function () {
       <div class="well">
 
         <p>More info on the parsers:<br/>
+        <a href="https://github.com/cscott/TurtleScript">github.com/cscott/TurtleScript</a><br/>
+        <a href="https://github.com/ariya/esprima">github.com/ariya/esprima</a><br/>
         <a href="https://github.com/google/traceur-compiler">github.com/google/traceur-compiler</a><br/>
         <a href="https://github.com/mishoo/UglifyJS2">github.com/mishoo/UglifyJS2</a><br/>
         <a href="https://github.com/marijnh/acorn">github.com/marijnh/acorn</a><br/>
@@ -68,7 +79,6 @@ window.onload = function () {
         <p>Each parser produces the syntax tree with location marking in every syntax node.</p>
       </div>
 
-      <p><strong>Note</strong>: Esprima is not completely optimized for location tracking parsing yet. It still receives on-going, continuous performance tweaks.</p>
       <p>Time measurement is carried out using <a href="http://benchmarkjs.com" target="_blank">Benchmark.js</a><span id="benchmarkjs-version"></span>.</p>
     </div>
   </div>
@@ -76,12 +86,15 @@ window.onload = function () {
   <!-- Footer -->
   <div class="row-fluid">
     <div class="span6">
-      <p>Esprima is created and mantained by <a href="http://ariya.ofilabs.com/about">Ariya Hidayat</a>.</p>
+      <p>This comparison page is heavily borrowed from
+      <a href="http://esprima.org/test/compare.html">Esprima</a>.
+      Thanks!
+      </p>
     </div>
     <div class="span6">
       <ul class="nav nav-pills pull-right">
-        <li><a href="http://twitter.com/esprima">@Esprima</a></li>
-        <li><a href="https://github.com/ariya/esprima">GitHub</a></li>
+        <li><a href="http://twitter.com/cscottnet">@cscottnet</a></li>
+        <li><a href="https://github.com/cscott/TurtleScript">GitHub</a></li>
       </ul>
     </div>
   </div>
