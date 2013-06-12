@@ -373,7 +373,9 @@ define([], function asm_llvm() {
     var _eof = {type: "eof"};
 
     // `_dotnum` is a number with a `.` character in it; `asm.js` uses
-    // this to distinguish `double` from integer literals.
+    // this to distinguish `double` from integer literals.  We also
+    // use _dotnum to represent constants with negative exponent, such as
+    // `1e-1`.
     var _dotnum = {type: "dotnum"};
 
     // Keyword tokens. The `keyword` property (also used in keyword-like
@@ -1268,6 +1270,7 @@ define([], function asm_llvm() {
                 raise(start, "Invalid number");
             }
             else { val = parseInt(str, 8); }
+            if (val !== Math.floor(val)) { hasDot = true; }
             return finishToken(hasDot ? _dotnum : _num, val);
         };
 
