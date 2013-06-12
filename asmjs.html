@@ -3,33 +3,23 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>asm.js Verification Service</title>
+<link href="benchmark/3rdParty/bootstrap/css/bootstrap.min.css"
+      rel="stylesheet" media="screen">
 <style>
-body { background: white; }
-.asmjs-input {
-  overflow: hidden;
-  position: relative;
-  padding: 5px;
-}
 .asmjs-input textarea {
-  width: 100%;
-  min-height: 15em;
   resize: vertical;
-  margin-top: 0;
+}
+.asmjs-input .control-group.error {
+  background: #b94a48;
+}
+.asmjs-input .control-group.error .asmjs-output {
+  color: white;
 }
 .asmjs-output {
-  width: 100%;
   font-weight: bold;
+  padding: 0 0.5em;
 }
-.asmjs-invalid .asmjs-input { background: red; }
-.asmjs-invalid .asmjs-output { color: white; }
-.asmjs-valid .asmjs-output { color: green; }
-.asmjs-valid .asmjs-input {
-  border-color: green;
-}
-.asmjs-invalid .asmjs-input, .asmjs-invalid .asmjs-input textarea {
-  border-color: red;
-}
-.asmjs-button { float: right; }
+.asmjs-input .control-group.success textarea { color: #555; }
 </style>
 <!-- now include all our javascript -->
 <script type="text/javascript" src="./global.js"></script>
@@ -40,10 +30,22 @@ body { background: white; }
 </head>
 
 <body>
-<h1>asm.js Verification Service</h1>
-<h2>C. Scott Ananian</h2>
 
-This is a single-pass type-checker and verification service for <tt>asm.js</tt>
+<div class="navbar navbar-inverse">
+<div class="navbar-inner">
+  <a class="brand" href="./">TurtleScript</a>
+</div>
+</div>
+
+<div class="container">
+
+<div class="page-header">
+  <h1>asm.js Verification Service <small>by C. Scott Ananian</small>
+  </h1>
+</div>
+
+<div class="row-fluid"><div class="span12">
+  This is a single-pass type-checker and verification service for <tt>asm.js</tt>
 using the <a
 href="http://turtlescript.github.cscott.net">TurtleScript</a>
 implementation in <a
@@ -53,6 +55,8 @@ It is based on the
 17 March 2013 <a href="http://asmjs.org">asm.js</a>
 <a href="http://asmjs.org/spec/latest/">spec</a>
 with the following fixes:
+</div></div>
+<div class="row-fluid"><div class="span6">
 <ul>
   <li><a href="https://github.com/dherman/asm.js/issues/69">Result of
   % should be intish<a></li>
@@ -68,6 +72,7 @@ with the following fixes:
   parenthesization of expressions</a></li>
   <li><a href="https://github.com/dherman/asm.js/issues/64">Mutable
   foreign imports</a></li>
+</ul></div><div class="span6"><ul>
   <li><a
   href="https://github.com/dherman/asm.js/issues/63">Comma-separated
   global program variable declarations</a></li>
@@ -82,24 +87,32 @@ with the following fixes:
   <li><a href="https://github.com/dherman/asm.js/issues/57">1e3 is a
   valid integer literal, but 1e-3 is not</a></li>
 </ul>
+</div></div>
 
-<p style="margin-bottom:0;">Paste your <code>asm.js</code> code here:</p>
-<div class="asmjs-input">
+<form class="asmjs-input">
+  <label class="control-label" for="asmjs-textarea">Paste your
+    <code>asm.js</code> code here:</label>
+  <div class="control-group">
+  <div class="controls clearfix">
   <textarea autocapitalize="off" autocorrect="off" wrap="off"
-            placeholder="Enter asm.js code here">
+            placeholder="Enter asm.js code here" rows="10"
+            id="asmjs-textarea" class="span12">
   </textarea>
-  <button class="asmjs-button">Type check</button>
-  <div class="asmjs-output"></div>
-</div>
+  <button class="asmjs-button btn btn-primary pull-right">Type check</button>
+  <div class="asmjs-output help-block"></div>
+  </div>
+</form>
+
+</div><!-- container -->
 
 <script type="text/javascript">
 // Add a simple demo.
 var democode = "// This is sample asm.js, borrowed from the README for\n// https://github.com/dherman/asm.js\n\nfunction mymodule(stdlib, foreign, heap) {\n    \"use asm\";\n\n    // -------------------------------------------------------------------------\n    // SECTION 1: globals\n\n    var H32 = new stdlib.Int32Array(heap);\n    var HU32 = new stdlib.Uint32Array(heap);\n\n    var dbltest = +foreign.dblTest;\n    var log = foreign.consoleDotLog;\n    var inttest = foreign.intTest|0;\n\n    var importedInfinity = stdlib.Infinity;\n    var importedAbs = stdlib.Math.abs;\n\n    var g_i = 0;   // int global\n    var g_f = 0.0; // double global\n\n    // -------------------------------------------------------------------------\n    // SECTION 2: functions\n\n    function f(x, y) {\n        // SECTION A: parameter type declarations\n        x = x|0;      // int parameter\n        y = +y;       // double parameter\n\n        // SECTION B: function body\n        x = (x+3)|0;  // signed addition\n        log(x|0);     // call into FFI -- must force the sign\n        log(y);       // call into FFI -- already know it's a double\n\n        // SECTION C: unconditional return\n        return ((((x+1)|0)/(x|0))>>>0)|0; // compound expression\n    }\n\n    function g() {\n        g_f = +(g_i>>>0); // read/write globals\n        return;\n    }\n\n    function g2() {\n        return;\n    }\n\n    function h(i, x) {\n        i = i|0;\n        x = x|0;\n        H32[i>>2] = x;       // shifted by log2(byte count)\n        ftable_2[(x-2)&1](); // dynamic call of functions in table 2\n\n        // no return necessary when return type is void\n    }\n\n    function i(j) {\n        j = +j;\n        var k = 3.;\n        j = j + k;\n        return +k;\n    }\n\n    // -------------------------------------------------------------------------\n    // SECTION 3: function tables\n\n    var ftable_1 = [f];\n    var ftable_2 = [g, g2]; // all of the same type\n\n    // -------------------------------------------------------------------------\n    // SECTION 4: exports\n\n    return { f_export: f, goop: g };\n}\n";
 
 require(['asm-llvm'], function(asm_llvm) {
-  var body = document.body;
   var tarea = document.querySelector('.asmjs-input textarea');
   var out = document.querySelector('.asmjs-output');
+  var controls = document.querySelector('.control-group');
 
   var update = function() {
     var c = tarea.value;
@@ -110,13 +123,13 @@ require(['asm-llvm'], function(asm_llvm) {
       valid = false;
       message = e.message;
     }
-    body.classList.remove('asmjs-valid');
-    body.classList.remove('asmjs-invalid');
+    controls.classList.remove('error');
+    controls.classList.remove('success');
     if (valid) {
-      body.classList.add('asmjs-valid');
+      controls.classList.add('success');
       out.textContent = "Valid asm.js";
     } else {
-      body.classList.add('asmjs-invalid');
+      controls.classList.add('error');
       out.textContent = message;
     }
   };
