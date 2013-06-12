@@ -1,3 +1,4 @@
+BIN=node_modules/.bin
 
 build-publish:
 	$(MAKE) README.html
@@ -13,7 +14,7 @@ build-publish:
 	# turn off jekyll for github pages
 	touch publish/.nojekyll
 	# make docco
-	node_modules/docco/bin/docco -o publish/docco publish/*.js
+	$(BIN)/docco -o publish/docco publish/*.js
 
 install: build-publish
 	rsync -avz --exclude=.git --exclude='*~' publish/ cscott.net:public_html/Projects/TurtleScript/
@@ -27,3 +28,8 @@ install: build-publish
 
 README.html: README.rst
 	rst2html $< $@
+
+# slurp all the turtlescript code together to make a single file for
+# benchmarking.
+make-benchmark:
+	$(BIN)/r.js -o name=tests out=benchmark/3rdParty/turtlescript.js baseUrl=. optimize=none paths.timeouts=empty:
