@@ -908,8 +908,14 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
             while (tokPos < inputLen) {
                 var ch = input.charCodeAt(tokPos);
                 var next;
-                if (ch === 32) { // ' '
+                if (ch > 47 && ch < 160) {
+                    break; // fast path
+                } else if (ch === 32) { // ' '
                     tokPos += 1;
+                } else if (ch === 10) {
+                    tokPos += 1;
+                    tokCurLine += 1;
+                    tokLineStart = tokPos;
                 } else if(ch === 13) {
                     tokPos += 1;
                     next = input.charCodeAt(tokPos);
@@ -920,10 +926,6 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                         tokCurLine += 1;
                         tokLineStart = tokPos;
                     }
-                } else if (ch === 10) {
-                    tokPos += 1;
-                    tokCurLine += 1;
-                    tokLineStart = tokPos;
                 } else if(ch < 14 && ch > 8) {
                     tokPos += 1;
                 } else if (ch === 47) { // '/'
@@ -1051,9 +1053,10 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
         })();
 
         var getTokenFromCode = function(code) {
-            return (code < tokenFromCodeTable.length) ?
-                tokenFromCodeTable[code](code) : false;
+            var f = tokenFromCodeTable[code];
+            return f ? f(code) : false;
         };
+
         // The interpretation of a dot depends on whether it is followed
         // by a digit.
         tokenFromCodeTable[46] = // '.'
@@ -1525,16 +1528,16 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
         // alloca'ed memory.)
         var LocalBinding = function(type, temp) {
             this.type = type;
-            this.temp = temp || gensym();
+            /*this.temp = temp || gensym();*/
         };
 
         // Temporary values are a type and a local temporary.
         var TempBinding = function(type, temp) {
             this.type = type;
-            this.temp = temp || gensym();
+            /*this.temp = temp || gensym();*/
             // Some extra fields are used for add/shift/and operations.
             this.additiveChain = 0;
-            this.shifty = this.andy = false;
+            this.shifty = this.andy = this.doubleTilde = false;
             this.shiftAmount = this.andAmount = 0;
         };
 
@@ -1543,7 +1546,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
         // value itself).
         var ViewBinding = function(type, temp) {
             this.type = type;
-            this.temp = temp || gensym();
+            /*this.temp = temp || gensym();*/
         };
 
         // Function table references propagate some type information
@@ -1552,7 +1555,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
             this.base = base;
             this.index = index;
             this.type = base.type;
-            this.temp = temp || gensym();
+            /*this.temp = temp || gensym();*/
         };
 
         // Constants are a type and a value.
@@ -2160,7 +2163,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                 var argument =
                     defcheck(parseMaybeUnary(LeftContext.New(operator)));
                 // Special case the negation of a constant.
-                if (ConstantBinding.hasInstance(argument) && operator==='-') {
+                if (operator==='-' && ConstantBinding.hasInstance(argument)) {
                     return argument.negate();
                 }
                 // Special case the double-tilde operator (~~)
@@ -2361,7 +2364,9 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
         // sequences (in argument lists, array literals, or object literals).
 
         parseExpression = function(leftContext, noComma) {
-            if (leftContext===null) { leftContext = LeftContext.New(); }
+            if (leftContext===null) {
+                leftContext = LeftContext.New();
+            }
             var expr = parseMaybeAssign(leftContext);
             if (!noComma && tokType === _comma) {
                 var expressions = [expr];
@@ -2397,8 +2402,23 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
             // start with. Many are trivial to parse, some require a bit of
             // complexity.
 
+            // #### BlockStatement
+            if (starttype===_braceL) {
+                return parseBlock();
+
+            // #### IfStatement
+            } else if (starttype===_if) {
+                next();
+                startPos = tokStart;
+                var ifTest = defcheck(parseParenExpression());
+                typecheck(ifTest.type, Types.Int, "if statement condition",
+                          startPos);
+                var consequent = parseStatement();
+                var alternate = eat(_else) ? parseStatement() : null;
+                return;
+
             // #### BreakStatement / ContinueStatement
-            if (starttype===_break || starttype===_continue) {
+            } else if (starttype===_break || starttype===_continue) {
                 next();
                 var isBreak = (starttype === _break), label;
                 if (eat(_semi) || canInsertSemicolon()) { label = null; }
@@ -2410,23 +2430,53 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
 
                 // Verify that there is an actual destination to break or
                 // continue to.
-                var found = false;
-                module.func.labels.forEach(function(lab, i) {
+                var found = false, i = 0, labellen = module.func.labels.length;
+                while (i < labellen) {
+                    var lab = module.func.labels[i];
                     if (label === null || lab.name === label.name) {
                         if (lab.kind !== null && // no 'continue' in switch
                             (isBreak || lab.kind === "loop")) {
                             found = true;
-                            /* XXX break out of forEach */
+                            break;
                         }
                         if (label && isBreak) { // always 'break' if names match
                             found = true;
-                            /* XXX break out of forEach */
+                            break;
                         }
                     }
-                });
+                    i+=1;
+                }
                 if (!found) {
                     raise(startPos, "Unsyntactic " + starttype.keyword);
                 }
+                return;
+
+            // #### ReturnStatement
+            } else if (starttype===_return) {
+
+                // In `return` (and `break`/`continue`), the keywords with
+                // optional arguments, we eagerly look for a semicolon or the
+                // possibility to insert one.
+
+                var ty;
+                next();
+                startPos = tokStart;
+                if (eat(_semi) || canInsertSemicolon()) {
+                    ty = Types.Void;
+                } else {
+                    var binding = defcheck(parseExpression(null)); semicolon();
+                    ty = binding.type;
+                    // Handle `return 0` which is `fixnum`, not `signed`.
+                    if (ty.isSubtypeOf(Types.Signed)) {
+                        ty = Types.Signed;
+                    }
+                }
+                if (ty!==Types.Void && ty!==Types.Double && ty!==Types.Signed) {
+                    raise(startPos,
+                          'return type must be double, signed, or void');
+                }
+                module.func.retType =
+                    mergeTypes(module.func.retType, ty, startPos);
                 return;
 
             // #### IterationStatement
@@ -2469,45 +2519,6 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                 if (tokType === _semi) { return parseFor(null); }
                 var init = defcheck(parseExpression(null, false));
                 return parseFor(init);
-
-            // #### IfStatement
-            } else if (starttype===_if) {
-                next();
-                startPos = tokStart;
-                var ifTest = defcheck(parseParenExpression());
-                typecheck(ifTest.type, Types.Int, "if statement condition",
-                          startPos);
-                var consequent = parseStatement();
-                var alternate = eat(_else) ? parseStatement() : null;
-                return;
-
-            // #### ReturnStatement
-            } else if (starttype===_return) {
-
-                // In `return` (and `break`/`continue`), the keywords with
-                // optional arguments, we eagerly look for a semicolon or the
-                // possibility to insert one.
-
-                var ty;
-                next();
-                startPos = tokStart;
-                if (eat(_semi) || canInsertSemicolon()) {
-                    ty = Types.Void;
-                } else {
-                    var binding = defcheck(parseExpression(null)); semicolon();
-                    ty = binding.type;
-                    // Handle `return 0` which is `fixnum`, not `signed`.
-                    if (ty.isSubtypeOf(Types.Signed)) {
-                        ty = Types.Signed;
-                    }
-                }
-                if (ty!==Types.Void && ty!==Types.Double && ty!==Types.Signed) {
-                    raise(startPos,
-                          'return type must be double, signed, or void');
-                }
-                module.func.retType =
-                    mergeTypes(module.func.retType, ty, startPos);
-                return;
 
             // #### SwitchStatement
             } else if (starttype===_switch) {
@@ -2564,10 +2575,6 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                     }
                 }
                 return;
-
-            // #### BlockStatement
-            } else if (starttype===_braceL) {
-                return parseBlock();
 
             // #### EmptyStatement
             } else if (starttype===_semi) {
