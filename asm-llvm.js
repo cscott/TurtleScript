@@ -231,19 +231,6 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
     // return `intish` or `doublish`.
     Types.MaybeVoid = Type.derive("MaybeVoid");
 
-    // Utility functions.
-    var ceilLog2 = function(x) {
-        var r = 0; x-=1;
-        while (x!==0) { x = Math.floor(x/2); r+=1; } // XXX want shift!
-        return r;
-    };
-
-    // Only powerOf2 sizes are legit for function tables.
-    var powerOf2 = function(x) {
-        /* return (x & (x - 1)) === 0; // how cool kids do it */
-        return x === Math.pow(2, ceilLog2(x)); // TurtleScript needs bitwise ops
-    };
-
     // Quick self-test for the type system.  Ensure that identical types
     // created at two different times still compare ===.
     var test_types = function() {
@@ -269,6 +256,19 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
         console.assert(t1.toString() === '((double)->double)[16]');
     };
     test_types();
+
+    // Utility functions and constants.
+    var ceilLog2 = function(x) {
+        var r = 0; x-=1;
+        while (x!==0) { x = Math.floor(x/2); r+=1; } // XXX want shift!
+        return r;
+    };
+
+    // Only powerOf2 sizes are legit for function tables.
+    var powerOf2 = function(x) {
+        /* return (x & (x - 1)) === 0; // how cool kids do it */
+        return x === Math.pow(2, ceilLog2(x)); // TurtleScript needs bitwise ops
+    };
 
     // ### Operator and standard library type tables.
 
@@ -1513,6 +1513,9 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
         var GlobalBinding = function(type, mutable) {
             this.type = type;
             this.mutable = !!mutable;
+            // Some optional fields are used for forward references.
+            this.pending = false;
+            this.id = this.pos = null;
         };
 
         // Local environments map to a type and a local temporary.
@@ -1529,6 +1532,10 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
         var TempBinding = function(type, temp) {
             this.type = type;
             this.temp = temp || gensym();
+            // Some extra fields are used for add/shift/and operations.
+            this.additiveChain = 0;
+            this.shifty = this.andy = false;
+            this.shiftAmount = this.andAmount = 0;
         };
 
         // View references can be assigned to.  They have a type, and
@@ -1581,6 +1588,17 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                 this.setIntType();
             }
             return this;
+        };
+
+        // Test a binding to find out if it is a constant suitable for
+        // MultiplicativeExpression special-case typing.  (See
+        // `parseExprOp()`.)
+        var TWO_TO_THE_TWENTY = 0x100000;
+        var isGoodMultLiteral = function(b) {
+            return b.type !== Types.Double &&
+                ConstantBinding.hasInstance(b) &&
+                (-TWO_TO_THE_TWENTY) < b.value &&
+                b.value < TWO_TO_THE_TWENTY;
         };
 
         // ## Parser
@@ -2181,7 +2199,6 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
         // operator that has a lower precedence than the set it is parsing.
 
         var parseExprOp = function(left, minPrec) {
-            var TWO_TO_THE_TWENTY = 0x100000;
             var prec = tokType.binop;
             console.assert(prec !== null, tokType);
             if (prec !== undefined) {
@@ -2198,36 +2215,6 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                                             prec);
                     defcheck(left); defcheck(right);
                     ty = ty.apply([left.type, right.type]);
-                    if (ty===null && (operator==='+' || operator==='-')) {
-                        /* Special validation for "AdditiveExpression" */
-                        if ((left.additiveChain ||
-                             left.type.isSubtypeOf(Types.Int)) &&
-                            /* right is additive chain in parenthesized
-                             * expressions, like "a + (b + 63)" */
-                            (right.additiveChain ||
-                             right.type.isSubtypeOf(Types.Int))) {
-                            ty = Types.Intish;
-                            additiveChain = (left.additiveChain||1) + 1;
-                            if (additiveChain > TWO_TO_THE_TWENTY) { // 2^20
-                                raise(opPos, "too many additive operations");
-                            }
-                        }
-                    }
-                    if (ty===null && operator==='*') {
-                        /* Special validation for MultiplicativeExpression */
-                        var isGoodLiteral = function(b) {
-                            return ConstantBinding.hasInstance(b) &&
-                                b.type !== Types.Double &&
-                                (-TWO_TO_THE_TWENTY) < b.value &&
-                                b.value < TWO_TO_THE_TWENTY;
-                        };
-                        if ((isGoodLiteral(left) &&
-                            right.type.isSubtypeOf(Types.Int)) ||
-                            (isGoodLiteral(right) &&
-                             left.type.isSubtypeOf(Types.Int))) {
-                            ty = Types.Intish;
-                        }
-                    }
                     if (operator==='%') {
                         /* Special validation for MultiplicativeExpression */
                         if (ConstantBinding.hasInstance(right) &&
@@ -2240,6 +2227,32 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                         }
                     }
                     if (ty===null) {
+                        /* Special validation for "AdditiveExpression" */
+                        if ((operator==='+' || operator==='-') &&
+                            (left.additiveChain ||
+                             left.type.isSubtypeOf(Types.Int)) &&
+                            /* right is additive chain in parenthesized
+                             * expressions, like "a + (b + 63)" */
+                            (right.additiveChain ||
+                             right.type.isSubtypeOf(Types.Int))) {
+                            ty = Types.Intish;
+                            additiveChain =
+                                (left.additiveChain||1) +
+                                (right.additiveChain||1);
+                            if (additiveChain > TWO_TO_THE_TWENTY) { // 2^20
+                                raise(opPos, "too many additive operations");
+                            }
+                        /* Special validation for MultiplicativeExpression */
+                        } else if (operator==='*') {
+                            if ((isGoodMultLiteral(left) &&
+                                 right.type.isSubtypeOf(Types.Int)) ||
+                                (isGoodMultLiteral(right) &&
+                                 left.type.isSubtypeOf(Types.Int))) {
+                                ty = Types.Intish;
+                            }
+                        }
+                    }
+                    if (ty===null) {
                         raise(opPos, "binary "+operator+" fails to validate: "+
                               left.type.toString() +
                               " " + operator + " " +
@@ -2249,8 +2262,8 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                     if (additiveChain) {
                         binding.additiveChain = additiveChain;
                     }
-                    if (ConstantBinding.hasInstance(right) &&
-                        right.type !== Types.Double) {
+                    if (right.type !== Types.Double &&
+                        ConstantBinding.hasInstance(right)) {
                         if (operator==='>>') {
                             // Record the pre-shift value and the shift amount,
                             // for later use in `parseBracketExpression()`.
