@@ -1689,7 +1689,8 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
         // consume it, otherwise raise an error.
         var expectName = function(value, defaultValue) {
             if (tokType !== _name || tokVal !== value) {
-                raise("expected " + (value || defaultValue));
+                var vstr = value ? ("'" + value + "'") : defaultValue;
+                raise(tokStart, "expected " + vstr);
             } else { next(); }
         };
 
@@ -2900,6 +2901,8 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                     moreParen();
                     expect(_parenR);
                     module.env.bind(x, GlobalBinding.New(ty, false), startPos);
+                } else if (tokType === _name) {
+                    raise(tokStart, "expected <stdlib> or <foreign>");
                 } else { unexpected(); }
                 parenClose();
                 if (!eat(_comma)) { break; }
