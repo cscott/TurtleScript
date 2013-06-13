@@ -33,7 +33,7 @@
 //
 // C. Scott Ananian
 // 2011-05-10
-define(["bytecode-table"], function make_bcompile(bytecode_table) {
+define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_source, bytecode_table) {
     // helper function for debugging
     var assert = function(b, obj) {
         if (!b) {
@@ -698,5 +698,6 @@ define(["bytecode-table"], function make_bcompile(bytecode_table) {
     bcompile.__module_name__ = "bcompile";
     bcompile.__module_init__ = make_bcompile;
     bcompile.__module_deps__ = ["bytecode-table"];
+    bcompile.__module_source__ = bcompile_source;
     return bcompile;
 });

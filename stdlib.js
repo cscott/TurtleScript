@@ -2,8 +2,8 @@
 // TurtleScript standard library, written in TurtleScript.
 //
 // Used for bytecode interpreters (both TurtleScript and native).
-define([], function make_stdlib() {
-    var init = function() {
+define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
+    var init = /*CUT HERE*/function() {
         String.prototype.indexOf = function(searchValue, from) {
             var i = from || 0;
             var j = 0;
@@ -230,12 +230,17 @@ define([], function make_stdlib() {
         false["ifElse"] = function(_this_, ifTrue, ifFalse) {
             return ifFalse.call(_this_);
         };
-    };
+    }/*CUT HERE*/;
 
     // Define a helper function to turn the `stdlib.init` function into the
     // source text of an evaluatable statement expression.
     var source = function() {
-        var s = init.toSource ? init.toSource() : init.toString();
+        var s;
+        if (stdlib_source) {
+            s = stdlib_source.split('/*CUT HERE*/')[1];
+        } else {
+            s = init.toSource ? init.toSource() : init.toString();
+        }
         s = '(' + s + ')();';
         return s;
     };
@@ -244,6 +249,7 @@ define([], function make_stdlib() {
         __module_name__: 'stdlib',
         __module_init__: make_stdlib,
         __module_deps__: [],
+        __module_source__: stdlib_source,
         init: init,
         source: source
     };

@@ -8,7 +8,7 @@
 // 2008-07-07.
 //
 // Modified by C. Scott Ananian.
-define(["tokenize"], function make_parse(tokenize) {
+define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize) {
     var DEBUG;
     var scope;
     var symbol_table = {};
@@ -648,6 +648,7 @@ define(["tokenize"], function make_parse(tokenize) {
     parse.__module_name__ = "parse";
     parse.__module_init__ = make_parse;
     parse.__module_deps__ = ["tokenize"];
+    parse.__module_source__ = parse_source;
     parse.repl = parse_repl;
     return parse;
 });

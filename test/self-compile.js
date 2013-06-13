@@ -5,6 +5,10 @@ var turtlescript = require('../');
 
 describe('Verify that modules are written in valid TurtleScript:', function(){
     turtlescript.tests.forEach(function(test, idx) {
+        // toSource/toString() doesn't work when we've instrumented the
+        // code for coverage testing.
+        if (process.env.npm_config_coverage &&
+            turtlescript.tests.isReflected(idx)) { return; }
         describe(turtlescript.tests.getName(idx), function() {
             var tree;
             it('should correctly parse.', function() {

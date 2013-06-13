@@ -7,7 +7,7 @@
 
 // C. Scott Ananian
 // 2011-05-11
-define(["bytecode-table"/*, "!html-escape"*/], function make_binterp(bytecode_table, html_escape) {
+define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_binterp(binterp_source, bytecode_table, html_escape) {
     var mkstate = function(parent, frame, module, func_id) {
         return {
             // Main interpreter state.
@@ -576,6 +576,7 @@ define(["bytecode-table"/*, "!html-escape"*/], function make_binterp(bytecode_ta
         __module_name__: "binterp",
         __module_init__: make_binterp,
         __module_deps__: ["bytecode-table", "html-escape"],
+        __module_source__: binterp_source,
 
         binterp: binterp,
         make_top_level_frame: make_top_level_frame,

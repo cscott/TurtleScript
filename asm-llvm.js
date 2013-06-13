@@ -17,13 +17,14 @@
 // compilation.
 //
 // Copyright (c) 2013 C. Scott Ananian
-define([], function asm_llvm() {
+define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
     // The module object.
     // (This is used by `tests.js` to recreate the module source.)
     var asm_llvm_module = {
         __module_name__: "asm-llvm",
         __module_init__: asm_llvm,
-        __module_deps__: []
+        __module_deps__: [],
+        __module_source__: asm_llvm_source
     };
 
     // ## `asm.js` type system

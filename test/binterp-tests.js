@@ -11,16 +11,16 @@ var metainterpreter = (function() {
         "  var d = deps.map(function(m) { return __modules__[m]; });\n"+
         "  __modules__[name] = init_func.apply(this, d);\n"+
         "};\n";
-    var make_compile_from_source = function(parse, bcompile, binterp, TOP_LEVEL) {
-        return function compile_from_source(source) {
-            var tree = parse(source, TOP_LEVEL);
-            var bc = bcompile(tree);
-            return binterp.binterp(bc, 0);
-        };
-    };
-    var cfs_source = make_compile_from_source.toSource ?
-        make_compile_from_source.toSource() :
-        make_compile_from_source.toString();
+    var cfs_source =
+        "function (parse, bcompile, binterp, TOP_LEVEL) {\n"+
+        "    return function compile_from_source(source) {\n"+
+        "        var tree = parse(source, TOP_LEVEL);\n"+
+        "        var bc = bcompile(tree);\n"+
+        "        return binterp.binterp(bc, 0);\n"+
+        "    };\n"+
+        "}\n";
+
+    var make_compile_from_source = eval('('+cfs_source+')');
     cfs_source = 'define("compile_from_source", '+
         '["parse","bcompile","binterp","top-level"], '+
         cfs_source + ');';
@@ -48,6 +48,10 @@ var metainterpreter = (function() {
 describe('Verify bytecode interpretation:', function() {
     turtlescript.tests.forEach(function(test, idx) {
         if (!turtlescript.tests.isExecutable(idx)) { return; }
+        // toSource/toString() doesn't work when we've instrumented the
+        // code for coverage testing.
+        if (process.env.npm_config_coverage &&
+            turtlescript.tests.isReflected(idx)) { return; }
         // add a fake 'define' which just runs the factory.
         var source = "{\n" +
             turtlescript.stdlib.source()+'\n'+

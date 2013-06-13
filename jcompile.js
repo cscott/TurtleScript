@@ -10,7 +10,7 @@
 //
 // C. Scott Ananian
 // 2010-07-02ish
-define(["str-escape"], function make_jcompile(str_escape) {
+define(["text!jcompile.js","str-escape"], function make_jcompile(jcompile_source,str_escape) {
     var jcompile, jcompile_stmt, jcompile_stmts;
     var indentation, prec_stack = [ 0 ];
 
@@ -270,5 +270,6 @@ define(["str-escape"], function make_jcompile(str_escape) {
     j.__module_name__ = "jcompile";
     j.__module_init__ = make_jcompile;
     j.__module_deps__ = ['str-escape'];
+    j.__module_source__ = jcompile_source;
     return j;
 });

@@ -20,10 +20,11 @@
   },
   "devDependencies": {
     "mocha": "~1.9.0",
-    "docco": "~0.6.2"
+    "docco": "~0.6.2",
+    "istanbul": "~0.1.36"
   },
   "scripts": {
-    "test": "mocha -R spec"
+    "test": "istanbul test --hook-run-in-context _mocha -- -R spec"
   },
   "amd": {},
   "volo": {}

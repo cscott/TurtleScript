@@ -29,7 +29,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-define(["!timeouts"], function make_flapjax(timeouts) {
+define(["text!events.js", "!timeouts"], function make_flapjax(events_source, timeouts) {
     var setTimeout = timeouts.setTimeout;
     var clearTimeout = timeouts.clearTimeout;
 
@@ -1042,6 +1042,7 @@ var calmB = function (srcB,intervalB) {
         __module_name__: "events",
         __module_init__: make_flapjax,
         __module_deps__: ["timeouts"],
+        __module_source__: events_source,
 
         constantB: constantB,
         delayB: delayB,

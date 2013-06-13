@@ -44,7 +44,7 @@
 // C. Scott Ananian
 // 2010-07-02ish
 
-var make_render = function(html_escape) {
+var make_render = function(html_escape, str_escape) {
     var render, render_stmt, render_stmts;
     var indentation, prec_stack = [ 0 ];
 
@@ -94,14 +94,6 @@ var make_render = function(html_escape) {
         };
     };
 
-    var str_escape = function(s) {
-        if (s.toSource) {
-            // abuse toSource() to properly quote a string value.
-            return s.toSource().slice(12,-2);
-        }
-        // FIXME value isn't escaped on chrome/webkit
-        return '"' + s.toString() + '"';
-    };
     var div = function(classes, text) {
         if (!classes) return "<div>"+text+"</div>";
         return "<div class='"+classes+"'>" + text + "</div>";

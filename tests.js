@@ -1,33 +1,44 @@
 // A collection of interesting test cases.
-define(["str-escape",
+define(["text!tests.js", "str-escape",
         /* These modules are just imported to make test cases out of them. */
         "tokenize", "parse", "jcompile", "crender", "bytecode-table",
         "bcompile", "binterp", "stdlib", "events", "asm-llvm"],
-       function make_tests(str_escape,
+       function make_tests(tests_source, str_escape,
                            tokenize, parse, jcompile, crender, bytecode_table,
                            bcompile, binterp, stdlib, events, asm_llvm) {
-    var deps = ["str-escape",
+    var deps = ["tests_source", "str-escape",
                 "tokenize", "parse", "jcompile", "crender", "bytecode-table",
                 "bcompile", "binterp", "stdlib", "events", "asm-llvm"];
-    var test=[], i=1/* skip str_escape */;
+    var test=[], i=2/* skip tests_source and str_escape */;
     // The first tests are our own source code, from the module arguments.
     while (i < arguments.length) {
-        test[i-1] = arguments[i];
-        test[i-1].__module_name__ = deps[i]; // hack
+        test[i-2] = arguments[i];
+        test[i-2].__module_name__ = deps[i]; // hack
         i += 1;
     }
-    i -= 2;
+    i -= 3;
     // The next test case is this function itself.
     if (make_tests) {
         make_tests.__module_name__ = "tests";
         make_tests.__module_deps__ = deps;
         make_tests.__module_init__ = make_tests;
+        make_tests.__module_source__ = tests_source;
         test[i+=1] = make_tests;
     }
     // Now some ad-hoc test cases.  These are phrased as functions so they can
     // be syntax-checked, etc.  `autotest()` functions should return `true`
     // on a successful evaluation.
     var autotest = function(f) { f.autotest=true; return f; };
+    var strtest = function(s) {
+        var f = eval('('+s+')');
+        f.__module_source__ = 'define([],function() { return '+s+'; });';
+        return f;
+    };
+    test[i+=1] = autotest(strtest(
+            "function() {\n" +
+            "    var x = 1;\n"+
+            "    return (x + x) === 2;\n"+
+            "}"));
     test[i+=1] = function() {
         // Find bug sharing no-arg and arg return tokens.
         // When you do token.reserve() it makes the current syntree
@@ -362,7 +373,7 @@ define(["str-escape",
     */
 
     var test_source = [], j=0, test_map = {}, test_names = [];
-    var autotests = [];
+    var autotests = [], reflected = [];
     while (j <= i) {
         test_source[j] = "define(";
         var name = 'test_case_' + j;
@@ -379,6 +390,14 @@ define(["str-escape",
             test_source[j] += "; }";
         }
         test_source[j] += ");";
+        if (test[j].__module_source__) {
+            test_source[j] = test[j].__module_source__;
+            var idx = test_source[j].indexOf('define(') + 7;
+            test_source[j] =
+                test_source[j].slice(0, idx) +
+                str_escape(name) + ',' +
+                test_source[j].slice(idx);
+        } else { reflected[j] = true; }
         test_map[name] = test_source[j];
         test_names[j] = name;
         if (test[j].autotest) { autotests[j] = true; }
@@ -394,5 +413,7 @@ define(["str-escape",
     };
     // Get at the list of executable test cases.
     test_source.isExecutable = function(idx) { return !!autotests[idx]; };
+    // Did we have to use toSource()/toString() to get the source of this test?
+    test_source.isReflected = function(idx) { return !!reflected[idx]; };
     return test_source;
 });
