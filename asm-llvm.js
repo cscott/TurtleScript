@@ -1829,6 +1829,15 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
             // the expression, if `leftOp` is `null`).
             this.parenLevels = 0;
         };
+        // Top level left context
+        LeftContext.NONE = LeftContext.New();
+        // Return a left context with one more level of parentheses than
+        // `this` has.
+        LeftContext.prototype.enterParen = function() {
+            var lc = LeftContext.New(this.leftOp);
+            lc.parenLevels = this.parenLevels + 1;
+            return lc;
+        };
         // Look ahead `parenLevels` tokens, to check that all the open
         // parentheses are closed.  If they are not, then the unary operator
         // on the left doesn't actually apply to this expression.
@@ -1959,9 +1968,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
 
             } else if (tokType === _parenL) {
                 next();
-                leftContext.parenLevels += 1;
-                var val = parseExpression(leftContext);
-                leftContext.parenLevels -= 1;
+                var val = parseExpression(leftContext.enterParen());
                 expect(_parenR);
                 return val;
 
@@ -2215,7 +2222,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                         raise(opPos, operator+" not allowed");
                     }
                     next();
-                    var right = parseExprOp(parseMaybeUnary(LeftContext.New()),
+                    var right = parseExprOp(parseMaybeUnary(LeftContext.NONE),
                                             prec);
                     defcheck(left); defcheck(right);
                     ty = ty.apply([left.type, right.type]);
@@ -2333,7 +2340,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                     raise(startPos, "Operator disallowed: "+operator);
                 }
                 next();
-                var right = parseMaybeAssign(LeftContext.New());
+                var right = parseMaybeAssign(LeftContext.NONE);
                 // Check that `left` is an lval.  First, let's check
                 // the `x:Identifier = ...` case.
                 if (LocalBinding.hasInstance(left)) {
@@ -2364,9 +2371,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
         // sequences (in argument lists, array literals, or object literals).
 
         parseExpression = function(leftContext, noComma) {
-            if (leftContext===null) {
-                leftContext = LeftContext.New();
-            }
+            if (leftContext===null) { leftContext = LeftContext.NONE; }
             var expr = parseMaybeAssign(leftContext);
             if (!noComma && tokType === _comma) {
                 var expressions = [expr];
