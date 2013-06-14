@@ -435,6 +435,10 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
         this.first = a;
         advance(")");
         advance("{");
+        // allow "use strict" as first statement
+        if (token.arity === "literal" && token.value === "use strict") {
+            advance(); advance(";");
+        }
         this.second = statements();
         advance("}");
         this.arity = "function";

@@ -18,6 +18,8 @@
 //
 // Copyright (c) 2013 C. Scott Ananian
 define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
+    "use strict";
+
     // The module object.
     // (This is used by `tests.js` to recreate the module source.)
     var asm_llvm_module = {
