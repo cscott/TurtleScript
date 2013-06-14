@@ -716,7 +716,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
         var setOptions = function(opts) {
             options = opts || {};
             Object.keys(defaultOptions).forEach(function(opt) {
-                if (!options.hasOwnProperty(opt)) {
+                if (!Object.prototype.hasOwnProperty.call(options, opt)) {
                     options[opt] = defaultOptions[opt];
                 }
             });
