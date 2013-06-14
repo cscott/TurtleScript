@@ -41,16 +41,26 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
     // another.
     Type.derive = (function() {
         var id = 1;
+        var eq = function(ty) {
+            return (this===ty);
+        };
         return function(spec, properties) {
             var ty = this._derived[spec];
             if (ty) { return ty; }
             ty = this._derived[spec] = Object.create(this);
             ty._id = id; id += 1;
-            ty._derived = [];
+            ty._derived = Object.create(null);
+            ty.supertypes = [];
+            ty.value = false;
+            ty.min = ty.max = null;
             // Default to a simple toString method, good for value types.
             properties = properties || {};
             if (!properties.hasOwnProperty('toString')) {
                 properties.toString = function() { return spec; };
+            }
+            // Default to a fast isSubtypeOf method
+            if (!properties.hasOwnProperty('supertypes')) {
+                properties.isSubtypeOf = eq;
             }
             // Allow the caller to override arbitrary properties.
             Object.keys(properties || {}).forEach(function(k) {
