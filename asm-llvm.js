@@ -1550,6 +1550,13 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
             this.shifty = this.andy = this.doubleTilde = false;
             this.shiftAmount = this.andAmount = 0;
         };
+        TempBinding.reuse = function(old, type, temp) {
+            if (old && TempBinding.hasInstance(old)) {
+                TempBinding.call(old, type, temp);
+                return old;
+            }
+            return TempBinding.New(type, temp);
+        };
 
         // View references can be assigned to.  They have a type, and
         // a local temporary, but the temporary is a pointer (not the
@@ -1572,35 +1579,36 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
         var ConstantBinding = function(type, value) {
             this.type = type;
             this.value = value;
-        };
-
-        // Sets the type field for a `ConstantBinding`
-        // based on the value field, according to the rules for
-        // NumericLiteral.
-        ConstantBinding.prototype.setIntType = function() {
-            var value = this.value;
-            if (value >= Types.Signed.min &&
-                value <= Types.Signed.max) {
-                this.type = Types.Signed;
-            } else if (value >= Types.Fixnum.min &&
-                       value <= Types.Fixnum.max) {
-                this.type = Types.Fixnum;
-            } else if (value >= Types.Unsigned.min &&
-                       value <= Types.Unsigned.max) {
-                this.type = Types.Unsigned;
-            } else {
-                this.type = null; // caller must raise()
+            // Sets the type field for a `ConstantBinding`
+            // based on the value field, according to the rules for
+            // NumericLiteral.
+            if (type === null) {
+                if (value >= Types.Signed.min &&
+                    value <= Types.Signed.max) {
+                    this.type = Types.Signed;
+                } else if (value >= Types.Fixnum.min &&
+                           value <= Types.Fixnum.max) {
+                    this.type = Types.Fixnum;
+                } else if (value >= Types.Unsigned.min &&
+                           value <= Types.Unsigned.max) {
+                    this.type = Types.Unsigned;
+                } else {
+                    this.type = null; // caller must raise()
+                }
             }
         };
+        // Frequently-used constants.
+        ConstantBinding.DOUBLE_ZERO = ConstantBinding.New(Types.Double, 0);
+        ConstantBinding.INT_ZERO = ConstantBinding.New(null, 0);
+        console.assert(ConstantBinding.INT_ZERO.type !== null);
 
         // Negate the value stored in a `ConstantBinding`, adjusting its
         // type as necessary.  Used to finesse unary negation of literals.
         ConstantBinding.prototype.negate = function() {
-            this.value = -this.value;
-            if (this.type !== Types.Double) {
-                this.setIntType();
-            }
-            return this;
+            if (this === ConstantBinding.INT_ZERO) { return this; }
+            return ConstantBinding.New(this.type === Types.Double ?
+                                       this.type : null,
+                                       -this.value);
         };
 
         // Test a binding to find out if it is a constant suitable for
@@ -1904,17 +1912,23 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
             var parenClose = noop;
             var negate = (tokType===_plusmin && tokVal==='-');
             if (negate) { next(); parenClose = parenStart(); }
-            var result = ConstantBinding.New(Types.Double, tokVal);
+            var result;
             if (tokType === _num) {
-                result.setIntType();
+                result = (tokVal===0) ?
+                    ConstantBinding.INT_ZERO :
+                    ConstantBinding.New(null, tokVal);
                 if (result.type===null) {
                     raise(numStart, "Invalid integer literal");
                 }
-            } else if (tokType !== _dotnum) {
+            } else if (tokType === _dotnum) {
+                result = (tokVal===0) ?
+                    ConstantBinding.DOUBLE_ZERO :
+                    ConstantBinding.New(Types.Double, tokVal);
+            } else {
                 raise(numStart, "expected a numeric literal");
             }
             next(); parenClose();
-            if (negate) { result.negate(); }
+            if (negate) { result = result.negate(); }
             return result;
         };
 
@@ -2199,7 +2213,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                     raise(opPos, "unary "+operator+" fails to validate: "+
                           operator+" "+argument.type.toString());
                 }
-                binding = TempBinding.New(ty);
+                binding = TempBinding.reuse(argument, ty);
                 if (operator==='~~') { binding.doubleTilde = true; }
                 return binding;
             }
@@ -2279,7 +2293,10 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                               " " + operator + " " +
                               right.type.toString());
                     }
-                    var binding = TempBinding.New(ty);
+                    /* Don't reuse the left binding object if operator is >>
+                     * because we'll need to save it below. */
+                    var reuse = (operator==='>>') ? null : left;
+                    var binding = TempBinding.reuse(reuse, ty);
                     if (additiveChain) {
                         binding.additiveChain = additiveChain;
                     }
@@ -2332,7 +2349,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                           consequent.type.toString() + " : " +
                           alternate.type.toString());
                 }
-                var binding = TempBinding.New(ty);
+                var binding = TempBinding.reuse(test, ty);
                 return binding;
             }
             return expr;
