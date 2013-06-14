@@ -4362,10 +4362,15 @@ don&#39;t allow closing the last paren.</p>
                             toClose -= <span class="number">1</span>;
                         }
                         <span class="keyword">if</span> ((tokType === _bin3 &amp;&amp; tokVal === <span class="string">'|'</span>) ||
-                            (tokType === _bin5 &amp;&amp; tokVal === <span class="string">'&amp;'</span>)) {
+                            (tokType === _bin5 &amp;&amp; tokVal === <span class="string">'&amp;'</span>) ||
+                            (tokType === _bin8 &amp;&amp; (tokVal===<span class="string">'&gt;&gt;'</span> ||
+                                                   tokVal === <span class="string">'&gt;&gt;&gt;'</span>))) {
                             next();
                             toClose = <span class="number">0</span>;
                             <span class="keyword">while</span> (eat(_parenL)) { toClose+=<span class="number">1</span>; }
+                            <span class="keyword">if</span> (tokType === _plusmin &amp;&amp; tokVal===<span class="string">'-'</span>) {
+                                next();
+                            }
                             <span class="keyword">if</span> (tokType === _num <span class="comment">/*&amp;&amp; tokVal === 0*/</span>) {
                                 next();
                                 <span class="keyword">while</span> (toClose &gt; <span class="number">0</span> &amp;&amp; eat(_parenR)) {
@@ -4463,7 +4468,8 @@ don&#39;t allow closing the last paren.</p>
                         <span class="keyword">var</span> msg = <span class="string">"argument "</span>+i+<span class="string">" to foreign function"</span>;
                         typecheck(type, Types.Extern, msg, startPos);
                     });
-                    binding = TempBinding.New(Types.Unknown);
+                    ty = makeFunctionTypeFromContext().retType;
+                    binding = TempBinding.New(ty);
                 } <span class="keyword">else</span> <span class="keyword">if</span> (base.type.arrow || base.type.functiontypes ||
                            base.type === Types.ForwardReference) {</pre></div></div>
             
