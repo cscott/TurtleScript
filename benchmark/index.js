@@ -263,11 +263,12 @@ if (typeof window !== 'undefined') {
 
                 // Poor man's error reporter for Traceur.
                 console.reportError = console.error;
+                var tokenizeOnly = false, useLoc = false;
 
                 switch (parser) {
                 case 'Esprima':
                     fn = function () {
-                        var syntax = window.esprima.parse(source, { range: true, loc: true });
+                        var syntax = window.esprima.parse(source, useLoc ? { range: true, loc: true } : {});
                         window.tree.push(syntax.body.length);
                     };
                     break;
@@ -290,20 +291,37 @@ if (typeof window !== 'undefined') {
                     break;
 
                 case 'Acorn':
-                    fn = function () {
-                        var syntax = window.acorn.parse(source, { ranges: true, locations: true });
+                    fn = tokenizeOnly ? (function() {
+                        var getToken = window.acorn.tokenize(
+                            source, useLoc ? { ranges: true, locations: true }
+                            : {});
+                        // see https://github.com/marijnh/acorn/issues/45
+                        var _eof = window.acorn.tokTypes._eof ||
+                            window.acorn.tokTypes.eof;
+                        var count = 0;
+                        while (true) {
+                            var t = getToken();
+                            if (t.type===_eof) { break; }
+                            count += 1;
+                        }
+                        window.tree.push(count);
+                    }) : (function () {
+                        var syntax = window.acorn.parse(
+                            source, useLoc ? { ranges: true, locations: true }
+                            : {});
                         window.tree.push(syntax.body.length);
-                    };
+                    });
                     break;
 
                 case 'TurtleScript':
-                    var tokenizeOnly = false;
                     fn = (which === 'js') ? (function() {
                         var tree = ts_parse(source, ts_top_level);
                         window.tree.push(tree);
                     }) : tokenizeOnly ? (function() {
-                        var getToken = ts_asm_llvm.tokenize(source);
-                        var _eof = ts_asm_llvm.tokTypes.eof;
+                        var getToken = ts_asm_llvm.tokenize(
+                            source, useLoc ? { ranges: true, locations: true }
+                            : {});
+                        var _eof = ts_asm_llvm.tokTypes._eof;
                         var count = 0;
                         while (true) {
                             var t = getToken();
@@ -312,7 +330,9 @@ if (typeof window !== 'undefined') {
                         }
                         window.tree.push(count);
                     }) : (function() {
-                        var out = ts_asm_llvm.compile(source);
+                        var out = ts_asm_llvm.compile(
+                            source, useLoc ? { ranges: true, locations: true }
+                            : {});
                         window.tree.push(out);
                     });
                     break;

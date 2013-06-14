@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>text.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="asm-llvm.html">
+                asm-llvm.js
+              </a>
+            
+              
+              <a class="source" href="bcompile.html">
+                bcompile.js
+              </a>
+            
+              
+              <a class="source" href="binterp.html">
+                binterp.js
+              </a>
+            
+              
+              <a class="source" href="browsercanvas.html">
+                browsercanvas.js
+              </a>
+            
+              
+              <a class="source" href="bytecode-table.html">
+                bytecode-table.js
+              </a>
+            
+              
+              <a class="source" href="canvastest.html">
+                canvastest.js
+              </a>
+            
+              
+              <a class="source" href="ccanvas.html">
+                ccanvas.js
+              </a>
+            
+              
+              <a class="source" href="crender-styles.html">
+                crender-styles.js
+              </a>
+            
+              
+              <a class="source" href="crender.html">
+                crender.js
+              </a>
+            
+              
+              <a class="source" href="ctiles.html">
+                ctiles.js
+              </a>
+            
+              
+              <a class="source" href="events.html">
+                events.js
+              </a>
+            
+              
+              <a class="source" href="eventtests.html">
+                eventtests.js
+              </a>
+            
+              
+              <a class="source" href="extensions.html">
+                extensions.js
+              </a>
+            
+              
+              <a class="source" href="global-es5.html">
+                global-es5.js
+              </a>
+            
+              
+              <a class="source" href="global.html">
+                global.js
+              </a>
+            
+              
+              <a class="source" href="html-escape.html">
+                html-escape.js
+              </a>
+            
+              
+              <a class="source" href="jcompile.html">
+                jcompile.js
+              </a>
+            
+              
+              <a class="source" href="json2.html">
+                json2.js
+              </a>
+            
+              
+              <a class="source" href="nodemain.html">
+                nodemain.js
+              </a>
+            
+              
+              <a class="source" href="parse.html">
+                parse.js
+              </a>
+            
+              
+              <a class="source" href="render.html">
+                render.js
+              </a>
+            
+              
+              <a class="source" href="render2.html">
+                render2.js
+              </a>
+            
+              
+              <a class="source" href="require.html">
+                require.js
+              </a>
+            
+              
+              <a class="source" href="stdlib.html">
+                stdlib.js
+              </a>
+            
+              
+              <a class="source" href="str-escape.html">
+                str-escape.js
+              </a>
+            
+              
+              <a class="source" href="tdop.html">
+                tdop.js
+              </a>
+            
+              
+              <a class="source" href="tests.html">
+                tests.js
+              </a>
+            
+              
+              <a class="source" href="text.html">
+                text.js
+              </a>
+            
+              
+              <a class="source" href="tiles.html">
+                tiles.js
+              </a>
+            
+              
+              <a class="source" href="tokenize.html">
+                tokenize.js
+              </a>
+            
+              
+              <a class="source" href="top-level.html">
+                top-level.js
+              </a>
+            
+              
+              <a class="source" href="ts.html">
+                ts.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-bytecode.html">
+                write-rust-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-ops.html">
+                write-rust-ops.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>text.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="comment">/**
+ * @license RequireJS text 2.0.7 Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
+ * Available via the MIT or new BSD license.
+ * see: http://github.com/requirejs/text for details
+ */</span>
+<span class="comment">/*jslint regexp: true */</span>
+<span class="comment">/*global require, XMLHttpRequest, ActiveXObject,
+  define, window, process, Packages,
+  java, location, Components, FileUtils */</span>
+
+define([<span class="string">'module'</span>], <span class="function"><span class="keyword">function</span> <span class="params">(module)</span> {</span>
+    <span class="string">'use strict'</span>;
+
+    <span class="keyword">var</span> text, fs, Cc, Ci,
+        progIds = [<span class="string">'Msxml2.XMLHTTP'</span>, <span class="string">'Microsoft.XMLHTTP'</span>, <span class="string">'Msxml2.XMLHTTP.4.0'</span>],
+        xmlRegExp = <span class="regexp">/^\s*&lt;\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?&gt;/im</span>,
+        bodyRegExp = <span class="regexp">/&lt;body[^&gt;]*&gt;\s*([\s\S]+)\s*&lt;\/body&gt;/im</span>,
+        hasLocation = <span class="keyword">typeof</span> location !== <span class="string">'undefined'</span> &amp;&amp; location.href,
+        defaultProtocol = hasLocation &amp;&amp; location.protocol &amp;&amp; location.protocol.replace(<span class="regexp">/\:/</span>, <span class="string">''</span>),
+        defaultHostName = hasLocation &amp;&amp; location.hostname,
+        defaultPort = hasLocation &amp;&amp; (location.port || <span class="literal">undefined</span>),
+        buildMap = {},
+        masterConfig = (module.config &amp;&amp; module.config()) || {};
+
+    text = {
+        version: <span class="string">'2.0.7'</span>,
+
+        strip: <span class="function"><span class="keyword">function</span> <span class="params">(content)</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Strips &lt;?xml ...?&gt; declarations so that external SVG and XML
+documents can be added to a document without worry. Also, if the string
+is an HTML document, only the part inside the body tag is returned.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (content) {
+                content = content.replace(xmlRegExp, <span class="string">""</span>);
+                <span class="keyword">var</span> matches = content.match(bodyRegExp);
+                <span class="keyword">if</span> (matches) {
+                    content = matches[<span class="number">1</span>];
+                }
+            } <span class="keyword">else</span> {
+                content = <span class="string">""</span>;
+            }
+            <span class="keyword">return</span> content;
+        },
+
+        jsEscape: <span class="function"><span class="keyword">function</span> <span class="params">(content)</span> {</span>
+            <span class="keyword">return</span> content.replace(<span class="regexp">/(['\\])/g</span>, <span class="string">'\\$1'</span>)
+                .replace(<span class="regexp">/[\f]/g</span>, <span class="string">"\\f"</span>)
+                .replace(<span class="regexp">/[\b]/g</span>, <span class="string">"\\b"</span>)
+                .replace(<span class="regexp">/[\n]/g</span>, <span class="string">"\\n"</span>)
+                .replace(<span class="regexp">/[\t]/g</span>, <span class="string">"\\t"</span>)
+                .replace(<span class="regexp">/[\r]/g</span>, <span class="string">"\\r"</span>)
+                .replace(<span class="regexp">/[\u2028]/g</span>, <span class="string">"\\u2028"</span>)
+                .replace(<span class="regexp">/[\u2029]/g</span>, <span class="string">"\\u2029"</span>);
+        },
+
+        createXhr: masterConfig.createXhr || <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Would love to dump the ActiveX crap in here. Need IE 6 to die first.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> xhr, i, progId;
+            <span class="keyword">if</span> (<span class="keyword">typeof</span> XMLHttpRequest !== <span class="string">"undefined"</span>) {
+                <span class="keyword">return</span> <span class="keyword">new</span> XMLHttpRequest();
+            } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span> ActiveXObject !== <span class="string">"undefined"</span>) {
+                <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i += <span class="number">1</span>) {
+                    progId = progIds[i];
+                    <span class="keyword">try</span> {
+                        xhr = <span class="keyword">new</span> ActiveXObject(progId);
+                    } <span class="keyword">catch</span> (e) {}
+
+                    <span class="keyword">if</span> (xhr) {
+                        progIds = [progId];  <span class="comment">// so faster next time</span>
+                        <span class="keyword">break</span>;
+                    }
+                }
+            }
+
+            <span class="keyword">return</span> xhr;
+        },
+
+        <span class="comment">/**
+         * Parses a resource name into its component parts. Resource names
+         * look like: module/name.ext!strip, where the !strip part is
+         * optional.
+         * @param {String} name the resource name
+         * @returns {Object} with properties "moduleName", "ext" and "strip"
+         * where strip is a boolean.
+         */</span>
+        parseName: <span class="function"><span class="keyword">function</span> <span class="params">(name)</span> {</span>
+            <span class="keyword">var</span> modName, ext, temp,
+                strip = <span class="literal">false</span>,
+                index = name.indexOf(<span class="string">"."</span>),
+                isRelative = name.indexOf(<span class="string">'./'</span>) === <span class="number">0</span> ||
+                             name.indexOf(<span class="string">'../'</span>) === <span class="number">0</span>;
+
+            <span class="keyword">if</span> (index !== -<span class="number">1</span> &amp;&amp; (!isRelative || index &gt; <span class="number">1</span>)) {
+                modName = name.substring(<span class="number">0</span>, index);
+                ext = name.substring(index + <span class="number">1</span>, name.length);
+            } <span class="keyword">else</span> {
+                modName = name;
+            }
+
+            temp = ext || modName;
+            index = temp.indexOf(<span class="string">"!"</span>);
+            <span class="keyword">if</span> (index !== -<span class="number">1</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Pull off the strip arg.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                strip = temp.substring(index + <span class="number">1</span>) === <span class="string">"strip"</span>;
+                temp = temp.substring(<span class="number">0</span>, index);
+                <span class="keyword">if</span> (ext) {
+                    ext = temp;
+                } <span class="keyword">else</span> {
+                    modName = temp;
+                }
+            }
+
+            <span class="keyword">return</span> {
+                moduleName: modName,
+                ext: ext,
+                strip: strip
+            };
+        },
+
+        xdRegExp: <span class="regexp">/^((\w+)\:)?\/\/([^\/\\]+)/</span>,
+
+        <span class="comment">/**
+         * Is an URL on another domain. Only works for browser use, returns
+         * false in non-browser environments. Only used to know if an
+         * optimized .js version of a text resource should be loaded
+         * instead.
+         * @param {String} url
+         * @returns Boolean
+         */</span>
+        useXhr: <span class="function"><span class="keyword">function</span> <span class="params">(url, protocol, hostname, port)</span> {</span>
+            <span class="keyword">var</span> uProtocol, uHostName, uPort,
+                match = text.xdRegExp.exec(url);
+            <span class="keyword">if</span> (!match) {
+                <span class="keyword">return</span> <span class="literal">true</span>;
+            }
+            uProtocol = match[<span class="number">2</span>];
+            uHostName = match[<span class="number">3</span>];
+
+            uHostName = uHostName.split(<span class="string">':'</span>);
+            uPort = uHostName[<span class="number">1</span>];
+            uHostName = uHostName[<span class="number">0</span>];
+
+            <span class="keyword">return</span> (!uProtocol || uProtocol === protocol) &amp;&amp;
+                   (!uHostName || uHostName.toLowerCase() === hostname.toLowerCase()) &amp;&amp;
+                   ((!uPort &amp;&amp; !uHostName) || uPort === port);
+        },
+
+        finishLoad: <span class="function"><span class="keyword">function</span> <span class="params">(name, strip, content, onLoad)</span> {</span>
+            content = strip ? text.strip(content) : content;
+            <span class="keyword">if</span> (masterConfig.isBuild) {
+                buildMap[name] = content;
+            }
+            onLoad(content);
+        },
+
+        load: <span class="function"><span class="keyword">function</span> <span class="params">(name, req, onLoad, config)</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Name has format: some.module.filext!strip
+The strip part is optional.
+if strip is present, then that means only get the string contents
+inside a body tag in an HTML string. For XML/SVG content it means
+removing the &lt;?xml ...?&gt; declarations so the content can be inserted
+into the current doc without problems.</p>
+<p>Do not bother with the work if a build and text will
+not be inlined.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (config.isBuild &amp;&amp; !config.inlineText) {
+                onLoad();
+                <span class="keyword">return</span>;
+            }
+
+            masterConfig.isBuild = config.isBuild;
+
+            <span class="keyword">var</span> parsed = text.parseName(name),
+                nonStripName = parsed.moduleName +
+                    (parsed.ext ? <span class="string">'.'</span> + parsed.ext : <span class="string">''</span>),
+                url = req.toUrl(nonStripName),
+                useXhr = (masterConfig.useXhr) ||
+                         text.useXhr;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Load the text. Use XHR if possible and in a browser.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (!hasLocation || useXhr(url, defaultProtocol, defaultHostName, defaultPort)) {
+                text.get(url, <span class="function"><span class="keyword">function</span> <span class="params">(content)</span> {</span>
+                    text.finishLoad(name, parsed.strip, content, onLoad);
+                }, <span class="function"><span class="keyword">function</span> <span class="params">(err)</span> {</span>
+                    <span class="keyword">if</span> (onLoad.error) {
+                        onLoad.error(err);
+                    }
+                });
+            } <span class="keyword">else</span> {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Need to fetch the resource across domains. Assume
+the resource has been optimized into a JS module. Fetch
+by the module name + extension, but do not include the
+!strip part to avoid file system issues.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                req([nonStripName], <span class="function"><span class="keyword">function</span> <span class="params">(content)</span> {</span>
+                    text.finishLoad(parsed.moduleName + <span class="string">'.'</span> + parsed.ext,
+                                    parsed.strip, content, onLoad);
+                });
+            }
+        },
+
+        write: <span class="function"><span class="keyword">function</span> <span class="params">(pluginName, moduleName, write, config)</span> {</span>
+            <span class="keyword">if</span> (buildMap.hasOwnProperty(moduleName)) {
+                <span class="keyword">var</span> content = text.jsEscape(buildMap[moduleName]);
+                write.asModule(pluginName + <span class="string">"!"</span> + moduleName,
+                               <span class="string">"define(function () { return '"</span> +
+                                   content +
+                               <span class="string">"';});\n"</span>);
+            }
+        },
+
+        writeFile: <span class="function"><span class="keyword">function</span> <span class="params">(pluginName, moduleName, req, write, config)</span> {</span>
+            <span class="keyword">var</span> parsed = text.parseName(moduleName),
+                extPart = parsed.ext ? <span class="string">'.'</span> + parsed.ext : <span class="string">''</span>,
+                nonStripName = parsed.moduleName + extPart,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Use a &#39;.js&#39; file name so that it indicates it is a
+script that can be loaded across domains.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                fileName = req.toUrl(parsed.moduleName + extPart) + <span class="string">'.js'</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Leverage own load() method to load plugin value, but only
+write out values that do not have the strip argument,
+to avoid any potential issues with ! in file names.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            text.load(nonStripName, req, <span class="function"><span class="keyword">function</span> <span class="params">(value)</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Use own write() method to construct full module value.
+But need to create shell that translates writeFile&#39;s
+write() to the right interface.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> textWrite = <span class="function"><span class="keyword">function</span> <span class="params">(contents)</span> {</span>
+                    <span class="keyword">return</span> write(fileName, contents);
+                };
+                textWrite.asModule = <span class="function"><span class="keyword">function</span> <span class="params">(moduleName, contents)</span> {</span>
+                    <span class="keyword">return</span> write.asModule(moduleName, fileName, contents);
+                };
+
+                text.write(pluginName, nonStripName, textWrite, config);
+            }, config);
+        }
+    };
+
+    <span class="keyword">if</span> (masterConfig.env === <span class="string">'node'</span> || (!masterConfig.env &amp;&amp;
+            <span class="keyword">typeof</span> process !== <span class="string">"undefined"</span> &amp;&amp;
+            process.versions &amp;&amp;
+            !!process.versions.node)) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Using special require.nodeRequire, something added by r.js.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        fs = require.nodeRequire(<span class="string">'fs'</span>);
+
+        text.get = <span class="function"><span class="keyword">function</span> <span class="params">(url, callback, errback)</span> {</span>
+            <span class="keyword">try</span> {
+                <span class="keyword">var</span> file = fs.readFileSync(url, <span class="string">'utf8'</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Remove BOM (Byte Mark Order) from utf8 files if it is there.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (file.indexOf(<span class="string">'\uFEFF'</span>) === <span class="number">0</span>) {
+                    file = file.substring(<span class="number">1</span>);
+                }
+                callback(file);
+            } <span class="keyword">catch</span> (e) {
+                errback(e);
+            }
+        };
+    } <span class="keyword">else</span> <span class="keyword">if</span> (masterConfig.env === <span class="string">'xhr'</span> || (!masterConfig.env &amp;&amp;
+            text.createXhr())) {
+        text.get = <span class="function"><span class="keyword">function</span> <span class="params">(url, callback, errback, headers)</span> {</span>
+            <span class="keyword">var</span> xhr = text.createXhr(), header;
+            xhr.open(<span class="string">'GET'</span>, url, <span class="literal">true</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Allow plugins direct access to xhr headers</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (headers) {
+                <span class="keyword">for</span> (header <span class="keyword">in</span> headers) {
+                    <span class="keyword">if</span> (headers.hasOwnProperty(header)) {
+                        xhr.setRequestHeader(header.toLowerCase(), headers[header]);
+                    }
+                }
+            }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>Allow overrides specified in config</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (masterConfig.onXhr) {
+                masterConfig.onXhr(xhr, url);
+            }
+
+            xhr.onreadystatechange = <span class="function"><span class="keyword">function</span> <span class="params">(evt)</span> {</span>
+                <span class="keyword">var</span> status, err;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>Do not explicitly handle errors, those should be
+visible via console output in the browser.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (xhr.readyState === <span class="number">4</span>) {
+                    status = xhr.status;
+                    <span class="keyword">if</span> (status &gt; <span class="number">399</span> &amp;&amp; status &lt; <span class="number">600</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>An http 4xx or 5xx error. Signal an error.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                        err = <span class="keyword">new</span> Error(url + <span class="string">' HTTP status: '</span> + status);
+                        err.xhr = xhr;
+                        errback(err);
+                    } <span class="keyword">else</span> {
+                        callback(xhr.responseText);
+                    }
+
+                    <span class="keyword">if</span> (masterConfig.onXhrComplete) {
+                        masterConfig.onXhrComplete(xhr, url);
+                    }
+                }
+            };
+            xhr.send(<span class="literal">null</span>);
+        };
+    } <span class="keyword">else</span> <span class="keyword">if</span> (masterConfig.env === <span class="string">'rhino'</span> || (!masterConfig.env &amp;&amp;
+            <span class="keyword">typeof</span> Packages !== <span class="string">'undefined'</span> &amp;&amp; <span class="keyword">typeof</span> java !== <span class="string">'undefined'</span>)) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>Why Java, why is this so awkward?</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        text.get = <span class="function"><span class="keyword">function</span> <span class="params">(url, callback)</span> {</span>
+            <span class="keyword">var</span> stringBuffer, line,
+                encoding = <span class="string">"utf-8"</span>,
+                file = <span class="keyword">new</span> java.io.File(url),
+                lineSeparator = java.lang.System.getProperty(<span class="string">"line.separator"</span>),
+                input = <span class="keyword">new</span> java.io.BufferedReader(<span class="keyword">new</span> java.io.InputStreamReader(<span class="keyword">new</span> java.io.FileInputStream(file), encoding)),
+                content = <span class="string">''</span>;
+            <span class="keyword">try</span> {
+                stringBuffer = <span class="keyword">new</span> java.lang.StringBuffer();
+                line = input.readLine();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>Byte Order Mark (BOM) - The Unicode Standard, version 3.0, page 324
+<a href="http://www.unicode.org/faq/utf_bom.html">http://www.unicode.org/faq/utf_bom.html</a></p>
+<p>Note that when we use utf-8, the BOM should appear as &quot;EF BB BF&quot;, but it doesn&#39;t due to this bug in the JDK:
+<a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4508058">http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4508058</a></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (line &amp;&amp; line.length() &amp;&amp; line.charAt(<span class="number">0</span>) === <span class="number">0xfeff</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>Eat the BOM, since we&#39;ve already found the encoding on this file,
+and we plan to concatenating this buffer with others; the BOM should
+only appear at the top of a file.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    line = line.substring(<span class="number">1</span>);
+                }
+
+                <span class="keyword">if</span> (line !== <span class="literal">null</span>) {
+                    stringBuffer.append(line);
+                }
+
+                <span class="keyword">while</span> ((line = input.readLine()) !== <span class="literal">null</span>) {
+                    stringBuffer.append(lineSeparator);
+                    stringBuffer.append(line);
+                }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>Make sure we return a JavaScript string and not a Java string.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                content = String(stringBuffer.toString()); <span class="comment">//String</span>
+            } <span class="keyword">finally</span> {
+                input.close();
+            }
+            callback(content);
+        };
+    } <span class="keyword">else</span> <span class="keyword">if</span> (masterConfig.env === <span class="string">'xpconnect'</span> || (!masterConfig.env &amp;&amp;
+            <span class="keyword">typeof</span> Components !== <span class="string">'undefined'</span> &amp;&amp; Components.classes &amp;&amp;
+            Components.interfaces)) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>Avert your gaze!</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        Cc = Components.classes,
+        Ci = Components.interfaces;
+        Components.utils[<span class="string">'import'</span>](<span class="string">'resource://gre/modules/FileUtils.jsm'</span>);
+
+        text.get = <span class="function"><span class="keyword">function</span> <span class="params">(url, callback)</span> {</span>
+            <span class="keyword">var</span> inStream, convertStream,
+                readData = {},
+                fileObj = <span class="keyword">new</span> FileUtils.File(url);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>XPCOM, you so crazy</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">try</span> {
+                inStream = Cc[<span class="string">'@mozilla.org/network/file-input-stream;1'</span>]
+                           .createInstance(Ci.nsIFileInputStream);
+                inStream.init(fileObj, <span class="number">1</span>, <span class="number">0</span>, <span class="literal">false</span>);
+
+                convertStream = Cc[<span class="string">'@mozilla.org/intl/converter-input-stream;1'</span>]
+                                .createInstance(Ci.nsIConverterInputStream);
+                convertStream.init(inStream, <span class="string">"utf-8"</span>, inStream.available(),
+                Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
+
+                convertStream.readString(inStream.available(), readData);
+                convertStream.close();
+                inStream.close();
+                callback(readData.value);
+            } <span class="keyword">catch</span> (e) {
+                <span class="keyword">throw</span> <span class="keyword">new</span> Error((fileObj &amp;&amp; fileObj.path || <span class="string">''</span>) + <span class="string">': '</span> + e);
+            }
+        };
+    }
+    <span class="keyword">return</span> text;
+});</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

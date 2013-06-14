@@ -63,17 +63,17 @@ h2 { font-weight: normal }
 
 <p><strong>Warning:</strong> Since each parser may have a different
 format for the syntax tree, the speed is not fully comparable (the
-cost of constructing different result is obviously varying).
+cost of constructing different results obviously varies).
 The TurtleScript asm.js parser also does full typechecking and
 verification of the source, unlike the other parsers.  These
 tests exist only to ensure that the TurtleScript parser is not
-ridiculously slow compare to other parsers.</p>
+ridiculously slow compared to other parsers.</p>
 
 <p>Since <a href="http://turtlescript.github.cscott.net">TurtleScript</a>
 is a subset of JavaScript, our set of TurtleScript benchmarks is not large.
-We use the source of the TurtleScript project (all written in
-TurtleScript) which includes the parser, several compilers, a reactive
-event library, and a test suite, and is 352K of unminified source.</p>
+We use the unminified sources of the TurtleScript project (all written in
+TurtleScript) which include the parser, several compilers, a reactive
+event library, and a test suite.</p>
 
 <p>The <a href="http://asmjs.org">asm.js</a> benchmarks are taken from the
 <a href="https://github.com/dvander/arewefastyet/tree/9de7037324e0b5b155b761225f26f94fff5c76f5/benchmarks/asmjs-apps">arewefastyet
@@ -91,7 +91,8 @@ asmjs-apps benchmarks</a>.</p>
         <a href="https://github.com/mishoo/UglifyJS2">github.com/mishoo/UglifyJS2</a><br/>
         <a href="https://github.com/google/traceur-compiler">github.com/google/traceur-compiler</a><br/>
         </p>
-        <p>Each parser produces the syntax tree with location marking in every syntax node.</p>
+        <p>We turn off location marking in syntax nodes for each
+        parser where possible.</p>
       </div>
 
       <p>Time measurement is carried out using <a href="http://benchmarkjs.com" target="_blank">Benchmark.js</a><span id="js-benchmarkjs-version"></span>.</p>

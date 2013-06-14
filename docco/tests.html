@@ -154,6 +154,11 @@
               </a>
             
               
+              <a class="source" href="text.html">
+                text.js
+              </a>
+            
+              
               <a class="source" href="tiles.html">
                 tiles.js
               </a>
@@ -207,17 +212,17 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">"str-escape"</span>,
+            <div class="content"><div class='highlight'><pre>define([<span class="string">"text!tests.js"</span>, <span class="string">"str-escape"</span>,
         <span class="comment">/* These modules are just imported to make test cases out of them. */</span>
         <span class="string">"tokenize"</span>, <span class="string">"parse"</span>, <span class="string">"jcompile"</span>, <span class="string">"crender"</span>, <span class="string">"bytecode-table"</span>,
         <span class="string">"bcompile"</span>, <span class="string">"binterp"</span>, <span class="string">"stdlib"</span>, <span class="string">"events"</span>, <span class="string">"asm-llvm"</span>],
-       <span class="function"><span class="keyword">function</span> <span class="title">make_tests</span><span class="params">(str_escape,
+       <span class="function"><span class="keyword">function</span> <span class="title">make_tests</span><span class="params">(tests_source, str_escape,
                            tokenize, parse, jcompile, crender, bytecode_table,
                            bcompile, binterp, stdlib, events, asm_llvm)</span> {</span>
-    <span class="keyword">var</span> deps = [<span class="string">"str-escape"</span>,
+    <span class="keyword">var</span> deps = [<span class="string">"tests_source"</span>, <span class="string">"str-escape"</span>,
                 <span class="string">"tokenize"</span>, <span class="string">"parse"</span>, <span class="string">"jcompile"</span>, <span class="string">"crender"</span>, <span class="string">"bytecode-table"</span>,
                 <span class="string">"bcompile"</span>, <span class="string">"binterp"</span>, <span class="string">"stdlib"</span>, <span class="string">"events"</span>, <span class="string">"asm-llvm"</span>];
-    <span class="keyword">var</span> test=[], i=<span class="number">1</span><span class="comment">/* skip str_escape */</span>;</pre></div></div>
+    <span class="keyword">var</span> test=[], i=<span class="number">2</span><span class="comment">/* skip tests_source and str_escape */</span>;</pre></div></div>
             
         </li>
         
@@ -233,11 +238,11 @@
             </div>
             
             <div class="content"><div class='highlight'><pre>    <span class="keyword">while</span> (i &lt; arguments.length) {
-        test[i-<span class="number">1</span>] = arguments[i];
-        test[i-<span class="number">1</span>].__module_name__ = deps[i]; <span class="comment">// hack</span>
+        test[i-<span class="number">2</span>] = arguments[i];
+        test[i-<span class="number">2</span>].__module_name__ = deps[i]; <span class="comment">// hack</span>
         i += <span class="number">1</span>;
     }
-    i -= <span class="number">2</span>;</pre></div></div>
+    i -= <span class="number">3</span>;</pre></div></div>
             
         </li>
         
@@ -256,6 +261,7 @@
         make_tests.__module_name__ = <span class="string">"tests"</span>;
         make_tests.__module_deps__ = deps;
         make_tests.__module_init__ = make_tests;
+        make_tests.__module_source__ = tests_source;
         test[i+=<span class="number">1</span>] = make_tests;
     }</pre></div></div>
             
@@ -275,6 +281,16 @@ on a successful evaluation.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> autotest = <span class="keyword">function</span>(f) { f.autotest=<span class="literal">true</span>; <span class="keyword">return</span> f; };
+    <span class="keyword">var</span> strtest = <span class="keyword">function</span>(s) {
+        <span class="keyword">var</span> f = eval(<span class="string">'('</span>+s+<span class="string">')'</span>);
+        f.__module_source__ = <span class="string">'define([],function() { return '</span>+s+<span class="string">'; });'</span>;
+        <span class="keyword">return</span> f;
+    };
+    test[i+=<span class="number">1</span>] = autotest(strtest(
+            <span class="string">"function() {\n"</span> +
+            <span class="string">"    var x = 1;\n"</span>+
+            <span class="string">"    return (x + x) === 2;\n"</span>+
+            <span class="string">"}"</span>));
     test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {</pre></div></div>
             
         </li>
@@ -881,7 +897,7 @@ see <a href="http://www.khronos.org/registry/typedarray/specs/latest/">http://ww
     */
 
     var test_source = [], j=0, test_map = {}, test_names = [];
-    var autotests = [];
+    var autotests = [], reflected = [];
     while (j &lt;= i) {
         test_source[j] = "define(";
         var name = 'test_case_' + j;
@@ -898,6 +914,14 @@ see <a href="http://www.khronos.org/registry/typedarray/specs/latest/">http://ww
             test_source[j] += "; }";
         }
         test_source[j] += ");";
+        if (test[j].__module_source__) {
+            test_source[j] = test[j].__module_source__;
+            var idx = test_source[j].indexOf('define(') + 7;
+            test_source[j] =
+                test_source[j].slice(0, idx) +
+                str_escape(name) + ',' +
+                test_source[j].slice(idx);
+        } else { reflected[j] = true; }
         test_map[name] = test_source[j];
         test_names[j] = name;
         if (test[j].autotest) { autotests[j] = true; }
@@ -951,7 +975,22 @@ see <a href="http://www.khronos.org/registry/typedarray/specs/latest/">http://ww
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    test_source.isExecutable = <span class="keyword">function</span>(idx) { <span class="keyword">return</span> !!autotests[idx]; };
+            <div class="content"><div class='highlight'><pre>    test_source.isExecutable = <span class="keyword">function</span>(idx) { <span class="keyword">return</span> !!autotests[idx]; };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              <p>Did we have to use toSource()/toString() to get the source of this test?</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    test_source.isReflected = <span class="keyword">function</span>(idx) { <span class="keyword">return</span> !!reflected[idx]; };
     <span class="keyword">return</span> test_source;
 });</pre></div></div>
             

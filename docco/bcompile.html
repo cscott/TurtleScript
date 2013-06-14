@@ -154,6 +154,11 @@
               </a>
             
               
+              <a class="source" href="text.html">
+                text.js
+              </a>
+            
+              
               <a class="source" href="tiles.html">
                 tiles.js
               </a>
@@ -228,7 +233,7 @@ Simplified JavaScript.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">"bytecode-table"</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_bcompile</span><span class="params">(bytecode_table)</span> {</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>define([<span class="string">"text!bcompile.js"</span>, <span class="string">"bytecode-table"</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_bcompile</span><span class="params">(bcompile_source, bytecode_table)</span> {</span></pre></div></div>
             
         </li>
         
@@ -1679,6 +1684,7 @@ context.</p>
     bcompile.__module_name__ = <span class="string">"bcompile"</span>;
     bcompile.__module_init__ = make_bcompile;
     bcompile.__module_deps__ = [<span class="string">"bytecode-table"</span>];
+    bcompile.__module_source__ = bcompile_source;
     <span class="keyword">return</span> bcompile;
 });</pre></div></div>
             

@@ -26,7 +26,7 @@
 // ```
 //      <=  >>  >>>  <>  >=  +: -: &: &&: &&
 // ```
-define(function make_tokenize() { function tokenize (_this_, prefix, suffix, DEBUG) {
+define(['text!tokenize.js'], function make_tokenize(tokenize_source) { function tokenize (_this_, prefix, suffix, DEBUG) {
     var c;                      // The current character.
     var from;                   // The index of the start of the token.
     var i = 0;                  // The index of the current character.
@@ -310,5 +310,6 @@ define(function make_tokenize() { function tokenize (_this_, prefix, suffix, DEB
 };
 tokenize.__module_name__ = "tokenize";
 tokenize.__module_init__ = make_tokenize;
+tokenize.__module_source__ = tokenize_source;
 return tokenize;
 });

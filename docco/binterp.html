@@ -154,6 +154,11 @@
               </a>
             
               
+              <a class="source" href="text.html">
+                text.js
+              </a>
+            
+              
               <a class="source" href="tiles.html">
                 tiles.js
               </a>
@@ -206,7 +211,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">"bytecode-table"</span><span class="comment">/*, "!html-escape"*/</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_binterp</span><span class="params">(bytecode_table, html_escape)</span> {</span>
+            <div class="content"><div class='highlight'><pre>define([<span class="string">"text!binterp.js"</span>, <span class="string">"bytecode-table"</span><span class="comment">/*, "!html-escape"*/</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_binterp</span><span class="params">(binterp_source, bytecode_table, html_escape)</span> {</span>
     <span class="keyword">var</span> mkstate = <span class="keyword">function</span>(parent, frame, module, func_id) {
         <span class="keyword">return</span> {</pre></div></div>
             
@@ -1426,6 +1431,7 @@ XXX this is simplistic; a proper version should explicitly
         __module_name__: <span class="string">"binterp"</span>,
         __module_init__: make_binterp,
         __module_deps__: [<span class="string">"bytecode-table"</span>, <span class="string">"html-escape"</span>],
+        __module_source__: binterp_source,
 
         binterp: binterp,
         make_top_level_frame: make_top_level_frame,

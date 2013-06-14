@@ -154,6 +154,11 @@
               </a>
             
               
+              <a class="source" href="text.html">
+                text.js
+              </a>
+            
+              
               <a class="source" href="tiles.html">
                 tiles.js
               </a>
@@ -231,7 +236,7 @@ characters. For example,</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define(<span class="function"><span class="keyword">function</span> <span class="title">make_tokenize</span><span class="params">()</span> {</span> <span class="function"><span class="keyword">function</span> <span class="title">tokenize</span> <span class="params">(_this_, prefix, suffix, DEBUG)</span> {</span>
+            <div class="content"><div class='highlight'><pre>define([<span class="string">'text!tokenize.js'</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_tokenize</span><span class="params">(tokenize_source)</span> {</span> <span class="function"><span class="keyword">function</span> <span class="title">tokenize</span> <span class="params">(_this_, prefix, suffix, DEBUG)</span> {</span>
     <span class="keyword">var</span> c;                      <span class="comment">// The current character.</span>
     <span class="keyword">var</span> from;                   <span class="comment">// The index of the start of the token.</span>
     <span class="keyword">var</span> i = <span class="number">0</span>;                  <span class="comment">// The index of the current character.</span>
@@ -734,6 +739,7 @@ token.</p>
 };
 tokenize.__module_name__ = <span class="string">"tokenize"</span>;
 tokenize.__module_init__ = make_tokenize;
+tokenize.__module_source__ = tokenize_source;
 <span class="keyword">return</span> tokenize;
 });</pre></div></div>
             

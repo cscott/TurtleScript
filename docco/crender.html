@@ -154,6 +154,11 @@
               </a>
             
               
+              <a class="source" href="text.html">
+                text.js
+              </a>
+            
+              
               <a class="source" href="tiles.html">
                 tiles.js
               </a>
@@ -205,7 +210,7 @@ Written in Simplified JavaScript.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">"str-escape"</span>, <span class="string">"gfx/Point"</span>, <span class="string">"gfx/Color"</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_crender</span><span class="params">(str_escape, Point, Color)</span> {</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>define([<span class="string">"text!crender.js"</span>, <span class="string">"str-escape"</span>, <span class="string">"gfx/Point"</span>, <span class="string">"gfx/Color"</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_crender</span><span class="params">(crender_source, str_escape, Point, Color)</span> {</span></pre></div></div>
             
         </li>
         
@@ -4188,6 +4193,7 @@ case better (where we need to dynamically add parens)</p>
     c.__module_name__ = <span class="string">"crender"</span>;
     c.__module_init__ = make_crender;
     c.__module_deps__ = [<span class="string">'str-escape'</span>];
+    c.__module_source__ = crender_source;
     <span class="keyword">return</span> c;
 });</pre></div></div>
             

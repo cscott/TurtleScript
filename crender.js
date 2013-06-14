@@ -5,7 +5,7 @@
 //
 // C. Scott Ananian
 // 2011-05-13
-define(["str-escape", "gfx/Point", "gfx/Color"], function make_crender(str_escape, Point, Color) {
+define(["text!crender.js", "str-escape", "gfx/Point", "gfx/Color"], function make_crender(crender_source, str_escape, Point, Color) {
     // stub for i18n
     var _ = function(txt) { return txt; };
     // basic graphics datatypes
@@ -1768,5 +1768,6 @@ define(["str-escape", "gfx/Point", "gfx/Color"], function make_crender(str_escap
     c.__module_name__ = "crender";
     c.__module_init__ = make_crender;
     c.__module_deps__ = ['str-escape'];
+    c.__module_source__ = crender_source;
     return c;
 });

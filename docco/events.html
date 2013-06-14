@@ -154,6 +154,11 @@
               </a>
             
               
+              <a class="source" href="text.html">
+                text.js
+              </a>
+            
+              
               <a class="source" href="tiles.html">
                 tiles.js
               </a>
@@ -237,7 +242,7 @@ as such it is:</p>
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */</span>
-define([<span class="string">"!timeouts"</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_flapjax</span><span class="params">(timeouts)</span> {</span>
+define([<span class="string">"text!events.js"</span>, <span class="string">"!timeouts"</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_flapjax</span><span class="params">(events_source, timeouts)</span> {</span>
     <span class="keyword">var</span> setTimeout = timeouts.setTimeout;
     <span class="keyword">var</span> clearTimeout = timeouts.clearTimeout;
 
@@ -1794,6 +1799,7 @@ Behavior.prototype.calmB = <span class="function"><span class="keyword">function
         __module_name__: <span class="string">"events"</span>,
         __module_init__: make_flapjax,
         __module_deps__: [<span class="string">"timeouts"</span>],
+        __module_source__: events_source,
 
         constantB: constantB,
         delayB: delayB,

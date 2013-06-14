@@ -7,7 +7,7 @@
 
 // C. Scott Ananian
 // 2011-05-10
-define(function make_bytecode_table() {
+define(['text!bytecode-table.js'],function make_bytecode_table(bytecode_table_source) {
 
     // Table of bytecodes
     var bytecodes_by_num = [];
@@ -135,6 +135,7 @@ define(function make_bytecode_table() {
         __module_name__: "bytecode-table",
         __module_init__: make_bytecode_table,
         __module_deps__: [],
+        __module_source__: bytecode_table_source,
 
         for_num: function(n) {
             return bytecodes_by_num[n];

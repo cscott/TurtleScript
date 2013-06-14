@@ -58,7 +58,7 @@ function mymodule(stdlib, foreign, heap) {
     function g2test() {
         // call a void function, in a strange comma-using context.
         // (pre-definition)
-        return +((g2()), 5);
+        return (+((g2()), 5));
     }
 
     function g2() {
@@ -72,7 +72,7 @@ function mymodule(stdlib, foreign, heap) {
     function g3test() {
         // call a void function, in a strange comma-using context.
         // (post-definition)
-        return +((g3()), 5);
+        return (+((g3()), 5));
     }
 
     function h(i, x) {
@@ -103,10 +103,10 @@ function mymodule(stdlib, foreign, heap) {
 
     // call an int function in a funny context
     function jtest() {
-        if (!(j1(+itest()) | 0)) {
+        if (!(j1(+itest()) | (0))) {
             return 0
         }
-        if (!((j2(+itest())) | 0)) {
+        if (!((j2(+itest())) | (0))) {
             return 1
         }
         return 2

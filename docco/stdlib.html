@@ -154,6 +154,11 @@
               </a>
             
               
+              <a class="source" href="text.html">
+                text.js
+              </a>
+            
+              
               <a class="source" href="tiles.html">
                 tiles.js
               </a>
@@ -203,8 +208,8 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([], <span class="function"><span class="keyword">function</span> <span class="title">make_stdlib</span><span class="params">()</span> {</span>
-    <span class="keyword">var</span> init = <span class="keyword">function</span>() {
+            <div class="content"><div class='highlight'><pre>define([<span class="string">'text!stdlib.js'</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_stdlib</span><span class="params">(stdlib_source)</span> {</span>
+    <span class="keyword">var</span> init = <span class="comment">/*CUT HERE*/</span><span class="keyword">function</span>() {
         String.prototype.indexOf = <span class="keyword">function</span>(searchValue, from) {
             <span class="keyword">var</span> i = from || <span class="number">0</span>;
             <span class="keyword">var</span> j = <span class="number">0</span>;
@@ -586,7 +591,7 @@ isn&#39;t necessarily a &#39;real&#39; array.</p>
         <span class="literal">false</span>[<span class="string">"ifElse"</span>] = <span class="keyword">function</span>(_this_, ifTrue, ifFalse) {
             <span class="keyword">return</span> ifFalse.call(_this_);
         };
-    };</pre></div></div>
+    }<span class="comment">/*CUT HERE*/</span>;</pre></div></div>
             
         </li>
         
@@ -603,7 +608,12 @@ source text of an evaluatable statement expression.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> source = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> s = init.toSource ? init.toSource() : init.toString();
+        <span class="keyword">var</span> s;
+        <span class="keyword">if</span> (stdlib_source) {
+            s = stdlib_source.split(<span class="string">'/*CUT HERE*/'</span>)[<span class="number">1</span>];
+        } <span class="keyword">else</span> {
+            s = init.toSource ? init.toSource() : init.toString();
+        }
         s = <span class="string">'('</span> + s + <span class="string">')();'</span>;
         <span class="keyword">return</span> s;
     };
@@ -612,6 +622,7 @@ source text of an evaluatable statement expression.</p>
         __module_name__: <span class="string">'stdlib'</span>,
         __module_init__: make_stdlib,
         __module_deps__: [],
+        __module_source__: stdlib_source,
         init: init,
         source: source
     };

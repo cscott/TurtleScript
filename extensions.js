@@ -11,7 +11,12 @@ var now = function() {
 };
 
 // This replaces the 'new' operator.
-Function.prototype.New = function() {
+Function.prototype.New = function(arg1, arg2) {
+    // speed optimizations.
+    if (arguments.length===0) { return new this(); }
+    if (arguments.length===1) { return new this(arg1); }
+    if (arguments.length===2) { return new this(arg1, arg2); }
+    // fully-general implementation.
     var object, result;
     if (typeof(this.prototype)==="object") {
         object = Object.create(this.prototype);

@@ -17,13 +17,16 @@
 // compilation.
 //
 // Copyright (c) 2013 C. Scott Ananian
-define([], function asm_llvm() {
+define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
+    "use strict";
+
     // The module object.
     // (This is used by `tests.js` to recreate the module source.)
     var asm_llvm_module = {
         __module_name__: "asm-llvm",
         __module_init__: asm_llvm,
-        __module_deps__: []
+        __module_deps__: [],
+        __module_source__: asm_llvm_source
     };
 
     // ## `asm.js` type system
@@ -40,16 +43,26 @@ define([], function asm_llvm() {
     // another.
     Type.derive = (function() {
         var id = 1;
+        var eq = function(ty) {
+            return (this===ty);
+        };
         return function(spec, properties) {
             var ty = this._derived[spec];
             if (ty) { return ty; }
             ty = this._derived[spec] = Object.create(this);
             ty._id = id; id += 1;
-            ty._derived = [];
+            ty._derived = Object.create(null);
+            ty.supertypes = [];
+            ty.value = false;
+            ty.min = ty.max = null;
             // Default to a simple toString method, good for value types.
             properties = properties || {};
             if (!properties.hasOwnProperty('toString')) {
                 properties.toString = function() { return spec; };
+            }
+            // Default to a fast isSubtypeOf method
+            if (!properties.hasOwnProperty('supertypes')) {
+                properties.isSubtypeOf = eq;
             }
             // Allow the caller to override arbitrary properties.
             Object.keys(properties || {}).forEach(function(k) {
@@ -230,19 +243,6 @@ define([], function asm_llvm() {
     // return `intish` or `doublish`.
     Types.MaybeVoid = Type.derive("MaybeVoid");
 
-    // Utility functions.
-    var ceilLog2 = function(x) {
-        var r = 0; x-=1;
-        while (x!==0) { x = Math.floor(x/2); r+=1; } // XXX want shift!
-        return r;
-    };
-
-    // Only powerOf2 sizes are legit for function tables.
-    var powerOf2 = function(x) {
-        /* return (x & (x - 1)) === 0; // how cool kids do it */
-        return x === Math.pow(2, ceilLog2(x)); // TurtleScript needs bitwise ops
-    };
-
     // Quick self-test for the type system.  Ensure that identical types
     // created at two different times still compare ===.
     var test_types = function() {
@@ -268,6 +268,19 @@ define([], function asm_llvm() {
         console.assert(t1.toString() === '((double)->double)[16]');
     };
     test_types();
+
+    // Utility functions and constants.
+    var ceilLog2 = function(x) {
+        var r = 0; x-=1;
+        while (x!==0) { x = Math.floor(x/2); r+=1; } // XXX want shift!
+        return r;
+    };
+
+    // Only powerOf2 sizes are legit for function tables.
+    var powerOf2 = function(x) {
+        /* return (x & (x - 1)) === 0; // how cool kids do it */
+        return x === Math.pow(2, ceilLog2(x)); // TurtleScript needs bitwise ops
+    };
 
     // ### Operator and standard library type tables.
 
@@ -493,14 +506,14 @@ define([], function asm_llvm() {
     // tokenizer.
 
     asm_llvm_module.tokTypes = {
-        bracketL: _bracketL, bracketR: _bracketR, braceL: _braceL,
-        braceR: _braceR, parenL: _parenL, parenR: _parenR, comma: _comma,
-        semi: _semi, colon: _colon, dot: _dot, question: _question,
-        slash: _slash, eq: _eq, name: _name, eof: _eof, num: _num,
-        regexp: _regexp, string: _string, dotnum: _dotnum
+        _bracketL: _bracketL, _bracketR: _bracketR, _braceL: _braceL,
+        _braceR: _braceR, _parenL: _parenL, _parenR: _parenR, _comma: _comma,
+        _semi: _semi, _colon: _colon, _dot: _dot, _question: _question,
+        _slash: _slash, _eq: _eq, _name: _name, _eof: _eof, _num: _num,
+        _regexp: _regexp, _string: _string, _dotnum: _dotnum
     };
     Object.keys(keywordTypes).forEach(function(kw) {
-        asm_llvm_module.tokTypes[kw] = keywordTypes[kw];
+        asm_llvm_module.tokTypes['_' + kw] = keywordTypes[kw];
     });
 
     // This is a trick taken from Esprima. It turns out that, on
@@ -705,7 +718,7 @@ define([], function asm_llvm() {
         var setOptions = function(opts) {
             options = opts || {};
             Object.keys(defaultOptions).forEach(function(opt) {
-                if (!options.hasOwnProperty(opt)) {
+                if (!Object.prototype.hasOwnProperty.call(options, opt)) {
                     options[opt] = defaultOptions[opt];
                 }
             });
@@ -907,8 +920,14 @@ define([], function asm_llvm() {
             while (tokPos < inputLen) {
                 var ch = input.charCodeAt(tokPos);
                 var next;
-                if (ch === 32) { // ' '
+                if (ch > 47 && ch < 160) {
+                    break; // fast path
+                } else if (ch === 32) { // ' '
                     tokPos += 1;
+                } else if (ch === 10) {
+                    tokPos += 1;
+                    tokCurLine += 1;
+                    tokLineStart = tokPos;
                 } else if(ch === 13) {
                     tokPos += 1;
                     next = input.charCodeAt(tokPos);
@@ -919,10 +938,6 @@ define([], function asm_llvm() {
                         tokCurLine += 1;
                         tokLineStart = tokPos;
                     }
-                } else if (ch === 10) {
-                    tokPos += 1;
-                    tokCurLine += 1;
-                    tokLineStart = tokPos;
                 } else if(ch < 14 && ch > 8) {
                     tokPos += 1;
                 } else if (ch === 47) { // '/'
@@ -1050,9 +1065,10 @@ define([], function asm_llvm() {
         })();
 
         var getTokenFromCode = function(code) {
-            return (code < tokenFromCodeTable.length) ?
-                tokenFromCodeTable[code](code) : false;
+            var f = tokenFromCodeTable[code];
+            return f ? f(code) : false;
         };
+
         // The interpretation of a dot depends on whether it is followed
         // by a digit.
         tokenFromCodeTable[46] = // '.'
@@ -1512,6 +1528,9 @@ define([], function asm_llvm() {
         var GlobalBinding = function(type, mutable) {
             this.type = type;
             this.mutable = !!mutable;
+            // Some optional fields are used for forward references.
+            this.pending = false;
+            this.id = this.pos = null;
         };
 
         // Local environments map to a type and a local temporary.
@@ -1521,13 +1540,24 @@ define([], function asm_llvm() {
         // alloca'ed memory.)
         var LocalBinding = function(type, temp) {
             this.type = type;
-            this.temp = temp || gensym();
+            /*this.temp = temp || gensym();*/
         };
 
         // Temporary values are a type and a local temporary.
         var TempBinding = function(type, temp) {
             this.type = type;
-            this.temp = temp || gensym();
+            /*this.temp = temp || gensym();*/
+            // Some extra fields are used for add/shift/and operations.
+            this.additiveChain = 0;
+            this.shifty = this.andy = this.doubleTilde = false;
+            this.shiftAmount = this.andAmount = 0;
+        };
+        TempBinding.reuse = function(old, type, temp) {
+            if (old && TempBinding.hasInstance(old)) {
+                TempBinding.call(old, type, temp);
+                return old;
+            }
+            return TempBinding.New(type, temp);
         };
 
         // View references can be assigned to.  They have a type, and
@@ -1535,7 +1565,7 @@ define([], function asm_llvm() {
         // value itself).
         var ViewBinding = function(type, temp) {
             this.type = type;
-            this.temp = temp || gensym();
+            /*this.temp = temp || gensym();*/
         };
 
         // Function table references propagate some type information
@@ -1544,42 +1574,56 @@ define([], function asm_llvm() {
             this.base = base;
             this.index = index;
             this.type = base.type;
-            this.temp = temp || gensym();
+            /*this.temp = temp || gensym();*/
         };
 
         // Constants are a type and a value.
         var ConstantBinding = function(type, value) {
             this.type = type;
             this.value = value;
-        };
-
-        // Sets the type field for a `ConstantBinding`
-        // based on the value field, according to the rules for
-        // NumericLiteral.
-        ConstantBinding.prototype.setIntType = function() {
-            var value = this.value;
-            if (value >= Types.Signed.min &&
-                value <= Types.Signed.max) {
-                this.type = Types.Signed;
-            } else if (value >= Types.Fixnum.min &&
-                       value <= Types.Fixnum.max) {
-                this.type = Types.Fixnum;
-            } else if (value >= Types.Unsigned.min &&
-                       value <= Types.Unsigned.max) {
-                this.type = Types.Unsigned;
-            } else {
-                this.type = null; // caller must raise()
+            // Sets the type field for a `ConstantBinding`
+            // based on the value field, according to the rules for
+            // NumericLiteral.
+            if (type === null) {
+                if (value >= Types.Signed.min &&
+                    value <= Types.Signed.max) {
+                    this.type = Types.Signed;
+                } else if (value >= Types.Fixnum.min &&
+                           value <= Types.Fixnum.max) {
+                    this.type = Types.Fixnum;
+                } else if (value >= Types.Unsigned.min &&
+                           value <= Types.Unsigned.max) {
+                    this.type = Types.Unsigned;
+                } else {
+                    this.type = null; // caller must raise()
+                }
             }
         };
+        // Frequently-used constants.
+        ConstantBinding.DOUBLE_ZERO = ConstantBinding.New(Types.Double, 0);
+        ConstantBinding.INT_ZERO = ConstantBinding.New(null, 0);
+        ConstantBinding.INT_ONE  = ConstantBinding.New(null, 1);
+        ConstantBinding.INT_TWO  = ConstantBinding.New(null, 2);
+        console.assert(ConstantBinding.INT_ZERO.type !== null);
 
         // Negate the value stored in a `ConstantBinding`, adjusting its
         // type as necessary.  Used to finesse unary negation of literals.
         ConstantBinding.prototype.negate = function() {
-            this.value = -this.value;
-            if (this.type !== Types.Double) {
-                this.setIntType();
-            }
-            return this;
+            if (this === ConstantBinding.INT_ZERO) { return this; }
+            return ConstantBinding.New(this.type === Types.Double ?
+                                       this.type : null,
+                                       -this.value);
+        };
+
+        // Test a binding to find out if it is a constant suitable for
+        // MultiplicativeExpression special-case typing.  (See
+        // `parseExprOp()`.)
+        var TWO_TO_THE_TWENTY = 0x100000;
+        var isGoodMultLiteral = function(b) {
+            return b.type !== Types.Double &&
+                ConstantBinding.hasInstance(b) &&
+                (-TWO_TO_THE_TWENTY) < b.value &&
+                b.value < TWO_TO_THE_TWENTY;
         };
 
         // ## Parser
@@ -1670,7 +1714,8 @@ define([], function asm_llvm() {
         // consume it, otherwise raise an error.
         var expectName = function(value, defaultValue) {
             if (tokType !== _name || tokVal !== value) {
-                raise("expected " + (value || defaultValue));
+                var vstr = value ? ("'" + value + "'") : defaultValue;
+                raise(tokStart, "expected " + vstr);
             } else { next(); }
         };
 
@@ -1806,6 +1851,15 @@ define([], function asm_llvm() {
             // the expression, if `leftOp` is `null`).
             this.parenLevels = 0;
         };
+        // Top level left context
+        LeftContext.NONE = LeftContext.New();
+        // Return a left context with one more level of parentheses than
+        // `this` has.
+        LeftContext.prototype.enterParen = function() {
+            var lc = LeftContext.New(this.leftOp);
+            lc.parenLevels = this.parenLevels + 1;
+            return lc;
+        };
         // Look ahead `parenLevels` tokens, to check that all the open
         // parentheses are closed.  If they are not, then the unary operator
         // on the left doesn't actually apply to this expression.
@@ -1862,17 +1916,27 @@ define([], function asm_llvm() {
             var parenClose = noop;
             var negate = (tokType===_plusmin && tokVal==='-');
             if (negate) { next(); parenClose = parenStart(); }
-            var result = ConstantBinding.New(Types.Double, tokVal);
+            var result;
             if (tokType === _num) {
-                result.setIntType();
+                result = (tokVal===0) ?
+                    ConstantBinding.INT_ZERO :
+                    (tokVal===1) ?
+                    ConstantBinding.INT_ONE :
+                    (tokVal===2) ?
+                    ConstantBinding.INT_TWO :
+                    ConstantBinding.New(null, tokVal);
                 if (result.type===null) {
                     raise(numStart, "Invalid integer literal");
                 }
-            } else if (tokType !== _dotnum) {
+            } else if (tokType === _dotnum) {
+                result = (tokVal===0) ?
+                    ConstantBinding.DOUBLE_ZERO :
+                    ConstantBinding.New(Types.Double, tokVal);
+            } else {
                 raise(numStart, "expected a numeric literal");
             }
             next(); parenClose();
-            if (negate) { result.negate(); }
+            if (negate) { result = result.negate(); }
             return result;
         };
 
@@ -1936,9 +2000,7 @@ define([], function asm_llvm() {
 
             } else if (tokType === _parenL) {
                 next();
-                leftContext.parenLevels += 1;
-                var val = parseExpression(leftContext);
-                leftContext.parenLevels -= 1;
+                var val = parseExpression(leftContext.enterParen());
                 expect(_parenR);
                 return val;
 
@@ -2140,7 +2202,7 @@ define([], function asm_llvm() {
                 var argument =
                     defcheck(parseMaybeUnary(LeftContext.New(operator)));
                 // Special case the negation of a constant.
-                if (ConstantBinding.hasInstance(argument) && operator==='-') {
+                if (operator==='-' && ConstantBinding.hasInstance(argument)) {
                     return argument.negate();
                 }
                 // Special case the double-tilde operator (~~)
@@ -2159,7 +2221,7 @@ define([], function asm_llvm() {
                     raise(opPos, "unary "+operator+" fails to validate: "+
                           operator+" "+argument.type.toString());
                 }
-                binding = TempBinding.New(ty);
+                binding = TempBinding.reuse(argument, ty);
                 if (operator==='~~') { binding.doubleTilde = true; }
                 return binding;
             }
@@ -2180,7 +2242,6 @@ define([], function asm_llvm() {
         // operator that has a lower precedence than the set it is parsing.
 
         var parseExprOp = function(left, minPrec) {
-            var TWO_TO_THE_TWENTY = 0x100000;
             var prec = tokType.binop;
             console.assert(prec !== null, tokType);
             if (prec !== undefined) {
@@ -2193,40 +2254,10 @@ define([], function asm_llvm() {
                         raise(opPos, operator+" not allowed");
                     }
                     next();
-                    var right = parseExprOp(parseMaybeUnary(LeftContext.New()),
+                    var right = parseExprOp(parseMaybeUnary(LeftContext.NONE),
                                             prec);
                     defcheck(left); defcheck(right);
                     ty = ty.apply([left.type, right.type]);
-                    if (ty===null && (operator==='+' || operator==='-')) {
-                        /* Special validation for "AdditiveExpression" */
-                        if ((left.additiveChain ||
-                             left.type.isSubtypeOf(Types.Int)) &&
-                            /* right is additive chain in parenthesized
-                             * expressions, like "a + (b + 63)" */
-                            (right.additiveChain ||
-                             right.type.isSubtypeOf(Types.Int))) {
-                            ty = Types.Intish;
-                            additiveChain = (left.additiveChain||1) + 1;
-                            if (additiveChain > TWO_TO_THE_TWENTY) { // 2^20
-                                raise(opPos, "too many additive operations");
-                            }
-                        }
-                    }
-                    if (ty===null && operator==='*') {
-                        /* Special validation for MultiplicativeExpression */
-                        var isGoodLiteral = function(b) {
-                            return ConstantBinding.hasInstance(b) &&
-                                b.type !== Types.Double &&
-                                (-TWO_TO_THE_TWENTY) < b.value &&
-                                b.value < TWO_TO_THE_TWENTY;
-                        };
-                        if ((isGoodLiteral(left) &&
-                            right.type.isSubtypeOf(Types.Int)) ||
-                            (isGoodLiteral(right) &&
-                             left.type.isSubtypeOf(Types.Int))) {
-                            ty = Types.Intish;
-                        }
-                    }
                     if (operator==='%') {
                         /* Special validation for MultiplicativeExpression */
                         if (ConstantBinding.hasInstance(right) &&
@@ -2239,17 +2270,46 @@ define([], function asm_llvm() {
                         }
                     }
                     if (ty===null) {
+                        /* Special validation for "AdditiveExpression" */
+                        if ((operator==='+' || operator==='-') &&
+                            (left.additiveChain ||
+                             left.type.isSubtypeOf(Types.Int)) &&
+                            /* right is additive chain in parenthesized
+                             * expressions, like "a + (b + 63)" */
+                            (right.additiveChain ||
+                             right.type.isSubtypeOf(Types.Int))) {
+                            ty = Types.Intish;
+                            additiveChain =
+                                (left.additiveChain||1) +
+                                (right.additiveChain||1);
+                            if (additiveChain > TWO_TO_THE_TWENTY) { // 2^20
+                                raise(opPos, "too many additive operations");
+                            }
+                        /* Special validation for MultiplicativeExpression */
+                        } else if (operator==='*') {
+                            if ((isGoodMultLiteral(left) &&
+                                 right.type.isSubtypeOf(Types.Int)) ||
+                                (isGoodMultLiteral(right) &&
+                                 left.type.isSubtypeOf(Types.Int))) {
+                                ty = Types.Intish;
+                            }
+                        }
+                    }
+                    if (ty===null) {
                         raise(opPos, "binary "+operator+" fails to validate: "+
                               left.type.toString() +
                               " " + operator + " " +
                               right.type.toString());
                     }
-                    var binding = TempBinding.New(ty);
+                    /* Don't reuse the left binding object if operator is >>
+                     * because we'll need to save it below. */
+                    var reuse = (operator==='>>') ? null : left;
+                    var binding = TempBinding.reuse(reuse, ty);
                     if (additiveChain) {
                         binding.additiveChain = additiveChain;
                     }
-                    if (ConstantBinding.hasInstance(right) &&
-                        right.type !== Types.Double) {
+                    if (right.type !== Types.Double &&
+                        ConstantBinding.hasInstance(right)) {
                         if (operator==='>>') {
                             // Record the pre-shift value and the shift amount,
                             // for later use in `parseBracketExpression()`.
@@ -2297,7 +2357,7 @@ define([], function asm_llvm() {
                           consequent.type.toString() + " : " +
                           alternate.type.toString());
                 }
-                var binding = TempBinding.New(ty);
+                var binding = TempBinding.reuse(test, ty);
                 return binding;
             }
             return expr;
@@ -2315,7 +2375,7 @@ define([], function asm_llvm() {
                     raise(startPos, "Operator disallowed: "+operator);
                 }
                 next();
-                var right = parseMaybeAssign(LeftContext.New());
+                var right = parseMaybeAssign(LeftContext.NONE);
                 // Check that `left` is an lval.  First, let's check
                 // the `x:Identifier = ...` case.
                 if (LocalBinding.hasInstance(left)) {
@@ -2346,7 +2406,7 @@ define([], function asm_llvm() {
         // sequences (in argument lists, array literals, or object literals).
 
         parseExpression = function(leftContext, noComma) {
-            if (leftContext===null) { leftContext = LeftContext.New(); }
+            if (leftContext===null) { leftContext = LeftContext.NONE; }
             var expr = parseMaybeAssign(leftContext);
             if (!noComma && tokType === _comma) {
                 var expressions = [expr];
@@ -2382,8 +2442,23 @@ define([], function asm_llvm() {
             // start with. Many are trivial to parse, some require a bit of
             // complexity.
 
+            // #### BlockStatement
+            if (starttype===_braceL) {
+                return parseBlock();
+
+            // #### IfStatement
+            } else if (starttype===_if) {
+                next();
+                startPos = tokStart;
+                var ifTest = defcheck(parseParenExpression());
+                typecheck(ifTest.type, Types.Int, "if statement condition",
+                          startPos);
+                var consequent = parseStatement();
+                var alternate = eat(_else) ? parseStatement() : null;
+                return;
+
             // #### BreakStatement / ContinueStatement
-            if (starttype===_break || starttype===_continue) {
+            } else if (starttype===_break || starttype===_continue) {
                 next();
                 var isBreak = (starttype === _break), label;
                 if (eat(_semi) || canInsertSemicolon()) { label = null; }
@@ -2395,23 +2470,53 @@ define([], function asm_llvm() {
 
                 // Verify that there is an actual destination to break or
                 // continue to.
-                var found = false;
-                module.func.labels.forEach(function(lab, i) {
+                var found = false, i = 0, labellen = module.func.labels.length;
+                while (i < labellen) {
+                    var lab = module.func.labels[i];
                     if (label === null || lab.name === label.name) {
                         if (lab.kind !== null && // no 'continue' in switch
                             (isBreak || lab.kind === "loop")) {
                             found = true;
-                            /* XXX break out of forEach */
+                            break;
                         }
                         if (label && isBreak) { // always 'break' if names match
                             found = true;
-                            /* XXX break out of forEach */
+                            break;
                         }
                     }
-                });
+                    i+=1;
+                }
                 if (!found) {
                     raise(startPos, "Unsyntactic " + starttype.keyword);
                 }
+                return;
+
+            // #### ReturnStatement
+            } else if (starttype===_return) {
+
+                // In `return` (and `break`/`continue`), the keywords with
+                // optional arguments, we eagerly look for a semicolon or the
+                // possibility to insert one.
+
+                var ty;
+                next();
+                startPos = tokStart;
+                if (eat(_semi) || canInsertSemicolon()) {
+                    ty = Types.Void;
+                } else {
+                    var binding = defcheck(parseExpression(null)); semicolon();
+                    ty = binding.type;
+                    // Handle `return 0` which is `fixnum`, not `signed`.
+                    if (ty.isSubtypeOf(Types.Signed)) {
+                        ty = Types.Signed;
+                    }
+                }
+                if (ty!==Types.Void && ty!==Types.Double && ty!==Types.Signed) {
+                    raise(startPos,
+                          'return type must be double, signed, or void');
+                }
+                module.func.retType =
+                    mergeTypes(module.func.retType, ty, startPos);
                 return;
 
             // #### IterationStatement
@@ -2454,45 +2559,6 @@ define([], function asm_llvm() {
                 if (tokType === _semi) { return parseFor(null); }
                 var init = defcheck(parseExpression(null, false));
                 return parseFor(init);
-
-            // #### IfStatement
-            } else if (starttype===_if) {
-                next();
-                startPos = tokStart;
-                var ifTest = defcheck(parseParenExpression());
-                typecheck(ifTest.type, Types.Int, "if statement condition",
-                          startPos);
-                var consequent = parseStatement();
-                var alternate = eat(_else) ? parseStatement() : null;
-                return;
-
-            // #### ReturnStatement
-            } else if (starttype===_return) {
-
-                // In `return` (and `break`/`continue`), the keywords with
-                // optional arguments, we eagerly look for a semicolon or the
-                // possibility to insert one.
-
-                var ty;
-                next();
-                startPos = tokStart;
-                if (eat(_semi) || canInsertSemicolon()) {
-                    ty = Types.Void;
-                } else {
-                    var binding = defcheck(parseExpression(null)); semicolon();
-                    ty = binding.type;
-                    // Handle `return 0` which is `fixnum`, not `signed`.
-                    if (ty.isSubtypeOf(Types.Signed)) {
-                        ty = Types.Signed;
-                    }
-                }
-                if (ty!==Types.Void && ty!==Types.Double && ty!==Types.Signed) {
-                    raise(startPos,
-                          'return type must be double, signed, or void');
-                }
-                module.func.retType =
-                    mergeTypes(module.func.retType, ty, startPos);
-                return;
 
             // #### SwitchStatement
             } else if (starttype===_switch) {
@@ -2549,10 +2615,6 @@ define([], function asm_llvm() {
                     }
                 }
                 return;
-
-            // #### BlockStatement
-            } else if (starttype===_braceL) {
-                return parseBlock();
 
             // #### EmptyStatement
             } else if (starttype===_semi) {
@@ -2886,6 +2948,8 @@ define([], function asm_llvm() {
                     moreParen();
                     expect(_parenR);
                     module.env.bind(x, GlobalBinding.New(ty, false), startPos);
+                } else if (tokType === _name) {
+                    raise(tokStart, "expected <stdlib> or <foreign>");
                 } else { unexpected(); }
                 parenClose();
                 if (!eat(_comma)) { break; }
