@@ -303,7 +303,7 @@ if (typeof window !== 'undefined') {
                         window.tree.push(tree);
                     }) : tokenizeOnly ? (function() {
                         var getToken = ts_asm_llvm.tokenize(source);
-                        var _eof = ts_asm_llvm.tokTypes.eof;
+                        var _eof = ts_asm_llvm.tokTypes._eof;
                         var count = 0;
                         while (true) {
                             var t = getToken();

@@ -504,14 +504,14 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
     // tokenizer.
 
     asm_llvm_module.tokTypes = {
-        bracketL: _bracketL, bracketR: _bracketR, braceL: _braceL,
-        braceR: _braceR, parenL: _parenL, parenR: _parenR, comma: _comma,
-        semi: _semi, colon: _colon, dot: _dot, question: _question,
-        slash: _slash, eq: _eq, name: _name, eof: _eof, num: _num,
-        regexp: _regexp, string: _string, dotnum: _dotnum
+        _bracketL: _bracketL, _bracketR: _bracketR, _braceL: _braceL,
+        _braceR: _braceR, _parenL: _parenL, _parenR: _parenR, _comma: _comma,
+        _semi: _semi, _colon: _colon, _dot: _dot, _question: _question,
+        _slash: _slash, _eq: _eq, _name: _name, _eof: _eof, _num: _num,
+        _regexp: _regexp, _string: _string, _dotnum: _dotnum
     };
     Object.keys(keywordTypes).forEach(function(kw) {
-        asm_llvm_module.tokTypes[kw] = keywordTypes[kw];
+        asm_llvm_module.tokTypes['_' + kw] = keywordTypes[kw];
     });
 
     // This is a trick taken from Esprima. It turns out that, on
