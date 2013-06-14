@@ -1600,6 +1600,8 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
         // Frequently-used constants.
         ConstantBinding.DOUBLE_ZERO = ConstantBinding.New(Types.Double, 0);
         ConstantBinding.INT_ZERO = ConstantBinding.New(null, 0);
+        ConstantBinding.INT_ONE  = ConstantBinding.New(null, 1);
+        ConstantBinding.INT_TWO  = ConstantBinding.New(null, 2);
         console.assert(ConstantBinding.INT_ZERO.type !== null);
 
         // Negate the value stored in a `ConstantBinding`, adjusting its
@@ -1916,6 +1918,10 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
             if (tokType === _num) {
                 result = (tokVal===0) ?
                     ConstantBinding.INT_ZERO :
+                    (tokVal===1) ?
+                    ConstantBinding.INT_ONE :
+                    (tokVal===2) ?
+                    ConstantBinding.INT_TWO :
                     ConstantBinding.New(null, tokVal);
                 if (result.type===null) {
                     raise(numStart, "Invalid integer literal");
