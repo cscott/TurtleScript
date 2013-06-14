@@ -2092,10 +2092,15 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                             toClose -= 1;
                         }
                         if ((tokType === _bin3 && tokVal === '|') ||
-                            (tokType === _bin5 && tokVal === '&')) {
+                            (tokType === _bin5 && tokVal === '&') ||
+                            (tokType === _bin8 && (tokVal==='>>' ||
+                                                   tokVal === '>>>'))) {
                             next();
                             toClose = 0;
                             while (eat(_parenL)) { toClose+=1; }
+                            if (tokType === _plusmin && tokVal==='-') {
+                                next();
+                            }
                             if (tokType === _num /*&& tokVal === 0*/) {
                                 next();
                                 while (toClose > 0 && eat(_parenR)) {
@@ -2154,7 +2159,8 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                         var msg = "argument "+i+" to foreign function";
                         typecheck(type, Types.Extern, msg, startPos);
                     });
-                    binding = TempBinding.New(Types.Unknown);
+                    ty = makeFunctionTypeFromContext().retType;
+                    binding = TempBinding.New(ty);
                 } else if (base.type.arrow || base.type.functiontypes ||
                            base.type === Types.ForwardReference) {
                     // Handle direct invocation of local function.
