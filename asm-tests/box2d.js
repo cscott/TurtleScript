@@ -6,7 +6,7 @@
      // EMSCRIPTEN_END_ASM
    and then running it through js-beautify.
 */
-function(global, env, buffer) {
+function box2d(global, env, buffer) {
     "use asm";
     var a = new global.Int8Array(buffer);
     var b = new global.Int16Array(buffer);
