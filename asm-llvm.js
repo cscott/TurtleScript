@@ -293,7 +293,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
               Types.Arrow([Types.Doublish], Types.Double) ]),
         '-': Types.FunctionTypes(
             [ Types.Arrow([Types.Int], Types.Intish),
-              Types.Arrow([Types.Doublish], Types.Double) ]),
+              Types.Arrow([Types.Double], Types.Double) ]),
         '~': Types.FunctionTypes(
             [ Types.Arrow([Types.Intish], Types.Signed) ]),
         '!': Types.FunctionTypes(
