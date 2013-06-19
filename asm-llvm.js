@@ -293,7 +293,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
               Types.Arrow([Types.Doublish], Types.Double) ]),
         '-': Types.FunctionTypes(
             [ Types.Arrow([Types.Int], Types.Intish),
-              Types.Arrow([Types.Doublish], Types.Double) ]),
+              Types.Arrow([Types.Double], Types.Double) ]),
         '~': Types.FunctionTypes(
             [ Types.Arrow([Types.Intish], Types.Signed) ]),
         '!': Types.FunctionTypes(
@@ -2079,8 +2079,9 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                     // distinguish `intish` from `void` contexts.
                     var validPlusCoercion =
                         (leftContext.leftOp==='+' && leftContext.isValid());
-                    var validIntCoercion = false;
-                    if (!validPlusCoercion) {
+                    var validIntCoercion =
+                        (leftContext.leftOp==='|' && leftContext.isValid());
+                    if (!(validPlusCoercion || validIntCoercion)) {
                         // look for |0.  If there's no leftOp, we can close
                         // up to leftContext.parenLevels parentheses.  If there
                         // is a leftOp, it will bind tighter than the |0, so
@@ -2092,16 +2093,18 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                             toClose -= 1;
                         }
                         if ((tokType === _bin3 && tokVal === '|') ||
+                            (tokType === _bin4 && tokVal === '^') ||
                             (tokType === _bin5 && tokVal === '&') ||
                             (tokType === _bin8 && (tokVal==='>>' ||
-                                                   tokVal === '>>>'))) {
+                                                   tokVal === '>>>' ||
+                                                   tokVal==='<<'))) {
                             next();
                             toClose = 0;
                             while (eat(_parenL)) { toClose+=1; }
                             if (tokType === _plusmin && tokVal==='-') {
                                 next();
                             }
-                            if (tokType === _num /*&& tokVal === 0*/) {
+                            if (tokType === _num || tokType === _name) {
                                 next();
                                 while (toClose > 0 && eat(_parenR)) {
                                     toClose-=1;
@@ -2260,7 +2263,9 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                         raise(opPos, operator+" not allowed");
                     }
                     next();
-                    var right = parseExprOp(parseMaybeUnary(LeftContext.NONE),
+                    var lc = (operator==='|') ? LeftContext.New(operator) :
+                        LeftContext.NONE;
+                    var right = parseExprOp(parseMaybeUnary(lc),
                                             prec);
                     defcheck(left); defcheck(right);
                     ty = ty.apply([left.type, right.type]);

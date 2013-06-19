@@ -6,7 +6,7 @@
      // EMSCRIPTEN_END_ASM
    and then running it through js-beautify.
 */
-function(global, env, buffer) {
+function lua_binarytrees(global, env, buffer) {
     // EMSCRIPTEN_START_ASM
     "use asm";
     var a = new global.Int8Array(buffer);

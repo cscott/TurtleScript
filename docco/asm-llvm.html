@@ -799,7 +799,7 @@ created at two different times still compare ===.</p>
               Types.Arrow([Types.Doublish], Types.Double) ]),
         <span class="string">'-'</span>: Types.FunctionTypes(
             [ Types.Arrow([Types.Int], Types.Intish),
-              Types.Arrow([Types.Doublish], Types.Double) ]),
+              Types.Arrow([Types.Double], Types.Double) ]),
         <span class="string">'~'</span>: Types.FunctionTypes(
             [ Types.Arrow([Types.Intish], Types.Signed) ]),
         <span class="string">'!'</span>: Types.FunctionTypes(
@@ -4336,8 +4336,9 @@ distinguish <code>intish</code> from <code>void</code> contexts.</p>
             
             <div class="content"><div class='highlight'><pre>                    <span class="keyword">var</span> validPlusCoercion =
                         (leftContext.leftOp===<span class="string">'+'</span> &amp;&amp; leftContext.isValid());
-                    <span class="keyword">var</span> validIntCoercion = <span class="literal">false</span>;
-                    <span class="keyword">if</span> (!validPlusCoercion) {</pre></div></div>
+                    <span class="keyword">var</span> validIntCoercion =
+                        (leftContext.leftOp===<span class="string">'|'</span> &amp;&amp; leftContext.isValid());
+                    <span class="keyword">if</span> (!(validPlusCoercion || validIntCoercion)) {</pre></div></div>
             
         </li>
         
@@ -4362,16 +4363,18 @@ don&#39;t allow closing the last paren.</p>
                             toClose -= <span class="number">1</span>;
                         }
                         <span class="keyword">if</span> ((tokType === _bin3 &amp;&amp; tokVal === <span class="string">'|'</span>) ||
+                            (tokType === _bin4 &amp;&amp; tokVal === <span class="string">'^'</span>) ||
                             (tokType === _bin5 &amp;&amp; tokVal === <span class="string">'&amp;'</span>) ||
                             (tokType === _bin8 &amp;&amp; (tokVal===<span class="string">'&gt;&gt;'</span> ||
-                                                   tokVal === <span class="string">'&gt;&gt;&gt;'</span>))) {
+                                                   tokVal === <span class="string">'&gt;&gt;&gt;'</span> ||
+                                                   tokVal===<span class="string">'&lt;&lt;'</span>))) {
                             next();
                             toClose = <span class="number">0</span>;
                             <span class="keyword">while</span> (eat(_parenL)) { toClose+=<span class="number">1</span>; }
                             <span class="keyword">if</span> (tokType === _plusmin &amp;&amp; tokVal===<span class="string">'-'</span>) {
                                 next();
                             }
-                            <span class="keyword">if</span> (tokType === _num <span class="comment">/*&amp;&amp; tokVal === 0*/</span>) {
+                            <span class="keyword">if</span> (tokType === _num || tokType === _name) {
                                 next();
                                 <span class="keyword">while</span> (toClose &gt; <span class="number">0</span> &amp;&amp; eat(_parenR)) {
                                     toClose-=<span class="number">1</span>;
@@ -4641,7 +4644,9 @@ operator that has a lower precedence than the set it is parsing.</p>
                         raise(opPos, operator+<span class="string">" not allowed"</span>);
                     }
                     next();
-                    <span class="keyword">var</span> right = parseExprOp(parseMaybeUnary(LeftContext.NONE),
+                    <span class="keyword">var</span> lc = (operator===<span class="string">'|'</span>) ? LeftContext.New(operator) :
+                        LeftContext.NONE;
+                    <span class="keyword">var</span> right = parseExprOp(parseMaybeUnary(lc),
                                             prec);
                     defcheck(left); defcheck(right);
                     ty = ty.apply([left.type, right.type]);
