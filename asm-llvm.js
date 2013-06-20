@@ -234,14 +234,6 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
     // Note that a value of ForwardReference type should always be actually
     // of type `Arrow` (local function) or `Table` (global function table).
     Types.ForwardReference = Type.derive("ForwardReference");
-    // We can't tell if a function/function table is *really void* until
-    // we've either seen the definition or verified that *none* of the use
-    // sites use the value returned.  See discussion in mozilla
-    // [bug 854061](https://bugzilla.mozilla.org/show_bug.cgi?id=854061).
-    // So we introduce a new `MaybeVoid` type, similar to `ForwardReference`.
-    // Functions which return `MaybeVoid` can later be refined so that they
-    // return `intish` or `doublish`.
-    Types.MaybeVoid = Type.derive("MaybeVoid");
 
     // Quick self-test for the type system.  Ensure that identical types
     // created at two different times still compare ===.
@@ -1483,11 +1475,11 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
             if (x === 'arguments' || x === 'eval') {
                 raise(loc || tokStart, "illegal binding for '"  + x + "'");
             }
-            x = '$' + x;
-            if (Object.prototype.hasOwnProperty.call(this._map, x)) {
+            var key = '$' + x;
+            if (Object.prototype.hasOwnProperty.call(this._map, key)) {
                 raise(loc || tokStart, "duplicate binding for '" + x + "'");
             }
-            this._map[x] = t;
+            this._map[key] = t;
         };
         // Iterate over all the bindings in the environment.
         Env.prototype.forEach = function(f) {
@@ -1805,7 +1797,6 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
         // more discussion of the single-forward-pass strategy.
         var mergeTypes = function(prevType, newType, pos) {
             if (prevType===Types.ForwardReference ||
-                prevType===Types.MaybeVoid ||
                 newType.isSubtypeOf(prevType)) {
                 return newType;
             }
@@ -1813,12 +1804,6 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                 prevType.size === newType.size) {
                 return Types.Table(mergeTypes(prevType.base, newType.base, pos),
                                    newType.size);
-            }
-            if (prevType.arrow && newType.arrow &&
-                (!prevType.table) && (!newType.table) &&
-                prevType.retType === Types.MaybeVoid) {
-                return mergeTypes(Types.Arrow(prevType, newType.retType),
-                                  newType, pos);
             }
             raise(pos || tokStart,
                   "Inconsistent type (was " + prevType.toString() +
@@ -1831,7 +1816,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                 return Types.Intish;
             } else if (type === Types.Double) {
                 return Types.Doublish;
-            } else if (type === Types.Void || type === Types.MaybeVoid) {
+            } else if (type === Types.Void) {
                 return Types.Void;
             } else {
                 raise(pos || tokStart,
@@ -1844,9 +1829,13 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
         // unary operator a `+` or `~`, and how many levels of parentheses
         // do I have to look ahead past in order to determine if there's
         // an `|0` cast on this expression?
-        var LeftContext = function(leftOp) {
+        var LeftContext = function(leftOp, leftPrec) {
             // The most recently-seen unary operator.
             this.leftOp = leftOp || null;
+            // The precedence of the most recently-seen binary operator.
+            // (This filters out `5 + f() | 0`, where the + binds tighter
+            // than the `| 0` coercion.)
+            this.leftPrec = leftPrec || 0;
             // The number of parentheses since that operator (or the top of
             // the expression, if `leftOp` is `null`).
             this.parenLevels = 0;
@@ -2072,44 +2061,53 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                 // If this is a forward reference to a future function,
                 // infer the function type based on 'plusCoerced' (the
                 // surrounding context) and the argument types.
-                var makeFunctionTypeFromContext = function() {
+                var makeFunctionTypeFromContext = function(parameterCoerce) {
                     // Return type is either `doublish`, `intish`, or `void`.
                     // Have to look ahead past the surrounding parentheses
                     // to see if the next tokens are `|0` in order to
                     // distinguish `intish` from `void` contexts.
                     var validPlusCoercion =
                         (leftContext.leftOp==='+' && leftContext.isValid());
-                    var validIntCoercion =
-                        (leftContext.leftOp==='|' && leftContext.isValid());
-                    if (!(validPlusCoercion || validIntCoercion)) {
+                    var validVoidContext =
+                        (leftContext.leftOp==='(void)' &&
+                         leftContext.isValid(function() {
+                             return tokType !== _comma &&
+                                 tokType !== _bin3;
+                         }));
+                    var validIntCoercion = false;
+                    if (!(validVoidContext || validPlusCoercion)) {
                         // look for |0.  If there's no leftOp, we can close
                         // up to leftContext.parenLevels parentheses.  If there
                         // is a leftOp, it will bind tighter than the |0, so
                         // don't allow closing the last paren.
                         var oldPos = tokStart;
                         var toClose = leftContext.parenLevels;
-                        if (leftContext.leftOp!==null) { toClose -= 1; }
+                        if (leftContext.leftOp!==null &&
+                            leftContext.leftOp!=='(void)') { toClose -= 1; }
                         while (toClose > 0 && eat(_parenR)) {
                             toClose -= 1;
                         }
-                        if ((tokType === _bin3 && tokVal === '|') ||
-                            (tokType === _bin4 && tokVal === '^') ||
-                            (tokType === _bin5 && tokVal === '&') ||
-                            (tokType === _bin8 && (tokVal==='>>' ||
-                                                   tokVal === '>>>' ||
-                                                   tokVal==='<<'))) {
+                        if (toClose >= 0 &&
+                            leftContext.leftPrec < _bin3.binop &&
+                            tokType === _bin3 && tokVal === '|') {
                             next();
                             toClose = 0;
                             while (eat(_parenL)) { toClose+=1; }
-                            if (tokType === _plusmin && tokVal==='-') {
-                                next();
-                            }
-                            if (tokType === _num || tokType === _name) {
+                            if (tokType === _num && tokVal === 0) {
                                 next();
                                 while (toClose > 0 && eat(_parenR)) {
                                     toClose-=1;
                                 }
-                                if (toClose===0) { validIntCoercion = true; }
+                                if (toClose===0) {
+                                    // Verify that next token doesn't have
+                                    // precedence higher than `|`.
+                                    // (`f() | 0 + 4` is not valid.)
+                                    var prec = tokType.binop;
+                                    if (prec === undefined ||
+                                        prec <= _bin3.binop) {
+                                        validIntCoercion = true;
+                                    }
+                                }
                             }
                         }
                         backtrack(oldPos);
@@ -2117,18 +2115,24 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                     var retType =
                         validPlusCoercion ? Types.Doublish :
                         validIntCoercion ? Types.Intish :
-                        Types.MaybeVoid;
-                    return Types.Arrow(argTypes.map(function(ty) {
-                        // All argument types must be either 'double' or 'int'.
-                        if (ty.isSubtypeOf(Types.Double)) {
-                            return Types.Double;
-                        } else if (ty.isSubtypeOf(Types.Int)) {
-                            return Types.Int;
-                        } else {
-                            raise(startPos, "function arguments must be "+
-                                  "coerced to either double or int");
-                        }
-                    }), retType);
+                        validVoidContext ? Types.Void :
+                        raise(startPos, "non-expression-statement call must be coerced");
+                    if (!parameterCoerce) {
+                        parameterCoerce = function(ty) { return ty; };
+                    }
+                    return Types.Arrow(argTypes.map(parameterCoerce), retType);
+                };
+                var localFunctionParam = function(ty, i) {
+                    // All argument types to a local function
+                    // must be either 'double' or 'int'.
+                    if (ty.isSubtypeOf(Types.Double)) {
+                        return Types.Double;
+                    } else if (ty.isSubtypeOf(Types.Int)) {
+                        return Types.Int;
+                    } else {
+                        raise(startPos, "function argument "+i+" must be "+
+                              "coerced to either double or int");
+                    }
                 };
                 if (TableBinding.hasInstance(base)) {
                     // Handle an indirect invocation through a function table.
@@ -2136,10 +2140,8 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                         raise(startPos,
                               "function table size must be a power of 2");
                     }
-                    if (base.base.type === Types.ForwardReference ||
-                        (base.base.type.table &&
-                         base.base.type.base.retType === Types.MaybeVoid)) {
-                        ty = Types.Table(makeFunctionTypeFromContext(),
+                    if (base.base.type === Types.ForwardReference) {
+                        ty = Types.Table(makeFunctionTypeFromContext(localFunctionParam),
                                          base.index.andAmount+1);
                         base.base.type =
                             mergeTypes(base.base.type, ty, startPos);
@@ -2158,20 +2160,23 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                     binding = TempBinding.New(ty);
                 } else if (base.type===Types.Function) {
                     // Handle foreign function invocation.
-                    argTypes.forEach(function(type, i) {
+                    ty = makeFunctionTypeFromContext(function(type, i) {
                         var msg = "argument "+i+" to foreign function";
                         typecheck(type, Types.Extern, msg, startPos);
-                    });
-                    ty = makeFunctionTypeFromContext().retType;
+                        return type;
+                    }).retType;
                     binding = TempBinding.New(ty);
                 } else if (base.type.arrow || base.type.functiontypes ||
                            base.type === Types.ForwardReference) {
                     // Handle direct invocation of local function.
                     if (base.type === Types.ForwardReference ||
-                        base.type.retType === Types.MaybeVoid) {
+                        base.type.arrow) {
                         base.type = mergeTypes(base.type,
-                                               makeFunctionTypeFromContext(),
+                                               makeFunctionTypeFromContext(localFunctionParam),
                                                startPos);
+                    } else {
+                        // check that return value is coerced.
+                        makeFunctionTypeFromContext();
                     }
                     ty = base.type.apply(argTypes);
                     if (ty===null) {
@@ -2263,10 +2268,15 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                         raise(opPos, operator+" not allowed");
                     }
                     next();
-                    var lc = (operator==='|') ? LeftContext.New(operator) :
-                        LeftContext.NONE;
-                    var right = parseExprOp(parseMaybeUnary(lc),
-                                            prec);
+                    var lc = LeftContext.NONE;
+                    if (prec >= _bin3.binop) {
+                        // Create a new left context if the current binop
+                        // binds tighter than `|`.  This ensures that
+                        // `5 + f() | 0` doesn't think that the `| 0` coercion
+                        // applies to `f()`.
+                        lc = LeftContext.New(null, prec);
+                    }
+                    var right = parseExprOp(parseMaybeUnary(lc), prec);
                     defcheck(left); defcheck(right);
                     ty = ty.apply([left.type, right.type]);
                     if (operator==='%') {
@@ -2422,7 +2432,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
             if (!noComma && tokType === _comma) {
                 var expressions = [expr];
                 while (eat(_comma)) {
-                    expressions.push(expr = parseMaybeAssign(leftContext));
+                    expressions.push(expr = parseMaybeAssign(LeftContext.NONE));
                 }
             }
             return expr;
@@ -2526,7 +2536,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                     raise(startPos,
                           'return type must be double, signed, or void');
                 }
-                module.func.retType =
+                module.func.retType = module.func.retType===null ? ty :
                     mergeTypes(module.func.retType, ty, startPos);
                 return;
 
@@ -2662,7 +2672,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                     }
                 }
                 // Nope, this is an ExpressionStatement.
-                var expr = parseExpression(null);
+                var expr = parseExpression(LeftContext.New('(void)'));
                 semicolon();
                 return;
             }
@@ -2777,7 +2787,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                 id: null,
                 params: [],
                 env: Env.New(),
-                retType: Types.MaybeVoid,
+                retType: null,
                 labels: []
             };
             module.functions.push(func);
@@ -2812,7 +2822,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
             }
 
             // Now reconcile the type of the function.
-            if (func.retType === Types.MaybeVoid) {
+            if (func.retType === null) {
                 // If no return statement was seen, this function returns
                 // `void`.
                 func.retType = Types.Void;
