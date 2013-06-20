@@ -56,9 +56,10 @@ function mymodule(stdlib, foreign, heap) {
     }
 
     function g2test() {
-        // call a void function, in a strange comma-using context.
+        // call a void function.
         // (pre-definition)
-        return (+((g2()), 5));
+        ((g2()))
+        return
     }
 
     function g2() {
@@ -66,13 +67,7 @@ function mymodule(stdlib, foreign, heap) {
     }
 
     function g3() {
-        return
-    }
-
-    function g3test() {
-        // call a void function, in a strange comma-using context.
-        // (post-definition)
-        return (+((g3()), 5));
+        return 42
     }
 
     function h(i, x) {
@@ -95,8 +90,9 @@ function mymodule(stdlib, foreign, heap) {
         var d = 0.0;
         d = +i(5.0);
         d = +(i(d));
-        d = +(g3(), i(d));
-        d = +((g3()), (i(d)));
+        // these next two coercions are invalid.
+        //d = +(g3()|(0), i(d));
+        //d = +((g3())|(0), (i(d)));
         // call a double function
         return d;
     }
