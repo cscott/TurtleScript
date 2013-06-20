@@ -2058,9 +2058,9 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                 var argTypes = callArguments.map(function(b){
                     return defcheck(b).type;
                 });
-                // If this is a forward reference to a future function,
-                // infer the function type based on 'plusCoerced' (the
-                // surrounding context) and the argument types.
+                // Infer the function type based on the surrounding context
+                // (`+f()`, `f()|0`, or `f();`) and the argument types.
+                // Verifies that the context is valid.
                 var makeFunctionTypeFromContext = function(parameterCoerce) {
                     // Return type is either `doublish`, `intish`, or `void`.
                     // Have to look ahead past the surrounding parentheses
@@ -2071,15 +2071,19 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                     var validVoidContext =
                         (leftContext.leftOp==='(void)' &&
                          leftContext.isValid(function() {
+                             // Check for `f(), 5;` and `f() | 0;`, which
+                             // are not valid void contexts.
                              return tokType !== _comma &&
                                  tokType !== _bin3;
                          }));
                     var validIntCoercion = false;
                     if (!(validVoidContext || validPlusCoercion)) {
-                        // look for |0.  If there's no leftOp, we can close
-                        // up to leftContext.parenLevels parentheses.  If there
-                        // is a leftOp, it will bind tighter than the |0, so
-                        // don't allow closing the last paren.
+                        // Look for `| 0`.  If there's no `leftContext.leftOp`,
+                        // we can close up to `leftContext.parenLevels`
+                        // parentheses.  If there is a `leftOp`, it
+                        // will bind tighter than the `| 0`, so don't
+                        // allow the last paren to close before we see the
+                        // `|`.
                         var oldPos = tokStart;
                         var toClose = leftContext.parenLevels;
                         if (leftContext.leftOp!==null &&
@@ -2101,7 +2105,8 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                                 if (toClose===0) {
                                     // Verify that next token doesn't have
                                     // precedence higher than `|`.
-                                    // (`f() | 0 + 4` is not valid.)
+                                    // (`f() | 0 + 4` is not a valid int
+                                    // coercion.)
                                     var prec = tokType.binop;
                                     if (prec === undefined ||
                                         prec <= _bin3.binop) {
@@ -2116,12 +2121,17 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                         validPlusCoercion ? Types.Doublish :
                         validIntCoercion ? Types.Intish :
                         validVoidContext ? Types.Void :
-                        raise(startPos, "non-expression-statement call must be coerced");
+                        // Fail to verify if we see a call statement without
+                        // a valid coercion.
+                        raise(startPos,
+                              "non-expression-statement call must be coerced");
                     if (!parameterCoerce) {
                         parameterCoerce = function(ty) { return ty; };
                     }
                     return Types.Arrow(argTypes.map(parameterCoerce), retType);
                 };
+                // Helper function to typecheck the arguments to a
+                // local function or local function table.
                 var localFunctionParam = function(ty, i) {
                     // All argument types to a local function
                     // must be either 'double' or 'int'.
@@ -2134,8 +2144,9 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                               "coerced to either double or int");
                     }
                 };
+                // Now type check the four types of function invocations:
                 if (TableBinding.hasInstance(base)) {
-                    // Handle an indirect invocation through a function table.
+                    // 1\. An indirect invocation through a function table.
                     if (!powerOf2(base.index.andAmount+1)) {
                         raise(startPos,
                               "function table size must be a power of 2");
@@ -2159,7 +2170,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                     }
                     binding = TempBinding.New(ty);
                 } else if (base.type===Types.Function) {
-                    // Handle foreign function invocation.
+                    // 2\. A foreign function invocation.
                     ty = makeFunctionTypeFromContext(function(type, i) {
                         var msg = "argument "+i+" to foreign function";
                         typecheck(type, Types.Extern, msg, startPos);
@@ -2168,14 +2179,16 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                     binding = TempBinding.New(ty);
                 } else if (base.type.arrow || base.type.functiontypes ||
                            base.type === Types.ForwardReference) {
-                    // Handle direct invocation of local function.
+                    // 3\. Direct invocation of local function, or
+                    // 4\. Direct invocation of a `stdlib` call.
                     if (base.type === Types.ForwardReference ||
                         base.type.arrow) {
                         base.type = mergeTypes(base.type,
                                                makeFunctionTypeFromContext(localFunctionParam),
                                                startPos);
                     } else {
-                        // check that return value is coerced.
+                        // We know the type, but check that return value is
+                        // coerced properly (even for `stdlib` calls).
                         makeFunctionTypeFromContext();
                     }
                     ty = base.type.apply(argTypes);
