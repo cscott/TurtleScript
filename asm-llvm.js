@@ -2071,19 +2071,19 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                     var validVoidContext =
                         (leftContext.leftOp==='(void)' &&
                          leftContext.isValid(function() {
-                             // Check for `f(), 5;` and `f() | 0;`, which
-                             // are not valid void contexts.
-                             return tokType !== _comma &&
-                                 tokType !== _bin3;
+                             // Check for `f() | 0;`, which is not a valid
+                             // void context.
+                             return tokType !== _bin3;
                          }));
                     var validIntCoercion = false;
                     if (!(validVoidContext || validPlusCoercion)) {
-                        // Look for `| 0`.  If there's no `leftContext.leftOp`,
+                        // Look for `,` or `| 0`.
+                        // If there's no `leftContext.leftOp`,
                         // we can close up to `leftContext.parenLevels`
                         // parentheses.  If there is a `leftOp`, it
-                        // will bind tighter than the `| 0`, so don't
+                        // will bind tighter than the `,` or `| 0`, so don't
                         // allow the last paren to close before we see the
-                        // `|`.
+                        // `|` or `,`.
                         var oldPos = tokStart;
                         var toClose = leftContext.parenLevels;
                         if (leftContext.leftOp!==null &&
@@ -2091,26 +2091,30 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                         while (toClose > 0 && eat(_parenR)) {
                             toClose -= 1;
                         }
-                        if (toClose >= 0 &&
-                            leftContext.leftPrec < _bin3.binop &&
-                            tokType === _bin3 && tokVal === '|') {
-                            next();
-                            toClose = 0;
-                            while (eat(_parenL)) { toClose+=1; }
-                            if (tokType === _num && tokVal === 0) {
+                        if (toClose >= 0) {
+                            if (leftContext.leftPrec <= 0 &&
+                                tokType === _comma) {
+                                validVoidContext = true;
+                            } else if (leftContext.leftPrec < _bin3.binop &&
+                                       tokType === _bin3 && tokVal === '|') {
                                 next();
-                                while (toClose > 0 && eat(_parenR)) {
-                                    toClose-=1;
-                                }
-                                if (toClose===0) {
-                                    // Verify that next token doesn't have
-                                    // precedence higher than `|`.
-                                    // (`f() | 0 + 4` is not a valid int
-                                    // coercion.)
-                                    var prec = tokType.binop;
-                                    if (prec === undefined ||
-                                        prec <= _bin3.binop) {
-                                        validIntCoercion = true;
+                                toClose = 0;
+                                while (eat(_parenL)) { toClose+=1; }
+                                if (tokType === _num && tokVal === 0) {
+                                    next();
+                                    while (toClose > 0 && eat(_parenR)) {
+                                        toClose-=1;
+                                    }
+                                    if (toClose===0) {
+                                        // Verify that next token doesn't have
+                                        // precedence higher than `|`.
+                                        // (`f() | 0 + 4` is not a valid int
+                                        // coercion.)
+                                        var prec = tokType.binop;
+                                        if (prec === undefined ||
+                                            prec <= _bin3.binop) {
+                                            validIntCoercion = true;
+                                        }
                                     }
                                 }
                             }

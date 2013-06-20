@@ -24,8 +24,8 @@ var invalid = function(s) {
  // coercion test cases.
  'coerce1', invalid('coerce2'), invalid('coerce2b'),
  'coerce2c', 'coerce2d', invalid('coerce3'), invalid('coerce4'),
- 'coerce5', invalid('coerce6'), invalid('coerce7'), 'coerce8', invalid('coerce9'),
- invalid('coerce9b'),
+ 'coerce5', 'coerce6', invalid('coerce7'), 'coerce8', invalid('coerce9'),
+ 'coerce9b', invalid('coerce9c'),
  // other verification errors which should be caught
  invalid('fail/undef1'), invalid('fail/undef2'), invalid('fail/undef3'),
  invalid('fail/undef4'), invalid('fail/undef5'), invalid('fail/undef6'),

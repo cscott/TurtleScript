@@ -7,7 +7,7 @@ function coerce(stdlib, foreign, heap) {
         return
     }
 
-    // THIS IS AN INVALID COERCION
+    // THIS IS A VALID COERCION
     function g() {
         f(), 5
         return 5;
