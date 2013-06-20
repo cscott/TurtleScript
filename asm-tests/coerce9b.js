@@ -4,12 +4,12 @@ function coerce(stdlib, foreign, heap) {
     "use asm";
 
     function f() {
-        return 42.0
+        return
     }
 
     // THIS IS A VALID COERCION
     function g() {
-        return +f();
+        return +(f(), 5);
     }
 
     return g;

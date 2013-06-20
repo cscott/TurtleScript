@@ -4338,13 +4338,12 @@ distinguish <code>intish</code> from <code>void</code> contexts.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-175">&#182;</a>
               </div>
-              <p>Check for <code>f(), 5;</code> and <code>f() | 0;</code>, which
-are not valid void contexts.</p>
+              <p>Check for <code>f() | 0;</code>, which is not a valid
+void context.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                             <span class="keyword">return</span> tokType !== _comma &amp;&amp;
-                                 tokType !== _bin3;
+            <div class="content"><div class='highlight'><pre>                             <span class="keyword">return</span> tokType !== _bin3;
                          }));
                     <span class="keyword">var</span> validIntCoercion = <span class="literal">false</span>;
                     <span class="keyword">if</span> (!(validVoidContext || validPlusCoercion)) {</pre></div></div>
@@ -4358,12 +4357,13 @@ are not valid void contexts.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-176">&#182;</a>
               </div>
-              <p>Look for <code>| 0</code>.  If there&#39;s no <code>leftContext.leftOp</code>,
+              <p>Look for <code>,</code> or <code>| 0</code>.
+If there&#39;s no <code>leftContext.leftOp</code>,
 we can close up to <code>leftContext.parenLevels</code>
 parentheses.  If there is a <code>leftOp</code>, it
-will bind tighter than the <code>| 0</code>, so don&#39;t
+will bind tighter than the <code>,</code> or <code>| 0</code>, so don&#39;t
 allow the last paren to close before we see the
-<code>|</code>.</p>
+<code>|</code> or <code>,</code>.</p>
 
             </div>
             
@@ -4374,18 +4374,21 @@ allow the last paren to close before we see the
                         <span class="keyword">while</span> (toClose &gt; <span class="number">0</span> &amp;&amp; eat(_parenR)) {
                             toClose -= <span class="number">1</span>;
                         }
-                        <span class="keyword">if</span> (toClose &gt;= <span class="number">0</span> &amp;&amp;
-                            leftContext.leftPrec &lt; _bin3.binop &amp;&amp;
-                            tokType === _bin3 &amp;&amp; tokVal === <span class="string">'|'</span>) {
-                            next();
-                            toClose = <span class="number">0</span>;
-                            <span class="keyword">while</span> (eat(_parenL)) { toClose+=<span class="number">1</span>; }
-                            <span class="keyword">if</span> (tokType === _num &amp;&amp; tokVal === <span class="number">0</span>) {
+                        <span class="keyword">if</span> (toClose &gt;= <span class="number">0</span>) {
+                            <span class="keyword">if</span> (leftContext.leftPrec &lt;= <span class="number">0</span> &amp;&amp;
+                                tokType === _comma) {
+                                validVoidContext = <span class="literal">true</span>;
+                            } <span class="keyword">else</span> <span class="keyword">if</span> (leftContext.leftPrec &lt; _bin3.binop &amp;&amp;
+                                       tokType === _bin3 &amp;&amp; tokVal === <span class="string">'|'</span>) {
                                 next();
-                                <span class="keyword">while</span> (toClose &gt; <span class="number">0</span> &amp;&amp; eat(_parenR)) {
-                                    toClose-=<span class="number">1</span>;
-                                }
-                                <span class="keyword">if</span> (toClose===<span class="number">0</span>) {</pre></div></div>
+                                toClose = <span class="number">0</span>;
+                                <span class="keyword">while</span> (eat(_parenL)) { toClose+=<span class="number">1</span>; }
+                                <span class="keyword">if</span> (tokType === _num &amp;&amp; tokVal === <span class="number">0</span>) {
+                                    next();
+                                    <span class="keyword">while</span> (toClose &gt; <span class="number">0</span> &amp;&amp; eat(_parenR)) {
+                                        toClose-=<span class="number">1</span>;
+                                    }
+                                    <span class="keyword">if</span> (toClose===<span class="number">0</span>) {</pre></div></div>
             
         </li>
         
@@ -4403,10 +4406,11 @@ coercion.)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                                    <span class="keyword">var</span> prec = tokType.binop;
-                                    <span class="keyword">if</span> (prec === <span class="literal">undefined</span> ||
-                                        prec &lt;= _bin3.binop) {
-                                        validIntCoercion = <span class="literal">true</span>;
+            <div class="content"><div class='highlight'><pre>                                        <span class="keyword">var</span> prec = tokType.binop;
+                                        <span class="keyword">if</span> (prec === <span class="literal">undefined</span> ||
+                                            prec &lt;= _bin3.binop) {
+                                            validIntCoercion = <span class="literal">true</span>;
+                                        }
                                     }
                                 }
                             }
