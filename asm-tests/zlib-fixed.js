@@ -1023,7 +1023,7 @@ function zlib(global, env, buffer) {
                                                         ak = ai >>> 0 > aj >>> 0 ? aj : ai;
                                                         do {
                                                             if ((ak | 0) != 0) {
-                                                                bl(c[m >> 2] | 0, c[ah + 16 >> 2] | 0, ak | 0);
+                                                                bl(c[m >> 2] | 0, c[ah + 16 >> 2] | 0, ak | 0) | 0;
                                                                 c[m >> 2] = (c[m >> 2] | 0) + ak | 0;
                                                                 ai = (c[w >> 2] | 0) + 16 | 0;
                                                                 c[ai >> 2] = (c[ai >> 2] | 0) + ak | 0;
@@ -1140,7 +1140,7 @@ function zlib(global, env, buffer) {
                                                 ad = af >>> 0 > ae >>> 0 ? ae : af;
                                                 do {
                                                     if ((ad | 0) != 0) {
-                                                        bl(c[m >> 2] | 0, c[T + 16 >> 2] | 0, ad | 0);
+                                                        bl(c[m >> 2] | 0, c[T + 16 >> 2] | 0, ad | 0) | 0;
                                                         c[m >> 2] = (c[m >> 2] | 0) + ad | 0;
                                                         af = (c[w >> 2] | 0) + 16 | 0;
                                                         c[af >> 2] = (c[af >> 2] | 0) + ad | 0;
@@ -1241,7 +1241,7 @@ function zlib(global, env, buffer) {
                                                 ae = ad >>> 0 > af >>> 0 ? af : ad;
                                                 do {
                                                     if ((ae | 0) != 0) {
-                                                        bl(c[m >> 2] | 0, c[L + 16 >> 2] | 0, ae | 0);
+                                                        bl(c[m >> 2] | 0, c[L + 16 >> 2] | 0, ae | 0) | 0;
                                                         c[m >> 2] = (c[m >> 2] | 0) + ae | 0;
                                                         ad = (c[w >> 2] | 0) + 16 | 0;
                                                         c[ad >> 2] = (c[ad >> 2] | 0) + ae | 0;
@@ -1330,7 +1330,7 @@ function zlib(global, env, buffer) {
                                                 if ((ag | 0) == 0) {
                                                     break
                                                 }
-                                                bl(c[m >> 2] | 0, c[T + 16 >> 2] | 0, ag | 0);
+                                                bl(c[m >> 2] | 0, c[T + 16 >> 2] | 0, ag | 0) | 0;
                                                 c[m >> 2] = (c[m >> 2] | 0) + ag | 0;
                                                 T = (c[w >> 2] | 0) + 16 | 0;
                                                 c[T >> 2] = (c[T >> 2] | 0) + ag | 0;
@@ -1374,7 +1374,7 @@ function zlib(global, env, buffer) {
                                         if ((S | 0) == 0) {
                                             aM = aa
                                         } else {
-                                            bl(c[m >> 2] | 0, c[ag + 16 >> 2] | 0, S | 0);
+                                            bl(c[m >> 2] | 0, c[ag + 16 >> 2] | 0, S | 0) | 0;
                                             c[m >> 2] = (c[m >> 2] | 0) + S | 0;
                                             ag = (c[w >> 2] | 0) + 16 | 0;
                                             c[ag >> 2] = (c[ag >> 2] | 0) + S | 0;
@@ -1482,7 +1482,7 @@ function zlib(global, env, buffer) {
                                                     do {
                                                         if ((aR | 0) != 0) {
                                                             aj = ah + 12 | 0;
-                                                            bl(c[aj >> 2] | 0, c[ai + 16 >> 2] | 0, aR | 0);
+                                                            bl(c[aj >> 2] | 0, c[ai + 16 >> 2] | 0, aR | 0) | 0;
                                                             c[aj >> 2] = (c[aj >> 2] | 0) + aR | 0;
                                                             aj = (c[ak >> 2] | 0) + 16 | 0;
                                                             c[aj >> 2] = (c[aj >> 2] | 0) + aR | 0;
@@ -1520,7 +1520,7 @@ function zlib(global, env, buffer) {
                                                 do {
                                                     if ((ak | 0) != 0) {
                                                         ad = ag + 12 | 0;
-                                                        bl(c[ad >> 2] | 0, c[L + 16 >> 2] | 0, ak | 0);
+                                                        bl(c[ad >> 2] | 0, c[L + 16 >> 2] | 0, ak | 0) | 0;
                                                         c[ad >> 2] = (c[ad >> 2] | 0) + ak | 0;
                                                         ad = (c[af >> 2] | 0) + 16 | 0;
                                                         c[ad >> 2] = (c[ad >> 2] | 0) + ak | 0;
@@ -1713,7 +1713,7 @@ function zlib(global, env, buffer) {
                                                     do {
                                                         if ((a0 | 0) != 0) {
                                                             aQ = ai + 12 | 0;
-                                                            bl(c[aQ >> 2] | 0, c[aP + 16 >> 2] | 0, a0 | 0);
+                                                            bl(c[aQ >> 2] | 0, c[aP + 16 >> 2] | 0, a0 | 0) | 0;
                                                             c[aQ >> 2] = (c[aQ >> 2] | 0) + a0 | 0;
                                                             aQ = (c[ah >> 2] | 0) + 16 | 0;
                                                             c[aQ >> 2] = (c[aQ >> 2] | 0) + a0 | 0;
@@ -1751,7 +1751,7 @@ function zlib(global, env, buffer) {
                                                 do {
                                                     if ((ac | 0) != 0) {
                                                         O = af + 12 | 0;
-                                                        bl(c[O >> 2] | 0, c[ag + 16 >> 2] | 0, ac | 0);
+                                                        bl(c[O >> 2] | 0, c[ag + 16 >> 2] | 0, ac | 0) | 0;
                                                         c[O >> 2] = (c[O >> 2] | 0) + ac | 0;
                                                         O = (c[ab >> 2] | 0) + 16 | 0;
                                                         c[O >> 2] = (c[O >> 2] | 0) + ac | 0;
@@ -1806,7 +1806,7 @@ function zlib(global, env, buffer) {
                                                 if ((ab | 0) == 0) {
                                                     a4 = Q
                                                 } else {
-                                                    bl(c[m >> 2] | 0, c[S + 16 >> 2] | 0, ab | 0);
+                                                    bl(c[m >> 2] | 0, c[S + 16 >> 2] | 0, ab | 0) | 0;
                                                     c[m >> 2] = (c[m >> 2] | 0) + ab | 0;
                                                     S = (c[w >> 2] | 0) + 16 | 0;
                                                     c[S >> 2] = (c[S >> 2] | 0) + ab | 0;
@@ -1893,7 +1893,7 @@ function zlib(global, env, buffer) {
                                     ab = G >>> 0 > S >>> 0 ? S : G;
                                     do {
                                         if ((ab | 0) != 0) {
-                                            bl(c[m >> 2] | 0, c[M + 16 >> 2] | 0, ab | 0);
+                                            bl(c[m >> 2] | 0, c[M + 16 >> 2] | 0, ab | 0) | 0;
                                             c[m >> 2] = (c[m >> 2] | 0) + ab | 0;
                                             G = (c[w >> 2] | 0) + 16 | 0;
                                             c[G >> 2] = (c[G >> 2] | 0) + ab | 0;
@@ -3214,7 +3214,7 @@ function zlib(global, env, buffer) {
                                         b$ = Y;
                                         break L337
                                     }
-                                    bl(an | 0, dh | 0, D | 0);
+                                    bl(an | 0, dh | 0, D | 0) | 0;
                                     c[aW >> 2] = (c[aW >> 2] | 0) - D | 0;
                                     b4 = at;
                                     b5 = Z;
@@ -4596,7 +4596,7 @@ function zlib(global, env, buffer) {
                                                     }
                                                     aR = (c[p + 20 >> 2] | 0) - P | 0;
                                                     A = c[p + 24 >> 2] | 0;
-                                                    bl(H + aR | 0, cV | 0, ((aR + z | 0) >>> 0 > A >>> 0 ? A - aR | 0 : z) | 0);
+                                                    bl(H + aR | 0, cV | 0, ((aR + z | 0) >>> 0 > A >>> 0 ? A - aR | 0 : z) | 0) | 0;
                                                     f5 = c[aV >> 2] | 0
                                                 }
                                             } while (0);
@@ -5351,7 +5351,7 @@ function zlib(global, env, buffer) {
                                 }
                                 Y = bX - b_ | 0;
                                 if (Y >>> 0 >= g5 >>> 0) {
-                                    bl(g3 | 0, an + (-g5 | 0) | 0, g5 | 0);
+                                    bl(g3 | 0, an + (-g5 | 0) | 0, g5 | 0) | 0;
                                     c[a7 >> 2] = 0;
                                     c[ba >> 2] = c[bb >> 2] | 0;
                                     break
@@ -5359,10 +5359,10 @@ function zlib(global, env, buffer) {
                                 al = c[a7 >> 2] | 0;
                                 as = g5 - al | 0;
                                 ar = as >>> 0 > Y >>> 0 ? Y : as;
-                                bl(g3 + al | 0, an + (-Y | 0) | 0, ar | 0);
+                                bl(g3 + al | 0, an + (-Y | 0) | 0, ar | 0) | 0;
                                 al = Y - ar | 0;
                                 if ((Y | 0) != (ar | 0)) {
-                                    bl(c[bp >> 2] | 0, an + (-al | 0) | 0, al | 0);
+                                    bl(c[bp >> 2] | 0, an + (-al | 0) | 0, al | 0) | 0;
                                     c[a7 >> 2] = al;
                                     c[ba >> 2] = c[bb >> 2] | 0;
                                     break
@@ -5579,7 +5579,7 @@ function zlib(global, env, buffer) {
                 z = y
             } else {
                 x = c[m >> 2] | 0;
-                bl(x | 0, x + g | 0, g | 0);
+                bl(x | 0, x + g | 0, g | 0) | 0;
                 c[q >> 2] = (c[q >> 2] | 0) - g | 0;
                 c[j >> 2] = (c[j >> 2] | 0) - g | 0;
                 c[r >> 2] = (c[r >> 2] | 0) - g | 0;
@@ -5654,7 +5654,7 @@ function zlib(global, env, buffer) {
                     K = c[A >> 2] | 0
                 }
                 C = A | 0;
-                bl(G | 0, K | 0, H | 0);
+                bl(G | 0, K | 0, H | 0) | 0;
                 c[C >> 2] = (c[C >> 2] | 0) + H | 0;
                 C = A + 8 | 0;
                 c[C >> 2] = (c[C >> 2] | 0) + H | 0;
@@ -5789,7 +5789,7 @@ function zlib(global, env, buffer) {
                 do {
                     if ((x | 0) != 0) {
                         u = m + 12 | 0;
-                        bl(c[u >> 2] | 0, c[l + 16 >> 2] | 0, x | 0);
+                        bl(c[u >> 2] | 0, c[l + 16 >> 2] | 0, x | 0) | 0;
                         c[u >> 2] = (c[u >> 2] | 0) + x | 0;
                         u = (c[q >> 2] | 0) + 16 | 0;
                         c[u >> 2] = (c[u >> 2] | 0) + x | 0;
@@ -5834,7 +5834,7 @@ function zlib(global, env, buffer) {
             do {
                 if ((w | 0) != 0) {
                     m = q + 12 | 0;
-                    bl(c[m >> 2] | 0, c[v + 16 >> 2] | 0, w | 0);
+                    bl(c[m >> 2] | 0, c[v + 16 >> 2] | 0, w | 0) | 0;
                     c[m >> 2] = (c[m >> 2] | 0) + w | 0;
                     m = (c[x >> 2] | 0) + 16 | 0;
                     c[m >> 2] = (c[m >> 2] | 0) + w | 0;
@@ -5876,7 +5876,7 @@ function zlib(global, env, buffer) {
             do {
                 if ((s | 0) != 0) {
                     z = f + 12 | 0;
-                    bl(c[z >> 2] | 0, c[y + 16 >> 2] | 0, s | 0);
+                    bl(c[z >> 2] | 0, c[y + 16 >> 2] | 0, s | 0) | 0;
                     c[z >> 2] = (c[z >> 2] | 0) + s | 0;
                     z = (c[g >> 2] | 0) + 16 | 0;
                     c[z >> 2] = (c[z >> 2] | 0) + s | 0;
@@ -6112,7 +6112,7 @@ function zlib(global, env, buffer) {
             do {
                 if ((P | 0) != 0) {
                     I = J + 12 | 0;
-                    bl(c[I >> 2] | 0, c[B + 16 >> 2] | 0, P | 0);
+                    bl(c[I >> 2] | 0, c[B + 16 >> 2] | 0, P | 0) | 0;
                     c[I >> 2] = (c[I >> 2] | 0) + P | 0;
                     I = (c[F >> 2] | 0) + 16 | 0;
                     c[I >> 2] = (c[I >> 2] | 0) + P | 0;
@@ -6154,7 +6154,7 @@ function zlib(global, env, buffer) {
             do {
                 if ((M | 0) != 0) {
                     Q = k + 12 | 0;
-                    bl(c[Q >> 2] | 0, c[L + 16 >> 2] | 0, M | 0);
+                    bl(c[Q >> 2] | 0, c[L + 16 >> 2] | 0, M | 0) | 0;
                     c[Q >> 2] = (c[Q >> 2] | 0) + M | 0;
                     Q = (c[y >> 2] | 0) + 16 | 0;
                     c[Q >> 2] = (c[Q >> 2] | 0) + M | 0;
@@ -6635,7 +6635,7 @@ function zlib(global, env, buffer) {
                             break
                         }
                         P = G + 12 | 0;
-                        bl(c[P >> 2] | 0, c[L + 16 >> 2] | 0, S | 0);
+                        bl(c[P >> 2] | 0, c[L + 16 >> 2] | 0, S | 0) | 0;
                         c[P >> 2] = (c[P >> 2] | 0) + S | 0;
                         P = (c[K >> 2] | 0) + 16 | 0;
                         c[P >> 2] = (c[P >> 2] | 0) + S | 0;
@@ -6733,7 +6733,7 @@ function zlib(global, env, buffer) {
             do {
                 if ((W | 0) != 0) {
                     G = S + 12 | 0;
-                    bl(c[G >> 2] | 0, c[L + 16 >> 2] | 0, W | 0);
+                    bl(c[G >> 2] | 0, c[L + 16 >> 2] | 0, W | 0) | 0;
                     c[G >> 2] = (c[G >> 2] | 0) + W | 0;
                     G = (c[K >> 2] | 0) + 16 | 0;
                     c[G >> 2] = (c[G >> 2] | 0) + W | 0;
@@ -6785,7 +6785,7 @@ function zlib(global, env, buffer) {
             do {
                 if ((v | 0) != 0) {
                     X = k + 12 | 0;
-                    bl(c[X >> 2] | 0, c[y + 16 >> 2] | 0, v | 0);
+                    bl(c[X >> 2] | 0, c[y + 16 >> 2] | 0, v | 0) | 0;
                     c[X >> 2] = (c[X >> 2] | 0) + v | 0;
                     X = (c[z >> 2] | 0) + 16 | 0;
                     c[X >> 2] = (c[X >> 2] | 0) + v | 0;
@@ -11734,7 +11734,7 @@ function zlib(global, env, buffer) {
                         c[ab + (aa - 36 | 0) >> 2] = 40;
                         c[1314013] = c[1311058] | 0;
                         c[ac + 4 >> 2] = 27;
-                        bl(W | 0, 5256472, 16);
+                        bl(W | 0, 5256472, 16) | 0;
                         c[1314118] = ab;
                         c[1314119] = aa;
                         c[1314121] = 0;

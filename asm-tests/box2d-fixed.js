@@ -1018,8 +1018,8 @@ function box2d(global, env, buffer) {
         f = c[d + 4 >> 2] | 0;
         c[b >> 2] = c[d >> 2] | 0;
         c[b + 4 >> 2] = f;
-        c0(e + 20 | 0, a + 20 | 0, 64);
-        c0(e + 84 | 0, a + 84 | 0, 64);
+        c0(e + 20 | 0, a + 20 | 0, 64) | 0;
+        c0(e + 84 | 0, a + 84 | 0, 64) | 0;
         c[e + 148 >> 2] = c[a + 148 >> 2] | 0;
         return e | 0
     }
@@ -1322,7 +1322,7 @@ function box2d(global, env, buffer) {
             i = cZ(k << 3) | 0;
             c[j >> 2] = i;
             k = b;
-            c0(i | 0, k | 0, c[g >> 2] << 3 | 0);
+            c0(i | 0, k | 0, c[g >> 2] << 3 | 0) | 0;
             c1((c[j >> 2] | 0) + (c[g >> 2] << 3) | 0, 0, 1024);
             c_(k);
             l = c[g >> 2] | 0
@@ -1620,7 +1620,7 @@ function box2d(global, env, buffer) {
         c[l >> 2] = d;
         o = n + 4 | 0;
         c[o >> 2] = 0;
-        c0(n + 32 | 0, e + 22 | 0, 6);
+        c0(n + 32 | 0, e + 22 | 0, 6) | 0;
         a[n + 38 | 0] = a[e + 20 | 0] & 1;
         p = c[e >> 2] | 0;
         q = a3[c[(c[p >> 2] | 0) + 8 >> 2] & 255](p, m) | 0;
@@ -1702,7 +1702,7 @@ function box2d(global, env, buffer) {
                         G = cZ(B << 3) | 0;
                         c[z >> 2] = G;
                         E = F;
-                        c0(G | 0, E | 0, c[x >> 2] << 2 | 0);
+                        c0(G | 0, E | 0, c[x >> 2] << 2 | 0) | 0;
                         c_(E);
                         H = c[x >> 2] | 0
                     } else {
@@ -2138,7 +2138,7 @@ function box2d(global, env, buffer) {
                                             Q = cZ(O * 24 & -1) | 0;
                                             c[x >> 2] = Q;
                                             R = P;
-                                            c0(Q | 0, R | 0, (c[k >> 2] | 0) * 12 & -1 | 0);
+                                            c0(Q | 0, R | 0, (c[k >> 2] | 0) * 12 & -1 | 0) | 0;
                                             c_(R);
                                             S = c[o >> 2] | 0;
                                             T = c[k >> 2] | 0
@@ -2159,7 +2159,7 @@ function box2d(global, env, buffer) {
                                             O = cZ(I << 3) | 0;
                                             c[s >> 2] = O;
                                             N = D;
-                                            c0(O | 0, N | 0, c[t >> 2] << 2 | 0);
+                                            c0(O | 0, N | 0, c[t >> 2] << 2 | 0) | 0;
                                             if ((D | 0) == (r | 0)) {
                                                 break
                                             }
@@ -2177,7 +2177,7 @@ function box2d(global, env, buffer) {
                                             Q = cZ(N << 3) | 0;
                                             c[s >> 2] = Q;
                                             P = R;
-                                            c0(Q | 0, P | 0, c[t >> 2] << 2 | 0);
+                                            c0(Q | 0, P | 0, c[t >> 2] << 2 | 0) | 0;
                                             if ((R | 0) == (r | 0)) {
                                                 break
                                             }
@@ -2627,33 +2627,33 @@ function box2d(global, env, buffer) {
                             break
                         }
                         X = V;
-                        c0(z | 0, X | 0, 12);
-                        c0(X | 0, M | 0, 12);
-                        c0(M | 0, z | 0, 12);
+                        c0(z | 0, X | 0, 12) | 0;
+                        c0(X | 0, M | 0, 12) | 0;
+                        c0(M | 0, z | 0, 12) | 0;
                         if (!(a3[c[d >> 2] & 255](V, S) | 0)) {
                             W = T + 1 | 0;
                             break
                         }
                         V = S;
-                        c0(x | 0, V | 0, 12);
-                        c0(V | 0, X | 0, 12);
-                        c0(X | 0, x | 0, 12);
+                        c0(x | 0, V | 0, 12) | 0;
+                        c0(V | 0, X | 0, 12) | 0;
+                        c0(X | 0, x | 0, 12) | 0;
                         if (!(a3[c[d >> 2] & 255](S, U) | 0)) {
                             W = T + 2 | 0;
                             break
                         }
                         X = U;
-                        c0(w | 0, X | 0, 12);
-                        c0(X | 0, V | 0, 12);
-                        c0(V | 0, w | 0, 12);
+                        c0(w | 0, X | 0, 12) | 0;
+                        c0(X | 0, V | 0, 12) | 0;
+                        c0(V | 0, w | 0, 12) | 0;
                         if (!(a3[c[d >> 2] & 255](U, N) | 0)) {
                             W = T + 3 | 0;
                             break
                         }
                         U = N;
-                        c0(y | 0, U | 0, 12);
-                        c0(U | 0, X | 0, 12);
-                        c0(X | 0, y | 0, 12);
+                        c0(y | 0, U | 0, 12) | 0;
+                        c0(U | 0, X | 0, 12) | 0;
+                        c0(X | 0, y | 0, 12) | 0;
                         W = T + 4 | 0
                     } else {
                         T = a3[c[d >> 2] & 255](S, N) | 0;
@@ -2664,39 +2664,39 @@ function box2d(global, env, buffer) {
                                 break
                             }
                             T = S;
-                            c0(J | 0, T | 0, 12);
-                            c0(T | 0, M | 0, 12);
-                            c0(M | 0, J | 0, 12);
+                            c0(J | 0, T | 0, 12) | 0;
+                            c0(T | 0, M | 0, 12) | 0;
+                            c0(M | 0, J | 0, 12) | 0;
                             if (!(a3[c[d >> 2] & 255](S, N) | 0)) {
                                 W = 1;
                                 break
                             }
                             U = N;
-                            c0(H | 0, U | 0, 12);
-                            c0(U | 0, T | 0, 12);
-                            c0(T | 0, H | 0, 12);
+                            c0(H | 0, U | 0, 12) | 0;
+                            c0(U | 0, T | 0, 12) | 0;
+                            c0(T | 0, H | 0, 12) | 0;
                             W = 2;
                             break
                         }
                         T = N;
                         if (X) {
-                            c0(F | 0, T | 0, 12);
-                            c0(T | 0, M | 0, 12);
-                            c0(M | 0, F | 0, 12);
+                            c0(F | 0, T | 0, 12) | 0;
+                            c0(T | 0, M | 0, 12) | 0;
+                            c0(M | 0, F | 0, 12) | 0;
                             W = 1;
                             break
                         }
-                        c0(G | 0, T | 0, 12);
+                        c0(G | 0, T | 0, 12) | 0;
                         X = S;
-                        c0(T | 0, X | 0, 12);
-                        c0(X | 0, G | 0, 12);
+                        c0(T | 0, X | 0, 12) | 0;
+                        c0(X | 0, G | 0, 12) | 0;
                         if (!(a3[c[d >> 2] & 255](L, S) | 0)) {
                             W = 1;
                             break
                         }
-                        c0(I | 0, X | 0, 12);
-                        c0(X | 0, M | 0, 12);
-                        c0(M | 0, I | 0, 12);
+                        c0(I | 0, X | 0, 12) | 0;
+                        c0(X | 0, M | 0, 12) | 0;
+                        c0(M | 0, I | 0, 12) | 0;
                         W = 2
                     }
                 } while (0);
@@ -2721,10 +2721,10 @@ function box2d(global, env, buffer) {
                         if ((R | 0) == 421) {
                             R = 0;
                             Q = N;
-                            c0(E | 0, Q | 0, 12);
+                            c0(E | 0, Q | 0, 12) | 0;
                             P = _;
-                            c0(Q | 0, P | 0, 12);
-                            c0(P | 0, E | 0, 12);
+                            c0(Q | 0, P | 0, 12) | 0;
+                            c0(P | 0, E | 0, 12) | 0;
                             Y = _;
                             Z = W + 1 | 0;
                             break
@@ -2747,9 +2747,9 @@ function box2d(global, env, buffer) {
                                 }
                             }
                             P = Q;
-                            c0(D | 0, P | 0, 12);
-                            c0(P | 0, M | 0, 12);
-                            c0(M | 0, D | 0, 12);
+                            c0(D | 0, P | 0, 12) | 0;
+                            c0(P | 0, M | 0, 12) | 0;
+                            c0(M | 0, D | 0, 12) | 0;
                             $ = aa
                         }
                         if (($ | 0) == (L | 0)) {
@@ -2783,10 +2783,10 @@ function box2d(global, env, buffer) {
                                 continue L466
                             }
                             X = P;
-                            c0(C | 0, X | 0, 12);
+                            c0(C | 0, X | 0, 12) | 0;
                             T = af;
-                            c0(X | 0, T | 0, 12);
-                            c0(T | 0, C | 0, 12);
+                            c0(X | 0, T | 0, 12) | 0;
+                            c0(T | 0, C | 0, 12) | 0;
                             ab = af;
                             ac = ad
                         }
@@ -2825,10 +2825,10 @@ function box2d(global, env, buffer) {
                                 break L509
                             }
                             P = ag;
-                            c0(B | 0, P | 0, 12);
+                            c0(B | 0, P | 0, 12) | 0;
                             an = aj;
-                            c0(P | 0, an | 0, 12);
-                            c0(an | 0, B | 0, 12);
+                            c0(P | 0, an | 0, 12) | 0;
+                            c0(an | 0, B | 0, 12) | 0;
                             T = aj;
                             X = ah;
                             U = U + 1 | 0;
@@ -2849,10 +2849,10 @@ function box2d(global, env, buffer) {
                             break
                         }
                         S = ak;
-                        c0(A | 0, S | 0, 12);
+                        c0(A | 0, S | 0, 12) | 0;
                         Q = am;
-                        c0(S | 0, Q | 0, 12);
-                        c0(Q | 0, A | 0, 12);
+                        c0(S | 0, Q | 0, 12) | 0;
+                        c0(Q | 0, A | 0, 12) | 0;
                         ao = al + 1 | 0
                     }
                 } while (0);
@@ -2901,13 +2901,13 @@ function box2d(global, env, buffer) {
             }
             ak = v;
             v = N;
-            c0(ak | 0, v | 0, 12);
-            c0(v | 0, M | 0, 12);
-            c0(M | 0, ak | 0, 12);
+            c0(ak | 0, v | 0, 12) | 0;
+            c0(v | 0, M | 0, 12) | 0;
+            c0(M | 0, ak | 0, 12) | 0;
             i = e;
             return
         } else if ((R | 0) == 372) {
-            bK(N, N + 12 | 0, N + 24 | 0, L, d);
+            bK(N, N + 12 | 0, N + 24 | 0, L, d) | 0;
             i = e;
             return
         } else if ((R | 0) == 379) {
@@ -2925,39 +2925,39 @@ function box2d(global, env, buffer) {
                 if (k) {
                     al = N;
                     if (ao) {
-                        c0(ap | 0, al | 0, 12);
+                        c0(ap | 0, al | 0, 12) | 0;
                         A = v;
-                        c0(al | 0, A | 0, 12);
-                        c0(A | 0, ap | 0, 12);
+                        c0(al | 0, A | 0, 12) | 0;
+                        c0(A | 0, ap | 0, 12) | 0;
                         break
                     }
-                    c0(f | 0, al | 0, 12);
+                    c0(f | 0, al | 0, 12) | 0;
                     A = K;
-                    c0(al | 0, A | 0, 12);
-                    c0(A | 0, f | 0, 12);
+                    c0(al | 0, A | 0, 12) | 0;
+                    c0(A | 0, f | 0, 12) | 0;
                     if (!(a3[c[d >> 2] & 255](v, K) | 0)) {
                         break
                     }
-                    c0(h | 0, A | 0, 12);
+                    c0(h | 0, A | 0, 12) | 0;
                     al = v;
-                    c0(A | 0, al | 0, 12);
-                    c0(al | 0, h | 0, 12)
+                    c0(A | 0, al | 0, 12) | 0;
+                    c0(al | 0, h | 0, 12) | 0;
                 } else {
                     if (!ao) {
                         break
                     }
                     al = K;
-                    c0(j | 0, al | 0, 12);
+                    c0(j | 0, al | 0, 12) | 0;
                     A = v;
-                    c0(al | 0, A | 0, 12);
-                    c0(A | 0, j | 0, 12);
+                    c0(al | 0, A | 0, 12) | 0;
+                    c0(A | 0, j | 0, 12) | 0;
                     if (!(a3[c[d >> 2] & 255](K, N) | 0)) {
                         break
                     }
                     A = N;
-                    c0(g | 0, A | 0, 12);
-                    c0(A | 0, al | 0, 12);
-                    c0(al | 0, g | 0, 12)
+                    c0(g | 0, A | 0, 12) | 0;
+                    c0(A | 0, al | 0, 12) | 0;
+                    c0(al | 0, g | 0, 12) | 0;
                 }
             } while (0);
             g = N + 36 | 0;
@@ -2970,12 +2970,12 @@ function box2d(global, env, buffer) {
             }
             while (1) {
                 if (a3[c[d >> 2] & 255](ar, aq) | 0) {
-                    c0(ak | 0, ar | 0, 12);
+                    c0(ak | 0, ar | 0, 12) | 0;
                     g = aq;
                     v = ar;
                     while (1) {
                         as = g;
-                        c0(v | 0, as | 0, 12);
+                        c0(v | 0, as | 0, 12) | 0;
                         if ((g | 0) == (N | 0)) {
                             break
                         }
@@ -2987,7 +2987,7 @@ function box2d(global, env, buffer) {
                             break
                         }
                     }
-                    c0(as | 0, ak | 0, 12)
+                    c0(as | 0, ak | 0, 12) | 0;
                 }
                 g = ar + 12 | 0;
                 if ((g | 0) == (a | 0)) {
@@ -3014,39 +3014,39 @@ function box2d(global, env, buffer) {
                     return
                 }
                 u = ar;
-                c0(t | 0, u | 0, 12);
-                c0(u | 0, M | 0, 12);
-                c0(M | 0, t | 0, 12);
+                c0(t | 0, u | 0, 12) | 0;
+                c0(u | 0, M | 0, 12) | 0;
+                c0(M | 0, t | 0, 12) | 0;
                 if (!(a3[c[d >> 2] & 255](ar, N) | 0)) {
                     i = e;
                     return
                 }
                 t = N;
-                c0(r | 0, t | 0, 12);
-                c0(t | 0, u | 0, 12);
-                c0(u | 0, r | 0, 12);
+                c0(r | 0, t | 0, 12) | 0;
+                c0(t | 0, u | 0, 12) | 0;
+                c0(u | 0, r | 0, 12) | 0;
                 i = e;
                 return
             }
             r = N;
             if (a) {
-                c0(aq | 0, r | 0, 12);
-                c0(r | 0, M | 0, 12);
-                c0(M | 0, aq | 0, 12);
+                c0(aq | 0, r | 0, 12) | 0;
+                c0(r | 0, M | 0, 12) | 0;
+                c0(M | 0, aq | 0, 12) | 0;
                 i = e;
                 return
             }
-            c0(q | 0, r | 0, 12);
+            c0(q | 0, r | 0, 12) | 0;
             aq = ar;
-            c0(r | 0, aq | 0, 12);
-            c0(aq | 0, q | 0, 12);
+            c0(r | 0, aq | 0, 12) | 0;
+            c0(aq | 0, q | 0, 12) | 0;
             if (!(a3[c[d >> 2] & 255](L, ar) | 0)) {
                 i = e;
                 return
             }
-            c0(s | 0, aq | 0, 12);
-            c0(aq | 0, M | 0, 12);
-            c0(M | 0, s | 0, 12);
+            c0(s | 0, aq | 0, 12) | 0;
+            c0(aq | 0, M | 0, 12) | 0;
+            c0(M | 0, s | 0, 12) | 0;
             i = e;
             return
         } else if ((R | 0) == 373) {
@@ -3057,39 +3057,39 @@ function box2d(global, env, buffer) {
             m = n;
             n = o;
             o = p;
-            bK(N, s, aq, ar, d);
+            bK(N, s, aq, ar, d) | 0;
             if (!(a3[c[d >> 2] & 255](L, ar) | 0)) {
                 i = e;
                 return
             }
             L = ar;
-            c0(o | 0, L | 0, 12);
-            c0(L | 0, M | 0, 12);
-            c0(M | 0, o | 0, 12);
+            c0(o | 0, L | 0, 12) | 0;
+            c0(L | 0, M | 0, 12) | 0;
+            c0(M | 0, o | 0, 12) | 0;
             if (!(a3[c[d >> 2] & 255](ar, aq) | 0)) {
                 i = e;
                 return
             }
             ar = aq;
-            c0(m | 0, ar | 0, 12);
-            c0(ar | 0, L | 0, 12);
-            c0(L | 0, m | 0, 12);
+            c0(m | 0, ar | 0, 12) | 0;
+            c0(ar | 0, L | 0, 12) | 0;
+            c0(L | 0, m | 0, 12) | 0;
             if (!(a3[c[d >> 2] & 255](aq, s) | 0)) {
                 i = e;
                 return
             }
             aq = s;
-            c0(q | 0, aq | 0, 12);
-            c0(aq | 0, ar | 0, 12);
-            c0(ar | 0, q | 0, 12);
+            c0(q | 0, aq | 0, 12) | 0;
+            c0(aq | 0, ar | 0, 12) | 0;
+            c0(ar | 0, q | 0, 12) | 0;
             if (!(a3[c[d >> 2] & 255](s, N) | 0)) {
                 i = e;
                 return
             }
             s = N;
-            c0(n | 0, s | 0, 12);
-            c0(s | 0, aq | 0, 12);
-            c0(aq | 0, n | 0, 12);
+            c0(n | 0, s | 0, 12) | 0;
+            c0(s | 0, aq | 0, 12) | 0;
+            c0(aq | 0, n | 0, 12) | 0;
             i = e;
             return
         } else if ((R | 0) == 441) {
@@ -3143,25 +3143,25 @@ function box2d(global, env, buffer) {
             if (q) {
                 s = a;
                 if (r) {
-                    c0(l | 0, s | 0, 12);
+                    c0(l | 0, s | 0, 12) | 0;
                     t = d;
-                    c0(s | 0, t | 0, 12);
-                    c0(t | 0, l | 0, 12);
+                    c0(s | 0, t | 0, 12) | 0;
+                    c0(t | 0, l | 0, 12) | 0;
                     u = 1;
                     break
                 }
-                c0(m | 0, s | 0, 12);
+                c0(m | 0, s | 0, 12) | 0;
                 t = b;
-                c0(s | 0, t | 0, 12);
-                c0(t | 0, m | 0, 12);
+                c0(s | 0, t | 0, 12) | 0;
+                c0(t | 0, m | 0, 12) | 0;
                 if (!(a3[c[f >> 2] & 255](d, b) | 0)) {
                     u = 1;
                     break
                 }
-                c0(o | 0, t | 0, 12);
+                c0(o | 0, t | 0, 12) | 0;
                 s = d;
-                c0(t | 0, s | 0, 12);
-                c0(s | 0, o | 0, 12);
+                c0(t | 0, s | 0, 12) | 0;
+                c0(s | 0, o | 0, 12) | 0;
                 u = 2
             } else {
                 if (!r) {
@@ -3169,18 +3169,18 @@ function box2d(global, env, buffer) {
                     break
                 }
                 s = b;
-                c0(p | 0, s | 0, 12);
+                c0(p | 0, s | 0, 12) | 0;
                 t = d;
-                c0(s | 0, t | 0, 12);
-                c0(t | 0, p | 0, 12);
+                c0(s | 0, t | 0, 12) | 0;
+                c0(t | 0, p | 0, 12) | 0;
                 if (!(a3[c[f >> 2] & 255](b, a) | 0)) {
                     u = 1;
                     break
                 }
                 t = a;
-                c0(n | 0, t | 0, 12);
-                c0(t | 0, s | 0, 12);
-                c0(s | 0, n | 0, 12);
+                c0(n | 0, t | 0, 12) | 0;
+                c0(t | 0, s | 0, 12) | 0;
+                c0(s | 0, n | 0, 12) | 0;
                 u = 2
             }
         } while (0);
@@ -3191,10 +3191,10 @@ function box2d(global, env, buffer) {
         }
         n = k;
         k = d;
-        c0(n | 0, k | 0, 12);
+        c0(n | 0, k | 0, 12) | 0;
         p = e;
-        c0(k | 0, p | 0, 12);
-        c0(p | 0, n | 0, 12);
+        c0(k | 0, p | 0, 12) | 0;
+        c0(p | 0, n | 0, 12) | 0;
         if (!(a3[c[f >> 2] & 255](d, b) | 0)) {
             v = u + 1 | 0;
             i = g;
@@ -3202,9 +3202,9 @@ function box2d(global, env, buffer) {
         }
         d = h;
         h = b;
-        c0(d | 0, h | 0, 12);
-        c0(h | 0, k | 0, 12);
-        c0(k | 0, d | 0, 12);
+        c0(d | 0, h | 0, 12) | 0;
+        c0(h | 0, k | 0, 12) | 0;
+        c0(k | 0, d | 0, 12) | 0;
         if (!(a3[c[f >> 2] & 255](b, a) | 0)) {
             v = u + 2 | 0;
             i = g;
@@ -3212,9 +3212,9 @@ function box2d(global, env, buffer) {
         }
         b = j;
         j = a;
-        c0(b | 0, j | 0, 12);
-        c0(j | 0, h | 0, 12);
-        c0(h | 0, b | 0, 12);
+        c0(b | 0, j | 0, 12) | 0;
+        c0(j | 0, h | 0, 12) | 0;
+        c0(h | 0, b | 0, 12) | 0;
         v = u + 3 | 0;
         i = g;
         return v | 0
@@ -3299,10 +3299,10 @@ function box2d(global, env, buffer) {
             }
             z = u;
             u = a;
-            c0(z | 0, u | 0, 12);
+            c0(z | 0, u | 0, 12) | 0;
             A = x;
-            c0(u | 0, A | 0, 12);
-            c0(A | 0, z | 0, 12);
+            c0(u | 0, A | 0, 12) | 0;
+            c0(A | 0, z | 0, 12) | 0;
             y = 1;
             i = e;
             return y | 0
@@ -3323,46 +3323,46 @@ function box2d(global, env, buffer) {
                     return y | 0
                 }
                 t = z;
-                c0(s | 0, t | 0, 12);
+                c0(s | 0, t | 0, 12) | 0;
                 B = A;
-                c0(t | 0, B | 0, 12);
-                c0(B | 0, s | 0, 12);
+                c0(t | 0, B | 0, 12) | 0;
+                c0(B | 0, s | 0, 12) | 0;
                 if (!(a3[c[d >> 2] & 255](z, a) | 0)) {
                     y = 1;
                     i = e;
                     return y | 0
                 }
                 s = a;
-                c0(q | 0, s | 0, 12);
-                c0(s | 0, t | 0, 12);
-                c0(t | 0, q | 0, 12);
+                c0(q | 0, s | 0, 12) | 0;
+                c0(s | 0, t | 0, 12) | 0;
+                c0(t | 0, q | 0, 12) | 0;
                 y = 1;
                 i = e;
                 return y | 0
             }
             q = a;
             if (x) {
-                c0(u | 0, q | 0, 12);
+                c0(u | 0, q | 0, 12) | 0;
                 x = A;
-                c0(q | 0, x | 0, 12);
-                c0(x | 0, u | 0, 12);
+                c0(q | 0, x | 0, 12) | 0;
+                c0(x | 0, u | 0, 12) | 0;
                 y = 1;
                 i = e;
                 return y | 0
             }
-            c0(p | 0, q | 0, 12);
+            c0(p | 0, q | 0, 12) | 0;
             u = z;
-            c0(q | 0, u | 0, 12);
-            c0(u | 0, p | 0, 12);
+            c0(q | 0, u | 0, 12) | 0;
+            c0(u | 0, p | 0, 12) | 0;
             if (!(a3[c[d >> 2] & 255](A, z) | 0)) {
                 y = 1;
                 i = e;
                 return y | 0
             }
-            c0(r | 0, u | 0, 12);
+            c0(r | 0, u | 0, 12) | 0;
             z = A;
-            c0(u | 0, z | 0, 12);
-            c0(z | 0, r | 0, 12);
+            c0(u | 0, z | 0, 12) | 0;
+            c0(z | 0, r | 0, 12) | 0;
             y = 1;
             i = e;
             return y | 0
@@ -3375,49 +3375,49 @@ function box2d(global, env, buffer) {
             l = m;
             m = n;
             n = o;
-            bK(a, r, z, u, d);
+            bK(a, r, z, u, d) | 0;
             if (!(a3[c[d >> 2] & 255](A, u) | 0)) {
                 y = 1;
                 i = e;
                 return y | 0
             }
             o = u;
-            c0(n | 0, o | 0, 12);
+            c0(n | 0, o | 0, 12) | 0;
             q = A;
-            c0(o | 0, q | 0, 12);
-            c0(q | 0, n | 0, 12);
+            c0(o | 0, q | 0, 12) | 0;
+            c0(q | 0, n | 0, 12) | 0;
             if (!(a3[c[d >> 2] & 255](u, z) | 0)) {
                 y = 1;
                 i = e;
                 return y | 0
             }
             u = z;
-            c0(l | 0, u | 0, 12);
-            c0(u | 0, o | 0, 12);
-            c0(o | 0, l | 0, 12);
+            c0(l | 0, u | 0, 12) | 0;
+            c0(u | 0, o | 0, 12) | 0;
+            c0(o | 0, l | 0, 12) | 0;
             if (!(a3[c[d >> 2] & 255](z, r) | 0)) {
                 y = 1;
                 i = e;
                 return y | 0
             }
             z = r;
-            c0(p | 0, z | 0, 12);
-            c0(z | 0, u | 0, 12);
-            c0(u | 0, p | 0, 12);
+            c0(p | 0, z | 0, 12) | 0;
+            c0(z | 0, u | 0, 12) | 0;
+            c0(u | 0, p | 0, 12) | 0;
             if (!(a3[c[d >> 2] & 255](r, a) | 0)) {
                 y = 1;
                 i = e;
                 return y | 0
             }
             r = a;
-            c0(m | 0, r | 0, 12);
-            c0(r | 0, z | 0, 12);
-            c0(z | 0, m | 0, 12);
+            c0(m | 0, r | 0, 12) | 0;
+            c0(r | 0, z | 0, 12) | 0;
+            c0(z | 0, m | 0, 12) | 0;
             y = 1;
             i = e;
             return y | 0
         } else if ((w | 0) == 4) {
-            bK(a, a + 12 | 0, a + 24 | 0, b - 12 | 0, d);
+            bK(a, a + 12 | 0, a + 24 | 0, b - 12 | 0, d) | 0;
             y = 1;
             i = e;
             return y | 0
@@ -3439,39 +3439,39 @@ function box2d(global, env, buffer) {
                 if (k) {
                     p = a;
                     if (r) {
-                        c0(z | 0, p | 0, 12);
+                        c0(z | 0, p | 0, 12) | 0;
                         u = w;
-                        c0(p | 0, u | 0, 12);
-                        c0(u | 0, z | 0, 12);
+                        c0(p | 0, u | 0, 12) | 0;
+                        c0(u | 0, z | 0, 12) | 0;
                         break
                     }
-                    c0(f | 0, p | 0, 12);
+                    c0(f | 0, p | 0, 12) | 0;
                     u = m;
-                    c0(p | 0, u | 0, 12);
-                    c0(u | 0, f | 0, 12);
+                    c0(p | 0, u | 0, 12) | 0;
+                    c0(u | 0, f | 0, 12) | 0;
                     if (!(a3[c[d >> 2] & 255](w, m) | 0)) {
                         break
                     }
-                    c0(h | 0, u | 0, 12);
+                    c0(h | 0, u | 0, 12) | 0;
                     p = w;
-                    c0(u | 0, p | 0, 12);
-                    c0(p | 0, h | 0, 12)
+                    c0(u | 0, p | 0, 12) | 0;
+                    c0(p | 0, h | 0, 12) | 0;
                 } else {
                     if (!r) {
                         break
                     }
                     p = m;
-                    c0(j | 0, p | 0, 12);
+                    c0(j | 0, p | 0, 12) | 0;
                     u = w;
-                    c0(p | 0, u | 0, 12);
-                    c0(u | 0, j | 0, 12);
+                    c0(p | 0, u | 0, 12) | 0;
+                    c0(u | 0, j | 0, 12) | 0;
                     if (!(a3[c[d >> 2] & 255](m, a) | 0)) {
                         break
                     }
                     u = a;
-                    c0(g | 0, u | 0, 12);
-                    c0(u | 0, p | 0, 12);
-                    c0(p | 0, g | 0, 12)
+                    c0(g | 0, u | 0, 12) | 0;
+                    c0(u | 0, p | 0, 12) | 0;
+                    c0(p | 0, g | 0, 12) | 0;
                 }
             } while (0);
             g = a + 36 | 0;
@@ -3486,12 +3486,12 @@ function box2d(global, env, buffer) {
             r = g;
             while (1) {
                 if (a3[c[d >> 2] & 255](r, j) | 0) {
-                    c0(m | 0, r | 0, 12);
+                    c0(m | 0, r | 0, 12) | 0;
                     g = j;
                     h = r;
                     while (1) {
                         C = g;
-                        c0(h | 0, C | 0, 12);
+                        c0(h | 0, C | 0, 12) | 0;
                         if ((g | 0) == (a | 0)) {
                             break
                         }
@@ -3503,7 +3503,7 @@ function box2d(global, env, buffer) {
                             break
                         }
                     }
-                    c0(C | 0, m | 0, 12);
+                    c0(C | 0, m | 0, 12) | 0;
                     g = w + 1 | 0;
                     if ((g | 0) == 8) {
                         break
@@ -3835,7 +3835,7 @@ function box2d(global, env, buffer) {
                     J = cZ(I << 3) | 0;
                     c[C >> 2] = J;
                     V = S;
-                    c0(J | 0, V | 0, c[A >> 2] << 2 | 0);
+                    c0(J | 0, V | 0, c[A >> 2] << 2 | 0) | 0;
                     c_(V);
                     ag = c[A >> 2] | 0
                 } else {
@@ -4907,7 +4907,7 @@ function box2d(global, env, buffer) {
                                 c[av >> 2] = 3;
                                 c[aw >> 2] = 3;
                                 a[ax] = M;
-                                c0(ay | 0, az | 0, 3);
+                                c0(ay | 0, az | 0, 3) | 0;
                                 bf = c[aq >> 2] | 0;
                                 c[aA >> 2] = bf;
                                 bk = c[ar >> 2] | 0;
@@ -4918,7 +4918,7 @@ function box2d(global, env, buffer) {
                                 c[aF >> 2] = 3;
                                 c[aG >> 2] = 3;
                                 a[aH] = M;
-                                c0(aI | 0, az | 0, 3);
+                                c0(aI | 0, az | 0, 3) | 0;
                                 c[aJ >> 2] = c[af >> 2] | 0;
                                 c[aK >> 2] = c[aa >> 2] | 0;
                                 c[aL >> 2] = bf;
@@ -5892,8 +5892,8 @@ function box2d(global, env, buffer) {
                                     g[G >> 2] = 0.0;
                                     bW(M, c[dc + 12 >> 2] | 0, di);
                                     bW(bi, c[dd + 12 >> 2] | 0, df);
-                                    c0(br | 0, dh | 0, 36);
-                                    c0(bs | 0, dg | 0, 36);
+                                    c0(br | 0, dh | 0, 36) | 0;
+                                    c0(bs | 0, dg | 0, 36) | 0;
                                     g[bq >> 2] = 1.0;
                                     c[1310730] = (c[1310730] | 0) + 1 | 0;
                                     cz = +g[X >> 2];
@@ -5927,8 +5927,8 @@ function box2d(global, env, buffer) {
                                         break L1087
                                     }
                                     b[a6 >> 1] = 0;
-                                    c0(ac | 0, J | 0, 28);
-                                    c0(a5 | 0, a4 | 0, 28);
+                                    c0(ac | 0, J | 0, 28) | 0;
+                                    c0(a5 | 0, a4 | 0, 28) | 0;
                                     a[a2] = 0;
                                     b8 = b6 + .0012499999720603228;
                                     b4 = b6 + -.0012499999720603228;
@@ -6628,9 +6628,9 @@ function box2d(global, env, buffer) {
                     c4 = c[(c[da + 48 >> 2] | 0) + 8 >> 2] | 0;
                     c9 = c[(c[da + 52 >> 2] | 0) + 8 >> 2] | 0;
                     dg = c4 + 28 | 0;
-                    c0(I | 0, dg | 0, 36);
+                    c0(I | 0, dg | 0, 36) | 0;
                     dh = c9 + 28 | 0;
-                    c0(W | 0, dh | 0, 36);
+                    c0(W | 0, dh | 0, 36) | 0;
                     dd = c4 + 60 | 0;
                     T = +g[dd >> 2];
                     if (T >= 1.0) {
@@ -6725,8 +6725,8 @@ function box2d(global, env, buffer) {
                     c[ek >> 2] = (c[ek >> 2] | 0) + 1 | 0;
                     if ((ei & 6 | 0) != 6) {
                         c[ej >> 2] = ei & -37;
-                        c0(dg | 0, I | 0, 36);
-                        c0(dh | 0, W | 0, 36);
+                        c0(dg | 0, I | 0, 36) | 0;
+                        c0(dh | 0, W | 0, 36) | 0;
                         b8 = +g[dk >> 2];
                         cw = +S(+b8);
                         g[dc >> 2] = cw;
@@ -6845,7 +6845,7 @@ function box2d(global, env, buffer) {
                                                 break
                                             }
                                             dM = dm + 28 | 0;
-                                            c0(cN | 0, dM | 0, 36);
+                                            c0(cN | 0, dM | 0, 36) | 0;
                                             ds = dm + 4 | 0;
                                             if ((b[ds >> 1] & 1) << 16 >> 16 == 0) {
                                                 dd = dm + 60 | 0;
@@ -6889,7 +6889,7 @@ function box2d(global, env, buffer) {
                                             b5(eg, c[_ >> 2] | 0);
                                             dd = c[dN >> 2] | 0;
                                             if ((dd & 4 | 0) == 0) {
-                                                c0(dM | 0, cN | 0, 36);
+                                                c0(dM | 0, cN | 0, 36) | 0;
                                                 cu = +g[dm + 56 >> 2];
                                                 b4 = +S(+cu);
                                                 g[dm + 20 >> 2] = b4;
@@ -6907,7 +6907,7 @@ function box2d(global, env, buffer) {
                                                 break
                                             }
                                             if ((dd & 2 | 0) == 0) {
-                                                c0(dM | 0, cN | 0, 36);
+                                                c0(dM | 0, cN | 0, 36) | 0;
                                                 b6 = +g[dm + 56 >> 2];
                                                 b8 = +S(+b6);
                                                 g[dm + 20 >> 2] = b8;
@@ -7035,7 +7035,7 @@ function box2d(global, env, buffer) {
                     c[bJ >> 2] = 3;
                     c[ci >> 2] = 20;
                     a[bf] = 0;
-                    c0(ch | 0, cO | 0, 3);
+                    c0(ch | 0, cO | 0, 3) | 0;
                     c[bh >> 2] = em;
                     c[be >> 2] = en;
                     cI(o, n);
@@ -7977,7 +7977,7 @@ function box2d(global, env, buffer) {
                     } else {
                         g[K >> 2] = 1.0;
                         c[z >> 2] = 1;
-                        c0(U | 0, V | 0, 36);
+                        c0(U | 0, V | 0, 36) | 0;
                         J = 1209;
                         break
                     }
@@ -8029,14 +8029,14 @@ function box2d(global, env, buffer) {
                         if (!(ah > 0.0 | ap < -0.0)) {
                             g[K >> 2] = 1.0;
                             c[z >> 2] = 1;
-                            c0(U | 0, V | 0, 36);
+                            c0(U | 0, V | 0, 36) | 0;
                             J = 1209;
                             break
                         }
                         if (!(al > 0.0 | aq > 0.0)) {
                             g[X >> 2] = 1.0;
                             c[z >> 2] = 1;
-                            c0(U | 0, Y | 0, 36);
+                            c0(U | 0, Y | 0, 36) | 0;
                             J = 1209;
                             break
                         }
@@ -8048,13 +8048,13 @@ function box2d(global, env, buffer) {
                         g[K >> 2] = aq * ah;
                         g[X >> 2] = ah * ao;
                         c[z >> 2] = 2;
-                        c0(U | 0, Y | 0, 36)
+                        c0(U | 0, Y | 0, 36) | 0;
                     } else {
                         ao = 1.0 / (al - ak);
                         g[I >> 2] = al * ao;
                         g[X >> 2] = ao * am;
                         c[z >> 2] = 2;
-                        c0(V | 0, Y | 0, 36)
+                        c0(V | 0, Y | 0, 36) | 0;
                     }
                     ad = +g[D >> 2];
                     ae = +g[S >> 2];
@@ -8471,7 +8471,7 @@ function box2d(global, env, buffer) {
             j = cZ(f * 72 & -1) | 0;
             c[h >> 2] = j;
             f = i;
-            c0(j | 0, f | 0, (c[e >> 2] | 0) * 36 & -1 | 0);
+            c0(j | 0, f | 0, (c[e >> 2] | 0) * 36 & -1 | 0) | 0;
             c_(f);
             f = c[e >> 2] | 0;
             j = (c[g >> 2] | 0) - 1 | 0;
@@ -9283,7 +9283,7 @@ function box2d(global, env, buffer) {
         k = f + 104 | 0;
         l = f + 128 | 0;
         m = d + 64 | 0;
-        c0(l | 0, m | 0, 64);
+        c0(l | 0, m | 0, 64) | 0;
         n = d + 4 | 0;
         o = c[n >> 2] | 0;
         c[n >> 2] = o | 4;
@@ -9309,8 +9309,8 @@ function box2d(global, env, buffer) {
                 g[h + 52 >> 2] = 0.0;
                 bW(h | 0, w, y);
                 bW(h + 28 | 0, x, z);
-                c0(h + 56 | 0, u | 0, 16);
-                c0(h + 72 | 0, v | 0, 16);
+                c0(h + 56 | 0, u | 0, 16) | 0;
+                c0(h + 72 | 0, v | 0, 16) | 0;
                 a[h + 88 | 0] = 1;
                 b[j + 4 >> 1] = 0;
                 bX(k, j, h);
@@ -10195,13 +10195,13 @@ function box2d(global, env, buffer) {
         if (_ > 0.0) {
             ac = 0
         } else {
-            c0(s | 0, r | 0, 12);
+            c0(s | 0, r | 0, 12) | 0;
             ac = 1
         }
         if (L > 0.0) {
             ad = ac
         } else {
-            c0(n + (ac * 12 & -1) | 0, ab | 0, 12);
+            c0(n + (ac * 12 & -1) | 0, ab | 0, 12) | 0;
             ad = ac + 1 | 0
         }
         if (_ * L < 0.0) {
@@ -11794,13 +11794,13 @@ function box2d(global, env, buffer) {
         if (as > 0.0) {
             aZ = 0
         } else {
-            c0(n | 0, m | 0, 12);
+            c0(n | 0, m | 0, 12) | 0;
             aZ = 1
         }
         if (Z > 0.0) {
             a_ = aZ
         } else {
-            c0(n + (aZ * 12 & -1) | 0, aY | 0, 12);
+            c0(n + (aZ * 12 & -1) | 0, aY | 0, 12) | 0;
             a_ = aZ + 1 | 0
         }
         if (as * Z < 0.0) {
@@ -12455,7 +12455,7 @@ function box2d(global, env, buffer) {
             x = 0,
             y = 0,
             z = 0;
-        c0(b | 0, d | 0, 24);
+        c0(b | 0, d | 0, 24) | 0;
         e = c[d + 40 >> 2] | 0;
         f = b + 32 | 0;
         c[f >> 2] = e;
@@ -15619,7 +15619,7 @@ function box2d(global, env, buffer) {
                         c[ab + (aa - 36 | 0) >> 2] = 40;
                         c[1311543] = c[1310724] | 0;
                         c[ac + 4 >> 2] = 27;
-                        c0(W | 0, 5246592, 16);
+                        c0(W | 0, 5246592, 16) | 0;
                         c[1311648] = ab;
                         c[1311649] = aa;
                         c[1311651] = 0;

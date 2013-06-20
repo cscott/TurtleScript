@@ -234,14 +234,6 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
     // Note that a value of ForwardReference type should always be actually
     // of type `Arrow` (local function) or `Table` (global function table).
     Types.ForwardReference = Type.derive("ForwardReference");
-    // We can't tell if a function/function table is *really void* until
-    // we've either seen the definition or verified that *none* of the use
-    // sites use the value returned.  See discussion in mozilla
-    // [bug 854061](https://bugzilla.mozilla.org/show_bug.cgi?id=854061).
-    // So we introduce a new `MaybeVoid` type, similar to `ForwardReference`.
-    // Functions which return `MaybeVoid` can later be refined so that they
-    // return `intish` or `doublish`.
-    Types.MaybeVoid = Type.derive("MaybeVoid");
 
     // Quick self-test for the type system.  Ensure that identical types
     // created at two different times still compare ===.
@@ -1805,7 +1797,6 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
         // more discussion of the single-forward-pass strategy.
         var mergeTypes = function(prevType, newType, pos) {
             if (prevType===Types.ForwardReference ||
-                prevType===Types.MaybeVoid ||
                 newType.isSubtypeOf(prevType)) {
                 return newType;
             }
@@ -1813,12 +1804,6 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                 prevType.size === newType.size) {
                 return Types.Table(mergeTypes(prevType.base, newType.base, pos),
                                    newType.size);
-            }
-            if (prevType.arrow && newType.arrow &&
-                (!prevType.table) && (!newType.table) &&
-                prevType.retType === Types.MaybeVoid) {
-                return mergeTypes(Types.Arrow(prevType, newType.retType),
-                                  newType, pos);
             }
             raise(pos || tokStart,
                   "Inconsistent type (was " + prevType.toString() +
@@ -1831,7 +1816,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                 return Types.Intish;
             } else if (type === Types.Double) {
                 return Types.Doublish;
-            } else if (type === Types.Void || type === Types.MaybeVoid) {
+            } else if (type === Types.Void) {
                 return Types.Void;
             } else {
                 raise(pos || tokStart,
@@ -2130,7 +2115,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                     var retType =
                         validPlusCoercion ? Types.Doublish :
                         validIntCoercion ? Types.Intish :
-                        validVoidContext ? Types.MaybeVoid :
+                        validVoidContext ? Types.Void :
                         raise(startPos, "non-expression-statement call must be coerced");
                     if (!parameterCoerce) {
                         parameterCoerce = function(ty) { return ty; };
@@ -2155,9 +2140,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                         raise(startPos,
                               "function table size must be a power of 2");
                     }
-                    if (base.base.type === Types.ForwardReference ||
-                        (base.base.type.table &&
-                         base.base.type.base.retType === Types.MaybeVoid)) {
+                    if (base.base.type === Types.ForwardReference) {
                         ty = Types.Table(makeFunctionTypeFromContext(localFunctionParam),
                                          base.index.andAmount+1);
                         base.base.type =
@@ -2187,7 +2170,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                            base.type === Types.ForwardReference) {
                     // Handle direct invocation of local function.
                     if (base.type === Types.ForwardReference ||
-                        base.type.retType === Types.MaybeVoid) {
+                        base.type.arrow) {
                         base.type = mergeTypes(base.type,
                                                makeFunctionTypeFromContext(localFunctionParam),
                                                startPos);
@@ -2553,7 +2536,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                     raise(startPos,
                           'return type must be double, signed, or void');
                 }
-                module.func.retType =
+                module.func.retType = module.func.retType===null ? ty :
                     mergeTypes(module.func.retType, ty, startPos);
                 return;
 
@@ -2804,7 +2787,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
                 id: null,
                 params: [],
                 env: Env.New(),
-                retType: Types.MaybeVoid,
+                retType: null,
                 labels: []
             };
             module.functions.push(func);
@@ -2839,7 +2822,7 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
             }
 
             // Now reconcile the type of the function.
-            if (func.retType === Types.MaybeVoid) {
+            if (func.retType === null) {
                 // If no return statement was seen, this function returns
                 // `void`.
                 func.retType = Types.Void;
