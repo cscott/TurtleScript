@@ -1483,11 +1483,11 @@ define(['text!asm-llvm.js'], function asm_llvm(asm_llvm_source) {
             if (x === 'arguments' || x === 'eval') {
                 raise(loc || tokStart, "illegal binding for '"  + x + "'");
             }
-            x = '$' + x;
-            if (Object.prototype.hasOwnProperty.call(this._map, x)) {
+            var key = '$' + x;
+            if (Object.prototype.hasOwnProperty.call(this._map, key)) {
                 raise(loc || tokStart, "duplicate binding for '" + x + "'");
             }
-            this._map[x] = t;
+            this._map[key] = t;
         };
         // Iterate over all the bindings in the environment.
         Env.prototype.forEach = function(f) {
