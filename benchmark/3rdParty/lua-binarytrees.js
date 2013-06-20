@@ -770,7 +770,7 @@ function lua_binarytrees(global, env, buffer) {
         c[w >> 2] = (c[w >> 2] | 0) - 16 | 0;
         db(b, 2920, 174);
         c[w >> 2] = (c[w >> 2] | 0) - 16 | 0;
-        da(b, 10560);
+        da(b, 10560) | 0;
         c[w >> 2] = (c[w >> 2] | 0) - 16 | 0;
         X = c[Q >> 2] | 0;
         W = X + 12 | 0;
@@ -3095,7 +3095,7 @@ function lua_binarytrees(global, env, buffer) {
                 if ((a[h] | 0) != 61) {
                     break
                 }
-                cH(b, 11352, (v = i, i = i + 8 | 0, c[v >> 2] = g + 1 | 0, v) | 0);
+                cH(b, 11352, (v = i, i = i + 8 | 0, c[v >> 2] = g + 1 | 0, v) | 0) | 0;
                 x = 1;
                 i = f;
                 return x | 0
@@ -4673,7 +4673,7 @@ function lua_binarytrees(global, env, buffer) {
         } while (0);
         q = (E - 1 | 0) > 22 ? 12 : 0;
         if ((f | 0) != 0) {
-            cH(b, 9232, (v = i, i = i + 8 | 0, c[v >> 2] = f, v) | 0)
+            cH(b, 9232, (v = i, i = i + 8 | 0, c[v >> 2] = f, v) | 0) | 0;
         }
         f = b + 12 | 0;
         y = c[f >> 2] | 0;
@@ -4766,11 +4766,11 @@ function lua_binarytrees(global, env, buffer) {
                             c[k >> 2] = (c[k >> 2] | 0) + 16 | 0;
                             N = y
                         } else {
-                            dj(e, 5984, j);
-                            cH(b, 4624, (v = i, i = i + 8 | 0, c[v >> 2] = B, v) | 0);
+                            dj(e, 5984, j) | 0;
+                            cH(b, 4624, (v = i, i = i + 8 | 0, c[v >> 2] = B, v) | 0) | 0;
                             H = c[p >> 2] | 0;
                             if ((H | 0) > 0) {
-                                cH(b, 3920, (v = i, i = i + 8 | 0, c[v >> 2] = H, v) | 0)
+                                cH(b, 3920, (v = i, i = i + 8 | 0, c[v >> 2] = H, v) | 0) | 0;
                             }
                             H = c[f >> 2] | 0;
                             t = H + 12 | 0;
@@ -4880,7 +4880,7 @@ function lua_binarytrees(global, env, buffer) {
                                             P = 0;
                                             Q = (c[O >> 2] | 0) + 16 | 0
                                         }
-                                        cH(b, 4480, (v = i, i = i + 8 | 0, c[v >> 2] = Q, v) | 0);
+                                        cH(b, 4480, (v = i, i = i + 8 | 0, c[v >> 2] = Q, v) | 0) | 0;
                                         I = c[k >> 2] | 0;
                                         s = I - 32 | 0;
                                         t = I - 16 | 0;
@@ -4904,11 +4904,11 @@ function lua_binarytrees(global, env, buffer) {
                                         break
                                     } else {
                                         t = c[r >> 2] | 0;
-                                        cH(b, 4288, (v = i, i = i + 16 | 0, c[v >> 2] = B, c[v + 8 >> 2] = t, v) | 0);
+                                        cH(b, 4288, (v = i, i = i + 16 | 0, c[v >> 2] = B, c[v + 8 >> 2] = t, v) | 0) | 0;
                                         break
                                     }
                                 } else {
-                                    cH(b, 4480, (v = i, i = i + 8 | 0, c[v >> 2] = c[A >> 2] | 0, v) | 0)
+                                    cH(b, 4480, (v = i, i = i + 8 | 0, c[v >> 2] = c[A >> 2] | 0, v) | 0) | 0;
                                 }
                             } while (0);
                             if ((a[u] | 0) == 0) {
@@ -5037,7 +5037,7 @@ function lua_binarytrees(global, env, buffer) {
             cU(b, 2792, (v = i, i = i + 16 | 0, c[v >> 2] = d, c[v + 8 >> 2] = e, v) | 0)
         }
         c[g + 96 >> 2] = f;
-        dj(b, 11776, g);
+        dj(b, 11776, g) | 0;
         do {
             if ((aL(c[g + 8 >> 2] | 0, 11304) | 0) == 0) {
                 f = d - 1 | 0;
@@ -5130,7 +5130,7 @@ function lua_binarytrees(global, env, buffer) {
                 }
             }
         } while (0);
-        e4(b, d, f);
+        e4(b, d, f) | 0;
         f = c[h >> 2] | 0;
         h = f + 12 | 0;
         d = c[h >> 2] | 0;
@@ -5177,7 +5177,7 @@ function lua_binarytrees(global, env, buffer) {
         k = b + 16 | 0;
         l = (c[j >> 2] | 0) - ((c[c[k >> 2] >> 2] | 0) + 16 | 0) | 0;
         m = l >> 4;
-        dj(b, 9e3, e);
+        dj(b, 9e3, e) | 0;
         e = b + 12 | 0;
         n = c[(c[e >> 2] | 0) + 40 >> 2] | 0;
         o = n;
@@ -5362,12 +5362,12 @@ function lua_binarytrees(global, env, buffer) {
                     break
                 }
                 c[g + 96 >> 2] = o;
-                dj(b, 10800, g);
+                dj(b, 10800, g) | 0;
                 l = c[g + 20 >> 2] | 0;
                 if ((l | 0) <= 0) {
                     break
                 }
-                cH(b, 10624, (v = i, i = i + 16 | 0, c[v >> 2] = g + 36 | 0, c[v + 8 >> 2] = l, v) | 0);
+                cH(b, 10624, (v = i, i = i + 16 | 0, c[v >> 2] = g + 36 | 0, c[v + 8 >> 2] = l, v) | 0) | 0;
                 i = f;
                 return
             }
@@ -5413,7 +5413,7 @@ function lua_binarytrees(global, env, buffer) {
             r = 0,
             s = 0;
         g = i;
-        j = c[bB() >> 2] | 0;
+        j = c[(bB() | 0) >> 2] | 0;
         k = b + 8 | 0;
         l = c[k >> 2] | 0;
         if ((e | 0) != 0) {
@@ -5462,7 +5462,7 @@ function lua_binarytrees(global, env, buffer) {
                 c[k >> 2] = q;
                 p = q
             } else {
-                cH(b, 10152, (v = i, i = i + 16 | 0, c[v >> 2] = f, c[v + 8 >> 2] = l, v) | 0);
+                cH(b, 10152, (v = i, i = i + 16 | 0, c[v >> 2] = f, c[v + 8 >> 2] = l, v) | 0) | 0;
                 p = c[k >> 2] | 0
             }
         } while (0);
@@ -5760,7 +5760,7 @@ function lua_binarytrees(global, env, buffer) {
         c[o >> 2] = (c[o >> 2] | 0) + 16 | 0;
         f = r + 24 | 0;
         r = b | 0;
-        h2(f | 0, c[r >> 2] | 0, c[j >> 2] | 0);
+        h2(f | 0, c[r >> 2] | 0, c[j >> 2] | 0) | 0;
         if ((c[r >> 2] | 0) != (b + 16 | 0)) {
             b = c[o >> 2] | 0;
             p = b - 32 | 0;
@@ -5892,7 +5892,7 @@ function lua_binarytrees(global, env, buffer) {
             c[o + 4 >> 2] = g;
             c[d - 32 + 8 >> 2] = c[f + 8 >> 2] | 0
         }
-        h2(c$(b, k) | 0, j | 0, k);
+        h2(c$(b, k) | 0, j | 0, k) | 0;
         j = b + 8 | 0;
         c[j >> 2] = (c[j >> 2] | 0) + k | 0;
         k = (c[i >> 2] | 0) != (h | 0) ? -2 : -1;
@@ -5986,7 +5986,7 @@ function lua_binarytrees(global, env, buffer) {
                 c[k >> 2] = (c[k >> 2] | 0) + 16 | 0;
                 c[h + 4 >> 2] = c[m >> 2] | 0
             } else {
-                cH(b, 8584, (v = i, i = i + 8 | 0, c[v >> 2] = e, v) | 0);
+                cH(b, 8584, (v = i, i = i + 8 | 0, c[v >> 2] = e, v) | 0) | 0;
                 r = bk(e | 0, 5432) | 0;
                 c[h + 4 >> 2] = r;
                 if ((r | 0) != 0) {
@@ -6013,7 +6013,7 @@ function lua_binarytrees(global, env, buffer) {
                 q = au(e | 0, 7736, c[r >> 2] | 0) | 0;
                 c[r >> 2] = q;
                 if ((q | 0) != 0) {
-                    c4(h, j);
+                    c4(h, j) | 0;
                     w = c[j >> 2] | 0;
                     break
                 }
@@ -6177,9 +6177,9 @@ function lua_binarytrees(global, env, buffer) {
             n = 0,
             o = 0;
         f = i;
-        g = bC(c[bB() >> 2] | 0) | 0;
+        g = bC(c[(bB() | 0) >> 2] | 0) | 0;
         h = (cF(a, e, 0) | 0) + 1 | 0;
-        cH(a, 4920, (v = i, i = i + 24 | 0, c[v >> 2] = b, c[v + 8 >> 2] = h, c[v + 16 >> 2] = g, v) | 0);
+        cH(a, 4920, (v = i, i = i + 24 | 0, c[v >> 2] = b, c[v + 8 >> 2] = h, c[v + 16 >> 2] = g, v) | 0) | 0;
         g = c[a + 16 >> 2] | 0;
         do {
             if ((e | 0) > 0) {
@@ -6876,7 +6876,7 @@ function lua_binarytrees(global, env, buffer) {
                         B = 0
                     }
                 } while (0);
-                cH(b, 6160, (v = i, i = i + 16 | 0, c[v >> 2] = A, c[v + 8 >> 2] = B, v) | 0)
+                cH(b, 6160, (v = i, i = i + 16 | 0, c[v >> 2] = A, c[v + 8 >> 2] = B, v) | 0) | 0;
             }
         } while (0);
         B = b + 8 | 0;
@@ -7249,7 +7249,7 @@ function lua_binarytrees(global, env, buffer) {
         f = c[g >> 2] | 0;
         c[g >> 2] = f + 16 | 0;
         dy(b, f - 16 | 0, 1, 0);
-        da(b, 11e3);
+        da(b, 11e3) | 0;
         f = c[g >> 2] | 0;
         j = f - 32 | 0;
         h = f;
@@ -7615,10 +7615,10 @@ function lua_binarytrees(global, env, buffer) {
                 s = p;
                 while (1) {
                     t = s - r | 0;
-                    h2(c$(j, t) | 0, r | 0, t);
+                    h2(c$(j, t) | 0, r | 0, t) | 0;
                     c[o >> 2] = (c[o >> 2] | 0) + t | 0;
                     t = h1(g | 0) | 0;
-                    h2(c$(j, t) | 0, g | 0, t);
+                    h2(c$(j, t) | 0, g | 0, t) | 0;
                     c[o >> 2] = (c[o >> 2] | 0) + t | 0;
                     t = s + k | 0;
                     u = aF(t | 0, f | 0) | 0;
@@ -7633,7 +7633,7 @@ function lua_binarytrees(global, env, buffer) {
             }
         } while (0);
         f = h1(q | 0) | 0;
-        h2(c$(j, f) | 0, q | 0, f);
+        h2(c$(j, f) | 0, q | 0, f) | 0;
         q = (c[o >> 2] | 0) + f | 0;
         c[o >> 2] = q;
         o = c[l >> 2] | 0;
@@ -7816,7 +7816,7 @@ function lua_binarytrees(global, env, buffer) {
             return f | 0
         }
         if (e >>> 0 > 4294967231) {
-            c[bB() >> 2] = 12;
+            c[(bB() | 0) >> 2] = 12;
             f = 0;
             return f | 0
         }
@@ -8138,7 +8138,7 @@ function lua_binarytrees(global, env, buffer) {
         }
         g = c[a >> 2] | 0;
         a = (g & -8) - ((g & 3 | 0) == 0 ? 8 : 4) | 0;
-        h2(d | 0, b | 0, a >>> 0 < e >>> 0 ? a : e);
+        h2(d | 0, b | 0, a >>> 0 < e >>> 0 ? a : e) | 0;
         h$(b);
         f = d;
         return f | 0
@@ -8725,32 +8725,32 @@ function lua_binarytrees(global, env, buffer) {
                                     a[w] = a[5024] | 0;
                                     a[w + 1 | 0] = a[5025 | 0] | 0;
                                     a[w + 2 | 0] = a[5026 | 0] | 0;
-                                    h2(z | 0, ae + (X - 56 | 0) | 0, 57);
+                                    h2(z | 0, ae + (X - 56 | 0) | 0, 57) | 0;
                                     U = R;
                                     break
                                 } else {
-                                    h2(w | 0, ae + 1 | 0, X);
+                                    h2(w | 0, ae + 1 | 0, X) | 0;
                                     U = R;
                                     break
                                 }
                             } else if ((Z << 24 >> 24 | 0) == 61) {
                                 Z = ae + 1 | 0;
                                 if (X >>> 0 > 60) {
-                                    h2(w | 0, Z | 0, 59);
+                                    h2(w | 0, Z | 0, 59) | 0;
                                     a[y] = 0;
                                     U = R;
                                     break
                                 } else {
-                                    h2(w | 0, Z | 0, X);
+                                    h2(w | 0, Z | 0, X) | 0;
                                     U = R;
                                     break
                                 }
                             } else {
                                 Z = aU(ae | 0, 10) | 0;
-                                h2(w | 0, 3360, 9);
+                                h2(w | 0, 3360, 9) | 0;
                                 _ = (Z | 0) == 0;
                                 if (X >>> 0 < 45 & _) {
-                                    h2(x | 0, ae | 0, X);
+                                    h2(x | 0, ae | 0, X) | 0;
                                     ag = X + 9 | 0
                                 } else {
                                     if (_) {
@@ -8759,7 +8759,7 @@ function lua_binarytrees(global, env, buffer) {
                                         ah = Z - ae | 0
                                     }
                                     Z = ah >>> 0 > 45 ? 45 : ah;
-                                    h2(x | 0, ae | 0, Z);
+                                    h2(x | 0, ae | 0, Z) | 0;
                                     X = (Z + 9 | 0) + (f + 36) | 0;
                                     a[X] = a[5024] | 0;
                                     a[X + 1 | 0] = a[5025 | 0] | 0;
@@ -9447,11 +9447,11 @@ function lua_binarytrees(global, env, buffer) {
                 if ((n << 24 >> 24 | 0) == 61) {
                     o = k + 1 | 0;
                     if (m >>> 0 > 60) {
-                        h2(h | 0, o | 0, 59);
+                        h2(h | 0, o | 0, 59) | 0;
                         a[g + 59 | 0] = 0;
                         break
                     } else {
-                        h2(h | 0, o | 0, m);
+                        h2(h | 0, o | 0, m) | 0;
                         break
                     }
                 } else if ((n << 24 >> 24 | 0) == 64) {
@@ -9459,19 +9459,19 @@ function lua_binarytrees(global, env, buffer) {
                         a[h] = a[5024] | 0;
                         a[h + 1 | 0] = a[5025 | 0] | 0;
                         a[h + 2 | 0] = a[5026 | 0] | 0;
-                        h2(g + 3 | 0, k + (m - 56 | 0) | 0, 57);
+                        h2(g + 3 | 0, k + (m - 56 | 0) | 0, 57) | 0;
                         break
                     } else {
-                        h2(h | 0, k + 1 | 0, m);
+                        h2(h | 0, k + 1 | 0, m) | 0;
                         break
                     }
                 } else {
                     n = aU(k | 0, 10) | 0;
-                    h2(h | 0, 3360, 9);
+                    h2(h | 0, 3360, 9) | 0;
                     o = g + 9 | 0;
                     p = (n | 0) == 0;
                     if (m >>> 0 < 45 & p) {
-                        h2(o | 0, k | 0, m);
+                        h2(o | 0, k | 0, m) | 0;
                         q = m + 9 | 0
                     } else {
                         if (p) {
@@ -9480,7 +9480,7 @@ function lua_binarytrees(global, env, buffer) {
                             r = n - j | 0
                         }
                         j = r >>> 0 > 45 ? 45 : r;
-                        h2(o | 0, k | 0, j);
+                        h2(o | 0, k | 0, j) | 0;
                         k = g + (j + 9 | 0) | 0;
                         a[k] = a[5024] | 0;
                         a[k + 1 | 0] = a[5025 | 0] | 0;
@@ -9495,7 +9495,7 @@ function lua_binarytrees(global, env, buffer) {
                 }
             }
         } while (0);
-        e1(f, 9720, (v = i, i = i + 24 | 0, c[v >> 2] = h, c[v + 8 >> 2] = l, c[v + 16 >> 2] = e, v) | 0);
+        e1(f, 9720, (v = i, i = i + 24 | 0, c[v >> 2] = h, c[v + 8 >> 2] = l, c[v + 16 >> 2] = e, v) | 0) | 0;
         dq(b)
     }
     function dp(a, b, d) {
@@ -9587,7 +9587,7 @@ function lua_binarytrees(global, env, buffer) {
         if ((d | 0) == 0) {
             bJ()
         }
-        b9[d & 511](b);
+        b9[d & 511](b) | 0;
         bJ()
     }
     function ds(b, d) {
@@ -10940,7 +10940,7 @@ function lua_binarytrees(global, env, buffer) {
                         if ((aU(s | 0, 98) | 0) != 0) {
                             break
                         }
-                        e1(b, 3528, (v = i, i = i + 16 | 0, c[v >> 2] = 4352, c[v + 8 >> 2] = s, v) | 0);
+                        e1(b, 3528, (v = i, i = i + 16 | 0, c[v >> 2] = 4352, c[v + 8 >> 2] = s, v) | 0) | 0;
                         dr(b, 3)
                     }
                 } while (0);
@@ -11008,7 +11008,7 @@ function lua_binarytrees(global, env, buffer) {
                         K = c[E >> 2] | 0
                     }
                     H = F >>> 0 > J >>> 0 ? J : F;
-                    h2(s | 0, K | 0, H);
+                    h2(s | 0, K | 0, H) | 0;
                     I = (c[p >> 2] | 0) - H | 0;
                     c[p >> 2] = I;
                     c[E >> 2] = (c[E >> 2] | 0) + H | 0;
@@ -11124,7 +11124,7 @@ function lua_binarytrees(global, env, buffer) {
                     x = 2180;
                     break
                 }
-                e1(b, 3528, (v = i, i = i + 16 | 0, c[v >> 2] = 3848, c[v + 8 >> 2] = z, v) | 0);
+                e1(b, 3528, (v = i, i = i + 16 | 0, c[v >> 2] = 3848, c[v + 8 >> 2] = z, v) | 0) | 0;
                 dr(b, 3)
             }
         } while (0);
@@ -11259,7 +11259,7 @@ function lua_binarytrees(global, env, buffer) {
                 c[h + 20 >> 2] = -1;
                 c[h >> 2] = 7;
                 c[h + 8 >> 2] = 0;
-                fg(k, c[r >> 2] | 0, h);
+                fg(k, c[r >> 2] | 0, h) | 0;
                 c[t >> 2] = c[m >> 2] | 0;
                 C = j + 32 | 0;
                 n = C | 0;
@@ -12553,7 +12553,7 @@ function lua_binarytrees(global, env, buffer) {
                                     if ((c[w >> 2] | 0) == 0) {
                                         break
                                     }
-                                    dH(b, q + 56 | 0, -3);
+                                    dH(b, q + 56 | 0, -3) | 0;
                                     x = q + 16 | 0;
                                     B = (c[x >> 2] | 0) + 12 | 0;
                                     C = c[B >> 2] | 0;
@@ -13129,7 +13129,7 @@ function lua_binarytrees(global, env, buffer) {
                 return n | 0
             }
             c[f >> 2] = c[h + 172 >> 2] | 0;
-            dH(b, f, 1);
+            dH(b, f, 1) | 0;
             f = c[g >> 2] | 0;
             if ((a[f + 62 | 0] | 0) != 1) {
                 I = (c[f + 32 >> 2] | 0) / 2 & -1;
@@ -13168,7 +13168,7 @@ function lua_binarytrees(global, env, buffer) {
                     P = M;
                     break
                 }
-                dH(b, (c[g >> 2] | 0) + (L << 2) | 0, -3);
+                dH(b, (c[g >> 2] | 0) + (L << 2) | 0, -3) | 0;
                 Q = f + 1 | 0;
                 if ((Q | 0) < 80) {
                     f = Q
@@ -13293,7 +13293,7 @@ function lua_binarytrees(global, env, buffer) {
                         L3460: do {
                             if ((a[h] | 0) != 5) {
                                 while (1) {
-                                    dI(b);
+                                    dI(b) | 0;
                                     if ((a[h] | 0) == 5) {
                                         break L3460
                                     }
@@ -13303,7 +13303,7 @@ function lua_binarytrees(global, env, buffer) {
                         a[h] = 0;
                         g = c[d + 8 >> 2] | 0;
                         k = c[d + 12 >> 2] | 0;
-                        if ((k + g | 0) >>> 0 > aa(c[d + 160 >> 2] | 0, (f >>> 0) / 100 >>> 0) >>> 0) {
+                        if ((k + g | 0) >>> 0 > (aa(c[d + 160 >> 2] | 0, (f >>> 0) / 100 >>> 0) | 0) >>> 0) {
                             c[e >> 2] = 0;
                             i = g;
                             j = k;
@@ -13319,7 +13319,7 @@ function lua_binarytrees(global, env, buffer) {
                 f = (j + i | 0) / 100 & -1;
                 e = c[d + 156 >> 2] | 0;
                 if ((e | 0) < (2147483644 / (f | 0) & -1 | 0)) {
-                    l = aa(e, f)
+                    l = aa(e, f) | 0
                 } else {
                     l = 2147483644
                 }
@@ -13332,7 +13332,7 @@ function lua_binarytrees(global, env, buffer) {
                 k = (e | 0) < 40 ? 40 : e;
                 e = ((c[f >> 2] | 0) / 200 & -1) + 1 | 0;
                 if ((e | 0) < (2147483644 / (k | 0) & -1 | 0)) {
-                    n = aa(e, k)
+                    n = aa(e, k) | 0
                 } else {
                     n = 2147483644
                 }
@@ -13367,7 +13367,7 @@ function lua_binarytrees(global, env, buffer) {
                 k = (c[d + 20 >> 2] | 0) / 100 & -1;
                 g = c[d + 156 >> 2] | 0;
                 if ((g | 0) < (2147483644 / (k | 0) & -1 | 0)) {
-                    s = aa(g, k)
+                    s = aa(g, k) | 0
                 } else {
                     s = 2147483644
                 }
@@ -13502,7 +13502,7 @@ function lua_binarytrees(global, env, buffer) {
             q = 5
         } else {
             while (1) {
-                dI(b);
+                dI(b) | 0;
                 if ((a[k] | 0) == 5) {
                     break
                 }
@@ -13514,7 +13514,7 @@ function lua_binarytrees(global, env, buffer) {
         k = p + 61 | 0;
         if ((1 << (q & 255) & -33 | 0) == 0) {
             while (1) {
-                dI(b);
+                dI(b) | 0;
                 if ((1 << (d[k] | 0) & -33 | 0) != 0) {
                     break
                 }
@@ -13530,7 +13530,7 @@ function lua_binarytrees(global, env, buffer) {
         L3524: do {
             if (s << 24 >> 24 != 5) {
                 while (1) {
-                    dI(b);
+                    dI(b) | 0;
                     if ((a[q] | 0) == 5) {
                         break L3524
                     }
@@ -13544,7 +13544,7 @@ function lua_binarytrees(global, env, buffer) {
                     break
                 }
                 while (1) {
-                    dI(b);
+                    dI(b) | 0;
                     if ((a[q] | 0) == 0) {
                         break L3528
                     }
@@ -13559,7 +13559,7 @@ function lua_binarytrees(global, env, buffer) {
         r = (s + h | 0) / 100 & -1;
         p = c[g + 156 >> 2] | 0;
         if ((p | 0) < (2147483644 / (r | 0) & -1 | 0)) {
-            t = aa(p, r)
+            t = aa(p, r) | 0
         } else {
             t = 2147483644
         }
@@ -13710,7 +13710,7 @@ function lua_binarytrees(global, env, buffer) {
         } else {
             w = 9744
         }
-        e1(b, 11600, (v = i, i = i + 8 | 0, c[v >> 2] = w, v) | 0);
+        e1(b, 11600, (v = i, i = i + 8 | 0, c[v >> 2] = w, v) | 0) | 0;
         u = 5;
         dr(b, u)
     }
@@ -13906,7 +13906,7 @@ function lua_binarytrees(global, env, buffer) {
                         a[g] = a[g] & -5;
                         if (t) {
                             if (q) {
-                                dQ(b, j);
+                                dQ(b, j) | 0;
                                 break
                             } else {
                                 q = b + 100 | 0;
@@ -15916,7 +15916,7 @@ function lua_binarytrees(global, env, buffer) {
         }
         if ((c[f + 4 >> 2] | 0) != 0) {
             m = c[f >> 2] | 0;
-            cH(b, 10120, (v = i, i = i + 8 | 0, c[v >> 2] = m, v) | 0);
+            cH(b, 10120, (v = i, i = i + 8 | 0, c[v >> 2] = m, v) | 0) | 0;
             i = e;
             return 1
         }
@@ -17277,7 +17277,7 @@ function lua_binarytrees(global, env, buffer) {
                 h = bk(z | 0, 5432) | 0;
                 c[g >> 2] = h;
                 if ((h | 0) == 0) {
-                    h = bC(c[bB() >> 2] | 0) | 0;
+                    h = bC(c[(bB() | 0) >> 2] | 0) | 0;
                     cU(b, 4712, (v = i, i = i + 16 | 0, c[v >> 2] = o, c[v + 8 >> 2] = h, v) | 0);
                     return 0
                 }
@@ -18407,7 +18407,7 @@ function lua_binarytrees(global, env, buffer) {
                 L = bk(l | 0, f | 0) | 0;
                 c[M >> 2] = L;
                 if ((L | 0) == 0) {
-                    L = bC(c[bB() >> 2] | 0) | 0;
+                    L = bC(c[(bB() | 0) >> 2] | 0) | 0;
                     cU(b, 4712, (v = i, i = i + 16 | 0, c[v >> 2] = m, c[v + 8 >> 2] = L, v) | 0)
                 } else {
                     O = c[k >> 2] | 0;
@@ -22024,7 +22024,7 @@ function lua_binarytrees(global, env, buffer) {
         e = i;
         i = i + 8 | 0;
         f = e | 0;
-        da(b, 6816);
+        da(b, 6816) | 0;
         g = b + 12 | 0;
         j = c[g >> 2] | 0;
         k = j + 12 | 0;
@@ -22206,7 +22206,7 @@ function lua_binarytrees(global, env, buffer) {
         n = c[l >> 2] | 0;
         go(j, v - 16 | 0, n - 16 | 0, n - 32 | 0);
         c[l >> 2] = (c[l >> 2] | 0) - 32 | 0;
-        da(b, 11e3);
+        da(b, 11e3) | 0;
         n = c[l >> 2] | 0;
         c[l >> 2] = n + 16 | 0;
         v = fI(j, 10768, 6) | 0;
@@ -22215,7 +22215,7 @@ function lua_binarytrees(global, env, buffer) {
         v = c[l >> 2] | 0;
         go(j, n - 32 | 0, v - 16 | 0, v - 32 | 0);
         c[l >> 2] = (c[l >> 2] | 0) - 32 | 0;
-        da(b, 10560);
+        da(b, 10560) | 0;
         v = c[l >> 2] | 0;
         c[l >> 2] = v + 16 | 0;
         n = fI(j, 10320, 7) | 0;
@@ -22340,7 +22340,7 @@ function lua_binarytrees(global, env, buffer) {
                     j = 4003;
                     break
                 }
-                de(b, de(b, k, 8104, 7912) | 0, 7712, h);
+                de(b, de(b, k, 8104, 7912) | 0, 7712, h) | 0;
                 i = c[g >> 2] | 0;
                 f = i - 32 | 0;
                 m = i - 16 | 0;
@@ -22455,8 +22455,8 @@ function lua_binarytrees(global, env, buffer) {
             eO(b);
             return 0
         }
-        g = aa(k, f);
-        k = aa(m, f);
+        g = aa(k, f) | 0;
+        k = aa(m, f) | 0;
         f = c[b + 12 >> 2] | 0;
         h = (d | 0) != 0;
         l = f | 0;
@@ -22723,7 +22723,7 @@ function lua_binarytrees(global, env, buffer) {
                 }
                 n = q - (r + 16 | 0) | 0;
                 w = n >> 4;
-                c9(b, -1001e3, 11e3);
+                c9(b, -1001e3, 11e3) | 0;
                 l = c[m >> 2] | 0;
                 x = b;
                 y = fG(x, k, h1(k | 0) | 0) | 0;
@@ -22968,7 +22968,7 @@ function lua_binarytrees(global, env, buffer) {
                 c[o + 4 >> 2] = l;
                 c[x + 8 >> 2] = c[x - 32 + 8 >> 2] | 0;
                 c[m >> 2] = (c[m >> 2] | 0) + 16 | 0;
-                cQ(b, -2, 1);
+                cQ(b, -2, 1) | 0;
                 x = (c[m >> 2] | 0) - 16 | 0;
                 c[m >> 2] = x;
                 if ((n | 0) < 32) {
@@ -23644,7 +23644,7 @@ function lua_binarytrees(global, env, buffer) {
                     i = e;
                     return 1
                 }
-                cH(b, 5080, (v = i, i = i + 8 | 0, c[v >> 2] = f, v) | 0);
+                cH(b, 5080, (v = i, i = i + 8 | 0, c[v >> 2] = f, v) | 0) | 0;
                 i = e;
                 return 1
             }
@@ -24553,7 +24553,7 @@ function lua_binarytrees(global, env, buffer) {
                 }
                 u = eV(b, x, k) | 0;
                 if ((u | 0) == 2) {
-                    cH(b, 6776, (v = i, i = i + 16 | 0, c[v >> 2] = l, c[v + 8 >> 2] = x, v) | 0);
+                    cH(b, 6776, (v = i, i = i + 16 | 0, c[v >> 2] = l, c[v + 8 >> 2] = x, v) | 0) | 0;
                     w = 1;
                     i = e;
                     return w | 0
@@ -24824,7 +24824,7 @@ function lua_binarytrees(global, env, buffer) {
                 y = 24;
                 break
             }
-            cH(b, 5544, (v = i, i = i + 8 | 0, c[v >> 2] = B, v) | 0);
+            cH(b, 5544, (v = i, i = i + 8 | 0, c[v >> 2] = B, v) | 0) | 0;
             s = c[e >> 2] | 0;
             f = s - 32 | 0;
             u = s - 16 | 0;
@@ -25939,7 +25939,7 @@ function lua_binarytrees(global, env, buffer) {
                         s = (t | 0) < 0 ? -t | 0 : t;
                         do {
                             if ((s | 0) > 511) {
-                                c[bB() >> 2] = 34;
+                                c[(bB() | 0) >> 2] = 34;
                                 V = 1.0;
                                 W = 344;
                                 X = 511;
@@ -26923,7 +26923,7 @@ function lua_binarytrees(global, env, buffer) {
                 a[R] = P;
                 a[n] = 0;
                 P = bc(Q | 0, 200, r | 0, V | 0) | 0;
-                h2(c$(m, P) | 0, Q | 0, P);
+                h2(c$(m, P) | 0, Q | 0, P) | 0;
                 c[k >> 2] = (c[k >> 2] | 0) + P | 0;
                 l = l + 2 | 0;
                 continue
@@ -26936,7 +26936,7 @@ function lua_binarytrees(global, env, buffer) {
                     X = U;
                     Y = P
                 } else {
-                    c$(m, 1);
+                    c$(m, 1) | 0;
                     X = a[l] | 0;
                     Y = c[k >> 2] | 0
                 }
@@ -28824,7 +28824,7 @@ function lua_binarytrees(global, env, buffer) {
         g = e + 48 | 0;
         h = c[g >> 2] | 0;
         i = c[h >> 2] | 0;
-        hd(h, 8388639);
+        hd(h, 8388639) | 0;
         fj(h);
         j = h + 20 | 0;
         k = c[j >> 2] | 0;
@@ -29046,7 +29046,7 @@ function lua_binarytrees(global, env, buffer) {
             g = h + 16 | 0;
             j = c[h + 12 >> 2] | 0;
             h = e;
-            hR(h, g, j)
+            hR(h, g, j) | 0;
         }
         j = f + 8 | 0;
         c[j >> 2] = (c[j >> 2] | 0) - 16 | 0;
@@ -29875,7 +29875,7 @@ function lua_binarytrees(global, env, buffer) {
             M = c[O >> 2] | 0;
             $ = L + 24 | 0;
             c[$ >> 2] = M;
-            fs(e, B, 0);
+            fs(e, B, 0) | 0;
             aa = B | 0;
             if ((c[aa >> 2] | 0) == 1) {
                 c[aa >> 2] = 3
@@ -30105,7 +30105,7 @@ function lua_binarytrees(global, env, buffer) {
                     c[ac + 12 >> 2] = c[K + 12 >> 2] | 0;
                     c[af >> 2] = 286
                 }
-                fs(e, k, 0);
+                fs(e, k, 0) | 0;
                 hf(c[J >> 2] | 0, k);
                 if ((c[P >> 2] | 0) != 44) {
                     fm(e, 44)
@@ -30122,7 +30122,7 @@ function lua_binarytrees(global, env, buffer) {
                     c[k + 12 >> 2] = c[K + 12 >> 2] | 0;
                     c[af >> 2] = 286
                 }
-                fs(e, j, 0);
+                fs(e, j, 0) | 0;
                 hf(c[J >> 2] | 0, j);
                 if ((c[P >> 2] | 0) == 44) {
                     c[ag >> 2] = c[G >> 2] | 0;
@@ -30137,7 +30137,7 @@ function lua_binarytrees(global, env, buffer) {
                         c[j + 12 >> 2] = c[K + 12 >> 2] | 0;
                         c[af >> 2] = 286
                     }
-                    fs(e, g, 0);
+                    fs(e, g, 0) | 0;
                     hf(c[J >> 2] | 0, g)
                 } else {
                     g = d[aa] | 0;
@@ -30149,12 +30149,12 @@ function lua_binarytrees(global, env, buffer) {
                     x = g << 6;
                     if ((k | 0) < 262144) {
                         g = x | k << 14 | 1;
-                        hd(K, g)
+                        hd(K, g) | 0;
                     } else {
                         g = x | 2;
-                        hd(K, g);
+                        hd(K, g) | 0;
                         g = k << 6 | 39;
-                        hd(K, g)
+                        hd(K, g) | 0;
                     }
                     g = a[aa] | 0;
                     K = (g & 255) + 1 | 0;
@@ -30257,7 +30257,7 @@ function lua_binarytrees(global, env, buffer) {
                     c[af >> 2] = 286;
                     ap = ao
                 }
-                fs(e, y, 0);
+                fs(e, y, 0) | 0;
                 L1214: do {
                     if ((c[P >> 2] | 0) == 44) {
                         ao = e + 16 | 0;
@@ -30275,7 +30275,7 @@ function lua_binarytrees(global, env, buffer) {
                                 c[af >> 2] = 286
                             }
                             hf(c[J >> 2] | 0, y);
-                            fs(e, y, 0);
+                            fs(e, y, 0) | 0;
                             $ = B + 1 | 0;
                             if ((c[P >> 2] | 0) == 44) {
                                 B = $
@@ -30497,7 +30497,7 @@ function lua_binarytrees(global, env, buffer) {
                 }
             }
             fo(e, 277, 273, H);
-            fs(e, t, 0);
+            fs(e, t, 0) | 0;
             at = t | 0;
             if ((c[at >> 2] | 0) == 1) {
                 c[at >> 2] = 3
@@ -30583,7 +30583,7 @@ function lua_binarytrees(global, env, buffer) {
             do {
                 if ((fz(av, u, r, 1) | 0) == 0) {
                     F = c[e + 72 >> 2] | 0;
-                    fz(av, F, r, 1);
+                    fz(av, F, r, 1) | 0;
                     F = c[J >> 2] | 0;
                     c[p >> 2] = u;
                     c[p + 8 >> 2] = d[u + 4 | 0] | 0 | 64;
@@ -30595,7 +30595,7 @@ function lua_binarytrees(global, env, buffer) {
                     aw = r + 8 | 0;
                     F = aw;
                     a[F + 2 | 0] = c[aw >> 2] & 255;
-                    b[aw >> 1] = he(av, q) & 65535;
+                    b[aw >> 1] = (he(av, q) | 0) & 65535;
                     aw = r | 0;
                     a[F + 3 | 0] = (c[aw >> 2] | 0) == 8 ? 8 : 7;
                     c[aw >> 2] = 9;
@@ -30770,7 +30770,7 @@ function lua_binarytrees(global, env, buffer) {
                         c[o + 12 >> 2] = c[p + 12 >> 2] | 0;
                         c[q >> 2] = 286
                     }
-                    fs(e, n, 0);
+                    fs(e, n, 0) | 0;
                     if ((c[P >> 2] | 0) == 44) {
                         aA = 1
                     } else {
@@ -30789,7 +30789,7 @@ function lua_binarytrees(global, env, buffer) {
                             c[q >> 2] = 286
                         }
                         hf(c[J >> 2] | 0, n);
-                        fs(e, n, 0);
+                        fs(e, n, 0) | 0;
                         av = aA + 1 | 0;
                         if ((c[P >> 2] | 0) == 44) {
                             aA = av
@@ -31143,7 +31143,7 @@ function lua_binarytrees(global, env, buffer) {
                     aG = 0;
                     aH = 0
                 } else {
-                    fs(e, m, 0);
+                    fs(e, m, 0) | 0;
                     L1432: do {
                         if ((c[P >> 2] | 0) == 44) {
                             p = e + 24 | 0;
@@ -31162,7 +31162,7 @@ function lua_binarytrees(global, env, buffer) {
                                     c[aC >> 2] = 286
                                 }
                                 hf(c[J >> 2] | 0, m);
-                                fs(e, m, 0);
+                                fs(e, m, 0) | 0;
                                 aj = at + 1 | 0;
                                 if ((c[P >> 2] | 0) == 44) {
                                     at = aj
@@ -31249,7 +31249,7 @@ function lua_binarytrees(global, env, buffer) {
                     aH = d[aE + 46 | 0] | 0
                 }
             } while (0);
-            hd(aE, aH << 6 | (aG << 23) + 8388608 | 31);
+            hd(aE, aH << 6 | (aG << 23) + 8388608 | 31) | 0;
             if ((c[P >> 2] | 0) != 59) {
                 S = c[J >> 2] | 0;
                 T = S + 46 | 0;
@@ -31417,7 +31417,7 @@ function lua_binarytrees(global, env, buffer) {
             a[(c[aO >> 2] | 0) + (G << 4) + 12 | 0] = a[(c[J >> 2] | 0) + 46 | 0] | 0;
             c[(c[aO >> 2] | 0) + (G << 4) + 4 >> 2] = aL;
             c[av >> 2] = (c[av >> 2] | 0) + 1 | 0;
-            fi(e, G);
+            fi(e, G) | 0;
             S = c[J >> 2] | 0;
             T = S + 46 | 0;
             U = a[T] | 0;
@@ -31631,7 +31631,7 @@ function lua_binarytrees(global, env, buffer) {
                     c[u >> 2] = 286;
                     w = e + 24 | 0
                 }
-                fs(e, f, 0);
+                fs(e, f, 0) | 0;
                 fo(e, 41, 40, q);
                 ha(c[n >> 2] | 0, f);
                 y = w;
@@ -31661,7 +31661,7 @@ function lua_binarytrees(global, env, buffer) {
                     z = x;
                     break
                 }
-                fz(B, c[e + 72 >> 2] | 0, f, 1);
+                fz(B, c[e + 72 >> 2] | 0, f, 1) | 0;
                 A = c[n >> 2] | 0;
                 c[h >> 2] = v;
                 c[h + 8 >> 2] = d[v + 4 | 0] | 0 | 64;
@@ -31673,7 +31673,7 @@ function lua_binarytrees(global, env, buffer) {
                 v = f + 8 | 0;
                 A = v;
                 a[A + 2 | 0] = c[v >> 2] & 255;
-                b[v >> 1] = he(B, j) & 65535;
+                b[v >> 1] = (he(B, j) | 0) & 65535;
                 v = f | 0;
                 a[A + 3 | 0] = (c[v >> 2] | 0) == 8 ? 8 : 7;
                 c[v >> 2] = 9;
@@ -31757,7 +31757,7 @@ function lua_binarytrees(global, env, buffer) {
                     c[E + 12 >> 2] = c[H + 12 >> 2] | 0;
                     c[v >> 2] = 286
                 }
-                fs(e, l, 0);
+                fs(e, l, 0) | 0;
                 U = c[n >> 2] | 0;
                 V = U;
                 W = (c[A >> 2] | 0) == (c[D >> 2] | 0);
@@ -31795,7 +31795,7 @@ function lua_binarytrees(global, env, buffer) {
                     c[v >> 2] = 286
                 }
                 a[F] = c[t >> 2] & 255;
-                b[G >> 1] = he(j, l) & 65535;
+                b[G >> 1] = (he(j, l) | 0) & 65535;
                 a[C] = (c[B >> 2] | 0) == 8 ? 8 : 7;
                 c[B >> 2] = 9;
                 continue
@@ -31886,7 +31886,7 @@ function lua_binarytrees(global, env, buffer) {
                 }
                 a[Q] = Z + 2 & 255;
                 U = c[t >> 2] | 0;
-                hd(j, V << 23 | U << 6 | he(j, m) << 14 | 12);
+                hd(j, V << 23 | U << 6 | (he(j, m) | 0) << 14 | 12) | 0;
                 do {
                     if ((c[O >> 2] | 0) == 6) {
                         U = c[P >> 2] | 0;
@@ -31989,7 +31989,7 @@ function lua_binarytrees(global, env, buffer) {
                     c[t + 12 >> 2] = c[u + 12 >> 2] | 0;
                     c[s >> 2] = 286
                 }
-                fs(f, k, 0);
+                fs(f, k, 0) | 0;
                 L1641: do {
                     if ((c[n >> 2] | 0) == 44) {
                         u = f;
@@ -32010,7 +32010,7 @@ function lua_binarytrees(global, env, buffer) {
                                 c[s >> 2] = 286
                             }
                             hf(c[w >> 2] | 0, k);
-                            fs(f, k, 0);
+                            fs(f, k, 0) | 0;
                             A = z + 1 | 0;
                             if ((c[n >> 2] | 0) == 44) {
                                 z = A
@@ -32137,7 +32137,7 @@ function lua_binarytrees(global, env, buffer) {
                         if ((L | 0) == 0) {
                             break
                         }
-                        hd(q, ((c[r >> 2] | 0) == 7 ? 0 : 5) | z << 6 | c[y >> 2] << 23);
+                        hd(q, ((c[r >> 2] | 0) == 7 ? 0 : 5) | z << 6 | c[y >> 2] << 23) | 0;
                         u = a[s] | 0;
                         t = (u & 255) + 1 | 0;
                         x = (c[q >> 2] | 0) + 78 | 0;
@@ -32323,7 +32323,7 @@ function lua_binarytrees(global, env, buffer) {
                 return
             }
         } while (0);
-        hd(o, (h << 23) - 8388608 | n << 6 | 4);
+        hd(o, (h << 23) - 8388608 | n << 6 | 4) | 0;
         return
     }
     function fs(e, f, g) {
@@ -32534,7 +32534,7 @@ function lua_binarytrees(global, env, buffer) {
                     c[A + 12 >> 2] = c[p + 12 >> 2] | 0;
                     c[q >> 2] = 286
                 }
-                fs(e, f, 8);
+                fs(e, f, 8) | 0;
                 q = c[o >> 2] | 0;
                 p = q;
                 c[k + 20 >> 2] = -1;
@@ -32950,11 +32950,11 @@ function lua_binarytrees(global, env, buffer) {
                             }
                         }
                     } while (0);
-                    he(s, f);
+                    he(s, f) | 0;
                     z = 1413;
                     break
                 } else {
-                    he(s, f);
+                    he(s, f) | 0;
                     z = 1413;
                     break
                 }
@@ -33386,7 +33386,7 @@ function lua_binarytrees(global, env, buffer) {
                         fw(b, g);
                         break
                     }
-                    fs(b, s, 0);
+                    fs(b, s, 0) | 0;
                     D = c[h >> 2] | 0;
                     z = c[q >> 2] | 0;
                     if ((z | 0) > 2147483645) {
@@ -33398,7 +33398,7 @@ function lua_binarytrees(global, env, buffer) {
                 } else if ((B | 0) == 91) {
                     fw(b, g)
                 } else {
-                    fs(b, s, 0);
+                    fs(b, s, 0) | 0;
                     E = c[h >> 2] | 0;
                     z = c[q >> 2] | 0;
                     if ((z | 0) > 2147483645) {
@@ -34211,7 +34211,7 @@ function lua_binarytrees(global, env, buffer) {
                     c[A + 12 >> 2] = c[B + 12 >> 2] | 0;
                     c[q >> 2] = 286
                 }
-                fs(b, h, 0);
+                fs(b, h, 0) | 0;
                 B = c[k >> 2] | 0;
                 A = B;
                 C = h + 16 | 0;
@@ -34417,7 +34417,7 @@ function lua_binarytrees(global, env, buffer) {
         u = f + 8 | 0;
         f = u;
         a[f + 2 | 0] = c[u >> 2] & 255;
-        b[u >> 1] = he(m, j) & 65535;
+        b[u >> 1] = (he(m, j) | 0) & 65535;
         a[f + 3 | 0] = (c[n >> 2] | 0) == 8 ? 8 : 7;
         c[n >> 2] = 9;
         i = g;
@@ -34502,7 +34502,7 @@ function lua_binarytrees(global, env, buffer) {
                     if ((u | 0) == 41) {
                         c[j >> 2] = 0
                     } else {
-                        fs(b, j, 0);
+                        fs(b, j, 0) | 0;
                         L2231: do {
                             if ((c[m >> 2] | 0) == 44) {
                                 v = b + 24 | 0;
@@ -34520,7 +34520,7 @@ function lua_binarytrees(global, env, buffer) {
                                         c[s >> 2] = 286
                                     }
                                     hf(c[k >> 2] | 0, j);
-                                    fs(b, j, 0);
+                                    fs(b, j, 0) | 0;
                                     if ((c[m >> 2] | 0) != 44) {
                                         break L2231
                                     }
@@ -35062,7 +35062,7 @@ function lua_binarytrees(global, env, buffer) {
             return
         } else {
             n = I | h << 14 | 34;
-            hd(j, n);
+            hd(j, n) | 0;
             c[(c[(c[E >> 2] | 0) + 20 >> 2] | 0) + ((c[r >> 2] | 0) - 1 << 2) >> 2] = g;
             u = hd(j, I + 128 | 2147450915) | 0;
             f = x + 1 | 0;
@@ -35237,7 +35237,7 @@ function lua_binarytrees(global, env, buffer) {
             c[p >> 2] = 286;
             r = d + 16 | 0
         }
-        fs(d, h, 0);
+        fs(d, h, 0) | 0;
         if ((c[r >> 2] | 0) != 275) {
             fm(d, 275)
         }
@@ -35344,7 +35344,7 @@ function lua_binarytrees(global, env, buffer) {
                 a[(c[C >> 2] | 0) + (x << 4) + 12 | 0] = a[(c[j >> 2] | 0) + 46 | 0] | 0;
                 c[(c[C >> 2] | 0) + (x << 4) + 4 >> 2] = s;
                 c[B >> 2] = (c[B >> 2] | 0) + 1 | 0;
-                fi(d, x);
+                fi(d, x) | 0;
                 while (1) {
                     x = c[r >> 2] | 0;
                     if ((x | 0) == 260 | (x | 0) == 261 | (x | 0) == 262 | (x | 0) == 286) {
@@ -35619,15 +35619,15 @@ function lua_binarytrees(global, env, buffer) {
         } while (0);
         a[h + 60 | 0] = 3;
         a[h + 62 | 0] = 0;
-        dH(g, k, -3);
-        dH(g, h + 68 | 0, -3);
+        dH(g, k, -3) | 0;
+        dH(g, h + 68 | 0, -3) | 0;
         k = h + 32 | 0;
         L2491: do {
             if ((c[k >> 2] | 0) > 0) {
                 i = h + 24 | 0;
                 m = 0;
                 while (1) {
-                    dH(g, (c[i >> 2] | 0) + (m << 2) | 0, -3);
+                    dH(g, (c[i >> 2] | 0) + (m << 2) | 0, -3) | 0;
                     n = m + 1 | 0;
                     if ((n | 0) < (c[k >> 2] | 0)) {
                         m = n
@@ -35964,7 +35964,7 @@ function lua_binarytrees(global, env, buffer) {
         L2556: do {
             if ((1 << (d[b] | 0) & -5 | 0) == 0) {
                 while (1) {
-                    dI(i);
+                    dI(i) | 0;
                     if ((1 << (d[b] | 0) & -5 | 0) != 0) {
                         break L2556
                     }
@@ -36166,7 +36166,7 @@ function lua_binarytrees(global, env, buffer) {
         c[m + 12 >> 2] = e;
         c[m + 8 >> 2] = h;
         a[m + 6 | 0] = 0;
-        h2(m + 16 | 0, d | 0, e);
+        h2(m + 16 | 0, d | 0, e) | 0;
         a[m + (e + 16 | 0) | 0] = 0;
         f = m;
         return f | 0
@@ -36404,7 +36404,7 @@ function lua_binarytrees(global, env, buffer) {
         c[w + 12 >> 2] = f;
         c[w + 8 >> 2] = k;
         a[w + 6 | 0] = 0;
-        h2(w + 16 | 0, e | 0, f);
+        h2(w + 16 | 0, e | 0, f) | 0;
         a[w + (f + 16 | 0) | 0] = 0;
         c[n >> 2] = (c[n >> 2] | 0) + 1 | 0;
         s = w;
@@ -36456,7 +36456,7 @@ function lua_binarytrees(global, env, buffer) {
         c[l + 12 >> 2] = e;
         c[l + 8 >> 2] = f;
         a[l + 6 | 0] = 0;
-        h2(l + 16 | 0, d | 0, e);
+        h2(l + 16 | 0, d | 0, e) | 0;
         a[l + (e + 16 | 0) | 0] = 0;
         return l | 0
     }
@@ -37149,7 +37149,7 @@ function lua_binarytrees(global, env, buffer) {
                                 L = 37;
                                 M = K
                             } else {
-                                c$(o, 1);
+                                c$(o, 1) | 0;
                                 L = a[J] | 0;
                                 M = c[s >> 2] | 0
                             }
@@ -37162,7 +37162,7 @@ function lua_binarytrees(global, env, buffer) {
                                 O = I;
                                 P = K
                             } else {
-                                c$(o, 1);
+                                c$(o, 1) | 0;
                                 O = a[H] | 0;
                                 P = c[s >> 2] | 0
                             }
@@ -37230,7 +37230,7 @@ function lua_binarytrees(global, env, buffer) {
                     }
                     a[C] = 37;
                     I = X - K | 0;
-                    h2(D | 0, J | 0, I + 1 | 0);
+                    h2(D | 0, J | 0, I + 1 | 0) | 0;
                     a[p + (I + 2 | 0) | 0] = 0;
                     I = X + 1 | 0;
                     Z = a[X] | 0;
@@ -37306,7 +37306,7 @@ function lua_binarytrees(global, env, buffer) {
                             if (V >>> 0 < (c[x >> 2] | 0) >>> 0) {
                                 ad = V
                             } else {
-                                c$(o, 1);
+                                c$(o, 1) | 0;
                                 ad = c[s >> 2] | 0
                             }
                             c[s >> 2] = ad + 1 | 0;
@@ -37327,7 +37327,7 @@ function lua_binarytrees(global, env, buffer) {
                                                 if (aa >>> 0 < (c[x >> 2] | 0) >>> 0) {
                                                     af = aa
                                                 } else {
-                                                    c$(o, 1);
+                                                    c$(o, 1) | 0;
                                                     af = c[s >> 2] | 0
                                                 }
                                                 c[s >> 2] = af + 1 | 0;
@@ -37336,7 +37336,7 @@ function lua_binarytrees(global, env, buffer) {
                                                 if (aa >>> 0 < (c[x >> 2] | 0) >>> 0) {
                                                     ag = aa
                                                 } else {
-                                                    c$(o, 1);
+                                                    c$(o, 1) | 0;
                                                     ag = c[s >> 2] | 0
                                                 }
                                                 aa = a[ab] | 0;
@@ -37353,7 +37353,7 @@ function lua_binarytrees(global, env, buffer) {
                                                 if (aa >>> 0 < (c[x >> 2] | 0) >>> 0) {
                                                     ah = aa
                                                 } else {
-                                                    c$(o, 1);
+                                                    c$(o, 1) | 0;
                                                     ah = c[s >> 2] | 0
                                                 }
                                                 aa = a[ab] | 0;
@@ -37370,7 +37370,7 @@ function lua_binarytrees(global, env, buffer) {
                                                 a$(E | 0, 6216, (v = i, i = i + 8 | 0, c[v >> 2] = ae, v) | 0)
                                             }
                                             W = h1(E | 0) | 0;
-                                            h2(c$(o, W) | 0, E | 0, W);
+                                            h2(c$(o, W) | 0, E | 0, W) | 0;
                                             c[s >> 2] = (c[s >> 2] | 0) + W | 0
                                         }
                                         W = c[f >> 2] | 0;
@@ -37387,7 +37387,7 @@ function lua_binarytrees(global, env, buffer) {
                             if (U >>> 0 < (c[x >> 2] | 0) >>> 0) {
                                 ai = U
                             } else {
-                                c$(o, 1);
+                                c$(o, 1) | 0;
                                 ai = c[s >> 2] | 0
                             }
                             c[s >> 2] = ai + 1 | 0;
@@ -38042,7 +38042,7 @@ function lua_binarytrees(global, env, buffer) {
                                         r = H << 24 >> 24;
                                         if (((H & 255) - 48 | 0) >>> 0 < 10) {
                                             if (H << 24 >> 24 == 48) {
-                                                h2(c$(p, u) | 0, x | 0, u);
+                                                h2(c$(p, u) | 0, x | 0, u) | 0;
                                                 c[I >> 2] = (c[I >> 2] | 0) + u | 0;
                                                 W = s;
                                                 break
@@ -38062,7 +38062,7 @@ function lua_binarytrees(global, env, buffer) {
                                             X = 37;
                                             Y = H
                                         } else {
-                                            c$(p, 1);
+                                            c$(p, 1) | 0;
                                             X = a[z] | 0;
                                             Y = c[I >> 2] | 0
                                         }
@@ -38075,7 +38075,7 @@ function lua_binarytrees(global, env, buffer) {
                                             Z = A;
                                             _ = s
                                         } else {
-                                            c$(p, 1);
+                                            c$(p, 1) | 0;
                                             Z = a[k] | 0;
                                             _ = c[I >> 2] | 0
                                         }
@@ -38183,7 +38183,7 @@ function lua_binarytrees(global, env, buffer) {
                 if (F >>> 0 < (c[G >> 2] | 0) >>> 0) {
                     af = F
                 } else {
-                    c$(p, 1);
+                    c$(p, 1) | 0;
                     af = c[I >> 2] | 0
                 }
                 F = a[x] | 0;
@@ -38218,7 +38218,7 @@ function lua_binarytrees(global, env, buffer) {
             return 0
         } else if ((Q | 0) == 2294) {
             ae = (c[b >> 2] | 0) - O | 0;
-            h2(c$(p, ae) | 0, O | 0, ae);
+            h2(c$(p, ae) | 0, O | 0, ae) | 0;
             O = (c[I >> 2] | 0) + ae | 0;
             c[I >> 2] = O;
             I = c[L >> 2] | 0;
@@ -38385,7 +38385,7 @@ function lua_binarytrees(global, env, buffer) {
             } else {
                 o = 0;
                 while (1) {
-                    a[k + o | 0] = h6(d[h + o | 0] | 0 | 0) & 255;
+                    a[k + o | 0] = (h6(d[h + o | 0] | 0) | 0) & 255;
                     g = o + 1 | 0;
                     j = c[f >> 2] | 0;
                     if (g >>> 0 < j >>> 0) {
@@ -38642,8 +38642,8 @@ function lua_binarytrees(global, env, buffer) {
             cU(b, 10472, (v = i, i = i + 1 | 0, i = i + 7 >> 3 << 3, c[v >> 2] = 0, v) | 0);
             return 0
         }
-        L = aa(u, G);
-        u = aa(M, G - 1 | 0) + L | 0;
+        L = aa(u, G) | 0;
+        u = (aa(M, G - 1 | 0) | 0) + L | 0;
         L = m + 12 | 0;
         c[L >> 2] = b;
         b = m + 16 | 0;
@@ -38653,7 +38653,7 @@ function lua_binarytrees(global, env, buffer) {
         c[H >> 2] = 0;
         c[m + 4 >> 2] = 1024;
         K = c$(m, u) | 0;
-        h2(K | 0, n | 0, c[k >> 2] | 0);
+        h2(K | 0, n | 0, c[k >> 2] | 0) | 0;
         L3168: do {
             if ((G | 0) > 1) {
                 m = K;
@@ -38667,11 +38667,11 @@ function lua_binarytrees(global, env, buffer) {
                         N = y;
                         O = x
                     } else {
-                        h2(y | 0, I | 0, w);
+                        h2(y | 0, I | 0, w) | 0;
                         N = m + ((c[l >> 2] | 0) + x | 0) | 0;
                         O = c[k >> 2] | 0
                     }
-                    h2(N | 0, n | 0, O);
+                    h2(N | 0, n | 0, O) | 0;
                     if ((o | 0) > 1) {
                         m = N;
                         J = o
@@ -39181,7 +39181,7 @@ function lua_binarytrees(global, env, buffer) {
             } else {
                 o = 0;
                 while (1) {
-                    a[k + o | 0] = bi(d[h + o | 0] | 0 | 0) & 255;
+                    a[k + o | 0] = (bi(d[h + o | 0] | 0) | 0) & 255;
                     g = o + 1 | 0;
                     j = c[f >> 2] | 0;
                     if (g >>> 0 < j >>> 0) {
@@ -40702,7 +40702,7 @@ function lua_binarytrees(global, env, buffer) {
         b = b | 0;
         d = d | 0;
         e = e | 0;
-        h2(c$(e, d) | 0, b | 0, d);
+        h2(c$(e, d) | 0, b | 0, d) | 0;
         b = e + 8 | 0;
         c[b >> 2] = (c[b >> 2] | 0) + d | 0;
         return 0
@@ -42977,7 +42977,7 @@ function lua_binarytrees(global, env, buffer) {
                     }
                     c1(r);
                     O = c[s >> 2] | 0;
-                    h2(c$(r, O) | 0, C | 0, O);
+                    h2(c$(r, O) | 0, C | 0, O) | 0;
                     aa = (c[n >> 2] | 0) + O | 0;
                     c[n >> 2] = aa;
                     O = ad + 1 | 0;
@@ -46215,7 +46215,7 @@ function lua_binarytrees(global, env, buffer) {
                 at = c[am >> 2] | 0
             }
             ap = an >>> 0 > as >>> 0 ? as : an;
-            h2(ah | 0, at | 0, ap);
+            h2(ah | 0, at | 0, ap) | 0;
             ar = (c[ai >> 2] | 0) - ap | 0;
             c[ai >> 2] = ar;
             c[am >> 2] = (c[am >> 2] | 0) + ap | 0;
@@ -46270,7 +46270,7 @@ function lua_binarytrees(global, env, buffer) {
                 av = c[ai >> 2] | 0
             }
             n = at >>> 0 > au >>> 0 ? au : at;
-            h2(an | 0, av | 0, n);
+            h2(an | 0, av | 0, n) | 0;
             al = (c[N >> 2] | 0) - n | 0;
             c[N >> 2] = al;
             c[ai >> 2] = (c[ai >> 2] | 0) + n | 0;
@@ -46325,7 +46325,7 @@ function lua_binarytrees(global, env, buffer) {
                 ax = c[N >> 2] | 0
             }
             m = av >>> 0 > aw >>> 0 ? aw : av;
-            h2(at | 0, ax | 0, m);
+            h2(at | 0, ax | 0, m) | 0;
             am = (c[M >> 2] | 0) - m | 0;
             c[M >> 2] = am;
             c[N >> 2] = (c[N >> 2] | 0) + m | 0;
@@ -46376,7 +46376,7 @@ function lua_binarytrees(global, env, buffer) {
                 az = c[M >> 2] | 0
             }
             K = ax >>> 0 > ay >>> 0 ? ay : ax;
-            h2(L | 0, az | 0, K);
+            h2(L | 0, az | 0, K) | 0;
             ai = (c[av >> 2] | 0) - K | 0;
             c[av >> 2] = ai;
             c[M >> 2] = (c[M >> 2] | 0) + K | 0;
@@ -46427,7 +46427,7 @@ function lua_binarytrees(global, env, buffer) {
                 aB = c[av >> 2] | 0
             }
             I = az >>> 0 > aA >>> 0 ? aA : az;
-            h2(J | 0, aB | 0, I);
+            h2(J | 0, aB | 0, I) | 0;
             N = (c[ax >> 2] | 0) - I | 0;
             c[ax >> 2] = N;
             c[av >> 2] = (c[av >> 2] | 0) + I | 0;
@@ -46478,7 +46478,7 @@ function lua_binarytrees(global, env, buffer) {
                 aD = c[ax >> 2] | 0
             }
             G = aB >>> 0 > aC >>> 0 ? aC : aB;
-            h2(H | 0, aD | 0, G);
+            h2(H | 0, aD | 0, G) | 0;
             M = (c[az >> 2] | 0) - G | 0;
             c[az >> 2] = M;
             c[ax >> 2] = (c[ax >> 2] | 0) + G | 0;
@@ -46564,7 +46564,7 @@ function lua_binarytrees(global, env, buffer) {
                         aG = c[aC >> 2] | 0
                     }
                     M = ay >>> 0 > aF >>> 0 ? aF : ay;
-                    h2(av | 0, aG | 0, M);
+                    h2(av | 0, aG | 0, M) | 0;
                     G = (c[ax >> 2] | 0) - M | 0;
                     c[ax >> 2] = G;
                     c[aC >> 2] = (c[aC >> 2] | 0) + M | 0;
@@ -46612,7 +46612,7 @@ function lua_binarytrees(global, env, buffer) {
                 aI = c[aB >> 2] | 0
             }
             av = D >>> 0 > aH >>> 0 ? aH : D;
-            h2(aG | 0, aI | 0, av);
+            h2(aG | 0, aI | 0, av) | 0;
             aC = (c[aF >> 2] | 0) - av | 0;
             c[aF >> 2] = aC;
             c[aB >> 2] = (c[aB >> 2] | 0) + av | 0;
@@ -46718,7 +46718,7 @@ function lua_binarytrees(global, env, buffer) {
                             aL = c[aC >> 2] | 0
                         }
                         aA = av >>> 0 > aK >>> 0 ? aK : av;
-                        h2(aH | 0, aL | 0, aA);
+                        h2(aH | 0, aL | 0, aA) | 0;
                         az = (c[l >> 2] | 0) - aA | 0;
                         c[l >> 2] = az;
                         c[aC >> 2] = (c[aC >> 2] | 0) + aA | 0;
@@ -46771,7 +46771,7 @@ function lua_binarytrees(global, env, buffer) {
                                 aN = c[E >> 2] | 0
                             }
                             aD = az >>> 0 > aM >>> 0 ? aM : az;
-                            h2(aH | 0, aN | 0, aD);
+                            h2(aH | 0, aN | 0, aD) | 0;
                             G = (c[aC >> 2] | 0) - aD | 0;
                             c[aC >> 2] = G;
                             c[E >> 2] = (c[E >> 2] | 0) + aD | 0;
@@ -46823,7 +46823,7 @@ function lua_binarytrees(global, env, buffer) {
                                 aP = c[l >> 2] | 0
                             }
                             G = H >>> 0 > aO >>> 0 ? aO : H;
-                            h2(aA | 0, aP | 0, G);
+                            h2(aA | 0, aP | 0, G) | 0;
                             aD = (c[aH >> 2] | 0) - G | 0;
                             c[aH >> 2] = aD;
                             c[l >> 2] = (c[l >> 2] | 0) + G | 0;
@@ -46877,7 +46877,7 @@ function lua_binarytrees(global, env, buffer) {
                                     aS = c[az >> 2] | 0
                                 }
                                 M = aD >>> 0 > aR >>> 0 ? aR : aD;
-                                h2(l | 0, aS | 0, M);
+                                h2(l | 0, aS | 0, M) | 0;
                                 aw = (c[aH >> 2] | 0) - M | 0;
                                 c[aH >> 2] = aw;
                                 c[az >> 2] = (c[az >> 2] | 0) + M | 0;
@@ -46931,7 +46931,7 @@ function lua_binarytrees(global, env, buffer) {
                                 aU = c[aE >> 2] | 0
                             }
                             aw = E >>> 0 > aT >>> 0 ? aT : E;
-                            h2(G | 0, aU | 0, aw);
+                            h2(G | 0, aU | 0, aw) | 0;
                             M = (c[l >> 2] | 0) - aw | 0;
                             c[l >> 2] = M;
                             c[aE >> 2] = (c[aE >> 2] | 0) + aw | 0;
@@ -47003,7 +47003,7 @@ function lua_binarytrees(global, env, buffer) {
                 aW = c[aQ >> 2] | 0
             }
             j = aS >>> 0 > aV >>> 0 ? aV : aS;
-            h2(D | 0, aW | 0, j);
+            h2(D | 0, aW | 0, j) | 0;
             p = (c[r >> 2] | 0) - j | 0;
             c[r >> 2] = p;
             c[aQ >> 2] = (c[aQ >> 2] | 0) + j | 0;
@@ -47153,7 +47153,7 @@ function lua_binarytrees(global, env, buffer) {
                 a0 = c[aR >> 2] | 0
             }
             aW = o >>> 0 > a$ >>> 0 ? a$ : o;
-            h2(aZ | 0, a0 | 0, aW);
+            h2(aZ | 0, a0 | 0, aW) | 0;
             r = (c[aY >> 2] | 0) - aW | 0;
             c[aY >> 2] = r;
             c[aR >> 2] = (c[aR >> 2] | 0) + aW | 0;
@@ -47257,7 +47257,7 @@ function lua_binarytrees(global, env, buffer) {
                             a3 = c[C >> 2] | 0
                         }
                         x = a0 >>> 0 > a2 >>> 0 ? a2 : a0;
-                        h2(w | 0, a3 | 0, x);
+                        h2(w | 0, a3 | 0, x) | 0;
                         a_ = (c[aI >> 2] | 0) - x | 0;
                         c[aI >> 2] = a_;
                         c[C >> 2] = (c[C >> 2] | 0) + x | 0;
@@ -47307,7 +47307,7 @@ function lua_binarytrees(global, env, buffer) {
                             a5 = c[E >> 2] | 0
                         }
                         x = aR >>> 0 > a4 >>> 0 ? a4 : aR;
-                        h2(a$ | 0, a5 | 0, x);
+                        h2(a$ | 0, a5 | 0, x) | 0;
                         aS = (c[w >> 2] | 0) - x | 0;
                         c[w >> 2] = aS;
                         c[E >> 2] = (c[E >> 2] | 0) + x | 0;
@@ -47371,7 +47371,7 @@ function lua_binarytrees(global, env, buffer) {
                 a7 = c[B >> 2] | 0
             }
             A = a3 >>> 0 > a6 >>> 0 ? a6 : a3;
-            h2(o | 0, a7 | 0, A);
+            h2(o | 0, a7 | 0, A) | 0;
             a1 = (c[z >> 2] | 0) - A | 0;
             c[z >> 2] = a1;
             c[B >> 2] = (c[B >> 2] | 0) + A | 0;
@@ -47426,7 +47426,7 @@ function lua_binarytrees(global, env, buffer) {
                     ba = c[a6 >> 2] | 0
                 }
                 a5 = Y >>> 0 > a9 >>> 0 ? a9 : Y;
-                h2(a2 | 0, ba | 0, a5);
+                h2(a2 | 0, ba | 0, a5) | 0;
                 a4 = (c[o >> 2] | 0) - a5 | 0;
                 c[o >> 2] = a4;
                 c[a6 >> 2] = (c[a6 >> 2] | 0) + a5 | 0;
@@ -47479,7 +47479,7 @@ function lua_binarytrees(global, env, buffer) {
                 bc = c[a2 >> 2] | 0
             }
             ba = a6 >>> 0 > bb >>> 0 ? bb : a6;
-            h2(a8 | 0, bc | 0, ba);
+            h2(a8 | 0, bc | 0, ba) | 0;
             a9 = (c[a3 >> 2] | 0) - ba | 0;
             c[a3 >> 2] = a9;
             c[a2 >> 2] = (c[a2 >> 2] | 0) + ba | 0;
@@ -47564,7 +47564,7 @@ function lua_binarytrees(global, env, buffer) {
                         bf = c[bc >> 2] | 0
                     }
                     Y = y >>> 0 > be >>> 0 ? be : y;
-                    h2(W | 0, bf | 0, Y);
+                    h2(W | 0, bf | 0, Y) | 0;
                     a9 = (c[a8 >> 2] | 0) - Y | 0;
                     c[a8 >> 2] = a9;
                     c[bc >> 2] = (c[bc >> 2] | 0) + Y | 0;
@@ -47612,7 +47612,7 @@ function lua_binarytrees(global, env, buffer) {
                 bh = c[a6 >> 2] | 0
             }
             W = bb >>> 0 > bg >>> 0 ? bg : bb;
-            h2(bf | 0, bh | 0, W);
+            h2(bf | 0, bh | 0, W) | 0;
             bc = (c[be >> 2] | 0) - W | 0;
             c[be >> 2] = bc;
             c[a6 >> 2] = (c[a6 >> 2] | 0) + W | 0;
@@ -47720,7 +47720,7 @@ function lua_binarytrees(global, env, buffer) {
                             bk = c[bd >> 2] | 0
                         }
                         bc = ad >>> 0 > bj >>> 0 ? bj : ad;
-                        h2(be | 0, bk | 0, bc);
+                        h2(be | 0, bk | 0, bc) | 0;
                         W = (c[ac >> 2] | 0) - bc | 0;
                         c[ac >> 2] = W;
                         c[bd >> 2] = (c[bd >> 2] | 0) + bc | 0;
@@ -47774,7 +47774,7 @@ function lua_binarytrees(global, env, buffer) {
                                 bn = c[W >> 2] | 0
                             }
                             ae = bc >>> 0 > bm >>> 0 ? bm : bc;
-                            h2(bd | 0, bn | 0, ae);
+                            h2(bd | 0, bn | 0, ae) | 0;
                             a2 = (c[ac >> 2] | 0) - ae | 0;
                             c[ac >> 2] = a2;
                             c[W >> 2] = (c[W >> 2] | 0) + ae | 0;
@@ -47826,7 +47826,7 @@ function lua_binarytrees(global, env, buffer) {
                             bp = c[V >> 2] | 0
                         }
                         a2 = bh >>> 0 > bo >>> 0 ? bo : bh;
-                        h2(a8 | 0, bp | 0, a2);
+                        h2(a8 | 0, bp | 0, a2) | 0;
                         ae = (c[bd >> 2] | 0) - a2 | 0;
                         c[bd >> 2] = ae;
                         c[V >> 2] = (c[V >> 2] | 0) + a2 | 0;
@@ -47881,7 +47881,7 @@ function lua_binarytrees(global, env, buffer) {
                             br = c[W >> 2] | 0
                         }
                         be = ac >>> 0 > bq >>> 0 ? bq : ac;
-                        h2(ad | 0, br | 0, be);
+                        h2(ad | 0, br | 0, be) | 0;
                         bc = (c[a8 >> 2] | 0) - be | 0;
                         c[a8 >> 2] = bc;
                         c[W >> 2] = (c[W >> 2] | 0) + be | 0;
@@ -47958,7 +47958,7 @@ function lua_binarytrees(global, env, buffer) {
                 bt = c[R >> 2] | 0
             }
             bo = aa >>> 0 > bs >>> 0 ? bs : aa;
-            h2(bb | 0, bt | 0, bo);
+            h2(bb | 0, bt | 0, bo) | 0;
             S = (c[af >> 2] | 0) - bo | 0;
             c[af >> 2] = S;
             c[R >> 2] = (c[R >> 2] | 0) + bo | 0;
@@ -48020,7 +48020,7 @@ function lua_binarytrees(global, env, buffer) {
                     bv = c[bq >> 2] | 0
                 }
                 S = $ >>> 0 > bu >>> 0 ? bu : $;
-                h2(R | 0, bv | 0, S);
+                h2(R | 0, bv | 0, S) | 0;
                 bo = (c[af >> 2] | 0) - S | 0;
                 c[af >> 2] = bo;
                 c[bq >> 2] = (c[bq >> 2] | 0) + S | 0;
@@ -48074,7 +48074,7 @@ function lua_binarytrees(global, env, buffer) {
                         by = c[bo >> 2] | 0
                     }
                     bn = S >>> 0 > bx >>> 0 ? bx : S;
-                    h2(bq | 0, by | 0, bn);
+                    h2(bq | 0, by | 0, bn) | 0;
                     bm = (c[af >> 2] | 0) - bn | 0;
                     c[af >> 2] = bm;
                     c[bo >> 2] = (c[bo >> 2] | 0) + bn | 0;
@@ -48118,7 +48118,7 @@ function lua_binarytrees(global, env, buffer) {
         b = b | 0;
         var d = 0;
         d = a | 0;
-        e1(c[d >> 2] | 0, 3712, (v = i, i = i + 16 | 0, c[v >> 2] = c[a + 12 >> 2] | 0, c[v + 8 >> 2] = b, v) | 0);
+        e1(c[d >> 2] | 0, 3712, (v = i, i = i + 16 | 0, c[v >> 2] = c[a + 12 >> 2] | 0, c[v + 8 >> 2] = b, v) | 0) | 0;
         dr(c[d >> 2] | 0, 3)
     }
     function gm(a, b) {
@@ -49083,7 +49083,7 @@ function lua_binarytrees(global, env, buffer) {
                             y = 2;
                             break
                         }
-                        gm(b, n);
+                        gm(b, n) | 0;
                         y = 2;
                         break
                     }
@@ -49182,7 +49182,7 @@ function lua_binarytrees(global, env, buffer) {
                     while (1) {
                         r = c[e + (-B << 4) >> 2] | 0;
                         z = c[r + 12 >> 2] | 0;
-                        h2(K + t | 0, r + 16 | 0, z);
+                        h2(K + t | 0, r + 16 | 0, z) | 0;
                         L = z + t | 0;
                         z = B - 1 | 0;
                         if ((z | 0) > 0) {
@@ -52568,7 +52568,7 @@ function lua_binarytrees(global, env, buffer) {
                     break
                 }
                 while (1) {
-                    dI(b);
+                    dI(b) | 0;
                     if ((1 << (d[N] | 0) & -29 | 0) != 0) {
                         T = 0;
                         x = 641;
@@ -52633,7 +52633,7 @@ function lua_binarytrees(global, env, buffer) {
                 L825: do {
                     if ((a[O] | 0) != 0) {
                         while (1) {
-                            dI(b);
+                            dI(b) | 0;
                             if ((a[O] | 0) == 0) {
                                 break L825
                             }
@@ -53159,7 +53159,7 @@ function lua_binarytrees(global, env, buffer) {
             c[f >> 2] = h;
             c[f + 8 >> 2] = 69;
             c[e >> 2] = (c[e >> 2] | 0) + 16 | 0;
-            c6(a, 1, 6912);
+            c6(a, 1, 6912) | 0;
             return 1
         }
         return 0
@@ -54794,7 +54794,7 @@ function lua_binarytrees(global, env, buffer) {
             cT(a, 1, 8224);
             return 0
         } else {
-            c8(a, 1, 0);
+            c8(a, 1, 0) | 0;
             return 1
         }
         return 0
@@ -58400,7 +58400,7 @@ function lua_binarytrees(global, env, buffer) {
             k = (a[j + 3 | 0] | 0) == 7 ? 10 : 8;
             l = he(b, g) | 0;
             m = l << 14 | k | (d[j + 2 | 0] | 0) << 6 | (e[i >> 1] | 0) << 23;
-            hd(b, m)
+            hd(b, m) | 0;
         } else if ((h | 0) == 8) {
             ha(b, g);
             do {
@@ -58429,7 +58429,7 @@ function lua_binarytrees(global, env, buffer) {
                 hf(b, g);
                 n = c[o >> 2] | 0
             }
-            hd(b, n << 6 | c[f + 8 >> 2] << 23 | 9)
+            hd(b, n << 6 | c[f + 8 >> 2] << 23 | 9) | 0;
         } else if ((h | 0) == 7) {
             do {
                 if ((c[g >> 2] | 0) == 6) {
@@ -58916,7 +58916,7 @@ function lua_binarytrees(global, env, buffer) {
         e = (f | 0) == -1 ? 0 : f;
         if ((g | 0) < 512) {
             f = d << 6 | e << 23 | g << 14 | 36;
-            hd(b, f);
+            hd(b, f) | 0;
             h = d + 1 | 0;
             i = h & 255;
             j = b + 48 | 0;
@@ -58926,8 +58926,8 @@ function lua_binarytrees(global, env, buffer) {
         if ((g | 0) >= 67108864) {
             hS(c[b + 12 >> 2] | 0, 10208)
         }
-        hd(b, d << 6 | e << 23 | 36);
-        hd(b, g << 6 | 39);
+        hd(b, d << 6 | e << 23 | 36) | 0;
+        hd(b, g << 6 | 39) | 0;
         h = d + 1 | 0;
         i = h & 255;
         j = b + 48 | 0;
@@ -58945,7 +58945,7 @@ function lua_binarytrees(global, env, buffer) {
             i = 0,
             j = 0,
             k = 0;
-        hd(a, d << 6 | b | e << 23 | f << 14);
+        hd(a, d << 6 | b | e << 23 | f << 14) | 0;
         f = a + 28 | 0;
         e = c[f >> 2] | 0;
         c[f >> 2] = -1;
@@ -59033,7 +59033,7 @@ function lua_binarytrees(global, env, buffer) {
                 if ((m | 0) == (e | 0)) {
                     break
                 }
-                hd(a, m << 23 | e << 6)
+                hd(a, m << 23 | e << 6) | 0;
             } else if ((l | 0) == 1) {
                 m = e + 1 | 0;
                 n = c[a + 20 >> 2] | 0;
@@ -59068,19 +59068,19 @@ function lua_binarytrees(global, env, buffer) {
                         break L2340
                     }
                 } while (0);
-                hd(a, e << 6 | 4)
+                hd(a, e << 6 | 4) | 0;
             } else if ((l | 0) == 4) {
                 m = c[b + 8 >> 2] | 0;
                 n = e << 6;
                 if ((m | 0) < 262144) {
                     t = n | m << 14 | 1;
-                    hd(a, t);
+                    hd(a, t) | 0;
                     break
                 } else {
                     t = n | 2;
-                    hd(a, t);
+                    hd(a, t) | 0;
                     t = m << 6 | 39;
-                    hd(a, t);
+                    hd(a, t) | 0;
                     break
                 }
             } else if ((l | 0) == 5) {
@@ -59105,20 +59105,20 @@ function lua_binarytrees(global, env, buffer) {
                 v = e << 6;
                 if ((w | 0) < 262144) {
                     m = v | w << 14 | 1;
-                    hd(a, m);
+                    hd(a, m) | 0;
                     break
                 } else {
                     m = v | 2;
-                    hd(a, m);
+                    hd(a, m) | 0;
                     m = w << 6 | 39;
-                    hd(a, m);
+                    hd(a, m) | 0;
                     break
                 }
             } else if ((l | 0) == 11) {
                 m = (c[(c[a >> 2] | 0) + 12 >> 2] | 0) + (c[b + 8 >> 2] << 2) | 0;
                 c[m >> 2] = c[m >> 2] & -16321 | e << 6 & 16320
             } else if ((l | 0) == 3 | (l | 0) == 2) {
-                hd(a, e << 6 | ((l | 0) == 2 & 1) << 23 | 3)
+                hd(a, e << 6 | ((l | 0) == 2 & 1) << 23 | 3) | 0;
             } else {
                 i = f;
                 return
@@ -59477,7 +59477,7 @@ function lua_binarytrees(global, env, buffer) {
     }
     function ht(a) {
         a = a | 0;
-        hr(a);
+        hr(a) | 0;
         cN(a, 72, 1);
         return 1
     }
@@ -60517,7 +60517,7 @@ function lua_binarytrees(global, env, buffer) {
             c[n + 8 >> 2] = d[m + 4 | 0] | 0 | 64;
             p = (c[j >> 2] | 0) + 16 | 0
         } else {
-            da(b, 9976);
+            da(b, 9976) | 0;
             m = l + 8 | 0;
             n = c[m >> 2] | 0;
             c[n >> 2] = l;
@@ -60738,7 +60738,7 @@ function lua_binarytrees(global, env, buffer) {
                     cT(b, n, 6664);
                     return 0
                 }
-                cH(b, 6904, (v = i, i = i + 8 | 0, c[v >> 2] = s, v) | 0);
+                cH(b, 6904, (v = i, i = i + 8 | 0, c[v >> 2] = s, v) | 0) | 0;
                 l = c[m >> 2] | 0;
                 r = l - 16 | 0;
                 do {
@@ -61774,7 +61774,7 @@ function lua_binarytrees(global, env, buffer) {
         c[x + 4 >> 2] = J;
         c[y + 8 >> 2] = c[w >> 2] | 0;
         c[s >> 2] = (c[s >> 2] | 0) + 16 | 0;
-        dj(b, 7992, o);
+        dj(b, 7992, o) | 0;
         if ((G | 0) <= 0) {
             cT(b, 2, 7784);
             return 0
@@ -61859,7 +61859,7 @@ function lua_binarytrees(global, env, buffer) {
         c[M + 4 >> 2] = W;
         c[N + 8 >> 2] = c[L >> 2] | 0;
         c[s >> 2] = (c[s >> 2] | 0) + 16 | 0;
-        dj(b, 7992, n);
+        dj(b, 7992, n) | 0;
         if ((T | 0) <= 0) {
             cT(b, 4, 7784);
             return 0
@@ -62024,7 +62024,7 @@ function lua_binarytrees(global, env, buffer) {
         c[r + 4 >> 2] = E;
         c[s + 8 >> 2] = c[q >> 2] | 0;
         c[n >> 2] = (c[n >> 2] | 0) + 16 | 0;
-        dj(a, 7992, j);
+        dj(a, 7992, j) | 0;
         if ((B | 0) <= 0) {
             cT(a, 2, 7784);
             return 0
@@ -62270,7 +62270,7 @@ function lua_binarytrees(global, env, buffer) {
             j = 0,
             k = 0,
             l = 0;
-        da(b, 9976);
+        da(b, 9976) | 0;
         f = b + 8 | 0;
         g = c[f >> 2] | 0;
         c[g >> 2] = b;
@@ -63097,29 +63097,29 @@ function lua_binarytrees(global, env, buffer) {
                     a[f] = a[5024] | 0;
                     a[f + 1 | 0] = a[5025 | 0] | 0;
                     a[f + 2 | 0] = a[5026 | 0] | 0;
-                    h2(g + 3 | 0, j + (k - 56 | 0) | 0, 57);
+                    h2(g + 3 | 0, j + (k - 56 | 0) | 0, 57) | 0;
                     break
                 } else {
-                    h2(f | 0, j + 1 | 0, k);
+                    h2(f | 0, j + 1 | 0, k) | 0;
                     break
                 }
             } else if ((l << 24 >> 24 | 0) == 61) {
                 m = j + 1 | 0;
                 if (k >>> 0 > 60) {
-                    h2(f | 0, m | 0, 59);
+                    h2(f | 0, m | 0, 59) | 0;
                     a[g + 59 | 0] = 0;
                     break
                 } else {
-                    h2(f | 0, m | 0, k);
+                    h2(f | 0, m | 0, k) | 0;
                     break
                 }
             } else {
                 m = aU(j | 0, 10) | 0;
-                h2(f | 0, 3360, 9);
+                h2(f | 0, 3360, 9) | 0;
                 n = g + 9 | 0;
                 o = (m | 0) == 0;
                 if (k >>> 0 < 45 & o) {
-                    h2(n | 0, j | 0, k);
+                    h2(n | 0, j | 0, k) | 0;
                     p = k + 9 | 0
                 } else {
                     if (o) {
@@ -63128,7 +63128,7 @@ function lua_binarytrees(global, env, buffer) {
                         q = m - h | 0
                     }
                     m = q >>> 0 > 45 ? 45 : q;
-                    h2(n | 0, j | 0, m);
+                    h2(n | 0, j | 0, m) | 0;
                     n = g + (m + 9 | 0) | 0;
                     a[n] = a[5024] | 0;
                     a[n + 1 | 0] = a[5025 | 0] | 0;
@@ -63221,7 +63221,7 @@ function lua_binarytrees(global, env, buffer) {
                 }
             }
         } while (0);
-        e1(d, 9496, (v = i, i = i + 16 | 0, c[v >> 2] = j, c[v + 8 >> 2] = C, v) | 0);
+        e1(d, 9496, (v = i, i = i + 16 | 0, c[v >> 2] = j, c[v + 8 >> 2] = C, v) | 0) | 0;
         r = c[p >> 2] | 0;
         dr(r, 3)
     }
@@ -65766,7 +65766,7 @@ function lua_binarytrees(global, env, buffer) {
                 return V | 0
             }
             b_ = a[bX] | 0;
-            bZ = a[c[bA() >> 2] | 0] | 0;
+            bZ = a[c[(bA() | 0) >> 2] | 0] | 0;
             a[bX] = bZ;
             e = c[P >> 2] | 0;
             bY = c[e >> 2] | 0;
@@ -67722,7 +67722,7 @@ function lua_binarytrees(global, env, buffer) {
                     c[130] = 2097152;
                     c[131] = 0;
                     c[3183] = 0;
-                    c[126] = b7(0) & -16 ^ 1431655768;
+                    c[126] = (b7(0) | 0) & -16 ^ 1431655768;
                     break
                 } else {
                     bJ();
@@ -68585,7 +68585,7 @@ function lua_binarytrees(global, env, buffer) {
                 return n | 0
             }
         } while (0);
-        c[bB() >> 2] = 12;
+        c[(bB() | 0) >> 2] = 12;
         n = 0;
         return n | 0
     }
@@ -68890,7 +68890,7 @@ function lua_binarytrees(global, env, buffer) {
                                 c[130] = 2097152;
                                 c[131] = 0;
                                 c[3183] = 0;
-                                c[126] = b7(0) & -16 ^ 1431655768;
+                                c[126] = (b7(0) | 0) & -16 ^ 1431655768;
                                 break
                             } else {
                                 bJ()
@@ -68905,7 +68905,7 @@ function lua_binarytrees(global, env, buffer) {
                     do {
                         if (n >>> 0 > 40) {
                             l = c[128] | 0;
-                            B = aa(((((n - 41 | 0) + l | 0) >>> 0) / (l >>> 0) >>> 0) - 1 | 0, l);
+                            B = aa(((((n - 41 | 0) + l | 0) >>> 0) / (l >>> 0) >>> 0) - 1 | 0, l) | 0;
                             C = o;
                             u = 12736;
                             while (1) {
@@ -69898,10 +69898,10 @@ function lua_binarytrees(global, env, buffer) {
         t = t + 1 | 0;
         c[a >> 2] = t;
         while ((e | 0) < 40) {
-            if ((c[d + aa(e, 4) >> 2] | 0) == 0) {
-                c[d + aa(e, 4) >> 2] = t;
-                c[d + (aa(e, 4) + 4) >> 2] = b;
-                c[d + (aa(e, 4) + 8) >> 2] = 0;
+            if ((c[d + (aa(e, 4) | 0) >> 2] | 0) == 0) {
+                c[d + (aa(e, 4) | 0) >> 2] = t;
+                c[d + ((aa(e, 4) | 0) + 4) >> 2] = b;
+                c[d + ((aa(e, 4) | 0) + 8) >> 2] = 0;
                 return 0
             }
             e = e + 2 | 0
