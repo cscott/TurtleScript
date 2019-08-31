@@ -6,7 +6,7 @@ Project Goals
 
 The TurtleScript experiment attempts to provide a simple logo-like
 programming environment which is based on a "real" programming
-language.  It draws heavy inspiration from Etoys_, Scratch_, BYOB_,
+language.  It draws heavy inspiration from Etoys_, Scratch_, Snap_,
 Elements_, TileScript_, `Turtle Art`_, and `Open Blocks`_.  As a
 browser-based programming environment, it builds on ideas from the
 `Lively Kernel`_ and `Lively Qt`_.  The `TileScript paper`_ describes
@@ -33,19 +33,19 @@ environment which is truly "`turtles all the way down`_".
 
 .. _Etoys: http://wiki.laptop.org/go/Etoys
 .. _Scratch: http://scratch.mit.edu/
-.. _BYOB: http://byob.berkeley.edu/
-.. _Elements: http://www.chirp.scratchr.org/blog/?p=24
+.. _Snap: http://snap.berkeley.edu/
+.. _Elements: https://web.archive.org/web/20140127205214/http://www.chirp.scratchr.org/blog/?p=24
 .. _TileScript: http://tinlizzie.org/jstile/
 .. _TileScript paper: http://tinlizzie.org/jstile/#TileScript
 .. _Turtle Art: http://wiki.laptop.org/go/Turtle_Art
-.. _Open Blocks: http://education.mit.edu/drupal/openblocks
+.. _Open Blocks: https://web.archive.org/web/20130823011046/http://education.mit.edu/openblocks
 .. _Lively Kernel: http://www.lively-kernel.org/index.html
 .. _Lively Qt: http://lively.cs.tut.fi/qt/
 .. _Sugar: http://wiki.laptop.org/go/Sugar
 .. _View Source: http://wiki.laptop.org/go/View_Source
-.. _cola: http://piumarta.com/software/cola/
-.. _maru: http://piumarta.com/software/maru/
-.. _OOPSLA 89: http://selflanguage.org/documentation/published/implementation.html
+.. _cola: https://web.archive.org/web/20160612023705/http://piumarta.com/software/cola/
+.. _maru: https://web.archive.org/web/20190207024931/http://piumarta.com/software/maru/
+.. _OOPSLA 89: https://web.archive.org/web/20130807083351/http://selflanguage.org/documentation/published/implementation.html
 .. _turtles all the way down: http://en.wikipedia.org/wiki/Turtles_all_the_way_down
 
 .. image:: https://travis-ci.org/cscott/TurtleScript.png
@@ -200,16 +200,16 @@ See `Helping out`_ to contribute.
 .. _Douglas Crockford: http://www.crockford.com/javascript/
 .. _parse.js: http://turtlescript.github.cscott.net/docco/parse.html
 .. _jcompile.js: http://turtlescript.github.cscott.net/docco/jcompile.html
-.. _maru: http://piumarta.com/software/maru/
+.. _maru: https://web.archive.org/web/20190207024931/http://piumarta.com/software/maru/
 .. _tdop.html: http://turtlescript.github.cscott.net/tdop.html
-.. _parser demonstration: http://javascript.crockford.com/tdop/index.html
+.. _parser demonstration: https://web.archive.org/web/20150905114538/http://javascript.crockford.com/tdop/index.html
 .. _jQuery: http://jquery.com/
 .. _jQuery UI: http://jqueryui.com/
 .. _tile2.html: http://turtlescript.github.cscott.net/tile2.html
 .. _tiles.html: http://turtlescript.github.cscott.net/tiles.html
 .. _ctiles.html: http://turtlescript.github.cscott.net/ctiles.html
 .. _canvas API: http://turtlescript.github.cscott.net/docco/ccanvas.html
-.. _gjs module system: http://cananian.livejournal.com/58744.html
+.. _gjs module system: https://web.archive.org/web/20110726160607/http://cananian.livejournal.com/58744.html
 
 Interesting Parser Tasks
 ========================
@@ -442,7 +442,7 @@ compiler extensions:
 .. _proposal by Crockford: http://www.crockford.com/javascript/recommend.html
 .. _Generators/yield: https://developer.mozilla.org/en/JavaScript/Guide/Iterators_and_Generators
 .. _not enumerable: https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Object/defineProperty
-.. _prophylactic: http://javascript.crockford.com/code.html
+.. _prophylactic: https://web.archive.org/web/20171006072207/http://javascript.crockford.com/code.html
 
 Simplifying the Environment
 ===========================
@@ -533,10 +533,10 @@ propagation, and memoization.  Here's a task list:
    function results.
 
 .. _extensions.js: http://turtlescript.github.cscott.net/docco/extensions.html
-.. _Typed Array: http://www.khronos.org/registry/typedarray/specs/latest/
-.. _object model: http://piumarta.com/software/cola/objmodel2.pdf
-.. _NaN boxing: http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation/
-.. _jsval.h: http://hg.mozilla.org/tracemonkey/annotate/9c869e64ee26/js/src/jsval.h
+.. _Typed Array: https://web.archive.org/web/20130223083316/http://www.khronos.org/registry/typedarray/specs/latest/
+.. _object model: https://web.archive.org/web/20170627180408/http://piumarta.com/software/cola/objmodel2.pdf
+.. _NaN boxing: https://web.archive.org/web/20110406172932/http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation/
+.. _jsval.h: https://web.archive.org/web/20190831000619/https://hg.mozilla.org/integration/mozilla-inbound/annotate/9c869e64ee269732a0c2109568d07f10e816fdba/js/src/jsval.h
 .. _NaCl: http://en.wikipedia.org/wiki/Google_Native_Client
 
 Rendering Ideas
@@ -689,7 +689,7 @@ rendering tasks:
 
 .. _crender.js: http://turtlescript.github.cscott.net/docco/crender.html
 .. _parse.js: http://turtlescript.github.cscott.net/docco/parse.html
-.. _Lessphic: http://piumarta.com/software/cola/canvas.pdf
+.. _Lessphic: https://web.archive.org/web/20160420073152/http://piumarta.com/software/cola/canvas.pdf
 
 Interaction Ideas
 =================
@@ -867,12 +867,12 @@ application environment.
 
 .. _CSS JSON: http://www.featureblend.com/css-json.html
 .. _JsonML: http://jsonml.org/DOM/
-.. _in some browsers: http://cananian.livejournal.com/60624.html
+.. _in some browsers: https://web.archive.org/web/20160823033030/http://cananian.livejournal.com/60624.html
 .. _JSON-P: http://bob.pythonmac.org/archives/2005/12/05/remote-json-jsonp/
-.. _Crockford's <module> proposal: http://json.org/module.html
+.. _Crockford's <module> proposal: https://web.archive.org/web/20160821113753/http://json.org/module.html
 .. _jslinux: http://bellard.org/jslinux/index.html
 .. _JavaScript Typed Array: http://www.khronos.org/registry/typedarray/specs/latest/
-.. _JSPON: http://www.jspon.org/
+.. _JSPON: https://web.archive.org/web/20160327150632/http://www.jspon.org/
 .. _Firefox JSON bug: https://bugzilla.mozilla.org/show_bug.cgi?id=509184
 
 Helping out
