@@ -3,13 +3,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.10: http://docutils.sourceforge.net/" />
-<title></title>
+<meta name="generator" content="Docutils 0.14: http://docutils.sourceforge.net/" />
+<title>README.rst</title>
 <style type="text/css">
 
 /*
 :Author: David Goodger (goodger@python.org)
-:Id: $Id: html4css1.css 7514 2012-09-14 14:27:12Z milde $
+:Id: $Id: html4css1.css 7952 2016-07-26 18:15:59Z milde $
 :Copyright: This stylesheet has been placed in the public domain.
 
 Default cascading style sheet for the HTML output of Docutils.
@@ -36,6 +36,14 @@ table.borderless td, table.borderless th {
 
 .hidden {
   display: none }
+
+.subscript {
+  vertical-align: sub;
+  font-size: smaller }
+
+.superscript {
+  vertical-align: super;
+  font-size: smaller }
 
 a.toc-backref {
   text-decoration: none ;
@@ -161,18 +169,23 @@ h2.subtitle {
 hr.docutils {
   width: 75% }
 
-img.align-left, .figure.align-left, object.align-left {
+img.align-left, .figure.align-left, object.align-left, table.align-left {
   clear: left ;
   float: left ;
   margin-right: 1em }
 
-img.align-right, .figure.align-right, object.align-right {
+img.align-right, .figure.align-right, object.align-right, table.align-right {
   clear: right ;
   float: right ;
   margin-left: 1em }
 
 img.align-center, .figure.align-center, object.align-center {
   display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table.align-center {
   margin-left: auto;
   margin-right: auto;
 }
@@ -193,6 +206,15 @@ div.align-right {
 
 /* div.align-center * { */
 /*   text-align: left } */
+
+.align-top    {
+  vertical-align: top }
+
+.align-middle {
+  vertical-align: middle }
+
+.align-bottom {
+  vertical-align: bottom }
 
 ol.simple, ul.simple {
   margin-bottom: 1em }
@@ -313,6 +335,21 @@ table.docutils th.field-name, table.docinfo th.docinfo-name {
   white-space: nowrap ;
   padding-left: 0 }
 
+/* "booktabs" style (no vertical lines) */
+table.docutils.booktabs {
+  border: 0px;
+  border-top: 2px solid;
+  border-bottom: 2px solid;
+  border-collapse: collapse;
+}
+table.docutils.booktabs * {
+  border: 0px;
+}
+table.docutils.booktabs th {
+  border-bottom: thin solid;
+  text-align: left;
+}
+
 h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
 h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
   font-size: 100% }
@@ -331,8 +368,8 @@ ul.auto-toc {
 <h1>Project Goals</h1>
 <p>The TurtleScript experiment attempts to provide a simple logo-like
 programming environment which is based on a &quot;real&quot; programming
-language.  It draws heavy inspiration from <a class="reference external" href="http://wiki.laptop.org/go/Etoys">Etoys</a>, <a class="reference external" href="http://scratch.mit.edu/">Scratch</a>, <a class="reference external" href="http://byob.berkeley.edu/">BYOB</a>,
-<a class="reference external" href="http://www.chirp.scratchr.org/blog/?p=24">Elements</a>, <a class="reference external" href="http://tinlizzie.org/jstile/">TileScript</a>, <a class="reference external" href="http://wiki.laptop.org/go/Turtle_Art">Turtle Art</a>, and <a class="reference external" href="http://education.mit.edu/drupal/openblocks">Open Blocks</a>.  As a
+language.  It draws heavy inspiration from <a class="reference external" href="http://wiki.laptop.org/go/Etoys">Etoys</a>, <a class="reference external" href="http://scratch.mit.edu/">Scratch</a>, <a class="reference external" href="http://snap.berkeley.edu/">Snap</a>,
+<a class="reference external" href="https://web.archive.org/web/20140127205214/http://www.chirp.scratchr.org/blog/?p=24">Elements</a>, <a class="reference external" href="http://tinlizzie.org/jstile/">TileScript</a>, <a class="reference external" href="http://wiki.laptop.org/go/Turtle_Art">Turtle Art</a>, and <a class="reference external" href="https://web.archive.org/web/20130823011046/http://education.mit.edu/openblocks">Open Blocks</a>.  As a
 browser-based programming environment, it builds on ideas from the
 <a class="reference external" href="http://www.lively-kernel.org/index.html">Lively Kernel</a> and <a class="reference external" href="http://lively.cs.tut.fi/qt/">Lively Qt</a>.  The <a class="reference external" href="http://tinlizzie.org/jstile/#TileScript">TileScript paper</a> describes
 our own motivations well, although we've chosen a slightly different
@@ -347,8 +384,8 @@ also a commercially-important programming language, which is (sadly)
 important to many vocationally-minded educators.</p>
 <p>I've also been recently (re)inspired by the Smalltalk community, and
 in particular by Ian Piumarta's work on the small self-describing
-systems <a class="reference external" href="http://piumarta.com/software/cola/">cola</a> and <a class="reference external" href="http://piumarta.com/software/maru/">maru</a>.  The SELF bytecode format described in
-Chambers et al's <a class="reference external" href="http://selflanguage.org/documentation/published/implementation.html">OOPSLA 89</a> paper was a further incentive to
+systems <a class="reference external" href="https://web.archive.org/web/20160612023705/http://piumarta.com/software/cola/">cola</a> and <a class="reference external" href="https://web.archive.org/web/20190207024931/http://piumarta.com/software/maru/">maru</a>.  The SELF bytecode format described in
+Chambers et al's <a class="reference external" href="https://web.archive.org/web/20130807083351/http://selflanguage.org/documentation/published/implementation.html">OOPSLA 89</a> paper was a further incentive to
 investigate minimal executable representations.  The hope is that
 a few powerful optimizations can be employed against a tiny set of
 fundamental operations to create a compact and high-performance
@@ -407,9 +444,9 @@ and still emit ECMA-standard JavaScript which can take advantage of
 browsers' highly-tuned JavaScript implementations.  Some possible
 extensions are described in the <a class="reference internal" href="#interesting-compiler-tasks">Interesting Compiler Tasks</a> section.</p>
 <p>In May 2011 I wrote a simple bytecode compiler/interpreter for the
-language, inspired by Piumarta's <a class="reference external" href="http://piumarta.com/software/maru/">maru</a> system.  You can test the
+language, inspired by Piumarta's <a class="reference external" href="https://web.archive.org/web/20190207024931/http://piumarta.com/software/maru/">maru</a> system.  You can test the
 parser and the bytecode compiler and interpreter using <a class="reference external" href="http://turtlescript.github.cscott.net/tdop.html">tdop.html</a>,
-which is a highly modified version of Douglas Crockford's original <a class="reference external" href="http://javascript.crockford.com/tdop/index.html">parser
+which is a highly modified version of Douglas Crockford's original <a class="reference external" href="https://web.archive.org/web/20150905114538/http://javascript.crockford.com/tdop/index.html">parser
 demonstration</a>.  The bytecode instruction set is simple, but not
 simple enough; <a class="reference internal" href="#simplifying-the-environment">Simplifying the Environment</a> discusses improvements.</p>
 <div class="figure align-right">
@@ -448,7 +485,7 @@ TurtleScript project.  The on-screen palette will include a tab for
 each imported namespace, which displays tiles for each name
 (method or variable) defined in that namespace.  So the activity would
 initially offer a <tt class="docutils literal">run()</tt> method to be defined, starting with
-<tt class="docutils literal">var turtle = imports.turtle</tt> (borrowing the <a class="reference external" href="http://cananian.livejournal.com/58744.html">gjs module system</a>,
+<tt class="docutils literal">var turtle = imports.turtle</tt> (borrowing the <a class="reference external" href="https://web.archive.org/web/20110726160607/http://cananian.livejournal.com/58744.html">gjs module system</a>,
 which is built on the single global <tt class="docutils literal">imports</tt> definition).  This is
 sufficient to put the standard <tt class="docutils literal"><span class="pre">forward(...)</span></tt>, <tt class="docutils literal"><span class="pre">turn(...)</span></tt>, <tt class="docutils literal">pen up()</tt>,
 <tt class="docutils literal">pen down()</tt>, and <tt class="docutils literal"><span class="pre">color(...)</span></tt> definitions on the first page of the
@@ -643,7 +680,7 @@ probably makes the most sense to do this by overriding
 <p>As an alternative, one might consider adding a &quot;meta object&quot; above
 each &quot;real&quot; object in the object's prototype chain.  Properties can
 be added to the &quot;meta object&quot; without being enumerable, assuming
-that the developer is using the <tt class="docutils literal">hasOwnProperty</tt> <a class="reference external" href="http://javascript.crockford.com/code.html">prophylactic</a>.</p>
+that the developer is using the <tt class="docutils literal">hasOwnProperty</tt> <a class="reference external" href="https://web.archive.org/web/20171006072207/http://javascript.crockford.com/code.html">prophylactic</a>.</p>
 <p>If a &quot;meta object&quot; mechanism is required, the goal would be to
 avoid any changes to the semantics of the language.  This would purely
 be an implementation aid for efficient hidden properties.</p>
@@ -735,9 +772,9 @@ String.array_getter = function(map) {
 mechanism, which we can optimize using specialization and inlining.</p>
 </li>
 <li><p class="first">Rewrite bytecode interpreter to operate on object representations
-stored in a <a class="reference external" href="http://www.khronos.org/registry/typedarray/specs/latest/">Typed Array</a>.  This can include a proper <a class="reference external" href="http://piumarta.com/software/cola/objmodel2.pdf">object model</a>
-and garbage collector.  Use <a class="reference external" href="http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation/">NaN boxing</a>, possibly based more-or-less
-directly on SpiderMonkey's <a class="reference external" href="http://hg.mozilla.org/tracemonkey/annotate/9c869e64ee26/js/src/jsval.h">jsval.h</a> but with the addition of
+stored in a <a class="reference external" href="https://web.archive.org/web/20130223083316/http://www.khronos.org/registry/typedarray/specs/latest/">Typed Array</a>.  This can include a proper <a class="reference external" href="https://web.archive.org/web/20170627180408/http://piumarta.com/software/cola/objmodel2.pdf">object model</a>
+and garbage collector.  Use <a class="reference external" href="https://web.archive.org/web/20110406172932/http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation/">NaN boxing</a>, possibly based more-or-less
+directly on SpiderMonkey's <a class="reference external" href="https://web.archive.org/web/20190831000619/https://hg.mozilla.org/integration/mozilla-inbound/annotate/9c869e64ee269732a0c2109568d07f10e816fdba/js/src/jsval.h">jsval.h</a> but with the addition of
 a <tt class="docutils literal">NumericString</tt> type as described above.</p>
 </li>
 <li><p class="first">Write a simple bytecode interpreter in C which can operate on
@@ -783,7 +820,7 @@ drag over places where an existing construct (block, argument list,
 variable declaration, etc) can be extended.</p>
 </li>
 <li><p class="first">Puzzle pieces.</p>
-<p><a class="reference external" href="http://scratch.mit.edu/">Scratch</a>, <a class="reference external" href="http://wiki.laptop.org/go/Turtle_Art">Turtle Art</a>, and <a class="reference external" href="http://education.mit.edu/drupal/openblocks">Open Blocks</a> are successful with
+<p><a class="reference external" href="http://scratch.mit.edu/">Scratch</a>, <a class="reference external" href="http://wiki.laptop.org/go/Turtle_Art">Turtle Art</a>, and <a class="reference external" href="https://web.archive.org/web/20130823011046/http://education.mit.edu/openblocks">Open Blocks</a> are successful with
 kids.  Try to learn from these representations and copy the details
 which make them successful.  One key might be switching to more
 &quot;open&quot; layouts of block groupings, using a &quot;C&quot; shape open at one
@@ -887,7 +924,7 @@ lower than its context.</li>
 source and/or a parse tree.</li>
 <li>Add basic 'pick' functionality.  (Possibly split Widget
 representation into Composite/Composable at the same time, as is
-done in <a class="reference external" href="http://piumarta.com/software/cola/canvas.pdf">Lessphic</a>.)</li>
+done in <a class="reference external" href="https://web.archive.org/web/20160420073152/http://piumarta.com/software/cola/canvas.pdf">Lessphic</a>.)</li>
 <li>Allow dragging widgets (but not actual editing yet).</li>
 <li>Allow editing trees via drag and drop (but not yet editing/creating
 names).</li>
@@ -994,7 +1031,7 @@ Four possible solutions (perhaps there are others):</p>
 <ol class="loweralpha">
 <li><p class="first">The module is an HTML file loaded via &lt;iframe&gt; injection.</p>
 <p>This is probably the preferred approach.  We use the native
-HTML and JavaScript parsers, and can (<a class="reference external" href="http://cananian.livejournal.com/60624.html">in some browsers</a>) reparent
+HTML and JavaScript parsers, and can (<a class="reference external" href="https://web.archive.org/web/20160823033030/http://cananian.livejournal.com/60624.html">in some browsers</a>) reparent
 the iframe in order to pull pieces of the environment out into
 their own windows.</p>
 </li>
@@ -1011,7 +1048,7 @@ parser <a class="footnote-reference" href="#id8" id="id6">[2]</a>.  We'd need to
 functions, and programmatically recreate the DOM as in the previous
 option <a class="footnote-reference" href="#id11" id="id7">[4]</a>.</p>
 </li>
-<li><p class="first">Direct implementation of <a class="reference external" href="http://json.org/module.html">Crockford's &lt;module&gt; proposal</a>.</p>
+<li><p class="first">Direct implementation of <a class="reference external" href="https://web.archive.org/web/20160821113753/http://json.org/module.html">Crockford's &lt;module&gt; proposal</a>.</p>
 <p>Might be tricky to do without native browser support.</p>
 </li>
 <li><p class="first">Build an in-browser VM.</p>
@@ -1061,7 +1098,7 @@ a <tt class="docutils literal">$$replace</tt> property to represent the cycle in
 <table class="docutils footnote" frame="void" id="id11" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id7">[4]</a></td><td>The <a class="reference external" href="http://www.jspon.org/">JSPON</a> proposal seems to be related to our JSON solution, but
+<tr><td class="label"><a class="fn-backref" href="#id7">[4]</a></td><td>The <a class="reference external" href="https://web.archive.org/web/20160327150632/http://www.jspon.org/">JSPON</a> proposal seems to be related to our JSON solution, but
 JSPON doesn't seem to allow serialization of code.</td></tr>
 </tbody>
 </table>
