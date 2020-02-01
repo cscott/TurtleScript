@@ -5,7 +5,7 @@
 define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escape', './tests', './stdlib', './extensions'], function(parse, bcompile, bytecode_table, top_level, str_escape, tests, stdlib) {
     var fake_require =
         "var __modules__ = {};\n"+
-        "define = function(name, deps, init_func) {\n"+
+        "define = function _define(name, deps, init_func) {\n"+
         "  var d = deps.map(function(m) { return __modules__[m]; });\n"+
         "  __modules__[name] = init_func.apply(this, d);\n"+
         "};\n";
@@ -53,6 +53,8 @@ define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escap
     /* XXX Hacks for initial tests:
     source = "{ console.log('Hello,', 'world!'); }";
     source = "{ var fib=function(n){return (n<2)?1:fib(n-1)+fib(n-2);}; return fib(10); }";
+    source = '{ return 1+2; }';
+    source = "{ return 0+'x'; }";
     */
 
     var compile_from_source = make_compile_from_source(parse, bcompile, top_level);
@@ -97,7 +99,7 @@ define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escap
     console.log('\t * @param array &$functions');
     console.log('\t * @param array &$literals');
     console.log('\t */');
-    console.log('\tpublic function init( array &$functions, array &$literals ) {');
+    console.log('\tpublic static function init( array &$functions, array &$literals ) {');
     console.log('\t\t// functions');
     bc.functions.forEach(function(f, i) {
         var name = f.name ? (' // '+JSON.stringify(f.name)) : '';
@@ -135,7 +137,7 @@ define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escap
             if (isNaN(lv)) { str = 'NAN'; }
             else if (!isFinite(lv)) { str = lv > 0 ? 'INF' : '-INF'; }
         } else if (typeof(lv) === "string") {
-            str = "Environment::valFromPhpStr( " + php_esc(lv) + " )";
+            str = php_esc(lv); // Note: UTF8, not UTF16
         } else if (typeof(lv) === "boolean") {
             str = (lv ? "true" : "false");
         } else if (lv === null) {

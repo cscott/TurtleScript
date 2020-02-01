@@ -51,8 +51,10 @@ define(['./bytecode-table'], function(bytecode_table) {
             console.log('\t\t\treturn ' + i + ';');
             i+=1;
         }
-        console.log('\t\tdefault:');
-        console.log('\t\t\treturn 0;');
+        if (group[0] !== undefined && group[0].length > 0) {
+            console.log('\t\tdefault:');
+            console.log('\t\t\treturn 0;');
+        }
         console.log('\t\t}');
     };
 
@@ -90,6 +92,18 @@ define(['./bytecode-table'], function(bytecode_table) {
         }
         return bc.stackpop();
     });
+    console.log('\t}');
+    console.log('');
+
+    console.log('\t/**');
+    console.log('\t * Return the human-readable name for the given opcode.');
+    console.log('\t * @param int $op The opcode');
+    console.log('\t * @return string The name of the opcode');
+    console.log('\t */');
+    console.log('\tpublic static function name( int $op ): string {');
+    buildSwitch(function(bc) { return (function() {
+        return JSON.stringify(bc.name);
+    }); });
     console.log('\t}');
 
     console.log('}');
