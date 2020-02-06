@@ -44,11 +44,12 @@ define(['./bytecode-table'], function(bytecode_table) {
         });
         var i = 1;
         while (i < group.length) {
-            if (group[i] === undefined || group[i].length === 0) { continue; }
-            group[i].forEach(function(bc) {
-                console.log('\t\tcase self::' + phpName(bc) + ':');
-            });
-            console.log('\t\t\treturn ' + i + ';');
+            if (group[i] !== undefined && group[i].length > 0) {
+                group[i].forEach(function(bc) {
+                    console.log('\t\tcase self::' + phpName(bc) + ':');
+                });
+                console.log('\t\t\treturn ' + i + ';');
+            }
             i+=1;
         }
         if (group[0] !== undefined && group[0].length > 0) {
@@ -88,7 +89,7 @@ define(['./bytecode-table'], function(bytecode_table) {
     console.log('\tpublic static function stackpop( int $op, array $args ): int {');
     buildSwitch(function(bc) {
         if (bc.name === 'invoke') {
-            return (function() { return '$args[0] + 2' });
+            return (function() { return '$args[0] + 2'; });
         }
         return bc.stackpop();
     });
@@ -102,7 +103,7 @@ define(['./bytecode-table'], function(bytecode_table) {
     console.log('\t */');
     console.log('\tpublic static function name( int $op ): string {');
     buildSwitch(function(bc) { return (function() {
-        return JSON.stringify(bc.name);
+        return '"' + bc.name + '"';
     }); });
     console.log('\t}');
 
