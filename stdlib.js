@@ -23,6 +23,25 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
             }
             return (j === searchValue.length) ? i : -1;
         };
+        String.prototype.slice = function(beginIndex, endIndex) {
+            var len = this.length;
+            if (endIndex === undefined) {
+                endIndex = len;
+            }
+            if (beginIndex < 0) {
+                beginIndex += len;
+            }
+            if (endIndex < 0) {
+                endIndex += len;
+            }
+            if (beginIndex > len) {
+                beginIndex = len;
+            }
+            if (endIndex > len) {
+                endIndex = len;
+            }
+            return this.substring(beginIndex, endIndex);
+        };
         String.prototype.trim = function() {
             // Non-regex version of `String.prototype.trim()` based on
             // http://blog.stevenlevithan.com/archives/faster-trim-javascript
@@ -78,6 +97,50 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
                 k += 1;
             }
             return result;
+        };
+        Array.prototype.slice = function(begin, end) {
+            var i = 0;
+            var upTo;
+            var size;
+            var cloned = [];
+            var start;
+            var len = this.length;
+
+            // Handle negative value for "begin"
+            start = begin || 0;
+            start = (start >= 0) ? start : len + start;
+            if (start < 0) {
+                start = 0;
+            }
+
+            // Handle negative value for "end"
+            end = (typeof end !== 'undefined') ? end : len;
+            upTo = (typeof(end) === 'number') ? end : len;
+            if (upTo > len) {
+                upTo = len;
+            }
+            if (upTo < 0) {
+                upTo = len + upTo;
+            }
+
+            // Actual expected size of the slice
+            size = upTo - start;
+
+            if (size > 0) {
+                if (this.charAt) {
+                    while (i < size) {
+                        cloned[i] = this.charAt(start + i);
+                        i+=1;
+                    }
+                } else {
+                    while (i < size) {
+                        cloned[i] = this[start + i];
+                        i+=1;
+                    }
+                }
+            }
+
+            return cloned;
         };
         Array.prototype.concat = function() {
             var result = [], i, j;
