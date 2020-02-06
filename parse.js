@@ -106,7 +106,7 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
         } else if (a === "operator") {
             o = symbol_table[v];
             if (!o) {
-                error(t, "Unknown operator.");
+                error(t, "Unknown operator: " + v);
             }
         } else if (a === "string" || a ===  "number") {
             o = symbol_table["(literal)"];
@@ -197,7 +197,7 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
 
     var original_symbol = {
         nud: function () {
-            error(this, "Undefined.");
+            error(this, "Undefined: " + this.value);
         },
         led: function (left) {
             error(this, "Missing operator.");
