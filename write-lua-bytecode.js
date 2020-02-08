@@ -125,7 +125,7 @@ define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escap
     bc.functions.forEach(function(f, i) {
         var name = f.name ? (' -- '+JSON.stringify(f.name)) : '';
         console.log('  ifunc.Function:new{' + name);
-        name = f.name ? lua_esc(f.name) : 'nil';
+        name = f.name ? ('jsval.newString(' + lua_esc(f.name) + ')') : 'jsval.Undefined';
         console.log('    name = ' + name + ',');
         console.log('    id = ' + f.id + ',');
         console.log('    nargs = ' + f.nargs + ',');
@@ -160,6 +160,9 @@ define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escap
             str = lv.toString();
             if (isNaN(lv)) { str = '0/0'; }
             else if (!isFinite(lv)) { str = lv > 0 ? '1/0' : '-1/0'; }
+            // special case for -0, from
+            // https://luaunit.readthedocs.io/en/latest/#scientific-computing-and-luaunit
+            else if (lv === 0 && (1/lv)===-Infinity) { str = '-1/(1/0)'; }
             str = 'jsval.newNumber(' + str + ')';
         } else if (typeof(lv) === "string") {
             str = lua_esc(lv); // Note: UTF8!
