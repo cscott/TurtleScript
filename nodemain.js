@@ -52,3 +52,11 @@ module.exports.write_php_ops = function() {
     // This module has side-effects when imported.
     requirejs('./write-php-ops');
 };
+module.exports.write_lua_bytecode = function() {
+    // This module has side-effects when imported.
+    requirejs('./write-lua-bytecode');
+};
+module.exports.write_lua_ops = function() {
+    // This module has side-effects when imported.
+    requirejs('./write-lua-ops');
+};
