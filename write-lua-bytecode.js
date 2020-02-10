@@ -13,7 +13,7 @@ define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escap
        var compile_from_source = function (source, as_object) {
            source = source || '{ return 1+2; }';
            var tree = parse(source, TOP_LEVEL);
-           var bc = bcompile(tree);
+           var bc = bcompile(tree, true/*don't desugar frame get*/);
            var result = as_object ? bc : bc.encode();
            return result;
        };

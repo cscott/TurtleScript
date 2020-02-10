@@ -44,14 +44,15 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
 
     var dispatch = {};
     // compilation state
-    var mkstate = function() {
+    var mkstate = function(dont_desugar_frame_get) {
         // The result of a compilation: a function list and a literal list.
         // We also need to count lexical scope nesting depth during compilation
         var state = {
             functions: [],
             literals: [],
             // internal
-            scope: 0
+            scope: 0,
+            desugar_frame_get: !dont_desugar_frame_get
         };
         // literal symbol table.  Does string intern'ing too.  Very simple.
         state.literal = function(val) {
@@ -243,9 +244,12 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
         // This loop is actually optional; the parent chain will do
         // the lookup correctly even if you don't take care to look
         // in the exact right frame (like we do here)
-        while ( i < depth ) {
-            state.emit("get_slot_direct", state.literal("__proto__"));
-            i += 1;
+        // (might be faster to let the object model do this traversal)
+        if ( state.desugar_frame_get ) {
+            while ( i < depth ) {
+                state.emit("get_slot_direct", state.literal("__proto__"));
+                i += 1;
+            }
         }
         state.emit("get_slot_direct", state.literal(this.value));
     };
@@ -350,6 +354,9 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
             if (this.first.arity === "name") {
                 var i = 0, depth = state.scope - this.first.scope.level;
                 state.emit("push_frame");
+                // Unlike the look in dispatch.name, if we left off the
+                // parent chain traversal here we wouldn't be able to affect
+                // variables in the outer scope.  So this isn't optional.
                 while ( i < depth ) {
                     state.emit("get_slot_direct", state.literal("__proto__"));
                     i += 1;
@@ -686,8 +693,8 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
         return;
     };
 
-    var bcompile = function (parse_tree) {
-        var state = mkstate();
+    var bcompile = function (parse_tree, dont_desugar_frame_get) {
+        var state = mkstate(dont_desugar_frame_get);
         state.current_func = state.new_function(0);
         state.bcompile_stmts(parse_tree);
         if (state.current_func.can_fall_off) {
