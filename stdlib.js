@@ -4,6 +4,9 @@
 // Used for bytecode interpreters (both TurtleScript and native).
 define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
     var init = /*CUT HERE*/function() {
+        var makeNonEnumerable = Object.defineProperty ? function(obj, name) {
+            Object.defineProperty(obj, name, { enumerable: false });
+        } : function() {};
         String.prototype.codePointAt = function(position) {
             if (this === null || this === undefined) {
                 Object.Throw('TypeError'); /*XXX*/
@@ -34,6 +37,7 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
             }
             return first;
         };
+        makeNonEnumerable(String.prototype, 'codePointAt');
         String.prototype.indexOf = function(searchValue, from) {
             var i = from || 0;
             var j = 0;
@@ -53,6 +57,7 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
             }
             return (j === searchValue.length) ? i : -1;
         };
+        makeNonEnumerable(String.prototype, 'indexOf');
         String.prototype.slice = function(beginIndex, endIndex) {
             var len = this.length;
             if (endIndex === undefined) {
@@ -72,6 +77,7 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
             }
             return this.substring(beginIndex, endIndex);
         };
+        makeNonEnumerable(String.prototype, 'slice');
         String.prototype.trim = function() {
             // Non-regex version of `String.prototype.trim()` based on
             // http://blog.stevenlevithan.com/archives/faster-trim-javascript
@@ -96,6 +102,7 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
             }
             return whitespace.indexOf(str.charAt(0)) === -1 ? str : '';
         };
+        makeNonEnumerable(String.prototype, 'trim');
         Array.prototype.push = function() {
             var i = 0, j = (1*this.length) || 0;
             while (i < arguments.length) {
@@ -106,12 +113,14 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
             this.length = j;
             return j;
         };
+        makeNonEnumerable(Array.prototype, 'push');
         Array.prototype.pop = function() {
             if (this.length === 0) { return; }
             var last = this[this.length-1];
             this.length -= 1;
             return last;
         };
+        makeNonEnumerable(Array.prototype, 'pop');
         Array.prototype.join = function(sep) {
             /* XXX call internal `[[toObject]]` on `this` */
             var len = this.length;
@@ -120,6 +129,7 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
             var k = 0;
             var result = '';
             while (k < len) {
+                if (k > 0) { result += sep; }
                 var elem = this[k];
                 if (elem!==undefined && elem!==null) {
                     result += elem;
@@ -128,6 +138,7 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
             }
             return result;
         };
+        makeNonEnumerable(Array.prototype, 'join');
         Array.prototype.slice = function(begin, end) {
             var i = 0;
             var upTo;
@@ -172,6 +183,7 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
 
             return cloned;
         };
+        makeNonEnumerable(Array.prototype, 'slice');
         Array.prototype.concat = function() {
             var result = [], i, j;
             // Start by cloning `this`.
@@ -199,6 +211,7 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
             }
             return result;
         };
+        makeNonEnumerable(Array.prototype, 'concat');
         Array.prototype.forEach =  function(block, thisObject) {
             var len = (1*this.length) || 0;
             var i = 0;
@@ -209,6 +222,7 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
                 i += 1;
             }
         };
+        makeNonEnumerable(Array.prototype, 'forEach');
         Array.prototype.map = function(fun /*, thisp*/) {
             var len = (1*this.length) || 0;
             /*
@@ -227,18 +241,7 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
             res.length = len;
             return res;
         };
-        Array.prototype.join = function(sep) {
-            var result = "", i = 0;
-            sep = sep || ',';
-            while (i < this.length) {
-                result += this[i];
-                i += 1;
-                if (i < this.length) {
-                    result += sep;
-                }
-            }
-            return result;
-        };
+        makeNonEnumerable(Array.prototype, 'map');
         Function.prototype.bind = function() {
             var method = this;
             // Avoid making a function wrapper if we don't have to.
@@ -272,6 +275,7 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
                     nargs, arguments));
             });
         };
+        makeNonEnumerable(Function.prototype, 'bind');
         Function.prototype.hasInstance = function(v) {
             var o;
             if (typeof(v) !== 'object') { return false; }
@@ -283,6 +287,7 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
                 if (o === v) { return true; }
             }
         };
+        makeNonEnumerable(Function.prototype, 'hasInstance');
         Function.prototype['New'] = function() {
             var object, result;
             if (typeof(this.prototype)==="object") {
@@ -296,18 +301,23 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
             }
             return object;
         };
+        makeNonEnumerable(Function.prototype, 'New');
         Function.prototype.toString = function () {
             var result = "function ";
             if (this.name) { result += this.name; }
             result += "() { [native code] }";
             return result;
         };
+        makeNonEnumerable(Function.prototype, 'toString');
         // Define `toString()` in terms of `valueOf()` for some types.
         Boolean.prototype.toString = function() {
             return Boolean.prototype.valueOf.call(this) ? "true" : "false";
         };
+        makeNonEnumerable(Boolean.prototype, 'toString');
         String.prototype.toString = String.prototype.valueOf;
+        makeNonEnumerable(String.prototype, 'toString');
         Number.prototype.toLocaleString = Number.prototype.toString;
+        makeNonEnumerable(Number.prototype, 'toLocaleString');
 
         // Support for branchless bytecode (see Chambers et al, OOPSLA '89).
         true["while"] = function(_this_, cond, body) {
