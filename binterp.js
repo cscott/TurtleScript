@@ -348,6 +348,14 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
                 // weird javascript misfeature
                 t = "object";
             }
+            if (t === 'function') {
+                // If non-callable we'll say this is an object
+                if (arg.parent_frame || arg.native_code) {
+                    /* A callable function! */
+                } else {
+                    t = 'object'; // not callable
+                }
+            }
         }
         return t;
     });
@@ -376,6 +384,7 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
         };
         // set up 'this' and 'arguments'
         fset("this", this);
+        fset("globalThis", frame);
         var my_arguments = Object.create(MyArray);
         oset(my_arguments, "length", arguments.length);
         var i = 0;
@@ -470,8 +479,8 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
         native_func(my_StringCons, "fromCharCode", function(_this_, arg) {
             return String.fromCharCode(arg);
         });
-        native_func(MyNumber, "toString", function(_this_) {
-            return _this_.toString();
+        native_func(MyNumber, "valueOf", function(_this_) {
+            return _this_.valueOf();
         });
         native_func(MyMath, "floor", function(_this_, val) {
             return Math.floor(val);

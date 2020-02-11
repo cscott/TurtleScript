@@ -4,33 +4,47 @@
 // Used for bytecode interpreters (both TurtleScript and native).
 define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
     var init = /*CUT HERE*/function() {
-        var makeNonEnumerable = Object.defineProperty ? function(obj, name) {
-            Object.defineProperty(obj, name, { enumerable: false });
-        } : function() {};
+        var BooleanPrototypeValueOf = Boolean.prototype.valueOf;
+        var NumberPrototypeValueOf = Number.prototype.valueOf;
+        var ObjectPrototypeToString = Object.prototype.toString;
+        var ObjectDefineProperty = Object.defineProperty || function() {};
+        var Throw = function(name) {
+            var ex = globalThis[name] ? globalThis[name].New() : name;
+            Object.Throw(ex);
+        };
+        var ToInteger = function(n) {
+            // ToNumber
+            n = typeof Number === 'function' ? Number(n) : n;
+            if (n !== n) { return 0; /* NaN */ }
+            if (n === 0 || n === Infinity || n === -Infinity) { return n; }
+            var negate = n < 0;
+            n = Math.floor(negate ? (-n) : n);
+            return negate ? (-n) : n;
+        };
+        var makeNonEnumerable = function(obj, name) {
+            ObjectDefineProperty(obj, name, { enumerable: false });
+        };
+        var makeFrozen = function(obj, name) {
+            ObjectDefineProperty(obj, name, {
+                writable: false, enumerable: false, configurable: false
+            });
+        };
         String.prototype.codePointAt = function(position) {
             if (this === null || this === undefined) {
-                Object.Throw('TypeError'); /*XXX*/
+                Throw('TypeError');
             }
             var string = String(this);
-            var size = string.length;
-            // `ToInteger`
-            var index = position ? Number(position) : 0;
-            if (isNaN(index)) { // better `isNaN`
-                index = 0;
-            }
-            // Account for out-of-bounds indices:
-            if (index < 0 || index >= size) {
-                return undefined;
-            }
-            // Get the first code unit
-            var first = string.charCodeAt(index);
+            // Get the first code unit (also piggy-back on the coercions)
+            var first = string.charCodeAt(position);
+            // piggy-back on the bounds check in charCodeAt
+            if (first !== first) { return undefined; }
             var second;
             if ( // check if it’s the start of a surrogate pair
-                first >= 0xD800 && first <= 0xDBFF && // high surrogate
-                    size > index + 1 // there is a next code unit
+                first >= 0xD800 && first <= 0xDBFF // high surrogate
             ) {
-                second = string.charCodeAt(index + 1);
-                if (second >= 0xDC00 && second <= 0xDFFF) { // low surrogate
+                second = string.charCodeAt(position + 1);
+                if (second === second && // NaN indicates size <= position + 1
+                    second >= 0xDC00 && second <= 0xDFFF) { // low surrogate
                     // https://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
                     return (first - 0xD800) * 0x400 + second - 0xDC00 + 0x10000;
                 }
@@ -122,15 +136,15 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
         };
         makeNonEnumerable(Array.prototype, 'pop');
         Array.prototype.join = function(sep) {
-            /* XXX call internal `[[toObject]]` on `this` */
-            var len = this.length;
-            // We call internal `[[toString]]` on `sep` (by adding '').
+            var O = (typeof Object === 'function') ? Object(this) : this;
+            var len = O.length;
+            // We call internal `[[ToString]]` on `sep` by adding ''
             if (sep === undefined) { sep = ','; } else { sep = '' + sep; }
             var k = 0;
             var result = '';
             while (k < len) {
                 if (k > 0) { result += sep; }
-                var elem = this[k];
+                var elem = O[k];
                 if (elem!==undefined && elem!==null) {
                     result += elem;
                 }
@@ -242,6 +256,16 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
             return res;
         };
         makeNonEnumerable(Array.prototype, 'map');
+        Array.prototype.toString = function() {
+            // Compatibility w/ bootstrapping w/o callable Object
+            var array = (typeof Object==='function') ? Object(this) : this;
+            var func = array.join;
+            if (typeof(func)!=='function') {
+                func = ObjectPrototypeToString;
+            }
+            return func.call(array);
+        };
+        makeNonEnumerable(Array.prototype, 'toString');
         Function.prototype.bind = function() {
             var method = this;
             // Avoid making a function wrapper if we don't have to.
@@ -280,7 +304,7 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
             var o;
             if (typeof(v) !== 'object') { return false; }
             o = this.prototype;
-            if (typeof(o) !== 'object') { Object.Throw('TypeError'); /*XXX*/ }
+            if (typeof(o) !== 'object') { Throw('TypeError'); }
             while (true) {
                 v = v.__proto__;
                 if (v === null) { return false; }
@@ -311,13 +335,81 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
         makeNonEnumerable(Function.prototype, 'toString');
         // Define `toString()` in terms of `valueOf()` for some types.
         Boolean.prototype.toString = function() {
-            return Boolean.prototype.valueOf.call(this) ? "true" : "false";
+            return BooleanPrototypeValueOf.call(this) ? "true" : "false";
         };
         makeNonEnumerable(Boolean.prototype, 'toString');
+        Number.prototype.toString = function(radix) {
+            var x = NumberPrototypeValueOf.call(this);
+            var radixNumber = (radix === undefined) ? 10 : ToInteger(radix);
+            if (radixNumber < 2 || radixNumber > 36) {
+                Throw('RangeError');
+            }
+            if (radixNumber === 10) { return '' + x; }
+            if (x !== x) { return 'NaN'; }
+            if (x === 0) { return '0'; }
+            var minus = false;
+            if (x < 0) { minus = true; x = -x; }
+            if (x === Infinity) { return (minus?'-':'') + 'Infinity'; }
+            var intPart = Math.floor(x);
+            var floatPart = x - intPart;
+            var r = '';
+            while(intPart !== 0) {
+                var nextIntPart = Math.floor(intPart / radix);
+                var digit = intPart - (nextIntPart * radix);
+                if (digit < 10) {
+                    r = String.fromCharCode(0x30 + digit) + r;
+                } else {
+                    r = String.fromCharCode(0x61 + digit - 10) + r;
+                }
+                intPart = nextIntPart;
+            }
+            if (r === '') { r = '0'; }
+            if (minus) { r = '-' + r; }
+            var ACCURACY = 0.00001;
+            if (floatPart > ACCURACY) {
+                r += '.';
+                while (floatPart > ACCURACY) {
+                    digit = Math.floor(floatPart * radix);
+                    if (digit < 10) {
+                        r += String.fromCharCode(0x30 + digit);
+                    } else {
+                        r += String.fromCharCode(0x61 + digit - 10);
+                    }
+                    floatPart *= radix;
+                    ACCURACY *= radix;
+                    floatPart -= digit;
+                }
+            }
+            return r;
+        };
+        makeNonEnumerable(Number.prototype, 'toString');
         String.prototype.toString = String.prototype.valueOf;
         makeNonEnumerable(String.prototype, 'toString');
-        Number.prototype.toLocaleString = Number.prototype.toString;
-        makeNonEnumerable(Number.prototype, 'toLocaleString');
+        if (!Number.prototype.toLocaleString) {
+            Number.prototype.toLocaleString = Number.prototype.toString;
+            makeNonEnumerable(Number.prototype, 'toLocaleString');
+        }
+
+        // Mathematical constants
+        [
+            [ Math, 'E', 2.7182818284590452354 ],
+            [ Math, 'LN10', 2.302585092994046 ],
+            [ Math, 'LN2', 0.6931471805599453 ],
+            [ Math, 'LOG10E', 0.4342944819032518 ],
+            [ Math, 'LOG2E', 1.4426950408889634 ],
+            [ Math, 'PI', 3.1415926535897932 ],
+            [ Math, 'SQRT1_2', 0.7071067811865476 ],
+            [ Math, 'SQRT2', 1.4142135623730951 ],
+            [ Number, 'MAX_SAFE_INTEGER', 9007199254740991 ],
+            [ Number, 'MIN_SAFE_INTEGER', -9007199254740991 ],
+            [ Number, 'NaN', NaN ],
+            [ Number, 'NEGATIVE_INFINITY', -Infinity ],
+            [ Number, 'POSITIVE_INFINITY',  Infinity ]
+        ].forEach(function(cnst) {
+            var base = cnst[0], name = cnst[1], val = cnst[2];
+            base[name] = val;
+            makeFrozen(base, name);
+        });
 
         // Support for branchless bytecode (see Chambers et al, OOPSLA '89).
         true["while"] = function(_this_, cond, body) {

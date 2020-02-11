@@ -300,8 +300,8 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
     constant("undefined", undefined);
     constant("NaN", NaN);
     constant("Infinity", Infinity);
-    constant("Object", {});
-    constant("Array", []);
+    //constant("Object", {});
+    //constant("Array", []);
 
     symbol("(literal)").nud = itself;
 
