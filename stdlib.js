@@ -338,6 +338,26 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
             return BooleanPrototypeValueOf.call(this) ? "true" : "false";
         };
         makeNonEnumerable(Boolean.prototype, 'toString');
+
+        Number.isFinite = function(number) {
+            if (typeof number !== 'number' ||
+                number !== number ||
+                number === Infinity ||
+                number === -Infinity) {
+                return false;
+            }
+            return true;
+        };
+        makeNonEnumerable(Number, 'isFinite');
+
+        Number.isNaN = function(number) {
+            return typeof number === 'number' && (number !== number);
+        };
+        makeNonEnumerable(Number, 'isNaN');
+
+        Number.parseInt = parseInt;
+        makeNonEnumerable(Number, 'parseInt');
+
         Number.prototype.toString = function(radix) {
             var x = NumberPrototypeValueOf.call(this);
             var radixNumber = (radix === undefined) ? 10 : ToInteger(radix);
