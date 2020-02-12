@@ -64,8 +64,7 @@ historical fragments, false starts, and loose ends.
 State of the world: 2020-02-12
 ------------------------------
 I dusted off this project and wrote TurtleScript interpreters for
-PHP (http://github.com/cscott/php-turtle) and
-Lua (http://github.com/cscott/lua-turtle).  I also added a new
+PHP (`php-turtle`_) and Lua (`lua-turtle`_).  I also added a new
 ``push_local_frame`` bytecode operation to allow "register allocation"
 of local variables which do not escape their scope, and improved
 the standard library implementation.
@@ -74,6 +73,8 @@ I expect to use these runtimes to explore two (interrelated) projects:
 `Multilingual JavaScript`_ and the use of JavaScript within
 the MediaWiki Scribunto_ extension.
 
+.. _php-turtle: http://github.com/cscott/php-turtle
+.. _lua-turtle: http://github.com/cscott/lua-turtle
 .. _Multilingual JavaScript: https://phabricator.wikimedia.org/T230665
 .. _Scribunto: https://www.mediawiki.org/wiki/Extension:Scribunto
 
