@@ -797,9 +797,9 @@ constant(&quot;Array&quot;, []);</p>
             advance(); advance(<span class="hljs-string">";"</span>);
         }
         <span class="hljs-keyword">this</span>.second = statements();
+        scope.pop();
         advance(<span class="hljs-string">"}"</span>);
         <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"function"</span>;
-        scope.pop();
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
     });
 
@@ -863,8 +863,7 @@ new_scope();//XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> a = statements();
-        advance(<span class="hljs-string">"}"</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> a = statements();</pre></div></div>
             
         </li>
         
@@ -875,8 +874,22 @@ new_scope();//XXX</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
-              <p>scope.pop();//XXX
-CSA: make block structure (scope) explicit in the parse tree</p>
+              <p>scope.pop();//XXX</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        advance(<span class="hljs-string">"}"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>CSA: make block structure (scope) explicit in the parse tree</p>
 
             </div>
             
@@ -895,11 +908,11 @@ CSA: make block structure (scope) explicit in the parse tree</p>
         </li>
         
         
-        <li id="section-13">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
+                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
               <p>CSA: record &#39;var&#39; as a statement</p>
 
@@ -911,11 +924,11 @@ CSA: make block structure (scope) explicit in the parse tree</p>
         </li>
         
         
-        <li id="section-14">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
+                <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
               <p>END CSA</p>
 
@@ -993,6 +1006,7 @@ CSA: make block structure (scope) explicit in the parse tree</p>
             DEBUG = debug;
             tokens = tokenize(source, <span class="hljs-string">'=&lt;&gt;!+-*&amp;|/%^'</span>, <span class="hljs-string">'=&lt;&gt;&amp;|'</span>);
             token_nr = <span class="hljs-number">0</span>;
+            scope = <span class="hljs-literal">null</span>;
             new_scope();
             <span class="hljs-keyword">if</span> (top_level) {
                 top_level = tokenize(top_level);
@@ -1013,11 +1027,11 @@ CSA: make block structure (scope) explicit in the parse tree</p>
         </li>
         
         
-        <li id="section-15">
+        <li id="section-16">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-15">&#182;</a>
+                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               <p>finally block</p>
 
@@ -1033,6 +1047,7 @@ CSA: make block structure (scope) explicit in the parse tree</p>
         <span class="hljs-keyword">if</span> (state) {
             scope = state.scope;
         } <span class="hljs-keyword">else</span> {
+            scope = <span class="hljs-literal">null</span>;
             new_scope();
             <span class="hljs-keyword">if</span> (top_level) {
                 top_level = tokenize(top_level);
@@ -1050,11 +1065,11 @@ CSA: make block structure (scope) explicit in the parse tree</p>
         </li>
         
         
-        <li id="section-16">
+        <li id="section-17">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-16">&#182;</a>
+                <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
               <p>try to parse as an expression</p>
 
@@ -1065,11 +1080,11 @@ CSA: make block structure (scope) explicit in the parse tree</p>
         </li>
         
         
-        <li id="section-17">
+        <li id="section-18">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-17">&#182;</a>
+                <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
               <p>xxx if exception is thrown (ie, for &quot;var f = function() {}&quot; w/ no
     trailing semi) we need to reset scope so that f is not defined.</p>
@@ -1100,11 +1115,11 @@ CSA: make block structure (scope) explicit in the parse tree</p>
         </li>
         
         
-        <li id="section-18">
+        <li id="section-19">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-18">&#182;</a>
+                <a class="pilcrow" href="#section-19">&#182;</a>
               </div>
               <p>try to parse as a statement</p>
 

@@ -88,8 +88,7 @@ define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escap
     console.log('');
     console.log('namespace Wikimedia\\PhpTurtle;');
     console.log('');
-    //console.log('use Wikimedia\\PhpTurtle\\BytecodeFunction;');
-    //console.log('');
+    console.log('// @phan-file-suppress PhanRedundantCondition');
     console.log('// phpcs:disable Generic.Files.LineLength.TooLong');
     console.log('class Startup {');
     console.log('\t/**');
