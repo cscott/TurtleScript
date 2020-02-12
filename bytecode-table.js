@@ -57,7 +57,14 @@ define(['text!bytecode-table.js'],function make_bytecode_table(bytecode_table_so
     // name, args, stackpop, stackpush
 
     // Push the address of the function activation record on the stack
+    // (If this instruction never occurs in the bytecode for a function,
+    // the function can safely skip allocation of a frame object.)
     bc("push_frame", 0, 0, 1);
+    // Push the address of the "local scope" record on the stack
+    // In a naive implementation, this can be identical to push_frame,
+    // but it allows a clever runtime to register allocate anything
+    // stored in the local frame.
+    bc("push_local_frame", 0, 0, 1);
     // Push a (numeric or string) literal on the stack.
     // Argument #0 is the index into the literal table.
     bc("push_literal", 1, 0, 1, print_literal);

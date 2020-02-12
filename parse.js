@@ -46,12 +46,15 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
         },
         find: function (n) {
             var e = this, o;
+            var escape = false;
             while (true) {
                 o = e.def.hasOwnProperty(n) ? e.def[n] : null;
                 if (o) {
+                    if (escape) { e.escape[n] = true; }
                     return o;
                 }
                 e = e.parent;
+                escape = true;
                 if (!e) {
                     return symbol_table[symbol_table.hasOwnProperty(n) ?
                         n : "(name)"];
@@ -83,6 +86,7 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
         var s = scope;
         scope = Object.create(original_scope);
         scope.def = {};
+        scope.escape = {};
         scope.parent = s;
         scope.level = s ? (s.level+1) : 0;
         return scope;
@@ -588,6 +592,7 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
             var i = 0;
             while (i < top_level.length) {
                 scope.define(top_level[i]);
+                scope.escape[top_level[i].value] = true;
                 i+=1;
             }
         }
@@ -610,6 +615,7 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
                 var i = 0;
                 while (i < top_level.length) {
                     scope.define(top_level[i]);
+                    scope.escape[top_level[i].value] = true;
                     i+=1;
                 }
             }

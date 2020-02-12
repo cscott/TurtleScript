@@ -14,7 +14,7 @@ requirejs.define('timeouts', { setTimeout: setTimeout, clearTimeout: clearTimeou
 
 requirejs(['./extensions', './parse', './bcompile', './binterp', './top-level', './stdlib','./tests'], function(_, parse, bcompile, binterp, top_level, stdlib, tests) {
     // create top-level frame and evaluate turtlescript standard library
-    var frame = binterp.make_top_level_frame(null);
+    var frame = binterp.make_top_level_frame();
     (function() {
         var tree = parse(stdlib.source(), top_level);
         var bc = bcompile(tree);
@@ -26,7 +26,7 @@ requirejs(['./extensions', './parse', './bcompile', './binterp', './top-level', 
     rl.setPrompt('> ');
     rl.prompt();
 
-    var source='', state = null;
+    var source='', state = null, local_frame = Object.create(null);
     rl.on('line', function(line) {
         source += line;
         var rv;
@@ -39,7 +39,9 @@ requirejs(['./extensions', './parse', './bcompile', './binterp', './top-level', 
         }
         state = rv.state;
         var bc = bcompile(rv.tree);
-        var result = binterp.binterp(bc, 0, frame);
+        var result = binterp.binterp(
+            bc, 0, frame, undefined, undefined, local_frame
+        );
         if (result !== undefined) {
             console.log(result);
         }
