@@ -459,9 +459,9 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
             advance(); advance(";");
         }
         this.second = statements();
+        scope.pop();
         advance("}");
         this.arity = "function";
-        scope.pop();
         return this;
     });
 
@@ -513,8 +513,8 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
         //      here: { var x; ... } -> (function() { var x; ... })();
         //new_scope();//XXX
         var a = statements();
-        advance("}");
         //scope.pop();//XXX
+        advance("}");
         // CSA: make block structure (scope) explicit in the parse tree
         return [ { value: "block", arity: "statement", first: a } ];
     });
@@ -603,6 +603,7 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
             DEBUG = debug;
             tokens = tokenize(source, '=<>!+-*&|/%^', '=<>&|');
             token_nr = 0;
+            scope = null;
             new_scope();
             if (top_level) {
                 top_level = tokenize(top_level);
@@ -630,6 +631,7 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
         if (state) {
             scope = state.scope;
         } else {
+            scope = null;
             new_scope();
             if (top_level) {
                 top_level = tokenize(top_level);
