@@ -157,17 +157,14 @@ define(["text!tests.js", "str-escape",
         // (even though it's not truely object-oriented)
         Boolean.prototype["while"] = function(_this_, cond, body) {
             console.log("Boolean.while fallback");
-            // Strange: === gives the wrong value. == works, because (I think)
-            // it coerces to string, like the below.  ! also does the wrong
-            // thing.  Hm!
-            if (this.toString() === "false") { return; }
+            if (!this.valueOf()) { return; }
             body.call(_this_);
             var cc = cond.call(_this_);
             cc["while"](_this_, cond, body);
         };
         Boolean.prototype["ifElse"] = function(_this_, ifTrue, ifFalse) {
             console.log("Boolean.ifElse fallback");
-            if (this.toString() === "false") {
+            if (!this.valueOf()) {
                 return ifFalse.call(_this_);
             } else {
                 return ifTrue.call(_this_);

@@ -66,18 +66,29 @@ describe('Verify bytecode interpretation:', function() {
             "return test_func(); }\n";
         describe(turtlescript.tests.getName(idx), function() {
             it('interpretation should return true', function() {
-                // parse the test case
-                var tree = turtlescript.parse(source, turtlescript.top_level);
-                // compile to byte code
-                var bc = turtlescript.bcompile(tree);
-                // execute!
-                var result = turtlescript.binterp.binterp(bc, 0);
-                assert.ok(result === true);
+                try {
+                    // parse the test case
+                    var tree = turtlescript.parse(source, turtlescript.top_level);
+                    // compile to byte code
+                    var bc = turtlescript.bcompile(tree);
+                    // execute!
+                    var result = turtlescript.binterp.binterp(bc, 0);
+                    assert.ok(result === true);
+                } catch(e) {
+                    e.message += '\nsource:\n' + source;
+                    throw e;
+                }
             });
             it('meta-interpretation should return true', function() {
-                var result = turtlescript.binterp.invoke(metainterpreter, null,
-                                                         [source]);
-                assert.ok(result === true);
+                try {
+                    var result = turtlescript.binterp.invoke(
+                        metainterpreter, null, [source]
+                    );
+                    assert.ok(result === true);
+                } catch(e) {
+                    e.message += '\nsource:\n' + source;
+                    throw e;
+                }
             });
         });
     });
