@@ -61,6 +61,22 @@ It is likely to get increasingly outdated over time.  I'll attempt to
 periodically overhaul it to match reality, but it may always contain
 historical fragments, false starts, and loose ends.
 
+State of the world: 2020-02-12
+------------------------------
+I dusted off this project and wrote TurtleScript interpreters for
+PHP (http://github.com/cscott/php-turtle) and
+Lua (http://github.com/cscott/lua-turtle).  I also added a new
+``push_local_frame`` bytecode operation to allow "register allocation"
+of local variables which do not escape their scope, and improved
+the standard library implementation.
+
+I expect to use these runtimes to explore two (interrelated) projects:
+`Multilingual JavaScript`_ and the use of JavaScript within
+the MediaWiki Scribunto_ extension.
+
+.. _Multilingual JavaScript: https://phabricator.wikimedia.org/T230665
+.. _Scribunto: https://www.mediawiki.org/wiki/Extension:Scribunto
+
 State of the world: 2013-06-03
 ------------------------------
 
@@ -366,6 +382,12 @@ compiler extensions:
    allows us to manually manage the scope chain, including serializing and
    deserializing a function's closure [1]_.  The ``$scope`` parameter can be
    stored as a ``scope`` property of the ``Function`` object.
+
+   (CSA 2020-02-12: The "frame" object used by ``bcompile.js`` is this
+   ``$scope`` object.  But the "local frame" introduced as an
+   optimization hides local state again.  However, you can treat
+   ``push_local_frame`` as a synonym for ``push_frame`` when compiling
+   to obtain a serializable state, at the expense of performance.)
 
 4. Bind ``this`` properly in inner functions.
 
