@@ -24,6 +24,7 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
             literals: module.literals
         };
     };
+    var invoke; // forward declaration
 
     var dispatch = {};
     var SLOT_PREFIX = "!bi!"; // prevent leaking slots from metacontext
@@ -449,6 +450,21 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
         native_func(my_ObjectCons, "Delete", function(_this_, obj, propname) {
             Object.Delete(obj, SLOT_PREFIX+propname);
         });
+        native_func(my_ObjectCons, "Try", function(_this_, context, bodyBlock, catchBlock, finallyBlock) {
+            return Object.Try(null, function() {
+                return invoke(bodyBlock, context, []);
+            }, catchBlock ? function(e) {
+                invoke(catchBlock, context, [e]);
+            } : undefined, finallyBlock ? function() {
+                invoke(finallyBlock, context, []);
+            } : undefined);
+        });
+        native_func(my_ObjectCons, "Throw", function(_this_, e) {
+            // XXX We could wrap this to easily distinguish interpreted
+            // exceptions from real exceptions; if we did so we'd need to
+            // unwrap above in the implementation of Object.Throw's catchBlock
+            Object.Throw(e);
+        });
         native_func(frame, "isNaN", function(_this_, number) {
             return isNaN(number);
         });
@@ -578,7 +594,7 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
         }
         return TOP.stack.pop();
     };
-    var invoke = function(func, this_value, args) {
+    invoke = function(func, this_value, args) {
         var my_arguments = Object.create(MyArray);
         args.forEach(function(v, i) {
             my_arguments[SLOT_PREFIX+i] = v;

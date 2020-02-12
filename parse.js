@@ -91,6 +91,21 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
         scope.level = s ? (s.level+1) : 0;
         return scope;
     };
+    var copy_scope = function() {
+        if (!Object.assign) {
+            // If your environment doesn't have Object.assign you won't
+            // be able to backtrack out of a failed parse in the REPL,
+            // but it's not the end of the world.  This fallback is
+            // useful for bring-up of a new interpreter.
+            return scope;
+        }
+        var s = Object.create(original_scope);
+        s.def = Object.assign({}, scope.def);
+        s.escape = Object.assign({}, scope.escape);
+        s.parent = scope.parent;
+        s.level = scope.level;
+        return s;
+    };
 
     var advance = function (id) {
         var a, o, t, v;
@@ -583,29 +598,35 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
     });
 
     var parse = function (source, top_level, debug) {
-        DEBUG = debug;
-        tokens = tokenize(source, '=<>!+-*&|/%^', '=<>&|');
-        token_nr = 0;
-        new_scope();
-        if (top_level) {
-            top_level = tokenize(top_level);
-            var i = 0;
-            while (i < top_level.length) {
-                scope.define(top_level[i]);
-                scope.escape[top_level[i].value] = true;
-                i+=1;
+        var old_scope = scope;
+        return Object.Try(this, function() {
+            DEBUG = debug;
+            tokens = tokenize(source, '=<>!+-*&|/%^', '=<>&|');
+            token_nr = 0;
+            new_scope();
+            if (top_level) {
+                top_level = tokenize(top_level);
+                var i = 0;
+                while (i < top_level.length) {
+                    scope.define(top_level[i]);
+                    scope.escape[top_level[i].value] = true;
+                    i+=1;
+                }
             }
-        }
-        advance();
-        var s = statements();
-        advance("(end)");
-        scope.pop();
-        return s;
+            advance();
+            var s = statements();
+            advance("(end)");
+            scope.pop();
+            return s;
+        }, null, function() {
+            // finally block
+            scope = old_scope;
+        });
     };
     var parse_repl = function(state, source, top_level, debug) {
         DEBUG = debug;
         var TOKEN_PREFIX = '=<>!+-*&|/%^', TOKEN_SUFFIX = '=<>&|';
-        var old_scope = scope;
+        var old_scope = scope; // save global scope
         if (state) {
             scope = state.scope;
         } else {
@@ -627,6 +648,7 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
         // xxx if exception is thrown (ie, for "var f = function() {}" w/ no
         //     trailing semi) we need to reset scope so that f is not defined.
         Object.Try(this, function() {
+            scope = copy_scope();
             tokens = repl_tokens;
             token_nr = 0;
             advance();
@@ -640,20 +662,25 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
             nstate.scope = scope;
         }, function (ee) { // catch(ee)
             /*console.log("FAILED PARSING AS EXPRESSION", ee);*/
+            scope = nstate.scope;
             repl_tokens = tokenize(source, TOKEN_PREFIX, TOKEN_SUFFIX);
         });
-        if (!tree) {
-            // try to parse as a statement
-            tokens = repl_tokens;
-            token_nr = 0;
-            advance();
-            var s = statements();
-            advance("(end)");
-            tree = s;
-            nstate.scope = scope;
-        }
-        scope = old_scope;
-        return { state: nstate, tree: tree };
+        return Object.Try(this, function() {
+            if (!tree) {
+                // try to parse as a statement
+                scope = copy_scope();
+                tokens = repl_tokens;
+                token_nr = 0;
+                advance();
+                var s = statements();
+                advance("(end)");
+                tree = s;
+                nstate.scope = scope;
+            }
+            return { state: nstate, tree: tree };
+        }, null, function(ee) {
+            scope = old_scope; // restore global scope
+        });
     };
     parse.__module_name__ = "parse";
     parse.__module_init__ = make_parse;
