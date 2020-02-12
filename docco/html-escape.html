@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -213,11 +233,11 @@ Properly escape &lt; &gt; &amp; for html</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define(<span class="keyword">function</span>() {
-    <span class="keyword">var</span> table = { <span class="string">"&lt;"</span>:<span class="string">"&amp;lt;"</span>, <span class="string">"&gt;"</span>:<span class="string">"&amp;gt;"</span>, <span class="string">"&amp;"</span>:<span class="string">"&amp;amp;"</span> };
-    <span class="keyword">var</span> replacer = <span class="keyword">function</span>(ss) { <span class="keyword">return</span> table[ss]; };
-    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">html_escape</span><span class="params">(s)</span> {</span>
-        <span class="keyword">return</span> s.replace(<span class="regexp">/[&lt;&gt;&amp;]/g</span>, replacer);
+            <div class="content"><div class='highlight'><pre>define(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> table = { <span class="hljs-string">"&lt;"</span>:<span class="hljs-string">"&amp;lt;"</span>, <span class="hljs-string">"&gt;"</span>:<span class="hljs-string">"&amp;gt;"</span>, <span class="hljs-string">"&amp;"</span>:<span class="hljs-string">"&amp;amp;"</span> };
+    <span class="hljs-keyword">var</span> replacer = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">ss</span>) </span>{ <span class="hljs-keyword">return</span> table[ss]; };
+    <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">html_escape</span>(<span class="hljs-params">s</span>) </span>{
+        <span class="hljs-keyword">return</span> s.replace(<span class="hljs-regexp">/[&lt;&gt;&amp;]/g</span>, replacer);
     };
 });</pre></div></div>
             

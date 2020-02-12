@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -199,10 +219,10 @@
         <li id="section-1">
             <div class="annotation">
               
-              <div class="pilwrap for-h1">
+              <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1>render.js</h1>
+              <h1 id="renderjs">render.js</h1>
 <p>Create DOM element tree for parsed Simplified JavaScript.</p>
 <p>Written in Simplified JavaScript, but uses jQuery methods.</p>
 <p>C. Scott Ananian
@@ -210,7 +230,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">"str-escape"</span>,<span class="string">"!html-escape"</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_render</span><span class="params">(str_escape, html_escape)</span> {</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">"str-escape"</span>,<span class="hljs-string">"!html-escape"</span>], <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_render</span>(<span class="hljs-params">str_escape, html_escape</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -225,11 +245,11 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> render, render_stmt, render_stmts;
-    <span class="keyword">var</span> indentation, prec_stack = [ <span class="number">0</span> ];
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> render, render_stmt, render_stmts;
+    <span class="hljs-keyword">var</span> indentation, prec_stack = [ <span class="hljs-number">0</span> ];
 
-    <span class="keyword">var</span> assert = <span class="keyword">function</span>(b, obj) {
-        <span class="keyword">if</span> (!b) { console.assert(b, <span class="string">"Assertion failure"</span>, obj); }
+    <span class="hljs-keyword">var</span> assert = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">b, obj</span>) </span>{
+        <span class="hljs-keyword">if</span> (!b) { <span class="hljs-built_in">console</span>.assert(b, <span class="hljs-string">"Assertion failure"</span>, obj); }
     };</pre></div></div>
             
         </li>
@@ -245,13 +265,13 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> gather = <span class="keyword">function</span>(elem, lst, f) {
-        <span class="keyword">var</span> i = <span class="number">0</span>;
-        <span class="keyword">while</span> ( i &lt; lst.length ) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> gather = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">elem, lst, f</span>) </span>{
+        <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">while</span> ( i &lt; lst.length ) {
             elem.append(f(lst[i]));
-            i += <span class="number">1</span>;
+            i += <span class="hljs-number">1</span>;
         }
-        <span class="keyword">return</span> elem;
+        <span class="hljs-keyword">return</span> elem;
     };</pre></div></div>
             
         </li>
@@ -267,13 +287,13 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> with_prec = <span class="keyword">function</span>(prec, f, obj) {
-        <span class="keyword">return</span> <span class="keyword">function</span>() {
-            <span class="keyword">var</span> result;
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> with_prec = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">prec, f, obj</span>) </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> result;
             prec_stack.push(prec);
-            result = f.apply(obj || <span class="keyword">this</span>, arguments);
+            result = f.apply(obj || <span class="hljs-keyword">this</span>, <span class="hljs-built_in">arguments</span>);
             prec_stack.pop();
-            <span class="keyword">return</span> result;
+            <span class="hljs-keyword">return</span> result;
         };
     };</pre></div></div>
             
@@ -290,10 +310,10 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> with_prec_paren = <span class="keyword">function</span>(prec, f, obj) {
-        <span class="keyword">return</span> <span class="keyword">function</span>() {
-            <span class="keyword">var</span> prev_prec = prec_stack[prec_stack.length - <span class="number">1</span>];
-            <span class="keyword">var</span> result = with_prec(prec, f).apply(obj || <span class="keyword">this</span>, arguments);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> with_prec_paren = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">prec, f, obj</span>) </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> prev_prec = prec_stack[prec_stack.length - <span class="hljs-number">1</span>];
+            <span class="hljs-keyword">var</span> result = with_prec(prec, f).apply(obj || <span class="hljs-keyword">this</span>, <span class="hljs-built_in">arguments</span>);</pre></div></div>
             
         </li>
         
@@ -308,36 +328,36 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">return</span> result;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">return</span> result;
         };
     };
 
-    <span class="keyword">var</span> semi = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        <span class="keyword">return</span> $(<span class="string">"&lt;span class='semi'&gt;;&lt;/span&gt;"</span>);
+    <span class="hljs-keyword">var</span> semi = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;span class='semi'&gt;;&lt;/span&gt;"</span>);
     };
 
-    <span class="keyword">var</span> dispatch = {};
-    dispatch.name = <span class="keyword">function</span>() {
-        <span class="keyword">return</span> $(<span class="string">"&lt;li class='name'&gt;"</span>+html_escape(<span class="keyword">this</span>.value)+<span class="string">"&lt;/li&gt;"</span>);
+    <span class="hljs-keyword">var</span> dispatch = {};
+    dispatch.name = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='name'&gt;"</span>+html_escape(<span class="hljs-keyword">this</span>.value)+<span class="hljs-string">"&lt;/li&gt;"</span>);
     };
-    dispatch.literal = <span class="keyword">function</span>() {
-        <span class="keyword">if</span> (<span class="keyword">this</span>.value === <span class="literal">null</span>) {
-            <span class="keyword">return</span> $(<span class="string">"&lt;li class='literal'&gt;null&lt;/li&gt;"</span>);
+    dispatch.literal = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.value === <span class="hljs-literal">null</span>) {
+            <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='literal'&gt;null&lt;/li&gt;"</span>);
         }
-        <span class="keyword">if</span> (<span class="keyword">typeof</span>(<span class="keyword">this</span>.value)===<span class="string">'object'</span>) {
-            <span class="keyword">if</span> (<span class="keyword">this</span>.value.length === <span class="number">0</span>) {
-                <span class="keyword">return</span> $(<span class="string">"&lt;li class='literal'&gt;Array&lt;/li&gt;"</span>);
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(<span class="hljs-keyword">this</span>.value)===<span class="hljs-string">'object'</span>) {
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.value.length === <span class="hljs-number">0</span>) {
+                <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='literal'&gt;Array&lt;/li&gt;"</span>);
             }
-            <span class="keyword">return</span> $(<span class="string">"&lt;li class='literal'&gt;Object&lt;/li&gt;"</span>);
+            <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='literal'&gt;Object&lt;/li&gt;"</span>);
         }
-        <span class="keyword">if</span> (<span class="keyword">typeof</span>(<span class="keyword">this</span>.value)===<span class="string">'string'</span>) {
-            <span class="keyword">return</span> $(<span class="string">"&lt;li class='literal'&gt;"</span> +
-                     html_escape(str_escape(<span class="keyword">this</span>.value)) +
-                     <span class="string">"&lt;/li&gt;"</span>);
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(<span class="hljs-keyword">this</span>.value)===<span class="hljs-string">'string'</span>) {
+            <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='literal'&gt;"</span> +
+                     html_escape(str_escape(<span class="hljs-keyword">this</span>.value)) +
+                     <span class="hljs-string">"&lt;/li&gt;"</span>);
         }
-        <span class="keyword">return</span> $(<span class="string">"&lt;li class='literal'&gt;"</span> +
-                 html_escape(<span class="keyword">this</span>.value.toString()) +
-                 <span class="string">"&lt;/li&gt;"</span>);
+        <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='literal'&gt;"</span> +
+                 html_escape(<span class="hljs-keyword">this</span>.value.toString()) +
+                 <span class="hljs-string">"&lt;/li&gt;"</span>);
     };</pre></div></div>
             
         </li>
@@ -353,33 +373,33 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    dispatch.unary = <span class="keyword">function</span>() {
-        assert(dispatch.unary[<span class="keyword">this</span>.value], <span class="keyword">this</span>);
-        <span class="keyword">return</span> dispatch.unary[<span class="keyword">this</span>.value].apply(<span class="keyword">this</span>);
+            <div class="content"><div class='highlight'><pre>    dispatch.unary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        assert(dispatch.unary[<span class="hljs-keyword">this</span>.value], <span class="hljs-keyword">this</span>);
+        <span class="hljs-keyword">return</span> dispatch.unary[<span class="hljs-keyword">this</span>.value].apply(<span class="hljs-keyword">this</span>);
     };
-    <span class="keyword">var</span> unary = <span class="keyword">function</span>(op, prec, f) {
-        dispatch.unary[op] = f || with_prec_paren(prec, <span class="keyword">function</span>() {
-                <span class="keyword">return</span> $(<span class="string">"&lt;li class='unop'&gt;&lt;span class='op'&gt;"</span> +
-                         html_escape(<span class="keyword">this</span>.value) +
-                         <span class="string">"&lt;/span&gt;&lt;/li&gt;"</span>).
-                    append($(<span class="string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
-                           append(render(<span class="keyword">this</span>.first)));
+    <span class="hljs-keyword">var</span> unary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">op, prec, f</span>) </span>{
+        dispatch.unary[op] = f || with_prec_paren(prec, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+                <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='unop'&gt;&lt;span class='op'&gt;"</span> +
+                         html_escape(<span class="hljs-keyword">this</span>.value) +
+                         <span class="hljs-string">"&lt;/span&gt;&lt;/li&gt;"</span>).
+                    append($(<span class="hljs-string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
+                           append(render(<span class="hljs-keyword">this</span>.first)));
             });
     };
-    unary(<span class="string">'!'</span>, <span class="number">70</span>);
-    unary(<span class="string">'-'</span>, <span class="number">70</span>);
-    unary(<span class="string">'typeof'</span>, <span class="number">70</span>, with_prec_paren(<span class="number">70</span>, <span class="keyword">function</span>() {
-                <span class="keyword">return</span> $(<span class="string">"&lt;li class='unop'&gt;&lt;span class='op'&gt;typeof"</span> +
-                         <span class="string">"&lt;/span&gt;&lt;/li&gt;"</span>).
-                    append($(<span class="string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
-                           append(with_prec(<span class="number">0</span>, render)(<span class="keyword">this</span>.first)));
+    unary(<span class="hljs-string">'!'</span>, <span class="hljs-number">70</span>);
+    unary(<span class="hljs-string">'-'</span>, <span class="hljs-number">70</span>);
+    unary(<span class="hljs-string">'typeof'</span>, <span class="hljs-number">70</span>, with_prec_paren(<span class="hljs-number">70</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+                <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='unop'&gt;&lt;span class='op'&gt;typeof"</span> +
+                         <span class="hljs-string">"&lt;/span&gt;&lt;/li&gt;"</span>).
+                    append($(<span class="hljs-string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
+                           append(with_prec(<span class="hljs-number">0</span>, render)(<span class="hljs-keyword">this</span>.first)));
             }));
-    unary(<span class="string">'['</span>, <span class="number">90</span><span class="comment">/*???*/</span>, with_prec_paren(<span class="number">90</span>, <span class="keyword">function</span>() {
-                <span class="keyword">return</span> $(<span class="string">"&lt;li class='unop'&gt;&lt;span class='op'&gt;new array&lt;/span&gt;&lt;/li&gt;"</span>).
-                    append(gather($(<span class="string">"&lt;ul&gt;&lt;/ul&gt;"</span>), <span class="keyword">this</span>.first,
-                                  with_prec(<span class="number">0</span>, render)));
+    unary(<span class="hljs-string">'['</span>, <span class="hljs-number">90</span><span class="hljs-comment">/*???*/</span>, with_prec_paren(<span class="hljs-number">90</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+                <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='unop'&gt;&lt;span class='op'&gt;new array&lt;/span&gt;&lt;/li&gt;"</span>).
+                    append(gather($(<span class="hljs-string">"&lt;ul&gt;&lt;/ul&gt;"</span>), <span class="hljs-keyword">this</span>.first,
+                                  with_prec(<span class="hljs-number">0</span>, render)));
             }));
-    unary(<span class="string">'{'</span>, <span class="number">90</span><span class="comment">/*???*/</span>, with_prec_paren(<span class="number">90</span>, <span class="keyword">function</span>() {</pre></div></div>
+    unary(<span class="hljs-string">'{'</span>, <span class="hljs-number">90</span><span class="hljs-comment">/*???*/</span>, with_prec_paren(<span class="hljs-number">90</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -394,9 +414,9 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">return</span> $(<span class="string">"&lt;li class='unop'&gt;&lt;span class='op'&gt;new object&lt;/span&gt;&lt;/li&gt;"</span>).
-                    append(gather($(<span class="string">"&lt;dl&gt;&lt;/dl&gt;"</span>), <span class="keyword">this</span>.first, <span class="keyword">function</span>(item) {
-                                <span class="keyword">return</span> $(<span class="string">"&lt;dt&gt;&lt;span class='name'&gt;"</span> +</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='unop'&gt;&lt;span class='op'&gt;new object&lt;/span&gt;&lt;/li&gt;"</span>).
+                    append(gather($(<span class="hljs-string">"&lt;dl&gt;&lt;/dl&gt;"</span>), <span class="hljs-keyword">this</span>.first, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">item</span>) </span>{
+                                <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;dt&gt;&lt;span class='name'&gt;"</span> +</pre></div></div>
             
         </li>
         
@@ -413,10 +433,10 @@ XXX suppress quotes when unnecessary</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                                         html_escape(str_escape(item.key)) +
-                                         <span class="string">"&lt;/span&gt;:&lt;/dt&gt;"</span>).
-                                    append($(<span class="string">"&lt;dd&gt;&lt;/dd&gt;"</span>).
-                                           append($(<span class="string">"&lt;ul&gt;&lt;/ul&gt;"</span>).
-                                                  append(with_prec(<span class="number">0</span>, render)
+                                         <span class="hljs-string">"&lt;/span&gt;:&lt;/dt&gt;"</span>).
+                                    append($(<span class="hljs-string">"&lt;dd&gt;&lt;/dd&gt;"</span>).
+                                           append($(<span class="hljs-string">"&lt;ul&gt;&lt;/ul&gt;"</span>).
+                                                  append(with_prec(<span class="hljs-number">0</span>, render)
                                                          (item))));
                             }));
             }));</pre></div></div>
@@ -434,11 +454,11 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    dispatch.binary = <span class="keyword">function</span>() {
-        assert(dispatch.binary[<span class="keyword">this</span>.value], <span class="keyword">this</span>);
-        <span class="keyword">return</span> dispatch.binary[<span class="keyword">this</span>.value].apply(<span class="keyword">this</span>);
+            <div class="content"><div class='highlight'><pre>    dispatch.binary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        assert(dispatch.binary[<span class="hljs-keyword">this</span>.value], <span class="hljs-keyword">this</span>);
+        <span class="hljs-keyword">return</span> dispatch.binary[<span class="hljs-keyword">this</span>.value].apply(<span class="hljs-keyword">this</span>);
     };
-    <span class="keyword">var</span> binary = <span class="keyword">function</span>(op, prec, f) {</pre></div></div>
+    <span class="hljs-keyword">var</span> binary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">op, prec, f</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -453,13 +473,13 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        dispatch.binary[op] = f || with_prec_paren(prec, <span class="keyword">function</span>() {
-                <span class="keyword">return</span> $(<span class="string">"&lt;li class='binop'&gt;&lt;/li&gt;"</span>).
-                append($(<span class="string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
-                       append(render(<span class="keyword">this</span>.first))).
-                append($(<span class="string">"&lt;span class='op'&gt;"</span> +
-                         html_escape(<span class="keyword">this</span>.value) +
-                         <span class="string">"&lt;/span&gt;"</span>)).</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        dispatch.binary[op] = f || with_prec_paren(prec, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+                <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='binop'&gt;&lt;/li&gt;"</span>).
+                append($(<span class="hljs-string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
+                       append(render(<span class="hljs-keyword">this</span>.first))).
+                append($(<span class="hljs-string">"&lt;span class='op'&gt;"</span> +
+                         html_escape(<span class="hljs-keyword">this</span>.value) +
+                         <span class="hljs-string">"&lt;/span&gt;"</span>)).</pre></div></div>
             
         </li>
         
@@ -474,31 +494,31 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                append($(<span class="string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
-                       append(with_prec(prec+<span class="number">1</span>, render)(<span class="keyword">this</span>.second)));
+            <div class="content"><div class='highlight'><pre>                append($(<span class="hljs-string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
+                       append(with_prec(prec+<span class="hljs-number">1</span>, render)(<span class="hljs-keyword">this</span>.second)));
             });
     };
-    binary(<span class="string">'='</span>, <span class="number">10</span>);
-    binary(<span class="string">'+='</span>, <span class="number">10</span>);
-    binary(<span class="string">'-='</span>, <span class="number">10</span>);
-    binary(<span class="string">'||'</span>, <span class="number">30</span>);
-    binary(<span class="string">'&amp;&amp;'</span>, <span class="number">35</span>);
-    binary(<span class="string">'==='</span>,<span class="number">40</span>);
-    binary(<span class="string">'!=='</span>,<span class="number">40</span>);
-    binary(<span class="string">'&lt;'</span>, <span class="number">45</span>);
-    binary(<span class="string">'&lt;='</span>,<span class="number">45</span>);
-    binary(<span class="string">'&gt;'</span>, <span class="number">45</span>);
-    binary(<span class="string">'&gt;='</span>,<span class="number">45</span>);
-    binary(<span class="string">'+'</span>, <span class="number">50</span>);
-    binary(<span class="string">'-'</span>, <span class="number">50</span>);
-    binary(<span class="string">'*'</span>, <span class="number">60</span>);
-    binary(<span class="string">'/'</span>, <span class="number">60</span>);
-    binary(<span class="string">"."</span>, <span class="number">80</span>, with_prec_paren(<span class="number">80</span>, <span class="keyword">function</span>() {
-                assert (<span class="keyword">this</span>.second.arity===<span class="string">'literal'</span>, <span class="keyword">this</span>.second);
-                <span class="keyword">return</span> $(<span class="string">"&lt;li class='binop'&gt;&lt;/li&gt;"</span>).
-                    append($(<span class="string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
-                           append(render(<span class="keyword">this</span>.first))).
-                    append($(<span class="string">"&lt;span class='op'&gt;.&lt;/span&gt;"</span>)).</pre></div></div>
+    binary(<span class="hljs-string">'='</span>, <span class="hljs-number">10</span>);
+    binary(<span class="hljs-string">'+='</span>, <span class="hljs-number">10</span>);
+    binary(<span class="hljs-string">'-='</span>, <span class="hljs-number">10</span>);
+    binary(<span class="hljs-string">'||'</span>, <span class="hljs-number">30</span>);
+    binary(<span class="hljs-string">'&amp;&amp;'</span>, <span class="hljs-number">35</span>);
+    binary(<span class="hljs-string">'==='</span>,<span class="hljs-number">40</span>);
+    binary(<span class="hljs-string">'!=='</span>,<span class="hljs-number">40</span>);
+    binary(<span class="hljs-string">'&lt;'</span>, <span class="hljs-number">45</span>);
+    binary(<span class="hljs-string">'&lt;='</span>,<span class="hljs-number">45</span>);
+    binary(<span class="hljs-string">'&gt;'</span>, <span class="hljs-number">45</span>);
+    binary(<span class="hljs-string">'&gt;='</span>,<span class="hljs-number">45</span>);
+    binary(<span class="hljs-string">'+'</span>, <span class="hljs-number">50</span>);
+    binary(<span class="hljs-string">'-'</span>, <span class="hljs-number">50</span>);
+    binary(<span class="hljs-string">'*'</span>, <span class="hljs-number">60</span>);
+    binary(<span class="hljs-string">'/'</span>, <span class="hljs-number">60</span>);
+    binary(<span class="hljs-string">"."</span>, <span class="hljs-number">80</span>, with_prec_paren(<span class="hljs-number">80</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+                assert (<span class="hljs-keyword">this</span>.second.arity===<span class="hljs-string">'literal'</span>, <span class="hljs-keyword">this</span>.second);
+                <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='binop'&gt;&lt;/li&gt;"</span>).
+                    append($(<span class="hljs-string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
+                           append(render(<span class="hljs-keyword">this</span>.first))).
+                    append($(<span class="hljs-string">"&lt;span class='op'&gt;.&lt;/span&gt;"</span>)).</pre></div></div>
             
         </li>
         
@@ -513,19 +533,19 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    append($(<span class="string">"&lt;span class='field'&gt;&lt;/span&gt;"</span>).
-                           append(html_escape(<span class="keyword">this</span>.second.value)));
+            <div class="content"><div class='highlight'><pre>                    append($(<span class="hljs-string">"&lt;span class='field'&gt;&lt;/span&gt;"</span>).
+                           append(html_escape(<span class="hljs-keyword">this</span>.second.value)));
             }));
-    binary(<span class="string">'['</span>, <span class="number">80</span>, with_prec_paren(<span class="number">80</span>, <span class="keyword">function</span>() {
-                <span class="keyword">return</span> $(<span class="string">"&lt;li class='binop'&gt;&lt;/li&gt;"</span>).
-                    append($(<span class="string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
-                           append(render(<span class="keyword">this</span>.first))).
-                    append($(<span class="string">"&lt;span class='op'&gt;[&lt;/span&gt;"</span>)).
-                    append($(<span class="string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
-                           append(with_prec(<span class="number">0</span>, render)(<span class="keyword">this</span>.second))).
-                    append($(<span class="string">"&lt;span class='op'&gt;]&lt;/span&gt;"</span>));
+    binary(<span class="hljs-string">'['</span>, <span class="hljs-number">80</span>, with_prec_paren(<span class="hljs-number">80</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+                <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='binop'&gt;&lt;/li&gt;"</span>).
+                    append($(<span class="hljs-string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
+                           append(render(<span class="hljs-keyword">this</span>.first))).
+                    append($(<span class="hljs-string">"&lt;span class='op'&gt;[&lt;/span&gt;"</span>)).
+                    append($(<span class="hljs-string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
+                           append(with_prec(<span class="hljs-number">0</span>, render)(<span class="hljs-keyword">this</span>.second))).
+                    append($(<span class="hljs-string">"&lt;span class='op'&gt;]&lt;/span&gt;"</span>));
             }));
-    binary(<span class="string">'('</span>, <span class="number">80</span>, with_prec_paren(<span class="number">80</span>, <span class="keyword">function</span>() {</pre></div></div>
+    binary(<span class="hljs-string">'('</span>, <span class="hljs-number">80</span>, with_prec_paren(<span class="hljs-number">80</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -540,13 +560,13 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">return</span> $(<span class="string">"&lt;li class='binop'&gt;&lt;/li&gt;"</span>).
-                    append($(<span class="string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
-                           append(render(<span class="keyword">this</span>.first))).
-                    append($(<span class="string">"&lt;span class='op'&gt;(&lt;/span&gt;"</span>)).
-                    append(gather($(<span class="string">"&lt;ul class='arguments'&gt;&lt;/ul&gt;"</span>),
-                                  <span class="keyword">this</span>.second, with_prec(<span class="number">0</span>, render))).
-                    append($(<span class="string">"&lt;span class='op'&gt;)&lt;/span&gt;"</span>));
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='binop'&gt;&lt;/li&gt;"</span>).
+                    append($(<span class="hljs-string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
+                           append(render(<span class="hljs-keyword">this</span>.first))).
+                    append($(<span class="hljs-string">"&lt;span class='op'&gt;(&lt;/span&gt;"</span>)).
+                    append(gather($(<span class="hljs-string">"&lt;ul class='arguments'&gt;&lt;/ul&gt;"</span>),
+                                  <span class="hljs-keyword">this</span>.second, with_prec(<span class="hljs-number">0</span>, render))).
+                    append($(<span class="hljs-string">"&lt;span class='op'&gt;)&lt;/span&gt;"</span>));
             }));</pre></div></div>
             
         </li>
@@ -562,25 +582,25 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    dispatch.ternary = <span class="keyword">function</span>() {
-        assert (dispatch.ternary[<span class="keyword">this</span>.value], <span class="keyword">this</span>);
-        <span class="keyword">return</span> dispatch.ternary[<span class="keyword">this</span>.value].apply(<span class="keyword">this</span>);
+            <div class="content"><div class='highlight'><pre>    dispatch.ternary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        assert (dispatch.ternary[<span class="hljs-keyword">this</span>.value], <span class="hljs-keyword">this</span>);
+        <span class="hljs-keyword">return</span> dispatch.ternary[<span class="hljs-keyword">this</span>.value].apply(<span class="hljs-keyword">this</span>);
     };
-    <span class="keyword">var</span> ternary = <span class="keyword">function</span>(op, prec, f) {
+    <span class="hljs-keyword">var</span> ternary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">op, prec, f</span>) </span>{
         dispatch.ternary[op] = with_prec_paren(prec, f);
     };
-    ternary(<span class="string">"?"</span>, <span class="number">20</span>, <span class="keyword">function</span>() {
-            <span class="keyword">return</span> $(<span class="string">"&lt;li class='ternary'&gt;&lt;/li&gt;"</span>).
-                append($(<span class="string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
-                       append(render(<span class="keyword">this</span>.first))).
-                append($(<span class="string">"&lt;span class='op'&gt;?&lt;/span&gt;"</span>)).
-                append($(<span class="string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
-                       append(render(<span class="keyword">this</span>.second))).
-                append($(<span class="string">"&lt;span class='op'&gt;:&lt;/span&gt;"</span>)).
-                append($(<span class="string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
-                       append(render(<span class="keyword">this</span>.third)));
+    ternary(<span class="hljs-string">"?"</span>, <span class="hljs-number">20</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='ternary'&gt;&lt;/li&gt;"</span>).
+                append($(<span class="hljs-string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
+                       append(render(<span class="hljs-keyword">this</span>.first))).
+                append($(<span class="hljs-string">"&lt;span class='op'&gt;?&lt;/span&gt;"</span>)).
+                append($(<span class="hljs-string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
+                       append(render(<span class="hljs-keyword">this</span>.second))).
+                append($(<span class="hljs-string">"&lt;span class='op'&gt;:&lt;/span&gt;"</span>)).
+                append($(<span class="hljs-string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
+                       append(render(<span class="hljs-keyword">this</span>.third)));
         });
-    ternary(<span class="string">"("</span>, <span class="number">80</span>, <span class="keyword">function</span>() {</pre></div></div>
+    ternary(<span class="hljs-string">"("</span>, <span class="hljs-number">80</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -595,11 +615,11 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            assert (<span class="keyword">this</span>.second.arity===<span class="string">'literal'</span>, <span class="keyword">this</span>.second);
-            <span class="keyword">return</span> $(<span class="string">"&lt;li class='ternary'&gt;&lt;/li&gt;"</span>).
-                append($(<span class="string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
-                       append(render(<span class="keyword">this</span>.first))).
-                append($(<span class="string">"&lt;span class='op'&gt;.&lt;/span&gt;"</span>)).</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            assert (<span class="hljs-keyword">this</span>.second.arity===<span class="hljs-string">'literal'</span>, <span class="hljs-keyword">this</span>.second);
+            <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='ternary'&gt;&lt;/li&gt;"</span>).
+                append($(<span class="hljs-string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
+                       append(render(<span class="hljs-keyword">this</span>.first))).
+                append($(<span class="hljs-string">"&lt;span class='op'&gt;.&lt;/span&gt;"</span>)).</pre></div></div>
             
         </li>
         
@@ -614,12 +634,12 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                append($(<span class="string">"&lt;span class='field'&gt;&lt;/span&gt;"</span>).
-                       append(html_escape(<span class="keyword">this</span>.second.value))).
-                append($(<span class="string">"&lt;span class='op'&gt;(&lt;/span&gt;"</span>)).
-                append(gather($(<span class="string">"&lt;ul class='arguments'&gt;&lt;/ul&gt;"</span>),
-                              <span class="keyword">this</span>.third, with_prec(<span class="number">0</span>, render))).
-                append($(<span class="string">"&lt;span class='op'&gt;)&lt;/span&gt;"</span>));
+            <div class="content"><div class='highlight'><pre>                append($(<span class="hljs-string">"&lt;span class='field'&gt;&lt;/span&gt;"</span>).
+                       append(html_escape(<span class="hljs-keyword">this</span>.second.value))).
+                append($(<span class="hljs-string">"&lt;span class='op'&gt;(&lt;/span&gt;"</span>)).
+                append(gather($(<span class="hljs-string">"&lt;ul class='arguments'&gt;&lt;/ul&gt;"</span>),
+                              <span class="hljs-keyword">this</span>.third, with_prec(<span class="hljs-number">0</span>, render))).
+                append($(<span class="hljs-string">"&lt;span class='op'&gt;)&lt;/span&gt;"</span>));
         });</pre></div></div>
             
         </li>
@@ -635,29 +655,29 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    dispatch.statement = <span class="keyword">function</span>() {
-        assert(dispatch.statement[<span class="keyword">this</span>.value], <span class="keyword">this</span>);
-        <span class="keyword">return</span> dispatch.statement[<span class="keyword">this</span>.value].apply(<span class="keyword">this</span>);
+            <div class="content"><div class='highlight'><pre>    dispatch.statement = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        assert(dispatch.statement[<span class="hljs-keyword">this</span>.value], <span class="hljs-keyword">this</span>);
+        <span class="hljs-keyword">return</span> dispatch.statement[<span class="hljs-keyword">this</span>.value].apply(<span class="hljs-keyword">this</span>);
     };
-    <span class="keyword">var</span> stmt = <span class="keyword">function</span>(value, f) {
+    <span class="hljs-keyword">var</span> stmt = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">value, f</span>) </span>{
         dispatch.statement[value] = f;
     };
-    <span class="keyword">var</span> collect_variables = <span class="keyword">function</span>(block) {
-        <span class="keyword">var</span> v = [], s = [], i = <span class="number">0</span>;
-        <span class="keyword">while</span> ( i &lt; block.first.length ) {
-            <span class="keyword">if</span> (block.first[i].value === <span class="string">'var'</span>) {
+    <span class="hljs-keyword">var</span> collect_variables = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">block</span>) </span>{
+        <span class="hljs-keyword">var</span> v = [], s = [], i = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">while</span> ( i &lt; block.first.length ) {
+            <span class="hljs-keyword">if</span> (block.first[i].value === <span class="hljs-string">'var'</span>) {
                 v.push(block.first[i].first);
-            } <span class="keyword">else</span> {
+            } <span class="hljs-keyword">else</span> {
                 s.push(block.first[i]);
             }
-            i += <span class="number">1</span>;
+            i += <span class="hljs-number">1</span>;
         }
-        <span class="keyword">var</span> classes=<span class="string">'variables'</span>;
-        <span class="keyword">var</span> vlist = $(<span class="string">"&lt;ul class='variables'&gt;&lt;/ul&gt;"</span>);
-        <span class="keyword">if</span> (v.length === <span class="number">0</span>) {
-            vlist.append($(<span class="string">"&lt;li class='placeholder'&gt;&lt;/li&gt;"</span>));
-            classes += <span class="string">' empty'</span>;
-        } <span class="keyword">else</span> {</pre></div></div>
+        <span class="hljs-keyword">var</span> classes=<span class="hljs-string">'variables'</span>;
+        <span class="hljs-keyword">var</span> vlist = $(<span class="hljs-string">"&lt;ul class='variables'&gt;&lt;/ul&gt;"</span>);
+        <span class="hljs-keyword">if</span> (v.length === <span class="hljs-number">0</span>) {
+            vlist.append($(<span class="hljs-string">"&lt;li class='placeholder'&gt;&lt;/li&gt;"</span>));
+            classes += <span class="hljs-string">' empty'</span>;
+        } <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -672,22 +692,22 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            v.sort(<span class="keyword">function</span>(a, b) {
-                    <span class="keyword">return</span> (a.value &lt; b.value) ? -<span class="number">1</span> :
-                           (a.value &gt; b.value) ? <span class="number">1</span> : <span class="number">0</span>;
+            <div class="content"><div class='highlight'><pre>            v.sort(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">a, b</span>) </span>{
+                    <span class="hljs-keyword">return</span> (a.value &lt; b.value) ? <span class="hljs-number">-1</span> :
+                           (a.value &gt; b.value) ? <span class="hljs-number">1</span> : <span class="hljs-number">0</span>;
                 });
             gather(vlist, v, render);
         }
-        <span class="keyword">return</span> [ $(<span class="string">"&lt;div class='"</span>+classes+<span class="string">"'&gt;var&amp;nbsp;&lt;/div&gt;"</span>).
+        <span class="hljs-keyword">return</span> [ $(<span class="hljs-string">"&lt;div class='"</span>+classes+<span class="hljs-string">"'&gt;var&amp;nbsp;&lt;/div&gt;"</span>).
                  append(vlist).append(semi()), s ];
     };
-    <span class="keyword">var</span> block = <span class="keyword">function</span>(block) {
-        <span class="keyword">var</span> pieces = collect_variables(block);
-        <span class="keyword">return</span> $(<span class="string">"&lt;div class='block'&gt;&lt;/div&gt;"</span>).
-                append(pieces[<span class="number">0</span>]).
-                append(render_stmts(pieces[<span class="number">1</span>]));
+    <span class="hljs-keyword">var</span> block = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">block</span>) </span>{
+        <span class="hljs-keyword">var</span> pieces = collect_variables(block);
+        <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;div class='block'&gt;&lt;/div&gt;"</span>).
+                append(pieces[<span class="hljs-number">0</span>]).
+                append(render_stmts(pieces[<span class="hljs-number">1</span>]));
     };
-    stmt(<span class="string">"block"</span>, <span class="keyword">function</span>() {</pre></div></div>
+    stmt(<span class="hljs-string">"block"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -702,23 +722,23 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">return</span> $(<span class="string">"&lt;li class='stmt'&gt;&lt;/li&gt;"</span>).
-                append(<span class="string">"{"</span>).
-                append(block(<span class="keyword">this</span>)).
-                append(<span class="string">"}"</span>);
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='stmt'&gt;&lt;/li&gt;"</span>).
+                append(<span class="hljs-string">"{"</span>).
+                append(block(<span class="hljs-keyword">this</span>)).
+                append(<span class="hljs-string">"}"</span>);
         });
-    stmt(<span class="string">"var"</span>, <span class="keyword">function</span>() {
-            <span class="keyword">return</span> $(<span class="string">"&lt;li class='stmt'&gt;var &lt;/li&gt;"</span>).
-                append($(<span class="string">"&lt;ul class='variables'&gt;&lt;/ul&gt;"</span>).
-                       append(render(<span class="keyword">this</span>.first))).
+    stmt(<span class="hljs-string">"var"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='stmt'&gt;var &lt;/li&gt;"</span>).
+                append($(<span class="hljs-string">"&lt;ul class='variables'&gt;&lt;/ul&gt;"</span>).
+                       append(render(<span class="hljs-keyword">this</span>.first))).
                 append(semi());
         });
-    stmt(<span class="string">"if"</span>, <span class="keyword">function</span>() {
-            <span class="keyword">var</span> result = $(<span class="string">"&lt;li class='stmt'&gt;&lt;/li&gt;"</span>).
-                append($(<span class="string">"&lt;div class='header'&gt;if (&lt;/div&gt;"</span>).
-                       append($(<span class="string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
-                              append(render(<span class="keyword">this</span>.first))).
-                       append(<span class="string">") {"</span>));</pre></div></div>
+    stmt(<span class="hljs-string">"if"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> result = $(<span class="hljs-string">"&lt;li class='stmt'&gt;&lt;/li&gt;"</span>).
+                append($(<span class="hljs-string">"&lt;div class='header'&gt;if (&lt;/div&gt;"</span>).
+                       append($(<span class="hljs-string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
+                              append(render(<span class="hljs-keyword">this</span>.first))).
+                       append(<span class="hljs-string">") {"</span>));</pre></div></div>
             
         </li>
         
@@ -733,9 +753,9 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            result.append(block(<span class="keyword">this</span>.second));
-            <span class="keyword">if</span> (<span class="keyword">this</span>.third) {
-                result.append($(<span class="string">"&lt;div&gt;} else {&lt;/div&gt;"</span>));</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            result.append(block(<span class="hljs-keyword">this</span>.second));
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.third) {
+                result.append($(<span class="hljs-string">"&lt;div&gt;} else {&lt;/div&gt;"</span>));</pre></div></div>
             
         </li>
         
@@ -750,14 +770,14 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                result.append(block(<span class="keyword">this</span>.third));
+            <div class="content"><div class='highlight'><pre>                result.append(block(<span class="hljs-keyword">this</span>.third));
             }
-            result.append($(<span class="string">"&lt;div class='footer'&gt;}&lt;/div&gt;"</span>));
-            <span class="keyword">return</span> result;
+            result.append($(<span class="hljs-string">"&lt;div class='footer'&gt;}&lt;/div&gt;"</span>));
+            <span class="hljs-keyword">return</span> result;
         });
-    stmt(<span class="string">"return"</span>, <span class="keyword">function</span>() {
-            <span class="keyword">var</span> result = $(<span class="string">"&lt;li class='stmt'&gt;return &lt;/li&gt;"</span>);
-            <span class="keyword">if</span> (<span class="keyword">this</span>.first) {</pre></div></div>
+    stmt(<span class="hljs-string">"return"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> result = $(<span class="hljs-string">"&lt;li class='stmt'&gt;return &lt;/li&gt;"</span>);
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.first) {</pre></div></div>
             
         </li>
         
@@ -772,23 +792,23 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                result.append($(<span class="string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
-                              append(render(<span class="keyword">this</span>.first)));
-            } <span class="keyword">else</span> {
-                result.append($(<span class="string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>));
+            <div class="content"><div class='highlight'><pre>                result.append($(<span class="hljs-string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
+                              append(render(<span class="hljs-keyword">this</span>.first)));
+            } <span class="hljs-keyword">else</span> {
+                result.append($(<span class="hljs-string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>));
             }
             result.append(semi());
-            <span class="keyword">return</span> result;
+            <span class="hljs-keyword">return</span> result;
         });
-    stmt(<span class="string">"break"</span>, <span class="keyword">function</span>() {
-            <span class="keyword">return</span> $(<span class="string">"&lt;li class='stmt'&gt;break&lt;/li&gt;"</span>).append(semi());
+    stmt(<span class="hljs-string">"break"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='stmt'&gt;break&lt;/li&gt;"</span>).append(semi());
         });
-    stmt(<span class="string">"while"</span>, <span class="keyword">function</span>() {
-            <span class="keyword">var</span> result = $(<span class="string">"&lt;li class='stmt'&gt;&lt;/li&gt;"</span>).
-                append($(<span class="string">"&lt;div class='header'&gt;while (&lt;/div&gt;"</span>).
-                       append($(<span class="string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
-                              append(render(<span class="keyword">this</span>.first))).
-                       append(<span class="string">") {"</span>));</pre></div></div>
+    stmt(<span class="hljs-string">"while"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> result = $(<span class="hljs-string">"&lt;li class='stmt'&gt;&lt;/li&gt;"</span>).
+                append($(<span class="hljs-string">"&lt;div class='header'&gt;while (&lt;/div&gt;"</span>).
+                       append($(<span class="hljs-string">"&lt;ul class='expr'&gt;&lt;/ul&gt;"</span>).
+                              append(render(<span class="hljs-keyword">this</span>.first))).
+                       append(<span class="hljs-string">") {"</span>));</pre></div></div>
             
         </li>
         
@@ -803,9 +823,9 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            result.append(block(<span class="keyword">this</span>.second));
-            result.append($(<span class="string">"&lt;div class='footer'&gt;}&lt;/div&gt;"</span>));
-            <span class="keyword">return</span> result;
+            <div class="content"><div class='highlight'><pre>            result.append(block(<span class="hljs-keyword">this</span>.second));
+            result.append($(<span class="hljs-string">"&lt;div class='footer'&gt;}&lt;/div&gt;"</span>));
+            <span class="hljs-keyword">return</span> result;
         });</pre></div></div>
             
         </li>
@@ -821,23 +841,23 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    dispatch[<span class="string">'this'</span>] = <span class="keyword">function</span>() { <span class="comment">// literal</span>
-        <span class="keyword">return</span> $(<span class="string">"&lt;li class='literal'&gt;this&lt;/li&gt;"</span>);
+            <div class="content"><div class='highlight'><pre>    dispatch[<span class="hljs-string">'this'</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-comment">// literal</span>
+        <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='literal'&gt;this&lt;/li&gt;"</span>);
     };
-    dispatch[<span class="string">'function'</span>] = with_prec(<span class="number">0</span>, <span class="keyword">function</span>() {
-            <span class="keyword">var</span> name = $(<span class="string">"&lt;span class='name'&gt;&lt;/span&gt;"</span>);
-            <span class="keyword">if</span> (<span class="keyword">this</span>.name) { name.append(html_escape(<span class="keyword">this</span>.name)); }
-            <span class="keyword">var</span> result = $(<span class="string">"&lt;li class='function'&gt;&lt;/li&gt;"</span>).
-                append($(<span class="string">"&lt;div class='header'&gt;function &lt;/div&gt;"</span>).
-                       append(name).append(<span class="string">"("</span>).
-                       append(gather($(<span class="string">"&lt;ul class='arguments'&gt;&lt;/ul&gt;"</span>),
-                                     <span class="keyword">this</span>.first, render)).
-                       append(<span class="string">") {"</span>)).
-                append(block({ value: <span class="string">'block'</span>,
-                               arity: <span class="string">'statement'</span>,
-                               first: <span class="keyword">this</span>.second })).
-                append($(<span class="string">"&lt;div class='footer'&gt;}&lt;/div&gt;"</span>));
-            <span class="keyword">return</span> result;
+    dispatch[<span class="hljs-string">'function'</span>] = with_prec(<span class="hljs-number">0</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> name = $(<span class="hljs-string">"&lt;span class='name'&gt;&lt;/span&gt;"</span>);
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.name) { name.append(html_escape(<span class="hljs-keyword">this</span>.name)); }
+            <span class="hljs-keyword">var</span> result = $(<span class="hljs-string">"&lt;li class='function'&gt;&lt;/li&gt;"</span>).
+                append($(<span class="hljs-string">"&lt;div class='header'&gt;function &lt;/div&gt;"</span>).
+                       append(name).append(<span class="hljs-string">"("</span>).
+                       append(gather($(<span class="hljs-string">"&lt;ul class='arguments'&gt;&lt;/ul&gt;"</span>),
+                                     <span class="hljs-keyword">this</span>.first, render)).
+                       append(<span class="hljs-string">") {"</span>)).
+                append(block({ <span class="hljs-attr">value</span>: <span class="hljs-string">'block'</span>,
+                               <span class="hljs-attr">arity</span>: <span class="hljs-string">'statement'</span>,
+                               <span class="hljs-attr">first</span>: <span class="hljs-keyword">this</span>.second })).
+                append($(<span class="hljs-string">"&lt;div class='footer'&gt;}&lt;/div&gt;"</span>));
+            <span class="hljs-keyword">return</span> result;
         });</pre></div></div>
             
         </li>
@@ -853,7 +873,7 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    render = <span class="keyword">function</span>(tree) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    render = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">tree</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -869,9 +889,9 @@ XXX suppress quotes when unnecessary</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>        assert(dispatch[tree.arity], tree);
-        <span class="keyword">return</span> dispatch[tree.arity].apply(tree);
+        <span class="hljs-keyword">return</span> dispatch[tree.arity].apply(tree);
     };
-    render_stmt = <span class="keyword">function</span>(tree) {</pre></div></div>
+    render_stmt = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">tree</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -886,7 +906,7 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (tree.arity===<span class="string">'statement'</span>) { <span class="keyword">return</span> render(tree); }</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (tree.arity===<span class="hljs-string">'statement'</span>) { <span class="hljs-keyword">return</span> render(tree); }</pre></div></div>
             
         </li>
         
@@ -901,11 +921,11 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">return</span> $(<span class="string">"&lt;li class='stmt'&gt;&lt;/li&gt;"</span>).
-            append($(<span class="string">"&lt;ul class='expr fixed'&gt;&lt;/ul&gt;"</span>).append(render(tree))).
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">return</span> $(<span class="hljs-string">"&lt;li class='stmt'&gt;&lt;/li&gt;"</span>).
+            append($(<span class="hljs-string">"&lt;ul class='expr fixed'&gt;&lt;/ul&gt;"</span>).append(render(tree))).
             append(semi());
     };
-    render_stmts = <span class="keyword">function</span>(tree_list) {</pre></div></div>
+    render_stmts = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">tree_list</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -920,10 +940,10 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">return</span> gather($(<span class="string">"&lt;ul&gt;&lt;/ul&gt;"</span>), tree_list, render_stmt);
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">return</span> gather($(<span class="hljs-string">"&lt;ul&gt;&lt;/ul&gt;"</span>), tree_list, render_stmt);
     };
 
-    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="params">(parse_tree)</span> {</span></pre></div></div>
+    <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">parse_tree</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -938,9 +958,9 @@ XXX suppress quotes when unnecessary</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        indentation = <span class="number">0</span>;
-        prec_stack = [ <span class="number">0</span> ];
-        <span class="keyword">return</span> render_stmts(parse_tree);
+            <div class="content"><div class='highlight'><pre>        indentation = <span class="hljs-number">0</span>;
+        prec_stack = [ <span class="hljs-number">0</span> ];
+        <span class="hljs-keyword">return</span> render_stmts(parse_tree);
     };
 });</pre></div></div>
             

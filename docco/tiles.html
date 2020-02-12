@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -211,9 +231,9 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">"parse"</span>, <span class="string">"jcompile"</span>, <span class="string">"render"</span>, <span class="string">"tests"</span>, <span class="string">"top-level"</span>, <span class="string">"!html-escape"</span>], <span class="keyword">function</span>(parse, jcompile, render, tests, top_level, html_escape) {
+            <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">"parse"</span>, <span class="hljs-string">"jcompile"</span>, <span class="hljs-string">"render"</span>, <span class="hljs-string">"tests"</span>, <span class="hljs-string">"top-level"</span>, <span class="hljs-string">"!html-escape"</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">parse, jcompile, render, tests, top_level, html_escape</span>) </span>{
 
-$(<span class="keyword">function</span>() {</pre></div></div>
+$(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -228,7 +248,7 @@ $(<span class="keyword">function</span>() {</pre></div></div>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> source = tests[<span class="number">0</span>];</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> source = tests[<span class="hljs-number">0</span>];</pre></div></div>
             
         </li>
         
@@ -243,7 +263,7 @@ $(<span class="keyword">function</span>() {</pre></div></div>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> tree = parse(source, top_level);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> tree = parse(source, top_level);</pre></div></div>
             
         </li>
         
@@ -258,7 +278,7 @@ $(<span class="keyword">function</span>() {</pre></div></div>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> elem = render(tree);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> elem = render(tree);</pre></div></div>
             
         </li>
         
@@ -273,7 +293,7 @@ $(<span class="keyword">function</span>() {</pre></div></div>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  $(<span class="string">"#test"</span>).append(render(tree));</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  $(<span class="hljs-string">"#test"</span>).append(render(tree));</pre></div></div>
             
         </li>
         
@@ -288,13 +308,13 @@ $(<span class="keyword">function</span>() {</pre></div></div>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  $(<span class="string">".ts ul"</span>).sortable({
-    placeholder: <span class="string">'placeholder active'</span>,
-    forcePlaceholderSize: <span class="literal">true</span>, <span class="comment">// use dynamic size of draggable if height=0</span>
-    revert: <span class="number">100</span>,<span class="comment">//ms: fast revert</span>
-    tolerance: <span class="string">'pointer'</span>,
-    distance: <span class="number">0</span>,
-    cancel: <span class="string">'.placeholder'</span>,</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  $(<span class="hljs-string">".ts ul"</span>).sortable({
+    <span class="hljs-attr">placeholder</span>: <span class="hljs-string">'placeholder active'</span>,
+    <span class="hljs-attr">forcePlaceholderSize</span>: <span class="hljs-literal">true</span>, <span class="hljs-comment">// use dynamic size of draggable if height=0</span>
+    <span class="hljs-attr">revert</span>: <span class="hljs-number">100</span>,<span class="hljs-comment">//ms: fast revert</span>
+    <span class="hljs-attr">tolerance</span>: <span class="hljs-string">'pointer'</span>,
+    <span class="hljs-attr">distance</span>: <span class="hljs-number">0</span>,
+    <span class="hljs-attr">cancel</span>: <span class="hljs-string">'.placeholder'</span>,</pre></div></div>
             
         </li>
         
@@ -309,7 +329,7 @@ $(<span class="keyword">function</span>() {</pre></div></div>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    cursor: <span class="string">'default'</span>,</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    cursor: <span class="hljs-string">'default'</span>,</pre></div></div>
             
         </li>
         
@@ -325,8 +345,9 @@ $(<span class="keyword">function</span>() {</pre></div></div>
             </div>
             
             <div class="content"><div class='highlight'><pre>  });
-<span class="comment">/*
-  var interconnect = [</pre></div></div>
+<span class="hljs-comment">/*
+  var interconnect = [
+</span></pre></div></div>
             
         </li>
         
@@ -341,7 +362,7 @@ $(<span class="keyword">function</span>() {</pre></div></div>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="string">".ts .block &gt; ul"</span>,</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-string">".ts .block &gt; ul"</span>,</pre></div></div>
             
         </li>
         
@@ -356,7 +377,7 @@ $(<span class="keyword">function</span>() {</pre></div></div>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="string">".ts ul.expr"</span>,</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-string">".ts ul.expr"</span>,</pre></div></div>
             
         </li>
         

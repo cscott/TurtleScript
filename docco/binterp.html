@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -199,10 +219,10 @@
         <li id="section-1">
             <div class="annotation">
               
-              <div class="pilwrap for-h1">
+              <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1>binterp.js</h1>
+              <h1 id="binterpjs">binterp.js</h1>
 <p>Bytecode interpreter, written in Simplified JavaScript.</p>
 <p>TODO: string coercions aren&#39;t quite right yet, we don&#39;t call the
       proper toString() method, etc.</p>
@@ -211,9 +231,9 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">"text!binterp.js"</span>, <span class="string">"bytecode-table"</span><span class="comment">/*, "!html-escape"*/</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_binterp</span><span class="params">(binterp_source, bytecode_table, html_escape)</span> {</span>
-    <span class="keyword">var</span> mkstate = <span class="keyword">function</span>(parent, frame, module, func_id) {
-        <span class="keyword">return</span> {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">"text!binterp.js"</span>, <span class="hljs-string">"bytecode-table"</span><span class="hljs-comment">/*, "!html-escape"*/</span>], <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_binterp</span>(<span class="hljs-params">binterp_source, bytecode_table, html_escape</span>) </span>{
+    <span class="hljs-keyword">var</span> mkstate = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">parent, frame, module, func_id</span>) </span>{
+        <span class="hljs-keyword">return</span> {</pre></div></div>
             
         </li>
         
@@ -228,10 +248,11 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            parent: parent, <span class="comment">// calling context (another state)</span>
-            frame: frame,
-            stack: [],
-            pc: <span class="number">0</span>,</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            parent: parent, <span class="hljs-comment">// calling context (another state)</span>
+            <span class="hljs-attr">frame</span>: frame,
+            <span class="hljs-attr">local_frame</span>: <span class="hljs-built_in">Object</span>.create(<span class="hljs-literal">null</span>),
+            <span class="hljs-attr">stack</span>: [],
+            <span class="hljs-attr">pc</span>: <span class="hljs-number">0</span>,</pre></div></div>
             
         </li>
         
@@ -246,8 +267,8 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            module: module,
-            func_id: func_id,</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-built_in">module</span>: <span class="hljs-built_in">module</span>,
+            <span class="hljs-attr">func_id</span>: func_id,</pre></div></div>
             
         </li>
         
@@ -262,33 +283,34 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            bytecode: module.functions[func_id].bytecode,
-            literals: module.literals
+            <div class="content"><div class='highlight'><pre>            bytecode: <span class="hljs-built_in">module</span>.functions[func_id].bytecode,
+            <span class="hljs-attr">literals</span>: <span class="hljs-built_in">module</span>.literals
         };
     };
+    <span class="hljs-keyword">var</span> invoke; <span class="hljs-comment">// forward declaration</span>
 
-    <span class="keyword">var</span> dispatch = {};
-    <span class="keyword">var</span> SLOT_PREFIX = <span class="string">"!bi!"</span>; <span class="comment">// prevent leaking slots from metacontext</span>
+    <span class="hljs-keyword">var</span> dispatch = {};
+    <span class="hljs-keyword">var</span> SLOT_PREFIX = <span class="hljs-string">"!bi!"</span>; <span class="hljs-comment">// prevent leaking slots from metacontext</span>
 
-    <span class="keyword">var</span> MyObject = {};
-    MyObject.type = <span class="string">"object"</span>;
-    <span class="keyword">var</span> MyArray = Object.create(MyObject);
-    MyArray.type = <span class="string">"array"</span>;
-    MyArray[SLOT_PREFIX+<span class="string">"length"</span>] = <span class="number">0</span>;
-    <span class="keyword">var</span> MyFunction = Object.create(MyObject);
-    MyFunction.type = <span class="string">"function"</span>;
-    <span class="keyword">var</span> MyString = Object.create(MyObject);
-    MyString.type = <span class="string">"string"</span>;
-    <span class="keyword">var</span> MyNumber = Object.create(MyObject);
-    MyNumber.type = <span class="string">"number"</span>;
-    <span class="keyword">var</span> MyBoolean = Object.create(MyObject);
-    MyBoolean.type = <span class="string">"boolean"</span>;
-    <span class="keyword">var</span> MyTrue = Object.create(MyBoolean);
-    MyTrue.value = <span class="literal">true</span>;
-    <span class="keyword">var</span> MyFalse = Object.create(MyBoolean);
-    MyFalse.value = <span class="literal">false</span>;
+    <span class="hljs-keyword">var</span> MyObject = {};
+    MyObject.type = <span class="hljs-string">"object"</span>;
+    <span class="hljs-keyword">var</span> MyArray = <span class="hljs-built_in">Object</span>.create(MyObject);
+    MyArray.type = <span class="hljs-string">"array"</span>;
+    MyArray[SLOT_PREFIX+<span class="hljs-string">"length"</span>] = <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">var</span> MyFunction = <span class="hljs-built_in">Object</span>.create(MyObject);
+    MyFunction.type = <span class="hljs-string">"function"</span>;
+    <span class="hljs-keyword">var</span> MyString = <span class="hljs-built_in">Object</span>.create(MyObject);
+    MyString.type = <span class="hljs-string">"string"</span>;
+    <span class="hljs-keyword">var</span> MyNumber = <span class="hljs-built_in">Object</span>.create(MyObject);
+    MyNumber.type = <span class="hljs-string">"number"</span>;
+    <span class="hljs-keyword">var</span> MyBoolean = <span class="hljs-built_in">Object</span>.create(MyObject);
+    MyBoolean.type = <span class="hljs-string">"boolean"</span>;
+    <span class="hljs-keyword">var</span> MyTrue = <span class="hljs-built_in">Object</span>.create(MyBoolean);
+    MyTrue.value = <span class="hljs-literal">true</span>;
+    <span class="hljs-keyword">var</span> MyFalse = <span class="hljs-built_in">Object</span>.create(MyBoolean);
+    MyFalse.value = <span class="hljs-literal">false</span>;
 
-    <span class="keyword">var</span> MyMath = Object.create(MyObject);</pre></div></div>
+    <span class="hljs-keyword">var</span> MyMath = <span class="hljs-built_in">Object</span>.create(MyObject);</pre></div></div>
             
         </li>
         
@@ -303,30 +325,30 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> MyUint8Array = Object.create(MyObject);
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> MyUint8Array = <span class="hljs-built_in">Object</span>.create(MyObject);
 
-    <span class="keyword">var</span> interpret = <span class="keyword">function</span>(state) {
-        <span class="keyword">var</span> op = bytecode_table.for_num(state.bytecode[state.pc]);
-        <span class="comment">/*
+    <span class="hljs-keyword">var</span> interpret = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        <span class="hljs-keyword">var</span> op = bytecode_table.for_num(state.bytecode[state.pc]);
+        <span class="hljs-comment">/*
         document.write("Executing: " +
                        state.pc + ": " +
                        op.name +
                        op.printargs(state.module, state.bytecode, state.pc)+
                        "  \n");
         */</span>
-        <span class="keyword">var</span> args = [];
-        <span class="keyword">var</span> i = <span class="number">0</span>;
-        <span class="keyword">while</span> (i &lt; op.args) {
-            args.push(state.bytecode[state.pc + i + <span class="number">1</span>]);
-            i += <span class="number">1</span>;
+        <span class="hljs-keyword">var</span> args = [];
+        <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">while</span> (i &lt; op.args) {
+            args.push(state.bytecode[state.pc + i + <span class="hljs-number">1</span>]);
+            i += <span class="hljs-number">1</span>;
         }
-        state.pc += <span class="number">1</span> + op.args;
-        <span class="keyword">var</span> ns = dispatch[op.name].apply(state, args);
-        <span class="comment">/*
+        state.pc += <span class="hljs-number">1</span> + op.args;
+        <span class="hljs-keyword">var</span> ns = dispatch[op.name].apply(state, args);
+        <span class="hljs-comment">/*
         document.write(JSON.stringify(state.stack,
                                       ['type', SLOT_PREFIX+"length"])+"\n");
         */</span>
-        <span class="keyword">return</span> ns ? ns : state;
+        <span class="hljs-keyword">return</span> ns ? ns : state;
     };</pre></div></div>
             
         </li>
@@ -342,19 +364,19 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> fname = <span class="keyword">function</span>(state) {
-        <span class="keyword">var</span> result, name;
-        <span class="keyword">var</span> func_id = state.func_id;
-        result = <span class="string">"#"</span>+func_id;
-        name = state.module ? state.module.functions[func_id].name : <span class="literal">null</span>;
-        <span class="keyword">if</span> (name) {
-            result += <span class="string">" ("</span>+name+<span class="string">")"</span>;
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> fname = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        <span class="hljs-keyword">var</span> result, name;
+        <span class="hljs-keyword">var</span> func_id = state.func_id;
+        result = <span class="hljs-string">"#"</span>+func_id;
+        name = state.module ? state.module.functions[func_id].name : <span class="hljs-literal">null</span>;
+        <span class="hljs-keyword">if</span> (name) {
+            result += <span class="hljs-string">" ("</span>+name+<span class="hljs-string">")"</span>;
         }
-        <span class="keyword">return</span> result;
+        <span class="hljs-keyword">return</span> result;
     };
-    <span class="keyword">var</span> stack_trace = <span class="keyword">function</span>(state) {
-        <span class="keyword">if</span> (!state.parent) { <span class="keyword">return</span> <span class="string">""</span>; }
-        <span class="keyword">return</span> stack_trace(state.parent) + <span class="string">"-&gt;"</span> + fname(state);
+    <span class="hljs-keyword">var</span> stack_trace = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        <span class="hljs-keyword">if</span> (!state.parent) { <span class="hljs-keyword">return</span> <span class="hljs-string">""</span>; }
+        <span class="hljs-keyword">return</span> stack_trace(state.parent) + <span class="hljs-string">"-&gt;"</span> + fname(state);
     };</pre></div></div>
             
         </li>
@@ -370,22 +392,10 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    dispatch.push_frame = <span class="keyword">function</span>() {
-        <span class="keyword">this</span>.stack.push(<span class="keyword">this</span>.frame);
+            <div class="content"><div class='highlight'><pre>    dispatch.push_frame = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">this</span>.stack.push(<span class="hljs-keyword">this</span>.frame);
     };
-    dispatch.push_literal = <span class="keyword">function</span>(idx) {
-        <span class="keyword">this</span>.stack.push(<span class="keyword">this</span>.literals[idx]);
-    };
-    dispatch.new_object = <span class="keyword">function</span>() {
-        <span class="keyword">this</span>.stack.push(Object.create(MyObject));
-    };
-    dispatch.new_array = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> na = Object.create(MyArray);
-        na[SLOT_PREFIX+<span class="string">"length"</span>] = <span class="number">0</span>;
-        <span class="keyword">this</span>.stack.push(na);
-    };
-    dispatch.new_function = <span class="keyword">function</span>(idx) {
-        <span class="keyword">var</span> f = Object.create(MyFunction);</pre></div></div>
+    dispatch.push_local_frame = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -396,19 +406,25 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
-              <p>hidden fields of function object</p>
+              <p>These variables don&#39;t escape into child functions</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        f.parent_frame = <span class="keyword">this</span>.frame;
-        f.module = <span class="keyword">this</span>.module;
-        f.func_id = idx;
-        f[SLOT_PREFIX+<span class="string">"name"</span>] = <span class="keyword">this</span>.module.functions[idx].name;
-        f[SLOT_PREFIX+<span class="string">"length"</span>] = <span class="keyword">this</span>.module.functions[idx].nargs;
-        <span class="keyword">this</span>.stack.push(f);
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">this</span>.stack.push(<span class="hljs-keyword">this</span>.local_frame);
     };
-    <span class="keyword">var</span> get_slot = <span class="keyword">function</span>(obj, name) {
-        <span class="keyword">if</span> (<span class="keyword">typeof</span>(obj)===<span class="string">"string"</span>) {</pre></div></div>
+    dispatch.push_literal = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">idx</span>) </span>{
+        <span class="hljs-keyword">this</span>.stack.push(<span class="hljs-keyword">this</span>.literals[idx]);
+    };
+    dispatch.new_object = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">this</span>.stack.push(<span class="hljs-built_in">Object</span>.create(MyObject));
+    };
+    dispatch.new_array = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> na = <span class="hljs-built_in">Object</span>.create(MyArray);
+        na[SLOT_PREFIX+<span class="hljs-string">"length"</span>] = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">this</span>.stack.push(na);
+    };
+    dispatch.new_function = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">idx</span>) </span>{
+        <span class="hljs-keyword">var</span> f = <span class="hljs-built_in">Object</span>.create(MyFunction);</pre></div></div>
             
         </li>
         
@@ -419,22 +435,19 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
-              <p>special case fields of String</p>
+              <p>hidden fields of function object</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (name === <span class="string">"__proto__"</span>) {
-                <span class="keyword">return</span> MyString;
-            }
-            <span class="keyword">if</span> (name === <span class="string">"length"</span> || isFinite(<span class="number">1</span> * name)) {
-                <span class="keyword">if</span> (name!==<span class="string">"length"</span>) {
-                    console.log(<span class="string">"WARNING: accessing string char by index"</span>);
-                }
-                <span class="keyword">return</span> obj[name];
-            }
-            <span class="keyword">return</span> MyString[SLOT_PREFIX+name];
-        }
-        <span class="keyword">if</span> (<span class="keyword">typeof</span>(obj)===<span class="string">"boolean"</span>) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        f.parent_frame = <span class="hljs-keyword">this</span>.frame;
+        f.module = <span class="hljs-keyword">this</span>.module;
+        f.func_id = idx;
+        f[SLOT_PREFIX+<span class="hljs-string">"name"</span>] = <span class="hljs-keyword">this</span>.module.functions[idx].name;
+        f[SLOT_PREFIX+<span class="hljs-string">"length"</span>] = <span class="hljs-keyword">this</span>.module.functions[idx].nargs;
+        <span class="hljs-keyword">this</span>.stack.push(f);
+    };
+    <span class="hljs-keyword">var</span> get_slot = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">obj, name</span>) </span>{
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(obj)===<span class="hljs-string">"string"</span>) {</pre></div></div>
             
         </li>
         
@@ -445,16 +458,22 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
-              <p>special case fields of Boolean</p>
+              <p>special case fields of String</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (name === <span class="string">"__proto__"</span>) {
-                <span class="keyword">return</span> MyBoolean;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (name === <span class="hljs-string">"__proto__"</span>) {
+                <span class="hljs-keyword">return</span> MyString;
             }
-            <span class="keyword">return</span> (obj ? MyTrue : MyFalse)[SLOT_PREFIX+name];
+            <span class="hljs-keyword">if</span> (name === <span class="hljs-string">"length"</span> || <span class="hljs-built_in">isFinite</span>(<span class="hljs-number">1</span> * name)) {
+                <span class="hljs-keyword">if</span> (name!==<span class="hljs-string">"length"</span>) {
+                    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"WARNING: accessing string char by index"</span>);
+                }
+                <span class="hljs-keyword">return</span> obj[name];
+            }
+            <span class="hljs-keyword">return</span> MyString[SLOT_PREFIX+name];
         }
-        <span class="keyword">if</span> (<span class="keyword">typeof</span>(obj)===<span class="string">"number"</span>) {</pre></div></div>
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(obj)===<span class="hljs-string">"boolean"</span>) {</pre></div></div>
             
         </li>
         
@@ -465,16 +484,16 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
-              <p>special case fields of Number</p>
+              <p>special case fields of Boolean</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (name === <span class="string">"__proto__"</span>) {
-                <span class="keyword">return</span> MyNumber;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (name === <span class="hljs-string">"__proto__"</span>) {
+                <span class="hljs-keyword">return</span> MyBoolean;
             }
-            <span class="keyword">return</span> MyNumber[SLOT_PREFIX+name];
+            <span class="hljs-keyword">return</span> (obj ? MyTrue : MyFalse)[SLOT_PREFIX+name];
         }
-        <span class="keyword">if</span> (<span class="keyword">typeof</span>(obj)===<span class="string">"object"</span> &amp;&amp; obj!==<span class="literal">null</span> &amp;&amp; obj.array) {</pre></div></div>
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(obj)===<span class="hljs-string">"number"</span>) {</pre></div></div>
             
         </li>
         
@@ -485,26 +504,16 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
-              <p>very basic TypedArray support</p>
+              <p>special case fields of Number</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (name === <span class="string">"length"</span> || isFinite(<span class="number">1</span> * name)) {
-                <span class="keyword">return</span> obj.array[name];
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (name === <span class="hljs-string">"__proto__"</span>) {
+                <span class="hljs-keyword">return</span> MyNumber;
             }
+            <span class="hljs-keyword">return</span> MyNumber[SLOT_PREFIX+name];
         }
-        <span class="keyword">return</span> obj[SLOT_PREFIX+name];
-    };
-    dispatch.get_slot_direct = <span class="keyword">function</span>(slot_name_idx) {
-        <span class="keyword">var</span> obj = <span class="keyword">this</span>.stack.pop();
-        <span class="keyword">var</span> name = <span class="keyword">this</span>.literals[slot_name_idx];
-        <span class="keyword">this</span>.stack.push(get_slot(obj, name));
-    };
-    dispatch.get_slot_direct_check = <span class="keyword">function</span>(slot_name_idx) {
-        <span class="keyword">var</span> obj = <span class="keyword">this</span>.stack.pop();
-        <span class="keyword">var</span> name = <span class="keyword">this</span>.literals[slot_name_idx];
-        <span class="keyword">var</span> result = get_slot(obj, name);
-        <span class="keyword">if</span> (!result) {</pre></div></div>
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(obj)===<span class="hljs-string">"object"</span> &amp;&amp; obj!==<span class="hljs-literal">null</span> &amp;&amp; obj.array) {</pre></div></div>
             
         </li>
         
@@ -515,21 +524,26 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
-              <p>warn about unimplemented (probably library) functions.</p>
+              <p>very basic TypedArray support</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            console.log(<span class="string">"Failing lookup of method"</span>,
-                        <span class="keyword">this</span>.literals[slot_name_idx]);
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (name === <span class="hljs-string">"length"</span> || <span class="hljs-built_in">isFinite</span>(<span class="hljs-number">1</span> * name)) {
+                <span class="hljs-keyword">return</span> obj.array[name];
+            }
         }
-        <span class="keyword">this</span>.stack.push(result);
+        <span class="hljs-keyword">return</span> obj[SLOT_PREFIX+name];
     };
-    dispatch.get_slot_indirect = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> name = <span class="keyword">this</span>.stack.pop();
-        <span class="keyword">var</span> obj = <span class="keyword">this</span>.stack.pop();
-        <span class="keyword">this</span>.stack.push(get_slot(obj, name));
+    dispatch.get_slot_direct = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">slot_name_idx</span>) </span>{
+        <span class="hljs-keyword">var</span> obj = <span class="hljs-keyword">this</span>.stack.pop();
+        <span class="hljs-keyword">var</span> name = <span class="hljs-keyword">this</span>.literals[slot_name_idx];
+        <span class="hljs-keyword">this</span>.stack.push(get_slot(obj, name));
     };
-    <span class="keyword">var</span> set_slot = <span class="keyword">function</span>(obj, name, nval) {</pre></div></div>
+    dispatch.get_slot_direct_check = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">slot_name_idx</span>) </span>{
+        <span class="hljs-keyword">var</span> obj = <span class="hljs-keyword">this</span>.stack.pop();
+        <span class="hljs-keyword">var</span> name = <span class="hljs-keyword">this</span>.literals[slot_name_idx];
+        <span class="hljs-keyword">var</span> result = get_slot(obj, name);
+        <span class="hljs-keyword">if</span> (!result) {</pre></div></div>
             
         </li>
         
@@ -540,12 +554,21 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
-              <p>handle array sets specially: they update the length field.</p>
+              <p>warn about unimplemented (probably library) functions.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (obj.type === <span class="string">"array"</span>) {
-            <span class="keyword">if</span> (name === <span class="string">"length"</span>) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"Failing lookup of method"</span>,
+                        <span class="hljs-keyword">this</span>.literals[slot_name_idx]);
+        }
+        <span class="hljs-keyword">this</span>.stack.push(result);
+    };
+    dispatch.get_slot_indirect = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> name = <span class="hljs-keyword">this</span>.stack.pop();
+        <span class="hljs-keyword">var</span> obj = <span class="hljs-keyword">this</span>.stack.pop();
+        <span class="hljs-keyword">this</span>.stack.push(get_slot(obj, name));
+    };
+    <span class="hljs-keyword">var</span> set_slot = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">obj, name, nval</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -556,12 +579,12 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
-              <p>sanity-check new length. XXX should throw RangeError</p>
+              <p>handle array sets specially: they update the length field.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                nval = (<span class="number">1</span>*nval) || <span class="number">0</span>;
-                <span class="keyword">if</span> (nval &lt; <span class="number">0</span>) { nval = <span class="number">0</span>; }</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (obj.type === <span class="hljs-string">"array"</span>) {
+            <span class="hljs-keyword">if</span> (name === <span class="hljs-string">"length"</span>) {</pre></div></div>
             
         </li>
         
@@ -572,12 +595,12 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
-              <p>truncate the array.</p>
+              <p>sanity-check new length. XXX should throw RangeError</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> i = obj[SLOT_PREFIX+<span class="string">"length"</span>];
-                <span class="keyword">while</span> (i &gt; nval) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                nval = (<span class="hljs-number">1</span>*nval) || <span class="hljs-number">0</span>;
+                <span class="hljs-keyword">if</span> (nval &lt; <span class="hljs-number">0</span>) { nval = <span class="hljs-number">0</span>; }</pre></div></div>
             
         </li>
         
@@ -588,13 +611,12 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
-              <p>Object.Delete defined in global.js; uses &#39;delete&#39;</p>
+              <p>truncate the array.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    Object.Delete(obj, SLOT_PREFIX+(i-<span class="number">1</span>));
-                    i -= <span class="number">1</span>;
-                }</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">var</span> i = obj[SLOT_PREFIX+<span class="hljs-string">"length"</span>];
+                <span class="hljs-keyword">while</span> (i &gt; nval) {</pre></div></div>
             
         </li>
         
@@ -605,15 +627,12 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
-              <p>fall through to set length</p>
+              <p>Object.Delete defined in global.js; uses &#39;delete&#39;</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            }
-            <span class="keyword">if</span> (isFinite(<span class="number">1</span> * name)) {
-                name = <span class="number">1</span> * name; <span class="comment">// convert to int</span>
-                <span class="keyword">if</span> (name &gt;= obj[SLOT_PREFIX+<span class="string">"length"</span>]) {
-                    obj[SLOT_PREFIX+<span class="string">"length"</span>] = name + <span class="number">1</span>;
+            <div class="content"><div class='highlight'><pre>                    <span class="hljs-built_in">Object</span>.Delete(obj, SLOT_PREFIX+(i<span class="hljs-number">-1</span>));
+                    i -= <span class="hljs-number">1</span>;
                 }</pre></div></div>
             
         </li>
@@ -625,12 +644,16 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-19">&#182;</a>
               </div>
-              <p>fall through to set element</p>
+              <p>fall through to set length</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>            }
-        }</pre></div></div>
+            <span class="hljs-keyword">if</span> (<span class="hljs-built_in">isFinite</span>(<span class="hljs-number">1</span> * name)) {
+                name = <span class="hljs-number">1</span> * name; <span class="hljs-comment">// convert to int</span>
+                <span class="hljs-keyword">if</span> (name &gt;= obj[SLOT_PREFIX+<span class="hljs-string">"length"</span>]) {
+                    obj[SLOT_PREFIX+<span class="hljs-string">"length"</span>] = name + <span class="hljs-number">1</span>;
+                }</pre></div></div>
             
         </li>
         
@@ -641,14 +664,12 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-20">&#182;</a>
               </div>
-              <p>handle writes to booleans (not supported in standard javascript)</p>
+              <p>fall through to set element</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (<span class="keyword">typeof</span>(obj)===<span class="string">"boolean"</span>) {
-            obj = obj ? MyTrue : MyFalse;
-        }
-        <span class="keyword">if</span> (<span class="keyword">typeof</span>(obj)===<span class="string">"object"</span> &amp;&amp; obj.array) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            }
+        }</pre></div></div>
             
         </li>
         
@@ -659,30 +680,14 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-21">&#182;</a>
               </div>
-              <p>very basic TypedArray support</p>
+              <p>handle writes to booleans (not supported in standard javascript)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (isFinite(<span class="number">1</span> * name)) {
-                obj[<span class="number">1</span>*name] = nval;
-                <span class="keyword">return</span>;
-            }
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(obj)===<span class="hljs-string">"boolean"</span>) {
+            obj = obj ? MyTrue : MyFalse;
         }
-        obj[SLOT_PREFIX+name] = nval;
-    };
-    dispatch.set_slot_direct = <span class="keyword">function</span>(slot_name_idx) {
-        <span class="keyword">var</span> nval = <span class="keyword">this</span>.stack.pop();
-        <span class="keyword">var</span> name = <span class="keyword">this</span>.literals[slot_name_idx];
-        <span class="keyword">var</span> obj = <span class="keyword">this</span>.stack.pop();
-        set_slot(obj, name, nval);
-    };
-    dispatch.set_slot_indirect = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> nval = <span class="keyword">this</span>.stack.pop();
-        <span class="keyword">var</span> name = <span class="keyword">this</span>.stack.pop();
-        <span class="keyword">var</span> obj = <span class="keyword">this</span>.stack.pop();
-        set_slot(obj, name, nval);
-    };
-    dispatch.invoke = <span class="keyword">function</span>(nargs) {</pre></div></div>
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(obj)===<span class="hljs-string">"object"</span> &amp;&amp; obj.array) {</pre></div></div>
             
         </li>
         
@@ -693,17 +698,30 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-22">&#182;</a>
               </div>
-              <p>collect arguments.</p>
+              <p>very basic TypedArray support</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> i = nargs;
-        <span class="keyword">var</span> my_arguments = Object.create(MyArray);
-        <span class="keyword">while</span> (i &gt; <span class="number">0</span>) {
-            my_arguments[SLOT_PREFIX+(i-<span class="number">1</span>)] = <span class="keyword">this</span>.stack.pop();
-            i -= <span class="number">1</span>;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (<span class="hljs-built_in">isFinite</span>(<span class="hljs-number">1</span> * name)) {
+                obj[<span class="hljs-number">1</span>*name] = nval;
+                <span class="hljs-keyword">return</span>;
+            }
         }
-        my_arguments[SLOT_PREFIX+<span class="string">"length"</span>] = nargs;</pre></div></div>
+        obj[SLOT_PREFIX+name] = nval;
+    };
+    dispatch.set_slot_direct = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">slot_name_idx</span>) </span>{
+        <span class="hljs-keyword">var</span> nval = <span class="hljs-keyword">this</span>.stack.pop();
+        <span class="hljs-keyword">var</span> name = <span class="hljs-keyword">this</span>.literals[slot_name_idx];
+        <span class="hljs-keyword">var</span> obj = <span class="hljs-keyword">this</span>.stack.pop();
+        set_slot(obj, name, nval);
+    };
+    dispatch.set_slot_indirect = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> nval = <span class="hljs-keyword">this</span>.stack.pop();
+        <span class="hljs-keyword">var</span> name = <span class="hljs-keyword">this</span>.stack.pop();
+        <span class="hljs-keyword">var</span> obj = <span class="hljs-keyword">this</span>.stack.pop();
+        set_slot(obj, name, nval);
+    };
+    dispatch.invoke = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">nargs</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -714,11 +732,17 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-23">&#182;</a>
               </div>
-              <p>collect &#39;this&#39;</p>
+              <p>collect arguments.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> my_this = <span class="keyword">this</span>.stack.pop();</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> i = nargs;
+        <span class="hljs-keyword">var</span> my_arguments = <span class="hljs-built_in">Object</span>.create(MyArray);
+        <span class="hljs-keyword">while</span> (i &gt; <span class="hljs-number">0</span>) {
+            my_arguments[SLOT_PREFIX+(i<span class="hljs-number">-1</span>)] = <span class="hljs-keyword">this</span>.stack.pop();
+            i -= <span class="hljs-number">1</span>;
+        }
+        my_arguments[SLOT_PREFIX+<span class="hljs-string">"length"</span>] = nargs;</pre></div></div>
             
         </li>
         
@@ -729,11 +753,11 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-24">&#182;</a>
               </div>
-              <p>get function object</p>
+              <p>collect &#39;this&#39;</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> func = <span class="keyword">this</span>.stack.pop();</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> my_this = <span class="hljs-keyword">this</span>.stack.pop();</pre></div></div>
             
         </li>
         
@@ -744,12 +768,11 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
-              <p>assert func is a function</p>
+              <p>get function object</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (func === <span class="literal">null</span> || <span class="keyword">typeof</span>(func) !== <span class="string">"object"</span> ||
-            func.type !== <span class="string">"function"</span>) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> func = <span class="hljs-keyword">this</span>.stack.pop();</pre></div></div>
             
         </li>
         
@@ -760,12 +783,12 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
-              <p>XXX: throw wrapped TypeError</p>
+              <p>assert func is a function</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            Object.Throw(<span class="string">"Not a function at "</span>+<span class="keyword">this</span>.pc);
-        }</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (func === <span class="hljs-literal">null</span> || <span class="hljs-keyword">typeof</span>(func) !== <span class="hljs-string">"object"</span> ||
+            func.type !== <span class="hljs-string">"function"</span>) {</pre></div></div>
             
         </li>
         
@@ -776,11 +799,12 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
-              <p>&quot;native code&quot;</p>
+              <p>XXX: throw wrapped TypeError</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (func.type === <span class="string">"function"</span> &amp;&amp; func.native_code) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-built_in">Object</span>.Throw(<span class="hljs-string">"Not a function at "</span>+<span class="hljs-keyword">this</span>.pc);
+        }</pre></div></div>
             
         </li>
         
@@ -791,17 +815,11 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-28">&#182;</a>
               </div>
-              <p>build proper native arguments array</p>
+              <p>&quot;native code&quot;</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> native_args = [ my_this ];
-            i = <span class="number">0</span>;
-            <span class="keyword">while</span> (i &lt; nargs) {
-                native_args.push(my_arguments[SLOT_PREFIX+i]);
-                i += <span class="number">1</span>;
-            }
-            <span class="keyword">if</span> (func.is_apply) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (func.type === <span class="hljs-string">"function"</span> &amp;&amp; func.native_code) {</pre></div></div>
             
         </li>
         
@@ -812,15 +830,17 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
-              <p>returns a new state, just like invoke does.</p>
+              <p>build proper native arguments array</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">return</span> func.native_code.apply(<span class="keyword">this</span>, native_args);
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> native_args = [ my_this ];
+            i = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">while</span> (i &lt; nargs) {
+                native_args.push(my_arguments[SLOT_PREFIX+i]);
+                i += <span class="hljs-number">1</span>;
             }
-            <span class="keyword">this</span>.stack.push(func.native_code.apply(<span class="keyword">this</span>, native_args));
-            <span class="keyword">return</span>;
-        }</pre></div></div>
+            <span class="hljs-keyword">if</span> (func.is_apply) {</pre></div></div>
             
         </li>
         
@@ -831,14 +851,15 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-30">&#182;</a>
               </div>
-              <p>create new frame</p>
+              <p>returns a new state, just like invoke does.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> nframe = Object.create(func.parent_frame);
-        nframe[SLOT_PREFIX+<span class="string">"__proto__"</span>] = func.parent_frame;
-        nframe[SLOT_PREFIX+<span class="string">"arguments"</span>] = my_arguments;
-        nframe[SLOT_PREFIX+<span class="string">"this"</span>] = my_this;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">return</span> func.native_code.apply(<span class="hljs-keyword">this</span>, native_args);
+            }
+            <span class="hljs-keyword">this</span>.stack.push(func.native_code.apply(<span class="hljs-keyword">this</span>, native_args));
+            <span class="hljs-keyword">return</span>;
+        }</pre></div></div>
             
         </li>
         
@@ -849,11 +870,12 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
-              <p>construct new child state.</p>
+              <p>create new frame</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> ns = mkstate(<span class="keyword">this</span>, nframe, func.module, func.func_id);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> nframe = <span class="hljs-built_in">Object</span>.create(func.parent_frame);
+        nframe[SLOT_PREFIX+<span class="hljs-string">"__proto__"</span>] = func.parent_frame;</pre></div></div>
             
         </li>
         
@@ -864,15 +886,13 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-32">&#182;</a>
               </div>
-              <p>document.write(html_escape(&quot;--- &quot;+stack_trace(this)+&quot; --calling-&gt; &quot;+fname(ns)+&quot; ---\n&quot;));</p>
-<p>ok, continue executing in child state!</p>
+              <p>construct new child state.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">return</span> ns;
-    };
-    dispatch[<span class="string">"return"</span>] = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> retval = <span class="keyword">this</span>.stack.pop();</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> ns = mkstate(<span class="hljs-keyword">this</span>, nframe, func.module, func.func_id);
+        ns.local_frame[SLOT_PREFIX+<span class="hljs-string">"arguments"</span>] = my_arguments;
+        ns.local_frame[SLOT_PREFIX+<span class="hljs-string">"this"</span>] = my_this;</pre></div></div>
             
         </li>
         
@@ -883,12 +903,15 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
-              <p>go up to the parent state.</p>
+              <p>document.write(html_escape(&quot;--- &quot;+stack_trace(this)+&quot; --calling-&gt; &quot;+fname(ns)+&quot; ---\n&quot;));</p>
+<p>ok, continue executing in child state!</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> ns = <span class="keyword">this</span>.parent;
-        ns.stack.push(retval);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">return</span> ns;
+    };
+    dispatch[<span class="hljs-string">"return"</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> retval = <span class="hljs-keyword">this</span>.stack.pop();</pre></div></div>
             
         </li>
         
@@ -899,13 +922,12 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-34">&#182;</a>
               </div>
-              <p>document.write(html_escape(&quot;--- &quot;+stack_trace(ns)+&quot; &lt;-returning-- &quot;+fname(this)+&quot; ---\n&quot;));</p>
-<p>continue in parent state</p>
+              <p>go up to the parent state.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">return</span> ns;
-    };</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> ns = <span class="hljs-keyword">this</span>.parent;
+        ns.stack.push(retval);</pre></div></div>
             
         </li>
         
@@ -916,25 +938,13 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
-              <p>branches</p>
+              <p>document.write(html_escape(&quot;--- &quot;+stack_trace(ns)+&quot; &lt;-returning-- &quot;+fname(this)+&quot; ---\n&quot;));</p>
+<p>continue in parent state</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> branch = <span class="keyword">function</span>(f) {
-        <span class="keyword">return</span> <span class="keyword">function</span>(new_pc) {
-            <span class="keyword">if</span> (<span class="keyword">typeof</span>(new_pc) !== <span class="string">"number"</span>) {
-                new_pc = new_pc.label;
-            }
-            <span class="keyword">this</span>.pc = f.call(<span class="keyword">this</span>, new_pc);
-        };
-    };
-    dispatch.jmp = branch(<span class="keyword">function</span>(new_pc) {
-        <span class="keyword">return</span> new_pc;
-    });
-    dispatch.jmp_unless = branch(<span class="keyword">function</span>(new_pc) {
-        <span class="keyword">var</span> condition = <span class="keyword">this</span>.stack.pop();
-        <span class="keyword">return</span> condition ? <span class="keyword">this</span>.pc : new_pc;
-    });</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">return</span> ns;
+    };</pre></div></div>
             
         </li>
         
@@ -945,45 +955,25 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-36">&#182;</a>
               </div>
-              <p>stack manipulation</p>
+              <p>branches</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    dispatch.pop = <span class="keyword">function</span>() {
-        <span class="keyword">this</span>.stack.pop();
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> branch = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">f</span>) </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">new_pc</span>) </span>{
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(new_pc) !== <span class="hljs-string">"number"</span>) {
+                new_pc = new_pc.label;
+            }
+            <span class="hljs-keyword">this</span>.pc = f.call(<span class="hljs-keyword">this</span>, new_pc);
+        };
     };
-    dispatch.dup = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> top = <span class="keyword">this</span>.stack[<span class="keyword">this</span>.stack.length-<span class="number">1</span>];
-        <span class="keyword">this</span>.stack.push(top);
-    };
-    dispatch[<span class="string">"2dup"</span>] = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> top = <span class="keyword">this</span>.stack[<span class="keyword">this</span>.stack.length-<span class="number">1</span>];
-        <span class="keyword">var</span> nxt = <span class="keyword">this</span>.stack[<span class="keyword">this</span>.stack.length-<span class="number">2</span>];
-        <span class="keyword">this</span>.stack.push(nxt);
-        <span class="keyword">this</span>.stack.push(top);
-    };
-    dispatch.over = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> top = <span class="keyword">this</span>.stack.pop();
-        <span class="keyword">var</span> nxt = <span class="keyword">this</span>.stack.pop();
-        <span class="keyword">this</span>.stack.push(top);
-        <span class="keyword">this</span>.stack.push(nxt);
-        <span class="keyword">this</span>.stack.push(top);
-    };
-    dispatch.over2 = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> top = <span class="keyword">this</span>.stack.pop();
-        <span class="keyword">var</span> nx1 = <span class="keyword">this</span>.stack.pop();
-        <span class="keyword">var</span> nx2 = <span class="keyword">this</span>.stack.pop();
-        <span class="keyword">this</span>.stack.push(top);
-        <span class="keyword">this</span>.stack.push(nx2);
-        <span class="keyword">this</span>.stack.push(nx1);
-        <span class="keyword">this</span>.stack.push(top);
-    };
-    dispatch.swap = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> top = <span class="keyword">this</span>.stack.pop();
-        <span class="keyword">var</span> nxt = <span class="keyword">this</span>.stack.pop();
-        <span class="keyword">this</span>.stack.push(top);
-        <span class="keyword">this</span>.stack.push(nxt);
-    };</pre></div></div>
+    dispatch.jmp = branch(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">new_pc</span>) </span>{
+        <span class="hljs-keyword">return</span> new_pc;
+    });
+    dispatch.jmp_unless = branch(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">new_pc</span>) </span>{
+        <span class="hljs-keyword">var</span> condition = <span class="hljs-keyword">this</span>.stack.pop();
+        <span class="hljs-keyword">return</span> condition ? <span class="hljs-keyword">this</span>.pc : new_pc;
+    });</pre></div></div>
             
         </li>
         
@@ -994,22 +984,45 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-37">&#182;</a>
               </div>
-              <p>unary operators</p>
+              <p>stack manipulation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> unary = <span class="keyword">function</span>(f) {
-        <span class="keyword">return</span> <span class="keyword">function</span>() {
-            <span class="keyword">this</span>.stack.push(f(<span class="keyword">this</span>.stack.pop()));
-        };
+            <div class="content"><div class='highlight'><pre>    dispatch.pop = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">this</span>.stack.pop();
     };
-    dispatch.un_not = unary(<span class="keyword">function</span>(arg) { <span class="keyword">return</span> !arg; });
-    dispatch.un_minus = unary(<span class="keyword">function</span>(arg) { <span class="keyword">return</span> -arg; });
-    dispatch.un_typeof = unary(<span class="keyword">function</span>(arg) {
-        <span class="keyword">var</span> t = <span class="keyword">typeof</span>(arg);
-        <span class="keyword">if</span> (t === <span class="string">"object"</span> &amp;&amp; arg !== <span class="literal">null</span>) {
-            t = arg.type;
-            <span class="keyword">if</span> (t === <span class="string">"array"</span>) {</pre></div></div>
+    dispatch.dup = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> top = <span class="hljs-keyword">this</span>.stack[<span class="hljs-keyword">this</span>.stack.length<span class="hljs-number">-1</span>];
+        <span class="hljs-keyword">this</span>.stack.push(top);
+    };
+    dispatch[<span class="hljs-string">"2dup"</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> top = <span class="hljs-keyword">this</span>.stack[<span class="hljs-keyword">this</span>.stack.length<span class="hljs-number">-1</span>];
+        <span class="hljs-keyword">var</span> nxt = <span class="hljs-keyword">this</span>.stack[<span class="hljs-keyword">this</span>.stack.length<span class="hljs-number">-2</span>];
+        <span class="hljs-keyword">this</span>.stack.push(nxt);
+        <span class="hljs-keyword">this</span>.stack.push(top);
+    };
+    dispatch.over = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> top = <span class="hljs-keyword">this</span>.stack.pop();
+        <span class="hljs-keyword">var</span> nxt = <span class="hljs-keyword">this</span>.stack.pop();
+        <span class="hljs-keyword">this</span>.stack.push(top);
+        <span class="hljs-keyword">this</span>.stack.push(nxt);
+        <span class="hljs-keyword">this</span>.stack.push(top);
+    };
+    dispatch.over2 = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> top = <span class="hljs-keyword">this</span>.stack.pop();
+        <span class="hljs-keyword">var</span> nx1 = <span class="hljs-keyword">this</span>.stack.pop();
+        <span class="hljs-keyword">var</span> nx2 = <span class="hljs-keyword">this</span>.stack.pop();
+        <span class="hljs-keyword">this</span>.stack.push(top);
+        <span class="hljs-keyword">this</span>.stack.push(nx2);
+        <span class="hljs-keyword">this</span>.stack.push(nx1);
+        <span class="hljs-keyword">this</span>.stack.push(top);
+    };
+    dispatch.swap = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> top = <span class="hljs-keyword">this</span>.stack.pop();
+        <span class="hljs-keyword">var</span> nxt = <span class="hljs-keyword">this</span>.stack.pop();
+        <span class="hljs-keyword">this</span>.stack.push(top);
+        <span class="hljs-keyword">this</span>.stack.push(nxt);
+    };</pre></div></div>
             
         </li>
         
@@ -1020,38 +1033,22 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-38">&#182;</a>
               </div>
-              <p>weird javascript misfeature</p>
+              <p>unary operators</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                t = <span class="string">"object"</span>;
-            }
-        }
-        <span class="keyword">return</span> t;
-    });
-    <span class="keyword">var</span> binary = <span class="keyword">function</span>(f) {
-        <span class="keyword">return</span> <span class="keyword">function</span>() {
-            <span class="keyword">var</span> right = <span class="keyword">this</span>.stack.pop();
-            <span class="keyword">var</span> left = <span class="keyword">this</span>.stack.pop();
-            <span class="keyword">this</span>.stack.push(f(left, right));
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> unary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">f</span>) </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">this</span>.stack.push(f(<span class="hljs-keyword">this</span>.stack.pop()));
         };
     };
-    dispatch.bi_eq = binary(<span class="keyword">function</span>(l, r) { <span class="keyword">return</span> l === r; });
-    dispatch.bi_gt = binary(<span class="keyword">function</span>(l, r) { <span class="keyword">return</span> l &gt; r; });
-    dispatch.bi_gte = binary(<span class="keyword">function</span>(l, r) { <span class="keyword">return</span> l &gt;= r; });
-    dispatch.bi_add = binary(<span class="keyword">function</span>(l, r) { <span class="keyword">return</span> l + r; });
-    dispatch.bi_sub = binary(<span class="keyword">function</span>(l, r) { <span class="keyword">return</span> l - r; });
-    dispatch.bi_mul = binary(<span class="keyword">function</span>(l, r) { <span class="keyword">return</span> l * r; });
-    dispatch.bi_div = binary(<span class="keyword">function</span>(l, r) { <span class="keyword">return</span> l / r; });
-
-    <span class="keyword">var</span> make_top_level_frame = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> frame = {};
-        <span class="keyword">var</span> oset = <span class="keyword">function</span>(obj, name, value) {
-            obj[SLOT_PREFIX+name] = value;
-        };
-        <span class="keyword">var</span> fset = <span class="keyword">function</span>(name, value) {
-            oset(frame, name, value);
-        };</pre></div></div>
+    dispatch.un_not = unary(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">arg</span>) </span>{ <span class="hljs-keyword">return</span> !arg; });
+    dispatch.un_minus = unary(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">arg</span>) </span>{ <span class="hljs-keyword">return</span> -arg; });
+    dispatch.un_typeof = unary(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">arg</span>) </span>{
+        <span class="hljs-keyword">var</span> t = <span class="hljs-keyword">typeof</span>(arg);
+        <span class="hljs-keyword">if</span> (t === <span class="hljs-string">"object"</span> &amp;&amp; arg !== <span class="hljs-literal">null</span>) {
+            t = arg.type;
+            <span class="hljs-keyword">if</span> (t === <span class="hljs-string">"array"</span>) {</pre></div></div>
             
         </li>
         
@@ -1062,19 +1059,13 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-39">&#182;</a>
               </div>
-              <p>set up &#39;this&#39; and &#39;arguments&#39;</p>
+              <p>weird javascript misfeature</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        fset(<span class="string">"this"</span>, <span class="keyword">this</span>);
-        <span class="keyword">var</span> my_arguments = Object.create(MyArray);
-        oset(my_arguments, <span class="string">"length"</span>, arguments.length);
-        <span class="keyword">var</span> i = <span class="number">0</span>;
-        <span class="keyword">while</span> ( i &lt; arguments.length ) {
-            oset(my_arguments, i, arguments[i]);
-            i += <span class="number">1</span>;
-        }
-        fset(<span class="string">"arguments"</span>, my_arguments);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                t = <span class="hljs-string">"object"</span>;
+            }
+            <span class="hljs-keyword">if</span> (t === <span class="hljs-string">'function'</span>) {</pre></div></div>
             
         </li>
         
@@ -1085,35 +1076,42 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-40">&#182;</a>
               </div>
-              <p>Constants</p>
+              <p>If non-callable we&#39;ll say this is an object</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> my_ObjectCons = Object.create(MyFunction);
-        oset(my_ObjectCons, <span class="string">"prototype"</span>, MyObject);
-        fset(<span class="string">"Object"</span>, my_ObjectCons);
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (arg.parent_frame || arg.native_code) {
+                    <span class="hljs-comment">/* A callable function! */</span>
+                } <span class="hljs-keyword">else</span> {
+                    t = <span class="hljs-string">'object'</span>; <span class="hljs-comment">// not callable</span>
+                }
+            }
+        }
+        <span class="hljs-keyword">return</span> t;
+    });
+    <span class="hljs-keyword">var</span> binary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">f</span>) </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> right = <span class="hljs-keyword">this</span>.stack.pop();
+            <span class="hljs-keyword">var</span> left = <span class="hljs-keyword">this</span>.stack.pop();
+            <span class="hljs-keyword">this</span>.stack.push(f(left, right));
+        };
+    };
+    dispatch.bi_eq = binary(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">l, r</span>) </span>{ <span class="hljs-keyword">return</span> l === r; });
+    dispatch.bi_gt = binary(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">l, r</span>) </span>{ <span class="hljs-keyword">return</span> l &gt; r; });
+    dispatch.bi_gte = binary(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">l, r</span>) </span>{ <span class="hljs-keyword">return</span> l &gt;= r; });
+    dispatch.bi_add = binary(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">l, r</span>) </span>{ <span class="hljs-keyword">return</span> l + r; });
+    dispatch.bi_sub = binary(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">l, r</span>) </span>{ <span class="hljs-keyword">return</span> l - r; });
+    dispatch.bi_mul = binary(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">l, r</span>) </span>{ <span class="hljs-keyword">return</span> l * r; });
+    dispatch.bi_div = binary(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">l, r</span>) </span>{ <span class="hljs-keyword">return</span> l / r; });
 
-        <span class="keyword">var</span> my_ArrayCons = Object.create(MyFunction);
-        oset(my_ArrayCons, <span class="string">"prototype"</span>, MyArray);
-        fset(<span class="string">"Array"</span>, my_ArrayCons);
-
-        <span class="keyword">var</span> my_FunctionCons = Object.create(MyFunction);
-        oset(my_FunctionCons, <span class="string">"prototype"</span>, MyFunction);
-        fset(<span class="string">"Function"</span>, my_FunctionCons);
-
-        <span class="keyword">var</span> my_BooleanCons = Object.create(MyFunction);
-        oset(my_BooleanCons, <span class="string">"prototype"</span>, MyBoolean);
-        fset(<span class="string">"Boolean"</span>, my_BooleanCons);
-
-        <span class="keyword">var</span> my_StringCons = Object.create(MyFunction);
-        oset(my_StringCons, <span class="string">"prototype"</span>, MyString);
-        fset(<span class="string">"String"</span>, my_StringCons);
-
-        <span class="keyword">var</span> my_NumberCons = Object.create(MyFunction);
-        oset(my_NumberCons, <span class="string">"prototype"</span>, MyNumber);
-        fset(<span class="string">"Number"</span>, my_NumberCons);
-
-        fset(<span class="string">"Math"</span>, MyMath);</pre></div></div>
+    <span class="hljs-keyword">var</span> make_top_level_frame = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> frame = {};
+        <span class="hljs-keyword">var</span> oset = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">obj, name, value</span>) </span>{
+            obj[SLOT_PREFIX+name] = value;
+        };
+        <span class="hljs-keyword">var</span> fset = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">name, value</span>) </span>{
+            oset(frame, name, value);
+        };</pre></div></div>
             
         </li>
         
@@ -1124,12 +1122,11 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-41">&#182;</a>
               </div>
-              <p>support for console.log</p>
+              <p>this frame is the <code>globalThis</code></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> my_console = Object.create(MyObject);
-        fset(<span class="string">"console"</span>, my_console);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        fset(<span class="hljs-string">"globalThis"</span>, frame);</pre></div></div>
             
         </li>
         
@@ -1140,20 +1137,35 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-42">&#182;</a>
               </div>
-              <p>Functions</p>
+              <p>Constants</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> native_func = <span class="keyword">function</span>(obj, name, f, is_apply<span class="comment">/*optional*/</span>) {
-            <span class="keyword">var</span> my_func = Object.create(MyFunction);
-            my_func.parent_frame = frame;
-            my_func.native_code = f;
-            oset(obj, name, my_func);
-            <span class="keyword">if</span> (is_apply) {
-                my_func.is_apply = is_apply;
-            }
-        };
-        native_func(my_console, <span class="string">"log"</span>, <span class="keyword">function</span>() {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> my_ObjectCons = <span class="hljs-built_in">Object</span>.create(MyFunction);
+        oset(my_ObjectCons, <span class="hljs-string">"prototype"</span>, MyObject);
+        fset(<span class="hljs-string">"Object"</span>, my_ObjectCons);
+
+        <span class="hljs-keyword">var</span> my_ArrayCons = <span class="hljs-built_in">Object</span>.create(MyFunction);
+        oset(my_ArrayCons, <span class="hljs-string">"prototype"</span>, MyArray);
+        fset(<span class="hljs-string">"Array"</span>, my_ArrayCons);
+
+        <span class="hljs-keyword">var</span> my_FunctionCons = <span class="hljs-built_in">Object</span>.create(MyFunction);
+        oset(my_FunctionCons, <span class="hljs-string">"prototype"</span>, MyFunction);
+        fset(<span class="hljs-string">"Function"</span>, my_FunctionCons);
+
+        <span class="hljs-keyword">var</span> my_BooleanCons = <span class="hljs-built_in">Object</span>.create(MyFunction);
+        oset(my_BooleanCons, <span class="hljs-string">"prototype"</span>, MyBoolean);
+        fset(<span class="hljs-string">"Boolean"</span>, my_BooleanCons);
+
+        <span class="hljs-keyword">var</span> my_StringCons = <span class="hljs-built_in">Object</span>.create(MyFunction);
+        oset(my_StringCons, <span class="hljs-string">"prototype"</span>, MyString);
+        fset(<span class="hljs-string">"String"</span>, my_StringCons);
+
+        <span class="hljs-keyword">var</span> my_NumberCons = <span class="hljs-built_in">Object</span>.create(MyFunction);
+        oset(my_NumberCons, <span class="hljs-string">"prototype"</span>, MyNumber);
+        fset(<span class="hljs-string">"Number"</span>, my_NumberCons);
+
+        fset(<span class="hljs-string">"Math"</span>, MyMath);</pre></div></div>
             
         </li>
         
@@ -1164,18 +1176,12 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-43">&#182;</a>
               </div>
-              <p>ES-5 strict mode won&#39;t let us directly modify &#39;arguments&#39;</p>
+              <p>support for console.log</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> nargs = Array.prototype.concat.apply([], arguments);
-            nargs[<span class="number">0</span>] = <span class="string">"INTERP:"</span>;
-            console.log.apply(console, nargs);
-        });
-        native_func(MyObject, <span class="string">"hasOwnProperty"</span>, <span class="keyword">function</span>(_this_, propname) {
-            <span class="keyword">return</span> _this_.hasOwnProperty(SLOT_PREFIX+propname);
-        });
-        native_func(my_ObjectCons, <span class="string">"create"</span>, <span class="keyword">function</span>(_this_, prototype) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> my_console = <span class="hljs-built_in">Object</span>.create(MyObject);
+        fset(<span class="hljs-string">"console"</span>, my_console);</pre></div></div>
             
         </li>
         
@@ -1186,30 +1192,20 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-44">&#182;</a>
               </div>
-              <p>Object.create defined in global.js; uses &#39;new&#39;</p>
+              <p>Functions</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> result = Object.create(prototype);
-            oset(result, <span class="string">"__proto__"</span>, prototype);
-            <span class="keyword">return</span> result;
-        });
-        native_func(my_ObjectCons, <span class="string">"Delete"</span>, <span class="keyword">function</span>(_this_, obj, propname) {
-            Object.Delete(obj, SLOT_PREFIX+propname);
-        });
-        native_func(frame, <span class="string">"isNaN"</span>, <span class="keyword">function</span>(_this_, number) {
-            <span class="keyword">return</span> isNaN(number);
-        });
-        native_func(frame, <span class="string">"isFinite"</span>, <span class="keyword">function</span>(_this_, number) {
-            <span class="keyword">return</span> isFinite(number);
-        });
-        native_func(frame, <span class="string">"parseInt"</span>, <span class="keyword">function</span>(_this_, number, radix) {
-            <span class="keyword">return</span> parseInt(number, radix);
-        });
-        native_func(frame, <span class="string">"now"</span>, <span class="keyword">function</span>(_this_) {
-            <span class="keyword">return</span> now(); <span class="comment">/* (new Date()).getTime() */</span>
-        });
-        native_func(MyString, <span class="string">"charAt"</span>, <span class="keyword">function</span>(_this_, idx) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> native_func = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">obj, name, f, is_apply<span class="hljs-regexp">/*optional*/</span></span>) </span>{
+            <span class="hljs-keyword">var</span> my_func = <span class="hljs-built_in">Object</span>.create(MyFunction);
+            my_func.parent_frame = frame;
+            my_func.native_code = f;
+            oset(obj, name, my_func);
+            <span class="hljs-keyword">if</span> (is_apply) {
+                my_func.is_apply = is_apply;
+            }
+        };
+        native_func(my_console, <span class="hljs-string">"log"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -1220,28 +1216,18 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-45">&#182;</a>
               </div>
-              <p>note that accessing a string by index (w/o using charAt)
-isn&#39;t actually part of EcmaScript 3 &amp; might not work in IE</p>
+              <p>ES-5 strict mode won&#39;t let us directly modify &#39;arguments&#39;</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">return</span> _this_.charAt(idx);
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> nargs = <span class="hljs-built_in">Array</span>.prototype.concat.apply([], <span class="hljs-built_in">arguments</span>);
+            nargs[<span class="hljs-number">0</span>] = <span class="hljs-string">"INTERP:"</span>;
+            <span class="hljs-built_in">console</span>.log.apply(<span class="hljs-built_in">console</span>, nargs);
         });
-        native_func(MyString, <span class="string">"charCodeAt"</span>, <span class="keyword">function</span>(_this_, idx) {
-            <span class="keyword">return</span> _this_.charCodeAt(idx);
+        native_func(MyObject, <span class="hljs-string">"hasOwnProperty"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, propname</span>) </span>{
+            <span class="hljs-keyword">return</span> _this_.hasOwnProperty(SLOT_PREFIX+propname);
         });
-        native_func(MyString, <span class="string">"substring"</span>, <span class="keyword">function</span>(_this_, from, to) {
-            <span class="keyword">return</span> _this_.substring(from, to);
-        });
-        native_func(my_StringCons, <span class="string">"fromCharCode"</span>, <span class="keyword">function</span>(_this_, arg) {
-            <span class="keyword">return</span> String.fromCharCode(arg);
-        });
-        native_func(MyNumber, <span class="string">"toString"</span>, <span class="keyword">function</span>(_this_) {
-            <span class="keyword">return</span> _this_.toString();
-        });
-        native_func(MyMath, <span class="string">"floor"</span>, <span class="keyword">function</span>(_this_, val) {
-            <span class="keyword">return</span> Math.floor(val);
-        });</pre></div></div>
+        native_func(my_ObjectCons, <span class="hljs-string">"create"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, prototype</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -1252,12 +1238,27 @@ isn&#39;t actually part of EcmaScript 3 &amp; might not work in IE</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-46">&#182;</a>
               </div>
-              <p><em>Very</em> basic TypedArray support</p>
+              <p>Object.create defined in global.js; uses &#39;new&#39;</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        native_func(my_ObjectCons, <span class="string">"newUint8Array"</span>, <span class="keyword">function</span>(_this_, size) {
-            <span class="keyword">var</span> my_typedarray = Object.create(MyUint8Array);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> result = <span class="hljs-built_in">Object</span>.create(prototype);
+            oset(result, <span class="hljs-string">"__proto__"</span>, prototype);
+            <span class="hljs-keyword">return</span> result;
+        });
+        native_func(my_ObjectCons, <span class="hljs-string">"Delete"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, obj, propname</span>) </span>{
+            <span class="hljs-built_in">Object</span>.Delete(obj, SLOT_PREFIX+propname);
+        });
+        native_func(my_ObjectCons, <span class="hljs-string">"Try"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, context, bodyBlock, catchBlock, finallyBlock</span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.Try(<span class="hljs-literal">null</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+                <span class="hljs-keyword">return</span> invoke(bodyBlock, context, []);
+            }, catchBlock ? <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{
+                invoke(catchBlock, context, [e]);
+            } : <span class="hljs-literal">undefined</span>, finallyBlock ? <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+                invoke(finallyBlock, context, []);
+            } : <span class="hljs-literal">undefined</span>);
+        });
+        native_func(my_ObjectCons, <span class="hljs-string">"Throw"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, e</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -1268,13 +1269,27 @@ isn&#39;t actually part of EcmaScript 3 &amp; might not work in IE</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-47">&#182;</a>
               </div>
-              <p>newUint8Array defined in global.js; uses &#39;new&#39;</p>
+              <p>XXX We could wrap this to easily distinguish interpreted
+exceptions from real exceptions; if we did so we&#39;d need to
+unwrap above in the implementation of Object.Throw&#39;s catchBlock</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            my_typedarray.array = Object.newUint8Array(size);
-            <span class="keyword">return</span> my_typedarray;
-        });</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-built_in">Object</span>.Throw(e);
+        });
+        native_func(frame, <span class="hljs-string">"isNaN"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, number</span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-built_in">isNaN</span>(number);
+        });
+        native_func(frame, <span class="hljs-string">"isFinite"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, number</span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-built_in">isFinite</span>(number);
+        });
+        native_func(frame, <span class="hljs-string">"parseInt"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, number, radix</span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-built_in">parseInt</span>(number, radix);
+        });
+        native_func(frame, <span class="hljs-string">"now"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_</span>) </span>{
+            <span class="hljs-keyword">return</span> now(); <span class="hljs-comment">/* (new Date()).getTime() */</span>
+        });
+        native_func(MyString, <span class="hljs-string">"charAt"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, idx</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -1285,20 +1300,28 @@ isn&#39;t actually part of EcmaScript 3 &amp; might not work in IE</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-48">&#182;</a>
               </div>
-              <p>XXX: We&#39;re not quite handling the &quot;this&quot; argument correctly.
-According to:
-<a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function/call">https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function/call</a>
-&quot;If thisArg is null or undefined, this will be the global
-object. Otherwise, this will be equal to Object(thisArg)
-(which is thisArg if thisArg is already an object, or a
-String, Boolean, or Number if thisArg is a primitive value
-of the corresponding type).&quot;
-this is disallowed in ES-5 strict mode; throws an exception instead
- <a href="http://ejohn.org/blog/ecmascript-5-strict-mode-json-and-more/">http://ejohn.org/blog/ecmascript-5-strict-mode-json-and-more/</a></p>
+              <p>note that accessing a string by index (w/o using charAt)
+isn&#39;t actually part of EcmaScript 3 &amp; might not work in IE</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        native_func(MyFunction, <span class="string">"call"</span>, <span class="keyword">function</span>() {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">return</span> _this_.charAt(idx);
+        });
+        native_func(MyString, <span class="hljs-string">"charCodeAt"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, idx</span>) </span>{
+            <span class="hljs-keyword">return</span> _this_.charCodeAt(idx);
+        });
+        native_func(MyString, <span class="hljs-string">"substring"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, from, to</span>) </span>{
+            <span class="hljs-keyword">return</span> _this_.substring(<span class="hljs-keyword">from</span>, to);
+        });
+        native_func(my_StringCons, <span class="hljs-string">"fromCharCode"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, arg</span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-built_in">String</span>.fromCharCode(arg);
+        });
+        native_func(MyNumber, <span class="hljs-string">"valueOf"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_</span>) </span>{
+            <span class="hljs-keyword">return</span> _this_.valueOf();
+        });
+        native_func(MyMath, <span class="hljs-string">"floor"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, val</span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-built_in">Math</span>.floor(val);
+        });</pre></div></div>
             
         </li>
         
@@ -1309,21 +1332,12 @@ this is disallowed in ES-5 strict mode; throws an exception instead
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-49">&#182;</a>
               </div>
-              <p>push arguments on stack and use &#39;invoke&#39; bytecode op.
-arg #0 is the function itself.
-arg #1 is &#39;this&#39;
-arg #2-#n are rest of arguments</p>
+              <p><em>Very</em> basic TypedArray support</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> i = <span class="number">0</span>;
-            <span class="keyword">while</span> ( i &lt; arguments.length ) {
-                <span class="keyword">this</span>.stack.push(arguments[i]);
-                i += <span class="number">1</span>;
-            }
-            <span class="keyword">return</span> dispatch.invoke.call(<span class="keyword">this</span>, arguments.length-<span class="number">2</span>);
-        }, <span class="number">1</span><span class="comment">/*is apply*/</span>);
-        native_func(MyFunction, <span class="string">"apply"</span>, <span class="keyword">function</span>() {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        native_func(my_ObjectCons, <span class="hljs-string">"newUint8Array"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, size</span>) </span>{
+            <span class="hljs-keyword">var</span> my_typedarray = <span class="hljs-built_in">Object</span>.create(MyUint8Array);</pre></div></div>
             
         </li>
         
@@ -1334,22 +1348,13 @@ arg #2-#n are rest of arguments</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-50">&#182;</a>
               </div>
-              <p>push arguments on stack and use &#39;invoke&#39; bytecode op.
-arg #0 is the function itself.
-arg #1 is &#39;this&#39;
-arg #2 is rest of arguments, as array.</p>
+              <p>newUint8Array defined in global.js; uses &#39;new&#39;</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.stack.push(arguments[<span class="number">0</span>]);
-            <span class="keyword">this</span>.stack.push(arguments[<span class="number">1</span>]);
-            <span class="keyword">var</span> i = <span class="number">0</span>, nargs = arguments[<span class="number">2</span>][SLOT_PREFIX+<span class="string">"length"</span>];
-            <span class="keyword">while</span> ( i &lt; nargs ) {
-                <span class="keyword">this</span>.stack.push(arguments[<span class="number">2</span>][SLOT_PREFIX+i]);
-                i += <span class="number">1</span>;
-            }
-            <span class="keyword">return</span> dispatch.invoke.call(<span class="keyword">this</span>, nargs);
-        }, <span class="number">1</span><span class="comment">/*is apply*/</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            my_typedarray.array = <span class="hljs-built_in">Object</span>.newUint8Array(size);
+            <span class="hljs-keyword">return</span> my_typedarray;
+        });</pre></div></div>
             
         </li>
         
@@ -1360,57 +1365,17 @@ arg #2 is rest of arguments, as array.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-51">&#182;</a>
               </div>
-              <p>primitives will be replaced by message sends
-XXX this is simplistic; a proper version should explicitly
-    represent the type conversions performed.</p>
+              <p>In non-strict mode, if thisArg is null or undefined it is
+replaced with the global object; otherwise it is equal to
+ToObject(thisArg).
+<a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function/call">https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function/call</a>
+We&#39;re implementing strict mode semantics, where no massaging
+of the this argument is done; it is provided to the callee
+as-is.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        native_func(MyObject, <span class="string">"+"</span>, <span class="keyword">function</span>(_this_, arg1) {
-            <span class="keyword">return</span> _this_ + arg1;
-        });
-        native_func(MyObject, <span class="string">"-"</span>, <span class="keyword">function</span>(_this_, arg1) {
-            <span class="keyword">return</span> _this_ - arg1;
-        });
-        native_func(MyObject, <span class="string">"*"</span>, <span class="keyword">function</span>(_this_, arg1) {
-            <span class="keyword">return</span> _this_ * arg1;
-        });
-        native_func(MyObject, <span class="string">"/"</span>, <span class="keyword">function</span>(_this_, arg1) {
-            <span class="keyword">return</span> _this_ / arg1;
-        });
-        native_func(MyObject, <span class="string">"="</span>, <span class="keyword">function</span>(_this_, arg1) {
-            <span class="keyword">return</span> _this_ === arg1;
-        });
-        native_func(MyObject, <span class="string">"&gt;"</span>, <span class="keyword">function</span>(_this_, arg1) {
-            <span class="keyword">return</span> _this_ &gt; arg1;
-        });
-        native_func(MyObject, <span class="string">"&gt;="</span>, <span class="keyword">function</span>(_this_, arg1) {
-            <span class="keyword">return</span> _this_ &gt;= arg1;
-        });
-
-        <span class="keyword">return</span> frame;
-    };
-
-    <span class="keyword">var</span> binterp = <span class="keyword">function</span>(module, func_id, frame) {
-        <span class="keyword">var</span> TOP = { stack: [] };
-        <span class="keyword">var</span> FRAME = frame ? frame : make_top_level_frame.call({<span class="comment">/*this*/</span>});
-
-        <span class="keyword">var</span> state = mkstate(TOP, FRAME, module, func_id);
-        <span class="keyword">while</span> (state !== TOP) {
-            state = interpret(state);
-        }
-        <span class="keyword">return</span> TOP.stack.pop();
-    };
-    <span class="keyword">var</span> invoke = <span class="keyword">function</span>(func, this_value, args) {
-        <span class="keyword">var</span> my_arguments = Object.create(MyArray);
-        args.forEach(<span class="keyword">function</span>(v, i) {
-            my_arguments[SLOT_PREFIX+i] = v;
-        });
-        my_arguments[SLOT_PREFIX+<span class="string">"length"</span>] = args.length;
-        <span class="keyword">var</span> nframe = Object.create(func.parent_frame);
-        nframe[SLOT_PREFIX+<span class="string">"__proto__"</span>] = func.parent_frame;
-        nframe[SLOT_PREFIX+<span class="string">"arguments"</span>] = my_arguments;
-        nframe[SLOT_PREFIX+<span class="string">"this"</span>] = this_value;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        native_func(MyFunction, <span class="hljs-string">"call"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -1421,21 +1386,161 @@ XXX this is simplistic; a proper version should explicitly
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-52">&#182;</a>
               </div>
+              <p>push arguments on stack and use &#39;invoke&#39; bytecode op.
+arg #0 is the function itself.
+arg #1 is &#39;this&#39;
+arg #2-#n are rest of arguments</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">while</span> ( i &lt; <span class="hljs-built_in">arguments</span>.length ) {
+                <span class="hljs-keyword">this</span>.stack.push(<span class="hljs-built_in">arguments</span>[i]);
+                i += <span class="hljs-number">1</span>;
+            }
+            <span class="hljs-keyword">return</span> dispatch.invoke.call(<span class="hljs-keyword">this</span>, <span class="hljs-built_in">arguments</span>.length<span class="hljs-number">-2</span>);
+        }, <span class="hljs-number">1</span><span class="hljs-comment">/*is apply*/</span>);
+        native_func(MyFunction, <span class="hljs-string">"apply"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-53">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-53">&#182;</a>
+              </div>
+              <p>push arguments on stack and use &#39;invoke&#39; bytecode op.
+arg #0 is the function itself.
+arg #1 is &#39;this&#39;
+arg #2 is rest of arguments, as array.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>.stack.push(<span class="hljs-built_in">arguments</span>[<span class="hljs-number">0</span>]);
+            <span class="hljs-keyword">this</span>.stack.push(<span class="hljs-built_in">arguments</span>[<span class="hljs-number">1</span>]);
+            <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>, nargs = <span class="hljs-built_in">arguments</span>[<span class="hljs-number">2</span>][SLOT_PREFIX+<span class="hljs-string">"length"</span>];
+            <span class="hljs-keyword">while</span> ( i &lt; nargs ) {
+                <span class="hljs-keyword">this</span>.stack.push(<span class="hljs-built_in">arguments</span>[<span class="hljs-number">2</span>][SLOT_PREFIX+i]);
+                i += <span class="hljs-number">1</span>;
+            }
+            <span class="hljs-keyword">return</span> dispatch.invoke.call(<span class="hljs-keyword">this</span>, nargs);
+        }, <span class="hljs-number">1</span><span class="hljs-comment">/*is apply*/</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-54">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-54">&#182;</a>
+              </div>
+              <p>primitives will be replaced by message sends
+XXX this is simplistic; a proper version should explicitly
+    represent the type conversions performed.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        native_func(MyObject, <span class="hljs-string">"+"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, arg1</span>) </span>{
+            <span class="hljs-keyword">return</span> _this_ + arg1;
+        });
+        native_func(MyObject, <span class="hljs-string">"-"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, arg1</span>) </span>{
+            <span class="hljs-keyword">return</span> _this_ - arg1;
+        });
+        native_func(MyObject, <span class="hljs-string">"*"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, arg1</span>) </span>{
+            <span class="hljs-keyword">return</span> _this_ * arg1;
+        });
+        native_func(MyObject, <span class="hljs-string">"/"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, arg1</span>) </span>{
+            <span class="hljs-keyword">return</span> _this_ / arg1;
+        });
+        native_func(MyObject, <span class="hljs-string">"="</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, arg1</span>) </span>{
+            <span class="hljs-keyword">return</span> _this_ === arg1;
+        });
+        native_func(MyObject, <span class="hljs-string">"&gt;"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, arg1</span>) </span>{
+            <span class="hljs-keyword">return</span> _this_ &gt; arg1;
+        });
+        native_func(MyObject, <span class="hljs-string">"&gt;="</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, arg1</span>) </span>{
+            <span class="hljs-keyword">return</span> _this_ &gt;= arg1;
+        });
+
+        <span class="hljs-keyword">return</span> frame;
+    };
+
+    <span class="hljs-keyword">var</span> binterp = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">module, func_id, frame, this_value, my_arguments, local_frame</span>) </span>{
+        <span class="hljs-keyword">if</span> (frame===<span class="hljs-literal">undefined</span>) {
+            frame = make_top_level_frame();
+        }
+        <span class="hljs-keyword">if</span> (this_value===<span class="hljs-literal">undefined</span> &amp;&amp; my_arguments === <span class="hljs-literal">undefined</span>) {
+            this_value = <span class="hljs-literal">undefined</span>; <span class="hljs-comment">// "Strict mode" semantics</span>
+            my_arguments = <span class="hljs-built_in">Object</span>.create(MyArray);
+            my_arguments[SLOT_PREFIX+<span class="hljs-string">"length"</span>] = <span class="hljs-number">0</span>;
+        }
+        <span class="hljs-keyword">var</span> TOP = { <span class="hljs-attr">stack</span>: [] };
+        <span class="hljs-keyword">var</span> FRAME = frame;
+
+        <span class="hljs-keyword">var</span> state = mkstate(TOP, FRAME, <span class="hljs-built_in">module</span>, func_id);
+        <span class="hljs-keyword">if</span> (local_frame===<span class="hljs-literal">undefined</span>) {
+            state.local_frame[SLOT_PREFIX+<span class="hljs-string">"this"</span>] = this_value;
+            state.local_frame[SLOT_PREFIX+<span class="hljs-string">"arguments"</span>] = my_arguments;
+        } <span class="hljs-keyword">else</span> {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-55">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-55">&#182;</a>
+              </div>
+              <p>passing local_frame into this function should only be done
+by REPL loops which deliberately want to keep a consistent
+local variable state across invocations.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            state.local_frame = local_frame;
+        }
+        <span class="hljs-keyword">while</span> (state !== TOP) {
+            state = interpret(state);
+        }
+        <span class="hljs-keyword">return</span> TOP.stack.pop();
+    };
+    invoke = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">func, this_value, args</span>) </span>{
+        <span class="hljs-keyword">var</span> my_arguments = <span class="hljs-built_in">Object</span>.create(MyArray);
+        args.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">v, i</span>) </span>{
+            my_arguments[SLOT_PREFIX+i] = v;
+        });
+        my_arguments[SLOT_PREFIX+<span class="hljs-string">"length"</span>] = args.length;
+        <span class="hljs-keyword">var</span> nframe = <span class="hljs-built_in">Object</span>.create(func.parent_frame);
+        nframe[SLOT_PREFIX+<span class="hljs-string">"__proto__"</span>] = func.parent_frame;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-56">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-56">&#182;</a>
+              </div>
               <p>go for it!</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">return</span> binterp(func.module, func.func_id, nframe);
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">return</span> binterp(func.module, func.func_id, nframe, this_value, my_arguments);
     };
-    <span class="keyword">return</span> {
-        __module_name__: <span class="string">"binterp"</span>,
-        __module_init__: make_binterp,
-        __module_deps__: [<span class="string">"bytecode-table"</span>, <span class="string">"html-escape"</span>],
-        __module_source__: binterp_source,
+    <span class="hljs-keyword">return</span> {
+        <span class="hljs-attr">__module_name__</span>: <span class="hljs-string">"binterp"</span>,
+        <span class="hljs-attr">__module_init__</span>: make_binterp,
+        <span class="hljs-attr">__module_deps__</span>: [<span class="hljs-string">"bytecode-table"</span>, <span class="hljs-string">"html-escape"</span>],
+        <span class="hljs-attr">__module_source__</span>: binterp_source,
 
-        binterp: binterp,
-        make_top_level_frame: make_top_level_frame,
-        invoke: invoke
+        <span class="hljs-attr">binterp</span>: binterp,
+        <span class="hljs-attr">make_top_level_frame</span>: make_top_level_frame,
+        <span class="hljs-attr">invoke</span>: invoke
     };
 });</pre></div></div>
             

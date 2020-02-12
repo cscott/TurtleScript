@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -199,31 +219,24 @@
         <li id="section-1">
             <div class="annotation">
               
-              <div class="pilwrap for-h1">
+              <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1>render.js</h1>
+              <h1 id="renderjs">render.js</h1>
 <p>Hacked-together conversion to HTML.</p>
 <p>Expr context is:</p>
-<pre><code>&lt;div class=&quot;e efirst&quot;&gt;&lt;span&gt;&lt;span&gt;....&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;</code></pre>
-<p>The outer div is a 100% width block; the inner span is
+<pre><code>&lt;div class=&quot;e efirst&quot;&gt;&lt;span&gt;&lt;span&gt;....&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;</code></pre><p>The outer div is a 100% width block; the inner span is
 a shrink-to-fit inline-block, then innermost span is an inline-table.
 Each individual expr components should look like:</p>
-<pre><code>&lt;span class=&quot;expr ...&quot;&gt;&lt;span&gt;....&lt;/span&gt;&lt;/span&gt;</code></pre>
-<p>The nested <code>&lt;span&gt;</code> allows positioning the text relative to the border.
+<pre><code>&lt;span class=&quot;expr ...&quot;&gt;&lt;span&gt;....&lt;/span&gt;&lt;/span&gt;</code></pre><p>The nested <code>&lt;span&gt;</code> allows positioning the text relative to the border.
 For a new continuation line in an expr, use:</p>
-<pre><code>...&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;e econt&quot;&gt;&lt;span&gt;...</code></pre>
-<p>Usually the full markup will look something like:</p>
+<pre><code>...&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;e econt&quot;&gt;&lt;span&gt;...</code></pre><p>Usually the full markup will look something like:</p>
 <pre><code>...&lt;span class=&quot;expr binop brokentop&quot;&gt;+&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
 &lt;div class=&quot;e econt&quot;&gt;&lt;span&gt;&lt;span class=&quot;expr binop brokenbot&quot;&gt;
-&lt;!--border image here w/ no text--&gt;&lt;/span&gt;...</code></pre>
-<p>For an embedded function, array, object, etc context in an expr, use:</p>
-<pre><code>...&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;e enest ...&quot;&gt;&lt;span&gt;...</code></pre>
-<p>And at the end of the embedded context:</p>
-<pre><code>...&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;e econt&quot;&gt;&lt;span&gt;...</code></pre>
-<p>Statements should be of the form:</p>
-<pre><code>&lt;div class=&quot;stmt ...&quot;&gt;&lt;span&gt; ... &lt;/span&gt;&lt;/div&gt;</code></pre>
-<p>The outer div is a 100% width block; the inner span is
+&lt;!--border image here w/ no text--&gt;&lt;/span&gt;...</code></pre><p>For an embedded function, array, object, etc context in an expr, use:</p>
+<pre><code>...&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;e enest ...&quot;&gt;&lt;span&gt;...</code></pre><p>And at the end of the embedded context:</p>
+<pre><code>...&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;e econt&quot;&gt;&lt;span&gt;...</code></pre><p>Statements should be of the form:</p>
+<pre><code>&lt;div class=&quot;stmt ...&quot;&gt;&lt;span&gt; ... &lt;/span&gt;&lt;/div&gt;</code></pre><p>The outer div is a 100% width block; the inner span is
 a shrink-to-fit inline-block.</p>
 <p>The statement is responsible for its own closing semicolon.</p>
 <p>C. Scott Ananian
@@ -231,12 +244,12 @@ a shrink-to-fit inline-block.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> make_render = <span class="keyword">function</span>(html_escape, str_escape) {
-    <span class="keyword">var</span> render, render_stmt, render_stmts;
-    <span class="keyword">var</span> indentation, prec_stack = [ <span class="number">0</span> ];
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> make_render = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">html_escape, str_escape</span>) </span>{
+    <span class="hljs-keyword">var</span> render, render_stmt, render_stmts;
+    <span class="hljs-keyword">var</span> indentation, prec_stack = [ <span class="hljs-number">0</span> ];
 
-    <span class="keyword">var</span> assert = <span class="keyword">function</span>(b, obj) {
-        <span class="keyword">if</span> (!b) { console.assert(b, <span class="string">"Assertion failure"</span>, obj); }
+    <span class="hljs-keyword">var</span> assert = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">b, obj</span>) </span>{
+        <span class="hljs-keyword">if</span> (!b) { <span class="hljs-built_in">console</span>.assert(b, <span class="hljs-string">"Assertion failure"</span>, obj); }
     };</pre></div></div>
             
         </li>
@@ -252,13 +265,13 @@ a shrink-to-fit inline-block.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> gather = <span class="keyword">function</span>(lst, delim, f) {
-        <span class="keyword">var</span> i = <span class="number">0</span>, result = [];
-        <span class="keyword">while</span> ( i &lt; lst.length ) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> gather = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">lst, delim, f</span>) </span>{
+        <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>, result = [];
+        <span class="hljs-keyword">while</span> ( i &lt; lst.length ) {
             result.push(f(lst[i]));
-            i += <span class="number">1</span>;
+            i += <span class="hljs-number">1</span>;
         }
-        <span class="keyword">return</span> result.join(delim);
+        <span class="hljs-keyword">return</span> result.join(delim);
     };</pre></div></div>
             
         </li>
@@ -274,13 +287,13 @@ a shrink-to-fit inline-block.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> nl = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> n = indentation, result = <span class="string">"\n"</span>;
-        <span class="keyword">while</span> (n &gt; <span class="number">0</span>) {
-            result += <span class="string">"  "</span>;
-            n -= <span class="number">1</span>;
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> nl = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> n = indentation, result = <span class="hljs-string">"\n"</span>;
+        <span class="hljs-keyword">while</span> (n &gt; <span class="hljs-number">0</span>) {
+            result += <span class="hljs-string">"  "</span>;
+            n -= <span class="hljs-number">1</span>;
         }
-        <span class="keyword">return</span> result;
+        <span class="hljs-keyword">return</span> result;
     };</pre></div></div>
             
         </li>
@@ -296,13 +309,13 @@ a shrink-to-fit inline-block.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> with_prec = <span class="keyword">function</span>(prec, f, obj) {
-        <span class="keyword">return</span> <span class="keyword">function</span>() {
-            <span class="keyword">var</span> result;
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> with_prec = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">prec, f, obj</span>) </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> result;
             prec_stack.push(prec);
-            result = f.apply(obj || <span class="keyword">this</span>, arguments);
+            result = f.apply(obj || <span class="hljs-keyword">this</span>, <span class="hljs-built_in">arguments</span>);
             prec_stack.pop();
-            <span class="keyword">return</span> result;
+            <span class="hljs-keyword">return</span> result;
         };
     };</pre></div></div>
             
@@ -319,41 +332,41 @@ a shrink-to-fit inline-block.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> with_prec_paren = <span class="keyword">function</span>(prec, f, obj) {
-        <span class="keyword">return</span> <span class="keyword">function</span>() {
-            <span class="keyword">var</span> prev_prec = prec_stack[prec_stack.length - <span class="number">1</span>];
-            <span class="keyword">var</span> result = with_prec(prec, f).apply(obj || <span class="keyword">this</span>, arguments);
-            <span class="keyword">if</span> (prev_prec &gt; prec) {
-                result = span(<span class="string">"expr paren"</span>, <span class="string">"("</span> + result + <span class="string">")"</span>);
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> with_prec_paren = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">prec, f, obj</span>) </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> prev_prec = prec_stack[prec_stack.length - <span class="hljs-number">1</span>];
+            <span class="hljs-keyword">var</span> result = with_prec(prec, f).apply(obj || <span class="hljs-keyword">this</span>, <span class="hljs-built_in">arguments</span>);
+            <span class="hljs-keyword">if</span> (prev_prec &gt; prec) {
+                result = span(<span class="hljs-string">"expr paren"</span>, <span class="hljs-string">"("</span> + result + <span class="hljs-string">")"</span>);
             }
-            <span class="keyword">return</span> result;
+            <span class="hljs-keyword">return</span> result;
         };
     };
 
-    <span class="keyword">var</span> div = <span class="keyword">function</span>(classes, text) {
-        <span class="keyword">if</span> (!classes) <span class="keyword">return</span> <span class="string">"&lt;div&gt;"</span>+text+<span class="string">"&lt;/div&gt;"</span>;
-        <span class="keyword">return</span> <span class="string">"&lt;div class='"</span>+classes+<span class="string">"'&gt;"</span> + text + <span class="string">"&lt;/div&gt;"</span>;
+    <span class="hljs-keyword">var</span> div = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">classes, text</span>) </span>{
+        <span class="hljs-keyword">if</span> (!classes) <span class="hljs-keyword">return</span> <span class="hljs-string">"&lt;div&gt;"</span>+text+<span class="hljs-string">"&lt;/div&gt;"</span>;
+        <span class="hljs-keyword">return</span> <span class="hljs-string">"&lt;div class='"</span>+classes+<span class="hljs-string">"'&gt;"</span> + text + <span class="hljs-string">"&lt;/div&gt;"</span>;
     };
-    <span class="keyword">var</span> span = <span class="keyword">function</span>(classes, text) {
-        <span class="keyword">if</span> (!classes) <span class="keyword">return</span> <span class="string">"&lt;span&gt;"</span>+text+<span class="string">"&lt;/span&gt;"</span>;
-        <span class="keyword">return</span> <span class="string">"&lt;span class='"</span>+classes+<span class="string">"'&gt;"</span> + text + <span class="string">"&lt;/span&gt;"</span>;
+    <span class="hljs-keyword">var</span> span = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">classes, text</span>) </span>{
+        <span class="hljs-keyword">if</span> (!classes) <span class="hljs-keyword">return</span> <span class="hljs-string">"&lt;span&gt;"</span>+text+<span class="hljs-string">"&lt;/span&gt;"</span>;
+        <span class="hljs-keyword">return</span> <span class="hljs-string">"&lt;span class='"</span>+classes+<span class="hljs-string">"'&gt;"</span> + text + <span class="hljs-string">"&lt;/span&gt;"</span>;
     };
-    <span class="keyword">var</span> spanned = <span class="keyword">function</span>(classes, f) {
-        <span class="keyword">return</span> <span class="keyword">function</span>() {
-            <span class="keyword">return</span> span(classes, f.apply(<span class="keyword">this</span>, arguments));
+    <span class="hljs-keyword">var</span> spanned = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">classes, f</span>) </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">return</span> span(classes, f.apply(<span class="hljs-keyword">this</span>, <span class="hljs-built_in">arguments</span>));
         };
     };
 
-    <span class="keyword">var</span> dispatch = {};
-    dispatch.name = spanned(<span class="string">"expr id"</span>, <span class="keyword">function</span>() { <span class="keyword">return</span> html_escape(<span class="keyword">this</span>.value); });
-    dispatch.literal = spanned(<span class="string">"expr lit"</span>, <span class="keyword">function</span>() {
-        <span class="keyword">if</span> (<span class="keyword">this</span>.value === <span class="literal">null</span>) { <span class="keyword">return</span> <span class="string">"null"</span>; }
-        <span class="keyword">if</span> (<span class="keyword">typeof</span>(<span class="keyword">this</span>.value)===<span class="string">'object'</span>) {
-            <span class="keyword">if</span> (<span class="keyword">this</span>.value.length === <span class="number">0</span>) { <span class="keyword">return</span> <span class="string">"Array"</span>; }
-            <span class="keyword">return</span> <span class="string">"Object"</span>;
+    <span class="hljs-keyword">var</span> dispatch = {};
+    dispatch.name = spanned(<span class="hljs-string">"expr id"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> html_escape(<span class="hljs-keyword">this</span>.value); });
+    dispatch.literal = spanned(<span class="hljs-string">"expr lit"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.value === <span class="hljs-literal">null</span>) { <span class="hljs-keyword">return</span> <span class="hljs-string">"null"</span>; }
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(<span class="hljs-keyword">this</span>.value)===<span class="hljs-string">'object'</span>) {
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.value.length === <span class="hljs-number">0</span>) { <span class="hljs-keyword">return</span> <span class="hljs-string">"Array"</span>; }
+            <span class="hljs-keyword">return</span> <span class="hljs-string">"Object"</span>;
         }
-        <span class="keyword">if</span> (<span class="keyword">typeof</span>(<span class="keyword">this</span>.value)===<span class="string">'string'</span>) { <span class="keyword">return</span> html_escape(str_escape(<span class="keyword">this</span>.value)); }
-        <span class="keyword">return</span> <span class="keyword">this</span>.value.toString();
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(<span class="hljs-keyword">this</span>.value)===<span class="hljs-string">'string'</span>) { <span class="hljs-keyword">return</span> html_escape(str_escape(<span class="hljs-keyword">this</span>.value)); }
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.value.toString();
         });</pre></div></div>
             
         </li>
@@ -369,18 +382,18 @@ a shrink-to-fit inline-block.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    dispatch.unary = <span class="keyword">function</span>() {
-        assert(dispatch.unary[<span class="keyword">this</span>.value], <span class="keyword">this</span>);
-        <span class="keyword">return</span> dispatch.unary[<span class="keyword">this</span>.value].apply(<span class="keyword">this</span>);
+            <div class="content"><div class='highlight'><pre>    dispatch.unary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        assert(dispatch.unary[<span class="hljs-keyword">this</span>.value], <span class="hljs-keyword">this</span>);
+        <span class="hljs-keyword">return</span> dispatch.unary[<span class="hljs-keyword">this</span>.value].apply(<span class="hljs-keyword">this</span>);
     };
-    <span class="keyword">var</span> unary = <span class="keyword">function</span>(op, prec, f) {
-        dispatch.unary[op] = f || with_prec_paren(prec, <span class="keyword">function</span>() {
-                <span class="keyword">return</span> span(<span class="string">"expr unop"</span>, <span class="keyword">this</span>.value) + render(<span class="keyword">this</span>.first);
+    <span class="hljs-keyword">var</span> unary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">op, prec, f</span>) </span>{
+        dispatch.unary[op] = f || with_prec_paren(prec, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+                <span class="hljs-keyword">return</span> span(<span class="hljs-string">"expr unop"</span>, <span class="hljs-keyword">this</span>.value) + render(<span class="hljs-keyword">this</span>.first);
             });
     };
-    unary(<span class="string">'!'</span>, <span class="number">70</span>);
-    unary(<span class="string">'-'</span>, <span class="number">70</span>);
-    unary(<span class="string">'typeof'</span>, <span class="number">70</span>, with_prec_paren(<span class="number">70</span>, <span class="keyword">function</span>() {</pre></div></div>
+    unary(<span class="hljs-string">'!'</span>, <span class="hljs-number">70</span>);
+    unary(<span class="hljs-string">'-'</span>, <span class="hljs-number">70</span>);
+    unary(<span class="hljs-string">'typeof'</span>, <span class="hljs-number">70</span>, with_prec_paren(<span class="hljs-number">70</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -395,9 +408,9 @@ a shrink-to-fit inline-block.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">return</span> <span class="string">"typeof("</span>+with_prec(<span class="number">0</span>, render)(<span class="keyword">this</span>.first)+<span class="string">")"</span>;
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">return</span> <span class="hljs-string">"typeof("</span>+with_prec(<span class="hljs-number">0</span>, render)(<span class="hljs-keyword">this</span>.first)+<span class="hljs-string">")"</span>;
             }));
-    unary(<span class="string">'['</span>, <span class="number">90</span><span class="comment">/*???*/</span>, with_prec_paren(<span class="number">90</span>, <span class="keyword">function</span>() {</pre></div></div>
+    unary(<span class="hljs-string">'['</span>, <span class="hljs-number">90</span><span class="hljs-comment">/*???*/</span>, with_prec_paren(<span class="hljs-number">90</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -413,10 +426,10 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">return</span> <span class="string">"["</span> + gather(<span class="keyword">this</span>.first, <span class="string">", "</span>, with_prec(<span class="number">0</span>, render)) +
-                    <span class="string">"]"</span>;
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">return</span> <span class="hljs-string">"["</span> + gather(<span class="hljs-keyword">this</span>.first, <span class="hljs-string">", "</span>, with_prec(<span class="hljs-number">0</span>, render)) +
+                    <span class="hljs-string">"]"</span>;
             }));
-    unary(<span class="string">'{'</span>, <span class="number">90</span><span class="comment">/*???*/</span>, with_prec_paren(<span class="number">90</span>, <span class="keyword">function</span>() {</pre></div></div>
+    unary(<span class="hljs-string">'{'</span>, <span class="hljs-number">90</span><span class="hljs-comment">/*???*/</span>, with_prec_paren(<span class="hljs-number">90</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -431,8 +444,8 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> result = span(<span class="string">"exprleft newobj"</span>, <span class="string">"{"</span>);
-                result += <span class="string">"&lt;/span&gt;"</span>+span(<span class="string">"connect objconn"</span>,<span class="string">""</span>)+<span class="string">"&lt;/span&gt;&lt;/div&gt;"</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">var</span> result = span(<span class="hljs-string">"exprleft newobj"</span>, <span class="hljs-string">"{"</span>);
+                result += <span class="hljs-string">"&lt;/span&gt;"</span>+span(<span class="hljs-string">"connect objconn"</span>,<span class="hljs-string">""</span>)+<span class="hljs-string">"&lt;/span&gt;&lt;/div&gt;"</span>;</pre></div></div>
             
         </li>
         
@@ -447,17 +460,17 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (<span class="keyword">this</span>.first.length &gt; <span class="number">0</span>) {
-                    indentation += <span class="number">1</span>;
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.first.length &gt; <span class="hljs-number">0</span>) {
+                    indentation += <span class="hljs-number">1</span>;
                     result += nl();
-                    result += <span class="string">"&lt;div class='e enest objnest'&gt;&lt;span&gt;&lt;span&gt;"</span>;
-                    <span class="keyword">var</span> mid = span(<span class="string">"exprend"</span>, <span class="string">","</span>);
-                    mid += <span class="string">"&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;"</span>;
-                    mid += <span class="string">"&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;"</span> + nl();
-                    mid += <span class="string">"&lt;div class='e enest objnest'&gt;&lt;span&gt;&lt;span&gt;"</span>;
-                    mid += <span class="string">"&lt;div class='e efirst'&gt;&lt;span&gt;&lt;span&gt;"</span>;
-                    result += <span class="string">"&lt;div class='e efirst'&gt;&lt;span&gt;&lt;span&gt;"</span>;
-                    result += gather(<span class="keyword">this</span>.first, mid, <span class="keyword">function</span>(item) {</pre></div></div>
+                    result += <span class="hljs-string">"&lt;div class='e enest objnest'&gt;&lt;span&gt;&lt;span&gt;"</span>;
+                    <span class="hljs-keyword">var</span> mid = span(<span class="hljs-string">"exprend"</span>, <span class="hljs-string">","</span>);
+                    mid += <span class="hljs-string">"&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;"</span>;
+                    mid += <span class="hljs-string">"&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;"</span> + nl();
+                    mid += <span class="hljs-string">"&lt;div class='e enest objnest'&gt;&lt;span&gt;&lt;span&gt;"</span>;
+                    mid += <span class="hljs-string">"&lt;div class='e efirst'&gt;&lt;span&gt;&lt;span&gt;"</span>;
+                    result += <span class="hljs-string">"&lt;div class='e efirst'&gt;&lt;span&gt;&lt;span&gt;"</span>;
+                    result += gather(<span class="hljs-keyword">this</span>.first, mid, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">item</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -473,18 +486,18 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                            <span class="keyword">return</span> span(<span class="string">"objkey"</span>, html_escape(str_escape(item.key)) + <span class="string">": "</span>) +
-                                with_prec(<span class="number">0</span>, render)(item);
+            <div class="content"><div class='highlight'><pre>                            <span class="hljs-keyword">return</span> span(<span class="hljs-string">"objkey"</span>, html_escape(str_escape(item.key)) + <span class="hljs-string">": "</span>) +
+                                with_prec(<span class="hljs-number">0</span>, render)(item);
                         });
-                    result += span(<span class="string">"exprend"</span>, <span class="string">""</span>); <span class="comment">// cap the final element</span>
-                    indentation -= <span class="number">1</span>;
-                    result += <span class="string">"&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;"</span>;
-                    result += <span class="string">"&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;"</span>;
+                    result += span(<span class="hljs-string">"exprend"</span>, <span class="hljs-string">""</span>); <span class="hljs-comment">// cap the final element</span>
+                    indentation -= <span class="hljs-number">1</span>;
+                    result += <span class="hljs-string">"&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;"</span>;
+                    result += <span class="hljs-string">"&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;"</span>;
                     result += nl();
                 }
-                result += <span class="string">"&lt;div class='e econt'&gt;&lt;span&gt;&lt;span&gt;"</span>;
-                result +=span(<span class="string">"exprright newobj"</span>, <span class="string">"}"</span>);
-                <span class="keyword">return</span> result;
+                result += <span class="hljs-string">"&lt;div class='e econt'&gt;&lt;span&gt;&lt;span&gt;"</span>;
+                result +=span(<span class="hljs-string">"exprright newobj"</span>, <span class="hljs-string">"}"</span>);
+                <span class="hljs-keyword">return</span> result;
             }));</pre></div></div>
             
         </li>
@@ -500,11 +513,11 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    dispatch.binary = <span class="keyword">function</span>() {
-        assert(dispatch.binary[<span class="keyword">this</span>.value], <span class="keyword">this</span>);
-        <span class="keyword">return</span> dispatch.binary[<span class="keyword">this</span>.value].apply(<span class="keyword">this</span>);
+            <div class="content"><div class='highlight'><pre>    dispatch.binary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        assert(dispatch.binary[<span class="hljs-keyword">this</span>.value], <span class="hljs-keyword">this</span>);
+        <span class="hljs-keyword">return</span> dispatch.binary[<span class="hljs-keyword">this</span>.value].apply(<span class="hljs-keyword">this</span>);
     };
-    <span class="keyword">var</span> binary = <span class="keyword">function</span>(op, prec, f) {</pre></div></div>
+    <span class="hljs-keyword">var</span> binary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">op, prec, f</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -519,8 +532,8 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        dispatch.binary[op] = f || with_prec_paren(prec, <span class="keyword">function</span>() {
-                <span class="keyword">var</span> result = render(<span class="keyword">this</span>.first)+span(<span class="string">"binop"</span>,<span class="string">' '</span>+<span class="keyword">this</span>.value+<span class="string">' '</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        dispatch.binary[op] = f || with_prec_paren(prec, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+                <span class="hljs-keyword">var</span> result = render(<span class="hljs-keyword">this</span>.first)+span(<span class="hljs-string">"binop"</span>,<span class="hljs-string">' '</span>+<span class="hljs-keyword">this</span>.value+<span class="hljs-string">' '</span>);</pre></div></div>
             
         </li>
         
@@ -535,34 +548,34 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                result += with_prec(prec+<span class="number">1</span>, render)(<span class="keyword">this</span>.second);
-                <span class="keyword">return</span> result;
+            <div class="content"><div class='highlight'><pre>                result += with_prec(prec+<span class="hljs-number">1</span>, render)(<span class="hljs-keyword">this</span>.second);
+                <span class="hljs-keyword">return</span> result;
             });
     };
-    binary(<span class="string">'='</span>, <span class="number">10</span>);
-    binary(<span class="string">'+='</span>, <span class="number">10</span>);
-    binary(<span class="string">'-='</span>, <span class="number">10</span>);
-    binary(<span class="string">'||'</span>, <span class="number">30</span>);
-    binary(<span class="string">'&amp;&amp;'</span>, <span class="number">35</span>);
-    binary(<span class="string">'==='</span>,<span class="number">40</span>);
-    binary(<span class="string">'!=='</span>,<span class="number">40</span>);
-    binary(<span class="string">'&lt;'</span>, <span class="number">45</span>);
-    binary(<span class="string">'&lt;='</span>,<span class="number">45</span>);
-    binary(<span class="string">'&gt;'</span>, <span class="number">45</span>);
-    binary(<span class="string">'&gt;='</span>,<span class="number">45</span>);
-    binary(<span class="string">'+'</span>, <span class="number">50</span>);
-    binary(<span class="string">'-'</span>, <span class="number">50</span>);
-    binary(<span class="string">'*'</span>, <span class="number">60</span>);
-    binary(<span class="string">'/'</span>, <span class="number">60</span>);
-    binary(<span class="string">"."</span>, <span class="number">80</span>, with_prec_paren(<span class="number">80</span>, <span class="keyword">function</span>() {
-            assert(<span class="keyword">this</span>.second.arity===<span class="string">'literal'</span>, <span class="keyword">this</span>.second);
-            <span class="keyword">return</span> render(<span class="keyword">this</span>.first)+span(<span class="string">"binop"</span>, <span class="string">"."</span>)+<span class="keyword">this</span>.second.value;
+    binary(<span class="hljs-string">'='</span>, <span class="hljs-number">10</span>);
+    binary(<span class="hljs-string">'+='</span>, <span class="hljs-number">10</span>);
+    binary(<span class="hljs-string">'-='</span>, <span class="hljs-number">10</span>);
+    binary(<span class="hljs-string">'||'</span>, <span class="hljs-number">30</span>);
+    binary(<span class="hljs-string">'&amp;&amp;'</span>, <span class="hljs-number">35</span>);
+    binary(<span class="hljs-string">'==='</span>,<span class="hljs-number">40</span>);
+    binary(<span class="hljs-string">'!=='</span>,<span class="hljs-number">40</span>);
+    binary(<span class="hljs-string">'&lt;'</span>, <span class="hljs-number">45</span>);
+    binary(<span class="hljs-string">'&lt;='</span>,<span class="hljs-number">45</span>);
+    binary(<span class="hljs-string">'&gt;'</span>, <span class="hljs-number">45</span>);
+    binary(<span class="hljs-string">'&gt;='</span>,<span class="hljs-number">45</span>);
+    binary(<span class="hljs-string">'+'</span>, <span class="hljs-number">50</span>);
+    binary(<span class="hljs-string">'-'</span>, <span class="hljs-number">50</span>);
+    binary(<span class="hljs-string">'*'</span>, <span class="hljs-number">60</span>);
+    binary(<span class="hljs-string">'/'</span>, <span class="hljs-number">60</span>);
+    binary(<span class="hljs-string">"."</span>, <span class="hljs-number">80</span>, with_prec_paren(<span class="hljs-number">80</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            assert(<span class="hljs-keyword">this</span>.second.arity===<span class="hljs-string">'literal'</span>, <span class="hljs-keyword">this</span>.second);
+            <span class="hljs-keyword">return</span> render(<span class="hljs-keyword">this</span>.first)+span(<span class="hljs-string">"binop"</span>, <span class="hljs-string">"."</span>)+<span class="hljs-keyword">this</span>.second.value;
             }));
-    binary(<span class="string">'['</span>, <span class="number">80</span>, with_prec_paren(<span class="number">80</span>, <span class="keyword">function</span>() {
-                <span class="keyword">return</span> render(<span class="keyword">this</span>.first) + <span class="string">"["</span> +
-                    with_prec(<span class="number">0</span>, render)(<span class="keyword">this</span>.second) + <span class="string">"]"</span>;
+    binary(<span class="hljs-string">'['</span>, <span class="hljs-number">80</span>, with_prec_paren(<span class="hljs-number">80</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+                <span class="hljs-keyword">return</span> render(<span class="hljs-keyword">this</span>.first) + <span class="hljs-string">"["</span> +
+                    with_prec(<span class="hljs-number">0</span>, render)(<span class="hljs-keyword">this</span>.second) + <span class="hljs-string">"]"</span>;
             }));
-    binary(<span class="string">'('</span>, <span class="number">80</span>, with_prec_paren(<span class="number">80</span>, <span class="keyword">function</span>() {</pre></div></div>
+    binary(<span class="hljs-string">'('</span>, <span class="hljs-number">80</span>, with_prec_paren(<span class="hljs-number">80</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -577,8 +590,8 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">return</span> render(<span class="keyword">this</span>.first) + <span class="string">"("</span> +
-                gather(<span class="keyword">this</span>.second, <span class="string">", "</span>, with_prec(<span class="number">0</span>, render)) + <span class="string">")"</span>;
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">return</span> render(<span class="hljs-keyword">this</span>.first) + <span class="hljs-string">"("</span> +
+                gather(<span class="hljs-keyword">this</span>.second, <span class="hljs-string">", "</span>, with_prec(<span class="hljs-number">0</span>, render)) + <span class="hljs-string">")"</span>;
             }));</pre></div></div>
             
         </li>
@@ -594,19 +607,19 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    dispatch.ternary = <span class="keyword">function</span>() {
-        assert(dispatch.ternary[<span class="keyword">this</span>.value], <span class="keyword">this</span>);
-        <span class="keyword">return</span> dispatch.ternary[<span class="keyword">this</span>.value].apply(<span class="keyword">this</span>);
+            <div class="content"><div class='highlight'><pre>    dispatch.ternary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        assert(dispatch.ternary[<span class="hljs-keyword">this</span>.value], <span class="hljs-keyword">this</span>);
+        <span class="hljs-keyword">return</span> dispatch.ternary[<span class="hljs-keyword">this</span>.value].apply(<span class="hljs-keyword">this</span>);
     };
-    <span class="keyword">var</span> ternary = <span class="keyword">function</span>(op, prec, f) {
+    <span class="hljs-keyword">var</span> ternary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">op, prec, f</span>) </span>{
         dispatch.ternary[op] = with_prec_paren(prec, f);
     };
-    ternary(<span class="string">"?"</span>, <span class="number">20</span>, <span class="keyword">function</span>() {
-            <span class="keyword">return</span> render(<span class="keyword">this</span>.first) + <span class="string">" ? "</span> +
-                render(<span class="keyword">this</span>.second) + <span class="string">" : "</span> +
-                render(<span class="keyword">this</span>.third);
+    ternary(<span class="hljs-string">"?"</span>, <span class="hljs-number">20</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">return</span> render(<span class="hljs-keyword">this</span>.first) + <span class="hljs-string">" ? "</span> +
+                render(<span class="hljs-keyword">this</span>.second) + <span class="hljs-string">" : "</span> +
+                render(<span class="hljs-keyword">this</span>.third);
         });
-    ternary(<span class="string">"("</span>, <span class="number">80</span>, <span class="keyword">function</span>() {</pre></div></div>
+    ternary(<span class="hljs-string">"("</span>, <span class="hljs-number">80</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -621,9 +634,9 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            assert(<span class="keyword">this</span>.second.arity===<span class="string">'literal'</span>, <span class="keyword">this</span>.second);
-            <span class="keyword">return</span> render(<span class="keyword">this</span>.first) + <span class="string">"&lt;span class='binop'&gt;.&lt;/span&gt;"</span> + <span class="keyword">this</span>.second.value + <span class="string">"("</span> +
-                gather(<span class="keyword">this</span>.third, <span class="string">", "</span>, with_prec(<span class="number">0</span>, render)) + <span class="string">")"</span>;
+            <div class="content"><div class='highlight'><pre>            assert(<span class="hljs-keyword">this</span>.second.arity===<span class="hljs-string">'literal'</span>, <span class="hljs-keyword">this</span>.second);
+            <span class="hljs-keyword">return</span> render(<span class="hljs-keyword">this</span>.first) + <span class="hljs-string">"&lt;span class='binop'&gt;.&lt;/span&gt;"</span> + <span class="hljs-keyword">this</span>.second.value + <span class="hljs-string">"("</span> +
+                gather(<span class="hljs-keyword">this</span>.third, <span class="hljs-string">", "</span>, with_prec(<span class="hljs-number">0</span>, render)) + <span class="hljs-string">")"</span>;
         });</pre></div></div>
             
         </li>
@@ -639,28 +652,28 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    dispatch.statement = <span class="keyword">function</span>() {
-        assert(dispatch.statement[<span class="keyword">this</span>.value], <span class="keyword">this</span>);
-        <span class="keyword">return</span> dispatch.statement[<span class="keyword">this</span>.value].apply(<span class="keyword">this</span>);
+            <div class="content"><div class='highlight'><pre>    dispatch.statement = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        assert(dispatch.statement[<span class="hljs-keyword">this</span>.value], <span class="hljs-keyword">this</span>);
+        <span class="hljs-keyword">return</span> dispatch.statement[<span class="hljs-keyword">this</span>.value].apply(<span class="hljs-keyword">this</span>);
     };
-    <span class="keyword">var</span> stmt = <span class="keyword">function</span>(value, f) {
+    <span class="hljs-keyword">var</span> stmt = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">value, f</span>) </span>{
         dispatch.statement[value] = f;
     };
-    stmt(<span class="string">"block"</span>, <span class="keyword">function</span>() {
-            <span class="keyword">var</span> result = <span class="string">"{"</span>;
-            <span class="keyword">if</span> (<span class="keyword">this</span>.first.length &gt; <span class="number">0</span>) {
-                indentation += <span class="number">1</span>;
-                result += nl() + render_stmts(<span class="keyword">this</span>.first);
-                indentation -= <span class="number">1</span>;
+    stmt(<span class="hljs-string">"block"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> result = <span class="hljs-string">"{"</span>;
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.first.length &gt; <span class="hljs-number">0</span>) {
+                indentation += <span class="hljs-number">1</span>;
+                result += nl() + render_stmts(<span class="hljs-keyword">this</span>.first);
+                indentation -= <span class="hljs-number">1</span>;
             }
-            result += nl() + <span class="string">"}"</span>;
-            <span class="keyword">return</span> result;
+            result += nl() + <span class="hljs-string">"}"</span>;
+            <span class="hljs-keyword">return</span> result;
             });
-    stmt(<span class="string">"var"</span>, <span class="keyword">function</span>() {
-            <span class="keyword">return</span> div(<span class="string">"stmt"</span>, span(<span class="string">""</span>, <span class="string">"var "</span>+render(<span class="keyword">this</span>.first)+<span class="string">";"</span>));
+    stmt(<span class="hljs-string">"var"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">return</span> div(<span class="hljs-string">"stmt"</span>, span(<span class="hljs-string">""</span>, <span class="hljs-string">"var "</span>+render(<span class="hljs-keyword">this</span>.first)+<span class="hljs-string">";"</span>));
         });
-    stmt(<span class="string">"if"</span>, <span class="keyword">function</span>() {
-            <span class="keyword">var</span> result = <span class="string">"if ("</span>+render(<span class="keyword">this</span>.first)+<span class="string">") "</span>;</pre></div></div>
+    stmt(<span class="hljs-string">"if"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> result = <span class="hljs-string">"if ("</span>+render(<span class="hljs-keyword">this</span>.first)+<span class="hljs-string">") "</span>;</pre></div></div>
             
         </li>
         
@@ -675,21 +688,21 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            result += render(<span class="keyword">this</span>.second);
-            <span class="keyword">if</span> (<span class="keyword">this</span>.third) {
-                result += <span class="string">" else "</span>;
-                result += render(<span class="keyword">this</span>.third);
+            <div class="content"><div class='highlight'><pre>            result += render(<span class="hljs-keyword">this</span>.second);
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.third) {
+                result += <span class="hljs-string">" else "</span>;
+                result += render(<span class="hljs-keyword">this</span>.third);
             }
-            <span class="keyword">return</span> result;
+            <span class="hljs-keyword">return</span> result;
         });
-    stmt(<span class="string">"return"</span>, <span class="keyword">function</span>() {
-            <span class="keyword">return</span> div(<span class="string">"stmt"</span>, span(<span class="string">""</span>, span(<span class="string">"keyword"</span>,<span class="string">"return"</span>)+(<span class="keyword">this</span>.first ? (<span class="string">" "</span>+render(<span class="keyword">this</span>.first)) : <span class="string">""</span>)+span(<span class="string">"semi"</span>, <span class="string">";"</span>)));
+    stmt(<span class="hljs-string">"return"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">return</span> div(<span class="hljs-string">"stmt"</span>, span(<span class="hljs-string">""</span>, span(<span class="hljs-string">"keyword"</span>,<span class="hljs-string">"return"</span>)+(<span class="hljs-keyword">this</span>.first ? (<span class="hljs-string">" "</span>+render(<span class="hljs-keyword">this</span>.first)) : <span class="hljs-string">""</span>)+span(<span class="hljs-string">"semi"</span>, <span class="hljs-string">";"</span>)));
         });
-    stmt(<span class="string">"break"</span>, <span class="keyword">function</span>() {
-            <span class="keyword">return</span> div(<span class="string">"stmt"</span>, span(<span class="string">""</span>, span(<span class="string">"keyword"</span>, <span class="string">"break"</span>)+span(<span class="string">"semi"</span>,<span class="string">";"</span>)));
+    stmt(<span class="hljs-string">"break"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">return</span> div(<span class="hljs-string">"stmt"</span>, span(<span class="hljs-string">""</span>, span(<span class="hljs-string">"keyword"</span>, <span class="hljs-string">"break"</span>)+span(<span class="hljs-string">"semi"</span>,<span class="hljs-string">";"</span>)));
         });
-    stmt(<span class="string">"while"</span>, <span class="keyword">function</span>() {
-            <span class="keyword">return</span> <span class="string">"while ("</span>+render(<span class="keyword">this</span>.first)+<span class="string">") "</span>+render(<span class="keyword">this</span>.second);
+    stmt(<span class="hljs-string">"while"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-string">"while ("</span>+render(<span class="hljs-keyword">this</span>.first)+<span class="hljs-string">") "</span>+render(<span class="hljs-keyword">this</span>.second);
         });</pre></div></div>
             
         </li>
@@ -705,13 +718,13 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    dispatch[<span class="string">'this'</span>] = <span class="keyword">function</span>() { <span class="keyword">return</span> span(<span class="string">"expr lit"</span>, <span class="string">"this"</span>); }; <span class="comment">// literal</span>
-    dispatch[<span class="string">'function'</span>] = with_prec(<span class="number">0</span>, <span class="keyword">function</span>() {
-            <span class="keyword">var</span> result = <span class="string">"function"</span>;
-            <span class="keyword">if</span> (<span class="keyword">this</span>.name) { result += <span class="string">" "</span> + html_escape(<span class="keyword">this</span>.name); }
-            result += <span class="string">" ("</span> + gather(<span class="keyword">this</span>.first, <span class="string">", "</span>, render) + <span class="string">") {"</span>;
-            result = span(<span class="string">"exprleft func"</span>, result);
-            result += <span class="string">"&lt;/span&gt;"</span>+span(<span class="string">"connect funcconn"</span>,<span class="string">""</span>)+<span class="string">"&lt;/span&gt;&lt;/div&gt;"</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    dispatch[<span class="hljs-string">'this'</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> span(<span class="hljs-string">"expr lit"</span>, <span class="hljs-string">"this"</span>); }; <span class="hljs-comment">// literal</span>
+    dispatch[<span class="hljs-string">'function'</span>] = with_prec(<span class="hljs-number">0</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> result = <span class="hljs-string">"function"</span>;
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.name) { result += <span class="hljs-string">" "</span> + html_escape(<span class="hljs-keyword">this</span>.name); }
+            result += <span class="hljs-string">" ("</span> + gather(<span class="hljs-keyword">this</span>.first, <span class="hljs-string">", "</span>, render) + <span class="hljs-string">") {"</span>;
+            result = span(<span class="hljs-string">"exprleft func"</span>, result);
+            result += <span class="hljs-string">"&lt;/span&gt;"</span>+span(<span class="hljs-string">"connect funcconn"</span>,<span class="hljs-string">""</span>)+<span class="hljs-string">"&lt;/span&gt;&lt;/div&gt;"</span>;</pre></div></div>
             
         </li>
         
@@ -726,10 +739,10 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (<span class="keyword">this</span>.second.length &gt; <span class="number">0</span>) {
-                indentation += <span class="number">1</span>;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.second.length &gt; <span class="hljs-number">0</span>) {
+                indentation += <span class="hljs-number">1</span>;
                 result += nl();
-                result += <span class="string">"&lt;div class='e enest funcnest'&gt;&lt;span&gt;&lt;span&gt;"</span>;</pre></div></div>
+                result += <span class="hljs-string">"&lt;div class='e enest funcnest'&gt;&lt;span&gt;&lt;span&gt;"</span>;</pre></div></div>
             
         </li>
         
@@ -744,14 +757,14 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                result += render_stmts(<span class="keyword">this</span>.second); <span class="comment">// function body</span>
-                indentation -= <span class="number">1</span>;
-                result += <span class="string">"&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;"</span>;
+            <div class="content"><div class='highlight'><pre>                result += render_stmts(<span class="hljs-keyword">this</span>.second); <span class="hljs-comment">// function body</span>
+                indentation -= <span class="hljs-number">1</span>;
+                result += <span class="hljs-string">"&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;"</span>;
             }
             result += nl();
-            result += <span class="string">"&lt;div class='e econt'&gt;&lt;span&gt;&lt;span&gt;"</span>;
-            result +=span(<span class="string">"exprright func"</span>, <span class="string">"}"</span>);
-            <span class="keyword">return</span> result;
+            result += <span class="hljs-string">"&lt;div class='e econt'&gt;&lt;span&gt;&lt;span&gt;"</span>;
+            result +=span(<span class="hljs-string">"exprright func"</span>, <span class="hljs-string">"}"</span>);
+            <span class="hljs-keyword">return</span> result;
         });</pre></div></div>
             
         </li>
@@ -767,7 +780,7 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    render = <span class="keyword">function</span>(tree) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    render = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">tree</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -783,11 +796,11 @@ XXX</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>        assert(dispatch[tree.arity], tree);
-        <span class="keyword">return</span> dispatch[tree.arity].apply(tree);
+        <span class="hljs-keyword">return</span> dispatch[tree.arity].apply(tree);
     };
-    render_stmt = <span class="keyword">function</span>(tree) {
-        <span class="keyword">if</span> (tree.arity===<span class="string">'statement'</span>) {
-            <span class="keyword">return</span> render(tree);
+    render_stmt = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">tree</span>) </span>{
+        <span class="hljs-keyword">if</span> (tree.arity===<span class="hljs-string">'statement'</span>) {
+            <span class="hljs-keyword">return</span> render(tree);
         }</pre></div></div>
             
         </li>
@@ -803,7 +816,7 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        result = <span class="string">"&lt;div class='stmt'&gt;&lt;span&gt;"</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        result = <span class="hljs-string">"&lt;div class='stmt'&gt;&lt;span&gt;"</span>;</pre></div></div>
             
         </li>
         
@@ -818,18 +831,18 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        result += <span class="string">"&lt;div class='e efirst'&gt;&lt;span&gt;&lt;span&gt;"</span>;
+            <div class="content"><div class='highlight'><pre>        result += <span class="hljs-string">"&lt;div class='e efirst'&gt;&lt;span&gt;&lt;span&gt;"</span>;
         result += render(tree);
-        result += <span class="string">"&lt;span class='exprend semi'&gt;;&lt;/span&gt;"</span>; <span class="comment">// cap off the end</span>
-        result += <span class="string">"&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;"</span>; <span class="comment">// close the expression context</span>
-        result += <span class="string">"&lt;/span&gt;&lt;/div&gt;"</span>; <span class="comment">// close the statement</span>
-        <span class="keyword">return</span> result;
+        result += <span class="hljs-string">"&lt;span class='exprend semi'&gt;;&lt;/span&gt;"</span>; <span class="hljs-comment">// cap off the end</span>
+        result += <span class="hljs-string">"&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;"</span>; <span class="hljs-comment">// close the expression context</span>
+        result += <span class="hljs-string">"&lt;/span&gt;&lt;/div&gt;"</span>; <span class="hljs-comment">// close the statement</span>
+        <span class="hljs-keyword">return</span> result;
     };
-    render_stmts = <span class="keyword">function</span>(tree_list) {
-        <span class="keyword">return</span> gather(tree_list, nl(), render_stmt);
+    render_stmts = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">tree_list</span>) </span>{
+        <span class="hljs-keyword">return</span> gather(tree_list, nl(), render_stmt);
     };
 
-    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="params">(parse_tree)</span> {</span></pre></div></div>
+    <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">parse_tree</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -844,9 +857,9 @@ XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        indentation = <span class="number">0</span>;
-        prec_stack = [ <span class="number">0</span> ];
-        <span class="keyword">return</span> render_stmts(parse_tree);
+            <div class="content"><div class='highlight'><pre>        indentation = <span class="hljs-number">0</span>;
+        prec_stack = [ <span class="hljs-number">0</span> ];
+        <span class="hljs-keyword">return</span> render_stmts(parse_tree);
     };
 };</pre></div></div>
             

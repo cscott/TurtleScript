@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -213,8 +233,8 @@ better match the Simplified JavaScript &#39;native&#39; environment.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Object.newUint8Array = <span class="keyword">function</span>(size) {
-    <span class="keyword">return</span> <span class="keyword">new</span> Uint8Array(size);
+            <div class="content"><div class='highlight'><pre><span class="hljs-built_in">Object</span>.newUint8Array = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">size</span>) </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(size);
 };</pre></div></div>
             
         </li>
@@ -230,8 +250,8 @@ better match the Simplified JavaScript &#39;native&#39; environment.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> now = <span class="keyword">function</span>() {
-    <span class="keyword">return</span> (<span class="keyword">new</span> Date()).getTime();
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> now = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">return</span> (<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>()).getTime();
 };</pre></div></div>
             
         </li>
@@ -247,7 +267,7 @@ better match the Simplified JavaScript &#39;native&#39; environment.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Function.prototype.New = <span class="keyword">function</span>(arg1, arg2) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-built_in">Function</span>.prototype.New = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">arg1, arg2</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -262,9 +282,9 @@ better match the Simplified JavaScript &#39;native&#39; environment.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span> (arguments.length===<span class="number">0</span>) { <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">this</span>(); }
-    <span class="keyword">if</span> (arguments.length===<span class="number">1</span>) { <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">this</span>(arg1); }
-    <span class="keyword">if</span> (arguments.length===<span class="number">2</span>) { <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">this</span>(arg1, arg2); }</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">arguments</span>.length===<span class="hljs-number">0</span>) { <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-keyword">this</span>(); }
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">arguments</span>.length===<span class="hljs-number">1</span>) { <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-keyword">this</span>(arg1); }
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">arguments</span>.length===<span class="hljs-number">2</span>) { <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-keyword">this</span>(arg1, arg2); }</pre></div></div>
             
         </li>
         
@@ -279,17 +299,17 @@ better match the Simplified JavaScript &#39;native&#39; environment.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> object, result;
-    <span class="keyword">if</span> (<span class="keyword">typeof</span>(<span class="keyword">this</span>.prototype)===<span class="string">"object"</span>) {
-        object = Object.create(<span class="keyword">this</span>.prototype);
-    } <span class="keyword">else</span> {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> object, result;
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(<span class="hljs-keyword">this</span>.prototype)===<span class="hljs-string">"object"</span>) {
+        object = <span class="hljs-built_in">Object</span>.create(<span class="hljs-keyword">this</span>.prototype);
+    } <span class="hljs-keyword">else</span> {
         object = {};
     }
-    result = <span class="keyword">this</span>.apply(object, arguments);
-    <span class="keyword">if</span> (<span class="keyword">typeof</span>(result)===<span class="string">"object"</span>) {
-        <span class="keyword">return</span> result;
+    result = <span class="hljs-keyword">this</span>.apply(object, <span class="hljs-built_in">arguments</span>);
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(result)===<span class="hljs-string">"object"</span>) {
+        <span class="hljs-keyword">return</span> result;
     }
-    <span class="keyword">return</span> object;
+    <span class="hljs-keyword">return</span> object;
 };</pre></div></div>
             
         </li>
@@ -305,8 +325,8 @@ better match the Simplified JavaScript &#39;native&#39; environment.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>RegExp.New = <span class="keyword">function</span>(re, flags) { <span class="keyword">return</span> <span class="keyword">new</span> RegExp(re, flags); };
-Function.New = <span class="keyword">function</span>(args, source) { <span class="keyword">return</span> <span class="keyword">new</span> Function(args, source); };</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-built_in">RegExp</span>.New = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">re, flags</span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(re, flags); };
+<span class="hljs-built_in">Function</span>.New = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">args, source</span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Function</span>(args, source); };</pre></div></div>
             
         </li>
         
@@ -321,7 +341,7 @@ Function.New = <span class="keyword">function</span>(args, source) { <span class
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Function.prototype.hasInstance = <span class="keyword">function</span>(obj) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-built_in">Function</span>.prototype.hasInstance = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">obj</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -338,7 +358,7 @@ Function.bind.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">return</span> obj <span class="keyword">instanceof</span> <span class="keyword">this</span>;
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">return</span> obj <span class="hljs-keyword">instanceof</span> <span class="hljs-keyword">this</span>;
 };</pre></div></div>
             
         </li>
@@ -354,8 +374,8 @@ Function.bind.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Object[<span class="string">'Delete'</span>] = <span class="keyword">function</span>(o, f) {
-    <span class="keyword">delete</span> o[f];
+            <div class="content"><div class='highlight'><pre><span class="hljs-built_in">Object</span>[<span class="hljs-string">'Delete'</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">o, f</span>) </span>{
+    <span class="hljs-keyword">delete</span> o[f];
 };</pre></div></div>
             
         </li>
@@ -371,8 +391,8 @@ Function.bind.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Object[<span class="string">'Throw'</span>] = <span class="keyword">function</span>(obj) {
-    <span class="keyword">throw</span> obj;
+            <div class="content"><div class='highlight'><pre><span class="hljs-built_in">Object</span>[<span class="hljs-string">'Throw'</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">obj</span>) </span>{
+    <span class="hljs-keyword">throw</span> obj;
 };</pre></div></div>
             
         </li>
@@ -389,17 +409,19 @@ Function.bind.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Object[<span class="string">'Try'</span>] = <span class="keyword">function</span>(_this_, bodyBlock, catchBlock, finallyBlock) {
-    <span class="keyword">try</span> {
-        bodyBlock.call(_this_);
-    } <span class="keyword">catch</span>(e) {
-        <span class="keyword">if</span> (catchBlock) catchBlock.call(_this_, e);
-    } <span class="keyword">finally</span> {
-        <span class="keyword">if</span> (finallyBlock) finallyBlock.call(_this_);
+            <div class="content"><div class='highlight'><pre><span class="hljs-built_in">Object</span>[<span class="hljs-string">'Try'</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, bodyBlock, catchBlock, finallyBlock</span>) </span>{
+    <span class="hljs-keyword">try</span> {
+        <span class="hljs-keyword">return</span> bodyBlock.call(_this_);
+    } <span class="hljs-keyword">catch</span>(e) {
+        <span class="hljs-keyword">if</span> (catchBlock) catchBlock.call(_this_, e);
+        <span class="hljs-keyword">else</span> <span class="hljs-keyword">throw</span> e;
+    } <span class="hljs-keyword">finally</span> {
+        <span class="hljs-keyword">if</span> (finallyBlock) finallyBlock.call(_this_);
     }
 };
 
-<span class="comment">/*</pre></div></div>
+<span class="hljs-comment">/*
+</span></pre></div></div>
             
         </li>
         
@@ -414,13 +436,13 @@ Function.bind.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Object.prototype[<span class="string">'+'</span>] = <span class="keyword">function</span>(operand) { <span class="keyword">return</span> <span class="keyword">this</span> + operand; };
-Object.prototype[<span class="string">'-'</span>] = <span class="keyword">function</span>(operand) { <span class="keyword">return</span> <span class="keyword">this</span> - operand; };
-Object.prototype[<span class="string">'*'</span>] = <span class="keyword">function</span>(operand) { <span class="keyword">return</span> <span class="keyword">this</span> * operand; };
-Object.prototype[<span class="string">'/'</span>] = <span class="keyword">function</span>(operand) { <span class="keyword">return</span> <span class="keyword">this</span> / operand; };
-Object.prototype[<span class="string">'='</span>] = <span class="keyword">function</span>(operand) { <span class="keyword">return</span> <span class="keyword">this</span> === operand; };
-Object.prototype[<span class="string">'&gt;'</span>] = <span class="keyword">function</span>(operand) { <span class="keyword">return</span> <span class="keyword">this</span> &gt; operand; };
-Object.prototype[<span class="string">'&gt;='</span>] = <span class="keyword">function</span>(operand) { <span class="keyword">return</span> <span class="keyword">this</span> &gt;= operand; };</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-built_in">Object</span>.prototype[<span class="hljs-string">'+'</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">operand</span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span> + operand; };
+<span class="hljs-built_in">Object</span>.prototype[<span class="hljs-string">'-'</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">operand</span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span> - operand; };
+<span class="hljs-built_in">Object</span>.prototype[<span class="hljs-string">'*'</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">operand</span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span> * operand; };
+<span class="hljs-built_in">Object</span>.prototype[<span class="hljs-string">'/'</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">operand</span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span> / operand; };
+<span class="hljs-built_in">Object</span>.prototype[<span class="hljs-string">'='</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">operand</span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span> === operand; };
+<span class="hljs-built_in">Object</span>.prototype[<span class="hljs-string">'&gt;'</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">operand</span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span> &gt; operand; };
+<span class="hljs-built_in">Object</span>.prototype[<span class="hljs-string">'&gt;='</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">operand</span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span> &gt;= operand; };</pre></div></div>
             
         </li>
         
@@ -459,7 +481,7 @@ String.prototype['='] = function(operand) {
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Boolean.prototype[<span class="string">"while"</span>] = <span class="keyword">function</span>(_this_, cond, body) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-built_in">Boolean</span>.prototype[<span class="hljs-string">"while"</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, cond, body</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -476,15 +498,15 @@ thing.  Hm!</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span> (<span class="keyword">this</span>.toString() === <span class="string">"false"</span>) { <span class="keyword">return</span>; }
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.toString() === <span class="hljs-string">"false"</span>) { <span class="hljs-keyword">return</span>; }
     body.call(_this_);
-    Boolean(cond.call(_this_))[<span class="string">"while"</span>](_this_, cond, body);
+    <span class="hljs-built_in">Boolean</span>(cond.call(_this_))[<span class="hljs-string">"while"</span>](_this_, cond, body);
 };
-Boolean.prototype[<span class="string">"ifElse"</span>] = <span class="keyword">function</span>(_this_, ifTrue, ifFalse) {
-    <span class="keyword">if</span> (<span class="keyword">this</span>.toString() === <span class="string">"false"</span>) {
-        <span class="keyword">return</span> ifFalse.call(_this_);
-    } <span class="keyword">else</span> {
-        <span class="keyword">return</span> ifTrue.call(_this_);
+<span class="hljs-built_in">Boolean</span>.prototype[<span class="hljs-string">"ifElse"</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, ifTrue, ifFalse</span>) </span>{
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.toString() === <span class="hljs-string">"false"</span>) {
+        <span class="hljs-keyword">return</span> ifFalse.call(_this_);
+    } <span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">return</span> ifTrue.call(_this_);
     }
 };</pre></div></div>
             
@@ -501,8 +523,8 @@ Boolean.prototype[<span class="string">"ifElse"</span>] = <span class="keyword">
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Function.prototype[<span class="string">"while"</span>] = <span class="keyword">function</span>(_this_, cond) {
-    Boolean(cond.call(_this_))[<span class="string">"while"</span>](_this_, cond, <span class="keyword">this</span>);
+            <div class="content"><div class='highlight'><pre><span class="hljs-built_in">Function</span>.prototype[<span class="hljs-string">"while"</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, cond</span>) </span>{
+    <span class="hljs-built_in">Boolean</span>(cond.call(_this_))[<span class="hljs-string">"while"</span>](_this_, cond, <span class="hljs-keyword">this</span>);
 };</pre></div></div>
             
         </li>

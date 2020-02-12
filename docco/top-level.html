@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -212,12 +232,12 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([], <span class="keyword">function</span>() {
-    <span class="keyword">var</span> TOP_LEVEL = <span class="string">"isFinite parseInt parseFloat isNaN "</span>+
-        <span class="string">"Boolean String Function Math Number "</span>+
-        <span class="string">"JSON RegExp SyntaxError "</span>+
-        <span class="string">"console arguments now define document eval"</span>;
-    <span class="keyword">return</span> TOP_LEVEL;
+            <div class="content"><div class='highlight'><pre>define([], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> TOP_LEVEL = <span class="hljs-string">"isFinite parseInt parseFloat isNaN "</span>+
+        <span class="hljs-string">"Array Boolean Error Function Math Number Object "</span>+
+        <span class="hljs-string">"JSON RangeError RegExp String SyntaxError TypeError "</span>+
+        <span class="hljs-string">"console arguments now define document eval globalThis"</span>;
+    <span class="hljs-keyword">return</span> TOP_LEVEL;
 });</pre></div></div>
             
         </li>

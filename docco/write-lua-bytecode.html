@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>write-rust-bytecode.js</title>
+  <title>write-lua-bytecode.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -216,7 +216,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>write-rust-bytecode.js</h1>
+                  <h1>write-lua-bytecode.js</h1>
               </div>
           </li>
         
@@ -229,15 +229,15 @@
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
               <p>Utility to write bytecode for TurtleScript parser, bytecode compiler,
-startup code and standard library, as a Rust module.</p>
-<p>Run it under <code>node</code> with the CLI in <code>bin/write-rust-bytecode.js</code></p>
+startup code and standard library, as a Lua file.</p>
+<p>Run it under <code>node</code> with the CLI in <code>bin/write-lua-bytecode.js</code></p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">'./parse'</span>, <span class="hljs-string">'./bcompile'</span>, <span class="hljs-string">'./bytecode-table'</span>, <span class="hljs-string">'./top-level'</span>, <span class="hljs-string">'./str-escape'</span>, <span class="hljs-string">'./tests'</span>, <span class="hljs-string">'./stdlib'</span>, <span class="hljs-string">'./extensions'</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">parse, bcompile, bytecode_table, top_level, str_escape, tests, stdlib</span>) </span>{
     <span class="hljs-keyword">var</span> fake_require =
         <span class="hljs-string">"var __modules__ = {};\n"</span>+
-        <span class="hljs-string">"define = function(name, deps, init_func) {\n"</span>+
+        <span class="hljs-string">"define = function _define(name, deps, init_func) {\n"</span>+
         <span class="hljs-string">"  var d = deps.map(function(m) { return __modules__[m]; });\n"</span>+
         <span class="hljs-string">"  __modules__[name] = init_func.apply(this, d);\n"</span>+
         <span class="hljs-string">"};\n"</span>;
@@ -245,7 +245,7 @@ startup code and standard library, as a Rust module.</p>
        <span class="hljs-keyword">var</span> compile_from_source = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">source, as_object</span>) </span>{
            source = source || <span class="hljs-string">'{ return 1+2; }'</span>;
            <span class="hljs-keyword">var</span> tree = parse(source, TOP_LEVEL);
-           <span class="hljs-keyword">var</span> bc = bcompile(tree);
+           <span class="hljs-keyword">var</span> bc = bcompile(tree, <span class="hljs-literal">true</span><span class="hljs-comment">/*don't desugar frame get*/</span>);
            <span class="hljs-keyword">var</span> result = as_object ? bc : bc.encode();
            <span class="hljs-keyword">return</span> result;
        };
@@ -285,12 +285,14 @@ startup code and standard library, as a Rust module.</p>
     <span class="hljs-comment">/* XXX Hacks for initial tests:
     source = "{ console.log('Hello,', 'world!'); }";
     source = "{ var fib=function(n){return (n&lt;2)?1:fib(n-1)+fib(n-2);}; return fib(10); }";
+    source = '{ return 1+2; }';
+    source = "{ return 0+'x'; }";
     */</span>
 
     <span class="hljs-keyword">var</span> compile_from_source = make_compile_from_source(parse, bcompile, top_level);
     <span class="hljs-keyword">var</span> bc = compile_from_source(source, <span class="hljs-literal">true</span><span class="hljs-comment">/*as object*/</span>);
 
-    <span class="hljs-keyword">var</span> rust_esc = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">str</span>) </span>{</pre></div></div>
+    <span class="hljs-keyword">var</span> lua_esc = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">str</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -301,7 +303,8 @@ startup code and standard library, as a Rust module.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Escape string for Rust -- note UTF-16 to UCS4 conversion.</p>
+              <p>Escape string for PHP -- note UTF-16 to UTF-8 conversion.
+XXX this isn&#39;t turtlescript...</p>
 
             </div>
             
@@ -312,16 +315,7 @@ startup code and standard library, as a Rust module.</p>
                 <span class="hljs-keyword">var</span> next = c.charCodeAt(<span class="hljs-number">1</span>);
                 code = ((code - <span class="hljs-number">0xD800</span>) * <span class="hljs-number">0x400</span>) +
                     (next - <span class="hljs-number">0xDC00</span>) + <span class="hljs-number">0x10000</span>;
-            }
-            c = code.toString(<span class="hljs-number">16</span>);
-            <span class="hljs-keyword">while</span> (c.length &lt; <span class="hljs-number">2</span>) { c = <span class="hljs-string">'0'</span> + c; }
-            <span class="hljs-keyword">if</span> (c.length === <span class="hljs-number">2</span>) { <span class="hljs-keyword">return</span> <span class="hljs-string">"\\x"</span> + c; }
-            <span class="hljs-keyword">while</span> (c.length &lt; <span class="hljs-number">4</span>) { c = <span class="hljs-string">'0'</span> + c; }
-            <span class="hljs-keyword">if</span> (c.length === <span class="hljs-number">4</span>) { <span class="hljs-keyword">return</span> <span class="hljs-string">"\\u"</span> + c; }
-            <span class="hljs-keyword">while</span> (c.length &lt; <span class="hljs-number">8</span>) { c = <span class="hljs-string">'0'</span> + c; }
-            <span class="hljs-keyword">return</span> <span class="hljs-string">"\\U"</span> + c;
-        }) + <span class="hljs-string">'"'</span>;
-    };</pre></div></div>
+            }</pre></div></div>
             
         </li>
         
@@ -332,29 +326,81 @@ startup code and standard library, as a Rust module.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
+              <p>Convert code to UTF-8</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> esc = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{
+                <span class="hljs-keyword">var</span> s = d.toString(<span class="hljs-number">10</span>);
+                <span class="hljs-keyword">while</span> (s.length &lt; <span class="hljs-number">3</span>) { s = <span class="hljs-string">'0'</span> + s; }
+                <span class="hljs-keyword">return</span> <span class="hljs-string">"\\"</span> + s;
+            };
+            <span class="hljs-keyword">if</span> (code &lt; <span class="hljs-number">0x80</span>) {
+                <span class="hljs-keyword">return</span> esc(code);
+            }
+            <span class="hljs-keyword">var</span> prefix, s=<span class="hljs-string">''</span>, repeat;
+            <span class="hljs-keyword">if</span> (code &lt; <span class="hljs-number">0x800</span>) {
+                prefix = esc(<span class="hljs-number">0xC0</span> | (code &gt;&gt;&gt; <span class="hljs-number">6</span>));
+                repeat = <span class="hljs-number">1</span>;
+            } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (code &lt; <span class="hljs-number">0x10000</span>) {
+                prefix = esc(<span class="hljs-number">0xE0</span> | (code &gt;&gt;&gt; <span class="hljs-number">12</span>));
+                repeat = <span class="hljs-number">2</span>;
+            } <span class="hljs-keyword">else</span> {
+                prefix = esc(<span class="hljs-number">0xF0</span> | (code &gt;&gt;&gt; <span class="hljs-number">18</span>));
+                repeat = <span class="hljs-number">3</span>;
+            }
+            <span class="hljs-keyword">while</span> (repeat &gt; <span class="hljs-number">0</span>) {
+                s = esc(<span class="hljs-number">0x80</span> | (code &amp; <span class="hljs-number">0x3F</span>)) + s;
+                code = code &gt;&gt;&gt; <span class="hljs-number">6</span>;
+                repeat--;
+            }
+            <span class="hljs-keyword">return</span> prefix + s;
+        }) + <span class="hljs-string">'"'</span>;
+    };
+
+    <span class="hljs-keyword">var</span> pad = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">s, width</span>) </span>{
+        <span class="hljs-keyword">if</span> (width===<span class="hljs-literal">undefined</span>) { width = <span class="hljs-number">10</span>; }
+        <span class="hljs-keyword">while</span> (s.length &lt; width) { s += <span class="hljs-string">' '</span>; }
+        <span class="hljs-keyword">return</span> s;
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
               <h2 id="output-module-functions">Output module functions.</h2>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'// generated by TurtleScript write-rust-bytecode.js'</span>);
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'#[allow(unused_imports)];'</span>);
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'use function::Function;'</span>);
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'use object::{JsVal,JsNumber,JsBool,JsUndefined,JsNull};'</span>);
-    <span class="hljs-comment">/*
-    console.log('// test: '+rust_esc('abc\uD800\uDC00def\ng')); // test UTF16
-    */</span>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'-- generated by TurtleScript write-lua-bytecode.js'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'local jsval = require("luaturtle.jsval")'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'local ifunc = require("luaturtle.ifunc")'</span>);
     <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'pub fn init(functions: &amp;mut ~[@Function], literals: &amp;mut ~[JsVal]) {'</span>);
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'  // functions'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'local startup = {}'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'-- Populate the function and literal arrays with the precompiled'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'-- startup code, including the compiler and standard library.'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'startup.functions = {'</span>);
+    <span class="hljs-keyword">var</span> mkComma = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">len</span>) </span>{
+        len--;
+        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">i</span>) </span>{ <span class="hljs-keyword">return</span> (i &lt; len) ? <span class="hljs-string">','</span> : <span class="hljs-string">''</span>; };
+    };
+    <span class="hljs-keyword">var</span> comma = mkComma(bc.functions.length);
     bc.functions.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">f, i</span>) </span>{
-        <span class="hljs-keyword">var</span> name = f.name ? (<span class="hljs-string">' // '</span>+<span class="hljs-built_in">JSON</span>.stringify(f.name)) : <span class="hljs-string">''</span>;
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'  vec::push(functions, @Function {'</span> + name);
-        name = f.name ? (<span class="hljs-string">'Some(~'</span>+rust_esc(f.name)+<span class="hljs-string">')'</span>) : <span class="hljs-string">'None'</span>;
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'    name: '</span> + name + <span class="hljs-string">','</span>);
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'    id: '</span> + f.id + <span class="hljs-string">','</span>);
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'    nargs: '</span> + f.nargs + <span class="hljs-string">','</span>);
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'    max_stack: '</span> + f.max_stack + <span class="hljs-string">','</span>);
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'    bytecode: ~['</span>);
+        <span class="hljs-keyword">var</span> name = f.name ? (<span class="hljs-string">' -- '</span>+<span class="hljs-built_in">JSON</span>.stringify(f.name)) : <span class="hljs-string">''</span>;
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'  ifunc.Function:new{'</span> + name);
+        name = f.name ? (<span class="hljs-string">'jsval.newString('</span> + lua_esc(f.name) + <span class="hljs-string">')'</span>) : <span class="hljs-string">'jsval.Undefined'</span>;
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'    name = '</span> + name + <span class="hljs-string">','</span>);
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'    id = '</span> + f.id + <span class="hljs-string">','</span>);
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'    nargs = '</span> + f.nargs + <span class="hljs-string">','</span>);
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'    max_stack = '</span> + f.max_stack + <span class="hljs-string">','</span>);
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'    bytecode = {'</span>);
         <span class="hljs-keyword">var</span> j = <span class="hljs-number">0</span>;
         <span class="hljs-keyword">while</span> (j &lt; f.bytecode.length) {
             <span class="hljs-keyword">var</span> pc = j;
@@ -367,51 +413,70 @@ startup code and standard library, as a Rust module.</p>
             <span class="hljs-keyword">var</span> b = a.slice(<span class="hljs-number">1</span>);
             a = a.join(<span class="hljs-string">', '</span>) + ((j &lt; f.bytecode.length) ? <span class="hljs-string">','</span> : <span class="hljs-string">''</span>);
             b = bc.name + ( b.length ? ( <span class="hljs-string">'('</span> + b.join(<span class="hljs-string">','</span>) + <span class="hljs-string">')'</span> ) : <span class="hljs-string">''</span> );
-            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'      '</span> + a + <span class="hljs-string">'\t// '</span> + pc + <span class="hljs-string">': '</span> + b);
+            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'      '</span> + pad(a) + <span class="hljs-string">'-- '</span> + pc + <span class="hljs-string">': '</span> + b);
         }
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'    ]'</span>);
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'  });'</span>);
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'    }'</span>);
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'  }'</span> + comma(i));
     });
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);</pre></div></div>
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'}'</span>);</pre></div></div>
             
         </li>
         
         
-        <li id="section-4">
+        <li id="section-5">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-4">&#182;</a>
+                <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
               <h2 id="output-module-literals">Output module literals.</h2>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'  // literals'</span>);
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'-- literals'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'startup.literals = {'</span>);
+    comma = mkComma(bc.literals.length);
     bc.literals.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">lv, i</span>) </span>{
         <span class="hljs-keyword">var</span> str;
         <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(lv) === <span class="hljs-string">"number"</span> ) {
-            str = lv.toString() + <span class="hljs-string">'f64'</span>;
-            <span class="hljs-keyword">if</span> (<span class="hljs-built_in">isNaN</span>(lv)) { str = <span class="hljs-string">'f64::NaN'</span>; }
-            <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">isFinite</span>(lv)) { str = lv &gt; <span class="hljs-number">0</span> ? <span class="hljs-string">'f64::infinity'</span> : <span class="hljs-string">'f64::neg_infinity'</span>; }
-            str = <span class="hljs-string">"JsNumber("</span> + str + <span class="hljs-string">")"</span>;
+            str = lv.toString();
+            <span class="hljs-keyword">if</span> (<span class="hljs-built_in">isNaN</span>(lv)) { str = <span class="hljs-string">'0/0'</span>; }
+            <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">isFinite</span>(lv)) { str = lv &gt; <span class="hljs-number">0</span> ? <span class="hljs-string">'1/0'</span> : <span class="hljs-string">'-1/0'</span>; }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>special case for -0, from
+<a href="https://luaunit.readthedocs.io/en/latest/#scientific-computing-and-luaunit">https://luaunit.readthedocs.io/en/latest/#scientific-computing-and-luaunit</a></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (lv === <span class="hljs-number">0</span> &amp;&amp; (<span class="hljs-number">1</span>/lv)===-<span class="hljs-literal">Infinity</span>) { str = <span class="hljs-string">'-1/(1/0)'</span>; }
+            str = <span class="hljs-string">'jsval.newNumber('</span> + str + <span class="hljs-string">')'</span>;
         } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(lv) === <span class="hljs-string">"string"</span>) {
-            str = <span class="hljs-string">"JsVal::from_str("</span> + rust_esc(lv) + <span class="hljs-string">")"</span>;
+            str = lua_esc(lv); <span class="hljs-comment">// Note: UTF8!</span>
+            str = <span class="hljs-string">'jsval.newString('</span> + str + <span class="hljs-string">')'</span>; <span class="hljs-comment">// convert to UTF16</span>
         } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(lv) === <span class="hljs-string">"boolean"</span>) {
-            str = <span class="hljs-string">"JsBool("</span> + (lv ? <span class="hljs-string">"true"</span> : <span class="hljs-string">"false"</span>) + <span class="hljs-string">")"</span>;
+            str = <span class="hljs-string">'jsval.'</span> + (lv ? <span class="hljs-string">"True"</span> : <span class="hljs-string">"False"</span>);
         } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (lv === <span class="hljs-literal">null</span>) {
-            str = <span class="hljs-string">"JsNull"</span>;
+            str = <span class="hljs-string">"jsval.Null"</span>;
         } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (lv === <span class="hljs-literal">undefined</span>) {
-            str = <span class="hljs-string">"JsUndefined"</span>;
+            str = <span class="hljs-string">"jsval.Undefined"</span>;
         } <span class="hljs-keyword">else</span> {
             <span class="hljs-built_in">console</span>.assert(<span class="hljs-literal">false</span>);
         }
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'  vec::push(literals, '</span>+str+<span class="hljs-string">');\t// '</span>+i);
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'  '</span> + pad(str + comma(i)) + <span class="hljs-string">' -- '</span> + i);
     });
     <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'}'</span>);
-    <span class="hljs-comment">/* XXX for a static array, we could also do:
-         static functions : &amp;'static[Function] = &amp;[];
-    */</span>
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);
+
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'return startup'</span>);
 });</pre></div></div>
             
         </li>

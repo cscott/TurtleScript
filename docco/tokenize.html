@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -199,14 +219,14 @@
         <li id="section-1">
             <div class="annotation">
               
-              <div class="pilwrap for-h1">
+              <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1>tokenize.js</h1>
+              <h1 id="tokenizejs">tokenize.js</h1>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="comment">/* 2009-05-17 */</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-comment">/* 2009-05-17 */</span></pre></div></div>
             
         </li>
         
@@ -224,38 +244,35 @@ A simple token object contains these members:</p>
 <pre><code>     type: &#39;name&#39;, &#39;string&#39;, &#39;number&#39;, &#39;operator&#39;
      value: string or number value of the token
      from: index of first character of the token
-     to: index of the last character + 1</code></pre>
-<p>Comments of the // type are ignored.</p>
+     to: index of the last character + 1</code></pre><p>Comments of the // type are ignored.</p>
 <p>Operators are by default single characters. Multicharacter
 operators can be made by supplying a string of prefix and
 suffix characters.
 characters. For example,</p>
-<pre><code>     &#39;&lt;&gt;+-&amp;&#39;, &#39;=&gt;&amp;:&#39;</code></pre>
-<p>will match any of these:</p>
+<pre><code>     &#39;&lt;&gt;+-&amp;&#39;, &#39;=&gt;&amp;:&#39;</code></pre><p>will match any of these:</p>
 <pre><code>     &lt;=  &gt;&gt;  &gt;&gt;&gt;  &lt;&gt;  &gt;=  +: -: &amp;: &amp;&amp;: &amp;&amp;</code></pre>
-
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">'text!tokenize.js'</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_tokenize</span><span class="params">(tokenize_source)</span> {</span> <span class="function"><span class="keyword">function</span> <span class="title">tokenize</span> <span class="params">(_this_, prefix, suffix, DEBUG)</span> {</span>
-    <span class="keyword">var</span> c;                      <span class="comment">// The current character.</span>
-    <span class="keyword">var</span> from;                   <span class="comment">// The index of the start of the token.</span>
-    <span class="keyword">var</span> i = <span class="number">0</span>;                  <span class="comment">// The index of the current character.</span>
-    <span class="keyword">var</span> length = _this_.length;
-    <span class="keyword">var</span> n;                      <span class="comment">// The number value.</span>
-    <span class="keyword">var</span> q;                      <span class="comment">// The quote character.</span>
-    <span class="keyword">var</span> str;                    <span class="comment">// The string value.</span>
+            <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">'text!tokenize.js'</span>], <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_tokenize</span>(<span class="hljs-params">tokenize_source</span>) </span>{ <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">tokenize</span> (<span class="hljs-params">_this_, prefix, suffix, DEBUG</span>) </span>{
+    <span class="hljs-keyword">var</span> c;                      <span class="hljs-comment">// The current character.</span>
+    <span class="hljs-keyword">var</span> <span class="hljs-keyword">from</span>;                   <span class="hljs-comment">// The index of the start of the token.</span>
+    <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;                  <span class="hljs-comment">// The index of the current character.</span>
+    <span class="hljs-keyword">var</span> length = _this_.length;
+    <span class="hljs-keyword">var</span> n;                      <span class="hljs-comment">// The number value.</span>
+    <span class="hljs-keyword">var</span> q;                      <span class="hljs-comment">// The quote character.</span>
+    <span class="hljs-keyword">var</span> str;                    <span class="hljs-comment">// The string value.</span>
 
-    <span class="keyword">var</span> result = [];            <span class="comment">// An array to hold the results.</span>
+    <span class="hljs-keyword">var</span> result = [];            <span class="hljs-comment">// An array to hold the results.</span>
 
-    <span class="keyword">var</span> error = <span class="keyword">function</span>(obj, message, t) {
+    <span class="hljs-keyword">var</span> error = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">obj, message, t</span>) </span>{
         t = t || obj;
-        t.name = <span class="string">"Syntax Error"</span>;
-        <span class="keyword">if</span> (t.from || t.to) { message += <span class="string">' ['</span>+t.from+<span class="string">'-'</span>+t.to+<span class="string">']'</span>; }
+        t.name = <span class="hljs-string">"Syntax Error"</span>;
+        <span class="hljs-keyword">if</span> (t.from || t.to) { message += <span class="hljs-string">' ['</span>+t.from+<span class="hljs-string">'-'</span>+t.to+<span class="hljs-string">']'</span>; }
         t.message = message;
-        Object.Throw(t);
+        <span class="hljs-built_in">Object</span>.Throw(t);
     };
 
-    <span class="keyword">var</span> make = <span class="function"><span class="keyword">function</span> <span class="params">(type, value)</span> {</span></pre></div></div>
+    <span class="hljs-keyword">var</span> make = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">type, value</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -270,11 +287,11 @@ characters. For example,</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">return</span> {
-            type: type,
-            value: value,
-            from: from,
-            to: i
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">return</span> {
+            <span class="hljs-attr">type</span>: type,
+            <span class="hljs-attr">value</span>: value,
+            <span class="hljs-attr">from</span>: <span class="hljs-keyword">from</span>,
+            <span class="hljs-attr">to</span>: i
         };
     };</pre></div></div>
             
@@ -291,8 +308,8 @@ characters. For example,</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span> (!_this_) {
-        <span class="keyword">return</span>;
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (!_this_) {
+        <span class="hljs-keyword">return</span>;
     }</pre></div></div>
             
         </li>
@@ -308,11 +325,11 @@ characters. For example,</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span> (<span class="keyword">typeof</span> prefix !== <span class="string">'string'</span>) {
-        prefix = <span class="string">'&lt;&gt;+-&amp;'</span>;
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> prefix !== <span class="hljs-string">'string'</span>) {
+        prefix = <span class="hljs-string">'&lt;&gt;+-&amp;'</span>;
     }
-    <span class="keyword">if</span> (<span class="keyword">typeof</span> suffix !== <span class="string">'string'</span>) {
-        suffix = <span class="string">'=&gt;&amp;:'</span>;
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> suffix !== <span class="hljs-string">'string'</span>) {
+        suffix = <span class="hljs-string">'=&gt;&amp;:'</span>;
     }</pre></div></div>
             
         </li>
@@ -329,8 +346,8 @@ characters. For example,</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>    c = _this_.charAt(i);
-    <span class="keyword">while</span> (c) {
-        from = i;</pre></div></div>
+    <span class="hljs-keyword">while</span> (c) {
+        <span class="hljs-keyword">from</span> = i;</pre></div></div>
             
         </li>
         
@@ -345,8 +362,8 @@ characters. For example,</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (c &lt;= <span class="string">' '</span>) {
-            i += <span class="number">1</span>;
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (c &lt;= <span class="hljs-string">' '</span>) {
+            i += <span class="hljs-number">1</span>;
             c = _this_.charAt(i);</pre></div></div>
             
         </li>
@@ -362,20 +379,20 @@ characters. For example,</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        } <span class="keyword">else</span> <span class="keyword">if</span> (c &gt;= <span class="string">'a'</span> &amp;&amp; c &lt;= <span class="string">'z'</span> || c &gt;= <span class="string">'A'</span> &amp;&amp; c &lt;= <span class="string">'Z'</span> || c === <span class="string">'$'</span> || c === <span class="string">'_'</span>) {
+            <div class="content"><div class='highlight'><pre>        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (c &gt;= <span class="hljs-string">'a'</span> &amp;&amp; c &lt;= <span class="hljs-string">'z'</span> || c &gt;= <span class="hljs-string">'A'</span> &amp;&amp; c &lt;= <span class="hljs-string">'Z'</span> || c === <span class="hljs-string">'$'</span> || c === <span class="hljs-string">'_'</span>) {
             str = c;
-            i += <span class="number">1</span>;
-            <span class="keyword">while</span> (<span class="literal">true</span>) {
+            i += <span class="hljs-number">1</span>;
+            <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
                 c = _this_.charAt(i);
-                <span class="keyword">if</span> ((c &gt;= <span class="string">'a'</span> &amp;&amp; c &lt;= <span class="string">'z'</span>) || (c &gt;= <span class="string">'A'</span> &amp;&amp; c &lt;= <span class="string">'Z'</span>) ||
-                        (c &gt;= <span class="string">'0'</span> &amp;&amp; c &lt;= <span class="string">'9'</span>) || c === <span class="string">'_'</span> || c === <span class="string">'$'</span>) {
+                <span class="hljs-keyword">if</span> ((c &gt;= <span class="hljs-string">'a'</span> &amp;&amp; c &lt;= <span class="hljs-string">'z'</span>) || (c &gt;= <span class="hljs-string">'A'</span> &amp;&amp; c &lt;= <span class="hljs-string">'Z'</span>) ||
+                        (c &gt;= <span class="hljs-string">'0'</span> &amp;&amp; c &lt;= <span class="hljs-string">'9'</span>) || c === <span class="hljs-string">'_'</span> || c === <span class="hljs-string">'$'</span>) {
                     str += c;
-                    i += <span class="number">1</span>;
-                } <span class="keyword">else</span> {
-                    <span class="keyword">break</span>;
+                    i += <span class="hljs-number">1</span>;
+                } <span class="hljs-keyword">else</span> {
+                    <span class="hljs-keyword">break</span>;
                 }
             }
-            result.push(make(<span class="string">'name'</span>, str));</pre></div></div>
+            result.push(make(<span class="hljs-string">'name'</span>, str));</pre></div></div>
             
         </li>
         
@@ -392,14 +409,14 @@ possibly &#39;0&#39;. (CSA hack: allow numbers to start with a decimal point)</p
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        } <span class="keyword">else</span> <span class="keyword">if</span> (c &gt;= <span class="string">'0'</span> &amp;&amp; c &lt;= <span class="string">'9'</span> ||
-                   (c === <span class="string">'.'</span> &amp;&amp;
-                    _this_.charAt(i+<span class="number">1</span>) &gt;= <span class="string">'0'</span> &amp;&amp; _this_.charAt(i+<span class="number">1</span>) &lt;= <span class="string">'9'</span>)) {
-            <span class="keyword">if</span> (c === <span class="string">'.'</span>) {
-                str = <span class="string">''</span>;
-            } <span class="keyword">else</span> {
+            <div class="content"><div class='highlight'><pre>        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (c &gt;= <span class="hljs-string">'0'</span> &amp;&amp; c &lt;= <span class="hljs-string">'9'</span> ||
+                   (c === <span class="hljs-string">'.'</span> &amp;&amp;
+                    _this_.charAt(i+<span class="hljs-number">1</span>) &gt;= <span class="hljs-string">'0'</span> &amp;&amp; _this_.charAt(i+<span class="hljs-number">1</span>) &lt;= <span class="hljs-string">'9'</span>)) {
+            <span class="hljs-keyword">if</span> (c === <span class="hljs-string">'.'</span>) {
+                str = <span class="hljs-string">''</span>;
+            } <span class="hljs-keyword">else</span> {
                 str = c;
-                i += <span class="number">1</span>;</pre></div></div>
+                i += <span class="hljs-number">1</span>;</pre></div></div>
             
         </li>
         
@@ -415,10 +432,10 @@ possibly &#39;0&#39;. (CSA hack: allow numbers to start with a decimal point)</p
             </div>
             
             <div class="content"><div class='highlight'><pre>                c = _this_.charAt(i);
-                <span class="keyword">var</span> isHex = (str===<span class="string">'0'</span> &amp;&amp; c===<span class="string">'x'</span>);
-                <span class="keyword">if</span> (isHex) {
+                <span class="hljs-keyword">var</span> isHex = (str===<span class="hljs-string">'0'</span> &amp;&amp; c===<span class="hljs-string">'x'</span>);
+                <span class="hljs-keyword">if</span> (isHex) {
                     str += c;
-                    i += <span class="number">1</span>;
+                    i += <span class="hljs-number">1</span>;
                 }</pre></div></div>
             
         </li>
@@ -434,16 +451,16 @@ possibly &#39;0&#39;. (CSA hack: allow numbers to start with a decimal point)</p
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">while</span> (<span class="literal">true</span>) {
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
                     c = _this_.charAt(i);
-                    <span class="keyword">if</span> (c &lt; <span class="string">'0'</span> || c &gt; <span class="string">'9'</span>) {
-                        <span class="keyword">if</span> (!( isHex &amp;&amp;
-                              ( (c &gt;= <span class="string">'a'</span> &amp;&amp; c &lt;= <span class="string">'f'</span>) ||
-                                (c &gt;= <span class="string">'A'</span> &amp;&amp; c &lt;= <span class="string">'F'</span>) ))) {
-                            <span class="keyword">break</span>;
+                    <span class="hljs-keyword">if</span> (c &lt; <span class="hljs-string">'0'</span> || c &gt; <span class="hljs-string">'9'</span>) {
+                        <span class="hljs-keyword">if</span> (!( isHex &amp;&amp;
+                              ( (c &gt;= <span class="hljs-string">'a'</span> &amp;&amp; c &lt;= <span class="hljs-string">'f'</span>) ||
+                                (c &gt;= <span class="hljs-string">'A'</span> &amp;&amp; c &lt;= <span class="hljs-string">'F'</span>) ))) {
+                            <span class="hljs-keyword">break</span>;
                         }
                     }
-                    i += <span class="number">1</span>;
+                    i += <span class="hljs-number">1</span>;
                     str += c;
                 }
             }</pre></div></div>
@@ -461,15 +478,15 @@ possibly &#39;0&#39;. (CSA hack: allow numbers to start with a decimal point)</p
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (c === <span class="string">'.'</span> &amp;&amp; !isHex) {
-                i += <span class="number">1</span>;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (c === <span class="hljs-string">'.'</span> &amp;&amp; !isHex) {
+                i += <span class="hljs-number">1</span>;
                 str += c;
-                <span class="keyword">while</span> (<span class="literal">true</span>) {
+                <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
                     c = _this_.charAt(i);
-                    <span class="keyword">if</span> (c &lt; <span class="string">'0'</span> || c &gt; <span class="string">'9'</span>) {
-                        <span class="keyword">break</span>;
+                    <span class="hljs-keyword">if</span> (c &lt; <span class="hljs-string">'0'</span> || c &gt; <span class="hljs-string">'9'</span>) {
+                        <span class="hljs-keyword">break</span>;
                     }
-                    i += <span class="number">1</span>;
+                    i += <span class="hljs-number">1</span>;
                     str += c;
                 }
             }</pre></div></div>
@@ -487,24 +504,24 @@ possibly &#39;0&#39;. (CSA hack: allow numbers to start with a decimal point)</p
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> ((c === <span class="string">'e'</span> || c === <span class="string">'E'</span>) &amp;&amp; !isHex) {
-                i += <span class="number">1</span>;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> ((c === <span class="hljs-string">'e'</span> || c === <span class="hljs-string">'E'</span>) &amp;&amp; !isHex) {
+                i += <span class="hljs-number">1</span>;
                 str += c;
                 c = _this_.charAt(i);
-                <span class="keyword">if</span> (c === <span class="string">'-'</span> || c === <span class="string">'+'</span>) {
-                    i += <span class="number">1</span>;
+                <span class="hljs-keyword">if</span> (c === <span class="hljs-string">'-'</span> || c === <span class="hljs-string">'+'</span>) {
+                    i += <span class="hljs-number">1</span>;
                     str += c;
                     c = _this_.charAt(i);
                 }
-                <span class="keyword">if</span> (c &lt; <span class="string">'0'</span> || c &gt; <span class="string">'9'</span>) {
-                    error(make(<span class="string">'number'</span>, str), <span class="string">"Bad exponent"</span>);
+                <span class="hljs-keyword">if</span> (c &lt; <span class="hljs-string">'0'</span> || c &gt; <span class="hljs-string">'9'</span>) {
+                    error(make(<span class="hljs-string">'number'</span>, str), <span class="hljs-string">"Bad exponent"</span>);
                 }
-                <span class="keyword">while</span> (<span class="literal">true</span>) {
-                    i += <span class="number">1</span>;
+                <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
+                    i += <span class="hljs-number">1</span>;
                     str += c;
                     c = _this_.charAt(i);
-                    <span class="keyword">if</span> (! (c &gt;= <span class="string">'0'</span> &amp;&amp; c &lt;= <span class="string">'9'</span>)) {
-                        <span class="keyword">break</span>;
+                    <span class="hljs-keyword">if</span> (! (c &gt;= <span class="hljs-string">'0'</span> &amp;&amp; c &lt;= <span class="hljs-string">'9'</span>)) {
+                        <span class="hljs-keyword">break</span>;
                     }
                 }
             }</pre></div></div>
@@ -522,10 +539,10 @@ possibly &#39;0&#39;. (CSA hack: allow numbers to start with a decimal point)</p
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (c &gt;= <span class="string">'a'</span> &amp;&amp; c &lt;= <span class="string">'z'</span>) {
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (c &gt;= <span class="hljs-string">'a'</span> &amp;&amp; c &lt;= <span class="hljs-string">'z'</span>) {
                 str += c;
-                i += <span class="number">1</span>;
-                error(make(<span class="string">'number'</span>, str), <span class="string">"Bad number"</span>);
+                i += <span class="hljs-number">1</span>;
+                error(make(<span class="hljs-string">'number'</span>, str), <span class="hljs-string">"Bad number"</span>);
             }</pre></div></div>
             
         </li>
@@ -542,13 +559,13 @@ token.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            n = <span class="number">1</span> * str;
-            <span class="keyword">if</span> (isFinite(n)) {
-                <span class="keyword">var</span> t = make(<span class="string">'number'</span>, n);
-                t.base = isHex ? <span class="number">16</span> : <span class="number">10</span>;
+            <div class="content"><div class='highlight'><pre>            n = <span class="hljs-number">1</span> * str;
+            <span class="hljs-keyword">if</span> (<span class="hljs-built_in">isFinite</span>(n)) {
+                <span class="hljs-keyword">var</span> t = make(<span class="hljs-string">'number'</span>, n);
+                t.base = isHex ? <span class="hljs-number">16</span> : <span class="hljs-number">10</span>;
                 result.push(t);
-            } <span class="keyword">else</span> {
-                error(make(<span class="string">'number'</span>, str), <span class="string">"Bad number"</span>);
+            } <span class="hljs-keyword">else</span> {
+                error(make(<span class="hljs-string">'number'</span>, str), <span class="hljs-string">"Bad number"</span>);
             }</pre></div></div>
             
         </li>
@@ -564,17 +581,17 @@ token.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        } <span class="keyword">else</span> <span class="keyword">if</span> (c === <span class="string">'\''</span> || c === <span class="string">'"'</span>) {
-            str = <span class="string">''</span>;
+            <div class="content"><div class='highlight'><pre>        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (c === <span class="hljs-string">'\''</span> || c === <span class="hljs-string">'"'</span>) {
+            str = <span class="hljs-string">''</span>;
             q = c;
-            i += <span class="number">1</span>;
-            <span class="keyword">while</span> (<span class="literal">true</span>) {
+            i += <span class="hljs-number">1</span>;
+            <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
                 c = _this_.charAt(i);
-                <span class="keyword">if</span> (c &lt; <span class="string">' '</span>) {
-                    error(make(<span class="string">'string'</span>, str),
-                          c === <span class="string">'\n'</span> || c === <span class="string">'\r'</span> || c === <span class="string">''</span> ?
-                          <span class="string">"Unterminated string."</span> :
-                          <span class="string">"Control character in string."</span><span class="comment">/*, make('', str)*/</span>);
+                <span class="hljs-keyword">if</span> (c &lt; <span class="hljs-string">' '</span>) {
+                    error(make(<span class="hljs-string">'string'</span>, str),
+                          c === <span class="hljs-string">'\n'</span> || c === <span class="hljs-string">'\r'</span> || c === <span class="hljs-string">''</span> ?
+                          <span class="hljs-string">"Unterminated string."</span> :
+                          <span class="hljs-string">"Control character in string."</span><span class="hljs-comment">/*, make('', str)*/</span>);
                 }</pre></div></div>
             
         </li>
@@ -590,8 +607,8 @@ token.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (c === q) {
-                    <span class="keyword">break</span>;
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (c === q) {
+                    <span class="hljs-keyword">break</span>;
                 }</pre></div></div>
             
         </li>
@@ -607,39 +624,39 @@ token.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (c === <span class="string">'\\'</span>) {
-                    i += <span class="number">1</span>;
-                    <span class="keyword">if</span> (i &gt;= length) {
-                        error(make(<span class="string">'string'</span>, str), <span class="string">"Unterminated string"</span>);
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (c === <span class="hljs-string">'\\'</span>) {
+                    i += <span class="hljs-number">1</span>;
+                    <span class="hljs-keyword">if</span> (i &gt;= length) {
+                        error(make(<span class="hljs-string">'string'</span>, str), <span class="hljs-string">"Unterminated string"</span>);
                     }
                     c = _this_.charAt(i);
-                    <span class="keyword">if</span> (c === <span class="string">'b'</span>) {
-                        c = <span class="string">'\b'</span>;
-                    } <span class="keyword">else</span> <span class="keyword">if</span> (c === <span class="string">'f'</span>) {
-                        c = <span class="string">'\f'</span>;
-                    } <span class="keyword">else</span> <span class="keyword">if</span> (c === <span class="string">'n'</span>) {
-                        c = <span class="string">'\n'</span>;
-                    } <span class="keyword">else</span> <span class="keyword">if</span> (c === <span class="string">'r'</span>) {
-                        c = <span class="string">'\r'</span>;
-                    } <span class="keyword">else</span> <span class="keyword">if</span> (c === <span class="string">'t'</span>) {
-                        c = <span class="string">'\t'</span>;
-                    } <span class="keyword">else</span> <span class="keyword">if</span> (c === <span class="string">'u'</span>) {
-                        <span class="keyword">if</span> (i &gt;= length) {
-                            error(make(<span class="string">'string'</span>, str), <span class="string">"Unterminated string"</span>);
+                    <span class="hljs-keyword">if</span> (c === <span class="hljs-string">'b'</span>) {
+                        c = <span class="hljs-string">'\b'</span>;
+                    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (c === <span class="hljs-string">'f'</span>) {
+                        c = <span class="hljs-string">'\f'</span>;
+                    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (c === <span class="hljs-string">'n'</span>) {
+                        c = <span class="hljs-string">'\n'</span>;
+                    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (c === <span class="hljs-string">'r'</span>) {
+                        c = <span class="hljs-string">'\r'</span>;
+                    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (c === <span class="hljs-string">'t'</span>) {
+                        c = <span class="hljs-string">'\t'</span>;
+                    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (c === <span class="hljs-string">'u'</span>) {
+                        <span class="hljs-keyword">if</span> (i &gt;= length) {
+                            error(make(<span class="hljs-string">'string'</span>, str), <span class="hljs-string">"Unterminated string"</span>);
                         }
-                        c = parseInt(_this_.substring(i + <span class="number">1</span>, i + <span class="number">1</span> + <span class="number">4</span>), <span class="number">16</span>);
-                        <span class="keyword">if</span> (!isFinite(c) || c &lt; <span class="number">0</span>) {
-                            error(make(<span class="string">'string'</span>, str), <span class="string">"Unterminated string"</span>);
+                        c = <span class="hljs-built_in">parseInt</span>(_this_.substring(i + <span class="hljs-number">1</span>, i + <span class="hljs-number">1</span> + <span class="hljs-number">4</span>), <span class="hljs-number">16</span>);
+                        <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">isFinite</span>(c) || c &lt; <span class="hljs-number">0</span>) {
+                            error(make(<span class="hljs-string">'string'</span>, str), <span class="hljs-string">"Unterminated string"</span>);
                         }
-                        c = String.fromCharCode(c);
-                        i += <span class="number">4</span>;
+                        c = <span class="hljs-built_in">String</span>.fromCharCode(c);
+                        i += <span class="hljs-number">4</span>;
                     }
                 }
                 str += c;
-                i += <span class="number">1</span>;
+                i += <span class="hljs-number">1</span>;
             }
-            i += <span class="number">1</span>;
-            result.push(make(<span class="string">'string'</span>, str));
+            i += <span class="hljs-number">1</span>;
+            result.push(make(<span class="hljs-string">'string'</span>, str));
             c = _this_.charAt(i);</pre></div></div>
             
         </li>
@@ -655,14 +672,14 @@ token.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        } <span class="keyword">else</span> <span class="keyword">if</span> (c === <span class="string">'/'</span> &amp;&amp; _this_.charAt(i + <span class="number">1</span>) === <span class="string">'/'</span>) {
-            i += <span class="number">1</span>;
-            <span class="keyword">while</span> (<span class="literal">true</span>) {
+            <div class="content"><div class='highlight'><pre>        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (c === <span class="hljs-string">'/'</span> &amp;&amp; _this_.charAt(i + <span class="hljs-number">1</span>) === <span class="hljs-string">'/'</span>) {
+            i += <span class="hljs-number">1</span>;
+            <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
                 c = _this_.charAt(i);
-                <span class="keyword">if</span> (c === <span class="string">'\n'</span> || c === <span class="string">'\r'</span> || c === <span class="string">''</span>) {
-                    <span class="keyword">break</span>;
+                <span class="hljs-keyword">if</span> (c === <span class="hljs-string">'\n'</span> || c === <span class="hljs-string">'\r'</span> || c === <span class="hljs-string">''</span>) {
+                    <span class="hljs-keyword">break</span>;
                 }
-                i += <span class="number">1</span>;
+                i += <span class="hljs-number">1</span>;
             }</pre></div></div>
             
         </li>
@@ -678,16 +695,16 @@ token.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        } <span class="keyword">else</span> <span class="keyword">if</span> (c === <span class="string">'/'</span> &amp;&amp; _this_.charAt(i + <span class="number">1</span>) === <span class="string">'*'</span>) {
-            i += <span class="number">3</span>;
-            <span class="keyword">while</span> (<span class="literal">true</span>) {
+            <div class="content"><div class='highlight'><pre>        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (c === <span class="hljs-string">'/'</span> &amp;&amp; _this_.charAt(i + <span class="hljs-number">1</span>) === <span class="hljs-string">'*'</span>) {
+            i += <span class="hljs-number">3</span>;
+            <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
                 c = _this_.charAt(i);
-                <span class="keyword">if</span> (c === <span class="string">''</span> || (c === <span class="string">'/'</span> &amp;&amp; _this_.charAt(i - <span class="number">1</span>) === <span class="string">'*'</span>)) {
-                    i += <span class="number">1</span>;
+                <span class="hljs-keyword">if</span> (c === <span class="hljs-string">''</span> || (c === <span class="hljs-string">'/'</span> &amp;&amp; _this_.charAt(i - <span class="hljs-number">1</span>) === <span class="hljs-string">'*'</span>)) {
+                    i += <span class="hljs-number">1</span>;
                     c = _this_.charAt(i);
-                    <span class="keyword">break</span>;
+                    <span class="hljs-keyword">break</span>;
                 }
-                i += <span class="number">1</span>;
+                i += <span class="hljs-number">1</span>;
             }</pre></div></div>
             
         </li>
@@ -703,18 +720,19 @@ token.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        } <span class="keyword">else</span> <span class="keyword">if</span> (prefix.indexOf(c) &gt;= <span class="number">0</span>) {
+            <div class="content"><div class='highlight'><pre>        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (prefix.indexOf(c) &gt;= <span class="hljs-number">0</span>) {
             str = c;
-            i += <span class="number">1</span>;
-            <span class="keyword">while</span> (i &lt; length) {
-                c = _this_.charAt(i);
-                <span class="keyword">if</span> (suffix.indexOf(c) &lt; <span class="number">0</span>) {
-                    <span class="keyword">break</span>;
+            i += <span class="hljs-number">1</span>;
+            c = _this_.charAt(i);
+            <span class="hljs-keyword">while</span> (i &lt; length) {
+                <span class="hljs-keyword">if</span> (suffix.indexOf(c) &lt; <span class="hljs-number">0</span>) {
+                    <span class="hljs-keyword">break</span>;
                 }
                 str += c;
-                i += <span class="number">1</span>;
+                i += <span class="hljs-number">1</span>;
+                c = _this_.charAt(i);
             }
-            result.push(make(<span class="string">'operator'</span>, str));</pre></div></div>
+            result.push(make(<span class="hljs-string">'operator'</span>, str));</pre></div></div>
             
         </li>
         
@@ -729,18 +747,18 @@ token.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        } <span class="keyword">else</span> {
-            i += <span class="number">1</span>;
-            result.push(make(<span class="string">'operator'</span>, c));
+            <div class="content"><div class='highlight'><pre>        } <span class="hljs-keyword">else</span> {
+            i += <span class="hljs-number">1</span>;
+            result.push(make(<span class="hljs-string">'operator'</span>, c));
             c = _this_.charAt(i);
         }
     }
-    <span class="keyword">return</span> result;
+    <span class="hljs-keyword">return</span> result;
 };
-tokenize.__module_name__ = <span class="string">"tokenize"</span>;
+tokenize.__module_name__ = <span class="hljs-string">"tokenize"</span>;
 tokenize.__module_init__ = make_tokenize;
 tokenize.__module_source__ = tokenize_source;
-<span class="keyword">return</span> tokenize;
+<span class="hljs-keyword">return</span> tokenize;
 });</pre></div></div>
             
         </li>

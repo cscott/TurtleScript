@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -199,10 +219,10 @@
         <li id="section-1">
             <div class="annotation">
               
-              <div class="pilwrap for-h1">
+              <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1>bytecode_table.js</h1>
+              <h1 id="bytecode_tablejs">bytecode_table.js</h1>
 <p>Part of the bytecode compiler for parsed Simplified JavaScript, written in
 Simplified JavaScript.</p>
 <p>This module just defines the bytecode operations.</p>
@@ -211,7 +231,7 @@ Simplified JavaScript.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">'text!bytecode-table.js'</span>],<span class="function"><span class="keyword">function</span> <span class="title">make_bytecode_table</span><span class="params">(bytecode_table_source)</span> {</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">'text!bytecode-table.js'</span>],<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_bytecode_table</span>(<span class="hljs-params">bytecode_table_source</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -226,48 +246,48 @@ Simplified JavaScript.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> bytecodes_by_num = [];
-    <span class="keyword">var</span> bytecodes_by_name = {};
-    <span class="keyword">var</span> bc = <span class="keyword">function</span>(name, args, stackpop, stackpush, printargs) {
-        <span class="keyword">var</span> nbc = {
-            id: bytecodes_by_num.length,
-            name: name,
-            args: args,
-            stackpop: stackpop,
-            stackpush: stackpush,
-            printargs: printargs
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> bytecodes_by_num = [];
+    <span class="hljs-keyword">var</span> bytecodes_by_name = {};
+    <span class="hljs-keyword">var</span> bc = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">name, args, stackpop, stackpush, printargs</span>) </span>{
+        <span class="hljs-keyword">var</span> nbc = {
+            <span class="hljs-attr">id</span>: bytecodes_by_num.length,
+            <span class="hljs-attr">name</span>: name,
+            <span class="hljs-attr">args</span>: args,
+            <span class="hljs-attr">stackpop</span>: stackpop,
+            <span class="hljs-attr">stackpush</span>: stackpush,
+            <span class="hljs-attr">printargs</span>: printargs
         };
-        <span class="keyword">if</span> (<span class="keyword">typeof</span>(nbc.stackpop) !== <span class="string">"function"</span>) {
-            nbc.stackpop = <span class="keyword">function</span>() { <span class="keyword">return</span> stackpop; };
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(nbc.stackpop) !== <span class="hljs-string">"function"</span>) {
+            nbc.stackpop = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> stackpop; };
         }
-        <span class="keyword">if</span> (<span class="keyword">typeof</span>(nbc.stackpush) !== <span class="string">"function"</span>) {
-            nbc.stackpush = <span class="keyword">function</span>() { <span class="keyword">return</span> stackpush; };
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(nbc.stackpush) !== <span class="hljs-string">"function"</span>) {
+            nbc.stackpush = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> stackpush; };
         }
-        <span class="keyword">if</span> (!nbc.printargs) {
-            nbc.printargs = <span class="keyword">function</span>(state, bytecode, pc) {
-                <span class="keyword">var</span> result = <span class="string">""</span>;
-                <span class="keyword">var</span> i = <span class="number">0</span>;
-                <span class="keyword">while</span> (i &lt; <span class="keyword">this</span>.args) {
-                    result += <span class="string">" "</span>;
-                    result += bytecode[pc+i+<span class="number">1</span>];
-                    i+=<span class="number">1</span>;
+        <span class="hljs-keyword">if</span> (!nbc.printargs) {
+            nbc.printargs = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state, bytecode, pc</span>) </span>{
+                <span class="hljs-keyword">var</span> result = <span class="hljs-string">""</span>;
+                <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+                <span class="hljs-keyword">while</span> (i &lt; <span class="hljs-keyword">this</span>.args) {
+                    result += <span class="hljs-string">" "</span>;
+                    result += bytecode[pc+i+<span class="hljs-number">1</span>];
+                    i+=<span class="hljs-number">1</span>;
                 }
-                <span class="keyword">return</span> result;
+                <span class="hljs-keyword">return</span> result;
             };
         }
         bytecodes_by_num[nbc.id] = nbc;
         bytecodes_by_name[nbc.name] = nbc;
     };
-    <span class="keyword">var</span> print_literal = <span class="keyword">function</span>(state, bytecode, pc) {
-        <span class="keyword">var</span> idx = bytecode[pc+<span class="number">1</span>];
-        <span class="keyword">return</span> <span class="string">" "</span>+idx+<span class="string">" /* "</span>+state.literals[idx]+<span class="string">" */"</span>;
+    <span class="hljs-keyword">var</span> print_literal = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state, bytecode, pc</span>) </span>{
+        <span class="hljs-keyword">var</span> idx = bytecode[pc+<span class="hljs-number">1</span>];
+        <span class="hljs-keyword">return</span> <span class="hljs-string">" "</span>+idx+<span class="hljs-string">" /* "</span>+state.literals[idx]+<span class="hljs-string">" */"</span>;
     };
-    <span class="keyword">var</span> print_label = <span class="keyword">function</span>(state, bytecode, pc) {
-        <span class="keyword">var</span> lbl = bytecode[pc+<span class="number">1</span>];
-        <span class="keyword">if</span> (<span class="keyword">typeof</span>(lbl) !== <span class="string">"number"</span>) {
+    <span class="hljs-keyword">var</span> print_label = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state, bytecode, pc</span>) </span>{
+        <span class="hljs-keyword">var</span> lbl = bytecode[pc+<span class="hljs-number">1</span>];
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(lbl) !== <span class="hljs-string">"number"</span>) {
             lbl = lbl.label;
         }
-        <span class="keyword">return</span> <span class="string">" "</span>+lbl;
+        <span class="hljs-keyword">return</span> <span class="hljs-string">" "</span>+lbl;
     };</pre></div></div>
             
         </li>
@@ -281,11 +301,13 @@ Simplified JavaScript.</p>
               </div>
               <p>define the bytecodes for the js virtual machine
 name, args, stackpop, stackpush</p>
-<p>Push the address of the function activation record on the stack</p>
+<p>Push the address of the function activation record on the stack
+(If this instruction never occurs in the bytecode for a function,
+the function can safely skip allocation of a frame object.)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    bc(<span class="string">"push_frame"</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    bc(<span class="hljs-string">"push_frame"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>);</pre></div></div>
             
         </li>
         
@@ -296,12 +318,14 @@ name, args, stackpop, stackpush</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <p>Push a (numeric or string) literal on the stack.
-Argument #0 is the index into the literal table.</p>
+              <p>Push the address of the &quot;local scope&quot; record on the stack
+In a naive implementation, this can be identical to push_frame,
+but it allows a clever runtime to register allocate anything
+stored in the local frame.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    bc(<span class="string">"push_literal"</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, print_literal);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    bc(<span class="hljs-string">"push_local_frame"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>);</pre></div></div>
             
         </li>
         
@@ -312,11 +336,12 @@ Argument #0 is the index into the literal table.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
-              <p>New Object</p>
+              <p>Push a (numeric or string) literal on the stack.
+Argument #0 is the index into the literal table.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    bc(<span class="string">"new_object"</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    bc(<span class="hljs-string">"push_literal"</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, print_literal);</pre></div></div>
             
         </li>
         
@@ -327,11 +352,11 @@ Argument #0 is the index into the literal table.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
-              <p>New Array</p>
+              <p>New Object</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    bc(<span class="string">"new_array"</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    bc(<span class="hljs-string">"new_object"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>);</pre></div></div>
             
         </li>
         
@@ -342,13 +367,11 @@ Argument #0 is the index into the literal table.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
-              <p>New Function
-argument #0 is an index into the function list identifying the bytecode
-for this function.</p>
+              <p>New Array</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    bc(<span class="string">"new_function"</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    bc(<span class="hljs-string">"new_array"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>);</pre></div></div>
             
         </li>
         
@@ -359,13 +382,13 @@ for this function.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
-              <p>Fetch a slot (direct)
-argument #0 is name of the slot (as literal table index)
-pops object address.  pushes slot value.</p>
+              <p>New Function
+argument #0 is an index into the function list identifying the bytecode
+for this function.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    bc(<span class="string">"get_slot_direct"</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, print_literal);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    bc(<span class="hljs-string">"new_function"</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>);</pre></div></div>
             
         </li>
         
@@ -376,12 +399,13 @@ pops object address.  pushes slot value.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
-              <p>Fetch a slot (indirect)
-pops slot name object, then pops object address.  pushes slot value.</p>
+              <p>Fetch a slot (direct)
+argument #0 is name of the slot (as literal table index)
+pops object address.  pushes slot value.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    bc(<span class="string">"get_slot_indirect"</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    bc(<span class="hljs-string">"get_slot_direct"</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, print_literal);</pre></div></div>
             
         </li>
         
@@ -392,12 +416,12 @@ pops slot name object, then pops object address.  pushes slot value.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
-              <p>Fetch slot (direct) and verify that it&#39;s a function (debugging)
-this is identical to get_slot_direct when debugging&#39;s turned off</p>
+              <p>Fetch a slot (indirect)
+pops slot name object, then pops object address.  pushes slot value.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    bc(<span class="string">"get_slot_direct_check"</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, print_literal);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    bc(<span class="hljs-string">"get_slot_indirect"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>);</pre></div></div>
             
         </li>
         
@@ -408,13 +432,12 @@ this is identical to get_slot_direct when debugging&#39;s turned off</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
-              <p>Store to a slot (direct)
-argument #0 is name of the slot (as literal table index)
-pops value, then pops object address.</p>
+              <p>Fetch slot (direct) and verify that it&#39;s a function (debugging)
+this is identical to get_slot_direct when debugging&#39;s turned off</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    bc(<span class="string">"set_slot_direct"</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">0</span>, print_literal);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    bc(<span class="hljs-string">"get_slot_direct_check"</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, print_literal);</pre></div></div>
             
         </li>
         
@@ -425,12 +448,13 @@ pops value, then pops object address.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
-              <p>Fetch a slot (indirect)
-pops value, the pops slot name object, then pops object address.</p>
+              <p>Store to a slot (direct)
+argument #0 is name of the slot (as literal table index)
+pops value, then pops object address.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    bc(<span class="string">"set_slot_indirect"</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    bc(<span class="hljs-string">"set_slot_direct"</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0</span>, print_literal);</pre></div></div>
             
         </li>
         
@@ -441,15 +465,12 @@ pops value, the pops slot name object, then pops object address.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
-              <p>Method dispatch.
-argument #0 is number of (real) arguments to the function
-stack is: <top> argN .. arg3 arg2 arg1 arg0 this function
-on return, pops args, this, and function, and pushes ret value
-(possibly undefined)</p>
+              <p>Fetch a slot (indirect)
+pops value, the pops slot name object, then pops object address.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    bc(<span class="string">"invoke"</span>, <span class="number">1</span>, <span class="keyword">function</span>(opname, arg0) { <span class="keyword">return</span> arg0+<span class="number">2</span>; }, <span class="number">1</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    bc(<span class="hljs-string">"set_slot_indirect"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">3</span>, <span class="hljs-number">0</span>);</pre></div></div>
             
         </li>
         
@@ -460,11 +481,15 @@ on return, pops args, this, and function, and pushes ret value
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
-              <p>Method return</p>
+              <p>Method dispatch.
+argument #0 is number of (real) arguments to the function
+stack is: <top> argN .. arg3 arg2 arg1 arg0 this function
+on return, pops args, this, and function, and pushes ret value
+(possibly undefined)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    bc(<span class="string">"return"</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    bc(<span class="hljs-string">"invoke"</span>, <span class="hljs-number">1</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">opname, arg0</span>) </span>{ <span class="hljs-keyword">return</span> arg0+<span class="hljs-number">2</span>; }, <span class="hljs-number">1</span>);</pre></div></div>
             
         </li>
         
@@ -475,13 +500,11 @@ on return, pops args, this, and function, and pushes ret value
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
-              <p>branches
-unconditional branch
-argument #0 is the jump target</p>
+              <p>Method return</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    bc(<span class="string">"jmp"</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, print_label);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    bc(<span class="hljs-string">"return"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);</pre></div></div>
             
         </li>
         
@@ -492,12 +515,13 @@ argument #0 is the jump target</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
-              <p>conditional branch
-argument #0 is the label to jump if the top of the stack is true</p>
+              <p>branches
+unconditional branch
+argument #0 is the jump target</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    bc(<span class="string">"jmp_unless"</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, print_label);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    bc(<span class="hljs-string">"jmp"</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, print_label);</pre></div></div>
             
         </li>
         
@@ -508,16 +532,12 @@ argument #0 is the label to jump if the top of the stack is true</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
-              <p>stack manipulation</p>
+              <p>conditional branch
+argument #0 is the label to jump if the top of the stack is true</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    bc(<span class="string">"pop"</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>);  <span class="comment">// ab -&gt; b</span>
-    bc(<span class="string">"dup"</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>);  <span class="comment">// a -&gt; aa</span>
-    bc(<span class="string">"2dup"</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>); <span class="comment">// ab -&gt; abab</span>
-    bc(<span class="string">"over"</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">3</span>); <span class="comment">// ab -&gt; aba</span>
-    bc(<span class="string">"over2"</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">4</span>); <span class="comment">// abc -&gt; abca</span>
-    bc(<span class="string">"swap"</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">2</span>);  <span class="comment">// ab -&gt; ba</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>    bc(<span class="hljs-string">"jmp_unless"</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, print_label);</pre></div></div>
             
         </li>
         
@@ -528,13 +548,16 @@ argument #0 is the label to jump if the top of the stack is true</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
-              <p>Unary operators.</p>
+              <p>stack manipulation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    bc(<span class="string">"un_not"</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>);
-    bc(<span class="string">"un_minus"</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>);
-    bc(<span class="string">"un_typeof"</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    bc(<span class="hljs-string">"pop"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);  <span class="hljs-comment">// ab -&gt; b</span>
+    bc(<span class="hljs-string">"dup"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>);  <span class="hljs-comment">// a -&gt; aa</span>
+    bc(<span class="hljs-string">"2dup"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>); <span class="hljs-comment">// ab -&gt; abab</span>
+    bc(<span class="hljs-string">"over"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>); <span class="hljs-comment">// ab -&gt; aba</span>
+    bc(<span class="hljs-string">"over2"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>); <span class="hljs-comment">// abc -&gt; abca</span>
+    bc(<span class="hljs-string">"swap"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">2</span>);  <span class="hljs-comment">// ab -&gt; ba</span></pre></div></div>
             
         </li>
         
@@ -545,17 +568,13 @@ argument #0 is the label to jump if the top of the stack is true</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-19">&#182;</a>
               </div>
-              <p>Binary operators</p>
+              <p>Unary operators.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    bc(<span class="string">"bi_eq"</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>);
-    bc(<span class="string">"bi_gt"</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>);
-    bc(<span class="string">"bi_gte"</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>);
-    bc(<span class="string">"bi_add"</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>);
-    bc(<span class="string">"bi_sub"</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>);
-    bc(<span class="string">"bi_mul"</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>);
-    bc(<span class="string">"bi_div"</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    bc(<span class="hljs-string">"un_not"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>);
+    bc(<span class="hljs-string">"un_minus"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>);
+    bc(<span class="hljs-string">"un_typeof"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>);</pre></div></div>
             
         </li>
         
@@ -566,21 +585,42 @@ argument #0 is the label to jump if the top of the stack is true</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-20">&#182;</a>
               </div>
+              <p>Binary operators</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    bc(<span class="hljs-string">"bi_eq"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>);
+    bc(<span class="hljs-string">"bi_gt"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>);
+    bc(<span class="hljs-string">"bi_gte"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>);
+    bc(<span class="hljs-string">"bi_add"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>);
+    bc(<span class="hljs-string">"bi_sub"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>);
+    bc(<span class="hljs-string">"bi_mul"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>);
+    bc(<span class="hljs-string">"bi_div"</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
               <p>OK, return an object wrapping all this stuff.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">return</span> {
-        __module_name__: <span class="string">"bytecode-table"</span>,
-        __module_init__: make_bytecode_table,
-        __module_deps__: [],
-        __module_source__: bytecode_table_source,
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">return</span> {
+        <span class="hljs-attr">__module_name__</span>: <span class="hljs-string">"bytecode-table"</span>,
+        <span class="hljs-attr">__module_init__</span>: make_bytecode_table,
+        <span class="hljs-attr">__module_deps__</span>: [],
+        <span class="hljs-attr">__module_source__</span>: bytecode_table_source,
 
-        for_num: <span class="keyword">function</span>(n) {
-            <span class="keyword">return</span> bytecodes_by_num[n];
+        <span class="hljs-attr">for_num</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">n</span>) </span>{
+            <span class="hljs-keyword">return</span> bytecodes_by_num[n];
         },
-        for_name: <span class="keyword">function</span>(name) {
-            <span class="keyword">return</span> bytecodes_by_name[name];
+        <span class="hljs-attr">for_name</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">name</span>) </span>{
+            <span class="hljs-keyword">return</span> bytecodes_by_name[name];
         }
     };
 });</pre></div></div>

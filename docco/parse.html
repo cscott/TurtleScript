@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -199,10 +219,10 @@
         <li id="section-1">
             <div class="annotation">
               
-              <div class="pilwrap for-h1">
+              <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1>parse.js</h1>
+              <h1 id="parsejs">parse.js</h1>
 <p>Parser for Simplified JavaScript written in Simplified JavaScript.</p>
 <p>From
 <a href="http://javascript.crockford.com/tdop/index.html">Top Down Operator Precedence</a>
@@ -212,132 +232,91 @@ by Douglas Crockford
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">"text!parse.js"</span>, <span class="string">"tokenize"</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_parse</span><span class="params">(parse_source, tokenize)</span> {</span>
-    <span class="keyword">var</span> DEBUG;
-    <span class="keyword">var</span> scope;
-    <span class="keyword">var</span> symbol_table = {};
-    <span class="keyword">var</span> token;
-    <span class="keyword">var</span> tokens;
-    <span class="keyword">var</span> token_nr;
+            <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">"text!parse.js"</span>, <span class="hljs-string">"tokenize"</span>], <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_parse</span>(<span class="hljs-params">parse_source, tokenize</span>) </span>{
+    <span class="hljs-keyword">var</span> DEBUG;
+    <span class="hljs-keyword">var</span> scope;
+    <span class="hljs-keyword">var</span> symbol_table = {};
+    <span class="hljs-keyword">var</span> token;
+    <span class="hljs-keyword">var</span> tokens;
+    <span class="hljs-keyword">var</span> token_nr;
 
-    <span class="keyword">var</span> itself = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        <span class="keyword">return</span> <span class="keyword">this</span>;
+    <span class="hljs-keyword">var</span> itself = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
     };
 
-    <span class="keyword">var</span> error = <span class="keyword">function</span>(obj, message, t) {
+    <span class="hljs-keyword">var</span> error = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">obj, message, t</span>) </span>{
         t = t || obj;
-        t.name = <span class="string">"Syntax Error"</span>;
-        <span class="keyword">if</span> (t.from || t.to) { message += <span class="string">' ['</span>+t.from+<span class="string">'-'</span>+t.to+<span class="string">']'</span>; }
+        t.name = <span class="hljs-string">"Syntax Error"</span>;
+        <span class="hljs-keyword">if</span> (t.from || t.to) { message += <span class="hljs-string">' ['</span>+t.from+<span class="hljs-string">'-'</span>+t.to+<span class="hljs-string">']'</span>; }
         t.message = message;
-        <span class="comment">/*console.warn(JSON.stringify(t));*/</span>
-        Object.Throw(t);
+        <span class="hljs-comment">/*console.warn(JSON.stringify(t));*/</span>
+        <span class="hljs-built_in">Object</span>.Throw(t);
     };
 
-    <span class="keyword">var</span> original_scope = {
-        define: <span class="function"><span class="keyword">function</span> <span class="params">(n)</span> {</span>
-            <span class="keyword">var</span> t = <span class="keyword">this</span>.def[n.value];
-            <span class="keyword">if</span> (<span class="keyword">typeof</span> t === <span class="string">"object"</span>) {
-                error(n, t.reserved ? <span class="string">"Already reserved."</span> : <span class="string">"Already defined."</span>);
+    <span class="hljs-keyword">var</span> original_scope = {
+        <span class="hljs-attr">define</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">n</span>) </span>{
+            <span class="hljs-keyword">var</span> t = <span class="hljs-keyword">this</span>.def[n.value];
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> t === <span class="hljs-string">"object"</span>) {
+                error(n, t.reserved ? <span class="hljs-string">"Already reserved."</span> : <span class="hljs-string">"Already defined."</span>);
             }
-            <span class="keyword">this</span>.def[n.value] = n;
-            n.reserved = <span class="literal">false</span>;
+            <span class="hljs-keyword">this</span>.def[n.value] = n;
+            n.reserved = <span class="hljs-literal">false</span>;
             n.nud      = itself;
-            n.led      = <span class="literal">null</span>;
-            n.std      = <span class="literal">null</span>;
-            n.lbp      = <span class="number">0</span>;
+            n.led      = <span class="hljs-literal">null</span>;
+            n.std      = <span class="hljs-literal">null</span>;
+            n.lbp      = <span class="hljs-number">0</span>;
             n.scope    = scope;
-            <span class="keyword">return</span> n;
+            <span class="hljs-keyword">return</span> n;
         },
-        find: <span class="function"><span class="keyword">function</span> <span class="params">(n)</span> {</span>
-            <span class="keyword">var</span> e = <span class="keyword">this</span>, o;
-            <span class="keyword">while</span> (<span class="literal">true</span>) {
-                o = e.def.hasOwnProperty(n) ? e.def[n] : <span class="literal">null</span>;
-                <span class="keyword">if</span> (o) {
-                    <span class="keyword">return</span> o;
+        <span class="hljs-attr">find</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">n</span>) </span>{
+            <span class="hljs-keyword">var</span> e = <span class="hljs-keyword">this</span>, o;
+            <span class="hljs-keyword">var</span> <span class="hljs-built_in">escape</span> = <span class="hljs-literal">false</span>;
+            <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
+                o = e.def.hasOwnProperty(n) ? e.def[n] : <span class="hljs-literal">null</span>;
+                <span class="hljs-keyword">if</span> (o) {
+                    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">escape</span>) { e.escape[n] = <span class="hljs-literal">true</span>; }
+                    <span class="hljs-keyword">return</span> o;
                 }
                 e = e.parent;
-                <span class="keyword">if</span> (!e) {
-                    <span class="keyword">return</span> symbol_table[symbol_table.hasOwnProperty(n) ?
-                        n : <span class="string">"(name)"</span>];
+                <span class="hljs-built_in">escape</span> = <span class="hljs-literal">true</span>;
+                <span class="hljs-keyword">if</span> (!e) {
+                    <span class="hljs-keyword">return</span> symbol_table[symbol_table.hasOwnProperty(n) ?
+                        n : <span class="hljs-string">"(name)"</span>];
                 }
             }
         },
-        pop: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-            scope = <span class="keyword">this</span>.parent;
+        <span class="hljs-attr">pop</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+            scope = <span class="hljs-keyword">this</span>.parent;
         },
-        reserve: <span class="function"><span class="keyword">function</span> <span class="params">(n)</span> {</span>
-            <span class="keyword">if</span> (n.arity !== <span class="string">"name"</span> || n.reserved) {
-                <span class="keyword">return</span>;
+        <span class="hljs-attr">reserve</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">n</span>) </span>{
+            <span class="hljs-keyword">if</span> (n.arity !== <span class="hljs-string">"name"</span> || n.reserved) {
+                <span class="hljs-keyword">return</span>;
             }
-            <span class="keyword">var</span> t = <span class="keyword">this</span>.def.hasOwnProperty(n.value) ? <span class="keyword">this</span>.def[n.value] : <span class="literal">null</span>;
-            <span class="keyword">if</span> (t) {
-                <span class="keyword">if</span> (t.reserved) {
-                    <span class="keyword">return</span>;
+            <span class="hljs-keyword">var</span> t = <span class="hljs-keyword">this</span>.def.hasOwnProperty(n.value) ? <span class="hljs-keyword">this</span>.def[n.value] : <span class="hljs-literal">null</span>;
+            <span class="hljs-keyword">if</span> (t) {
+                <span class="hljs-keyword">if</span> (t.reserved) {
+                    <span class="hljs-keyword">return</span>;
                 }
-                <span class="keyword">if</span> (t.arity === <span class="string">"name"</span>) {
-                    error(n, <span class="string">"Already defined."</span>);
+                <span class="hljs-keyword">if</span> (t.arity === <span class="hljs-string">"name"</span>) {
+                    error(n, <span class="hljs-string">"Already defined."</span>);
                 }
             }
-            <span class="keyword">this</span>.def[n.value] = n;
-            n.reserved = <span class="literal">true</span>;
+            <span class="hljs-keyword">this</span>.def[n.value] = n;
+            n.reserved = <span class="hljs-literal">true</span>;
         }
     };
 
-    <span class="keyword">var</span> new_scope = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        <span class="keyword">var</span> s = scope;
-        scope = Object.create(original_scope);
+    <span class="hljs-keyword">var</span> new_scope = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> s = scope;
+        scope = <span class="hljs-built_in">Object</span>.create(original_scope);
         scope.def = {};
+        scope.escape = {};
         scope.parent = s;
-        scope.level = s ? (s.level+<span class="number">1</span>) : <span class="number">0</span>;
-        <span class="keyword">return</span> scope;
+        scope.level = s ? (s.level+<span class="hljs-number">1</span>) : <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">return</span> scope;
     };
-
-    <span class="keyword">var</span> advance = <span class="function"><span class="keyword">function</span> <span class="params">(id)</span> {</span>
-        <span class="keyword">var</span> a, o, t, v;
-        <span class="keyword">if</span> (id &amp;&amp; token.id !== id) {
-            error(token, <span class="string">"Expected '"</span> + id + <span class="string">"'."</span>);
-        }
-        <span class="keyword">if</span> (token_nr &gt;= tokens.length) {
-            token = symbol_table[<span class="string">"(end)"</span>];
-            <span class="keyword">return</span>;
-        }
-        t = tokens[token_nr];
-        token_nr += <span class="number">1</span>;
-        v = t.value;
-        a = t.type;
-        <span class="keyword">if</span> (a === <span class="string">"name"</span>) {
-            o = scope.find(v);
-        } <span class="keyword">else</span> <span class="keyword">if</span> (a === <span class="string">"operator"</span>) {
-            o = symbol_table[v];
-            <span class="keyword">if</span> (!o) {
-                error(t, <span class="string">"Unknown operator."</span>);
-            }
-        } <span class="keyword">else</span> <span class="keyword">if</span> (a === <span class="string">"string"</span> || a ===  <span class="string">"number"</span>) {
-            o = symbol_table[<span class="string">"(literal)"</span>];
-            a = <span class="string">"literal"</span>;
-        } <span class="keyword">else</span> {
-            error(t, <span class="string">"Unexpected token."</span>);
-        }
-        token = Object.create(o);
-        token.from  = t.from;
-        token.to    = t.to;
-        token.value = v;
-        token.arity = a;
-        <span class="keyword">return</span> token;
-    };
-
-    <span class="keyword">var</span> expression = <span class="function"><span class="keyword">function</span> <span class="params">(rbp)</span> {</span>
-        <span class="keyword">var</span> left;
-        <span class="keyword">var</span> t = token;
-        advance();
-        left = t.nud();
-        <span class="keyword">while</span> (rbp &lt; token.lbp) {
-            t = token;
-            advance();
-            left = t.led(left);
-        }
-        <span class="keyword">return</span> left;
-    };</pre></div></div>
+    <span class="hljs-keyword">var</span> copy_scope = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">Object</span>.assign) {</pre></div></div>
             
         </li>
         
@@ -348,25 +327,69 @@ by Douglas Crockford
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>CSA: statement also always returns an array, since some statements
-are desugared on parsing.</p>
+              <p>If your environment doesn&#39;t have Object.assign you won&#39;t
+be able to backtrack out of a failed parse in the REPL,
+but it&#39;s not the end of the world.  This fallback is
+useful for bring-up of a new interpreter.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> statement = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        <span class="keyword">var</span> n = token, v;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">return</span> scope;
+        }
+        <span class="hljs-keyword">var</span> s = <span class="hljs-built_in">Object</span>.create(original_scope);
+        s.def = <span class="hljs-built_in">Object</span>.assign({}, scope.def);
+        s.escape = <span class="hljs-built_in">Object</span>.assign({}, scope.escape);
+        s.parent = scope.parent;
+        s.level = scope.level;
+        <span class="hljs-keyword">return</span> s;
+    };
 
-        <span class="keyword">if</span> (n.std) {
-            advance();
-            scope.reserve(n);
-            <span class="keyword">return</span> n.std();
-        } <span class="keyword">else</span> {
-            v = expression(<span class="number">0</span>);
-            <span class="keyword">if</span> ((!v.assignment) &amp;&amp; v.id !== <span class="string">"("</span> &amp;&amp;
-                !(v.arity === <span class="string">'function'</span> &amp;&amp; v.name)) {
-                error(v, <span class="string">"Bad expression statement."</span>);
+    <span class="hljs-keyword">var</span> advance = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">id</span>) </span>{
+        <span class="hljs-keyword">var</span> a, o, t, v;
+        <span class="hljs-keyword">if</span> (id &amp;&amp; token.id !== id) {
+            error(token, <span class="hljs-string">"Expected '"</span> + id + <span class="hljs-string">"'."</span>);
+        }
+        <span class="hljs-keyword">if</span> (token_nr &gt;= tokens.length) {
+            token = symbol_table[<span class="hljs-string">"(end)"</span>];
+            <span class="hljs-keyword">return</span>;
+        }
+        t = tokens[token_nr];
+        token_nr += <span class="hljs-number">1</span>;
+        v = t.value;
+        a = t.type;
+        <span class="hljs-keyword">if</span> (a === <span class="hljs-string">"name"</span>) {
+            o = scope.find(v);
+        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a === <span class="hljs-string">"operator"</span>) {
+            o = symbol_table[v];
+            <span class="hljs-keyword">if</span> (!o) {
+                error(t, <span class="hljs-string">"Unknown operator: "</span> + v);
             }
-            <span class="keyword">if</span> (!(v.arity === <span class="string">'function'</span> &amp;&amp; v.name &amp;&amp; token.id !== <span class="string">';'</span>)) {</pre></div></div>
+        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a === <span class="hljs-string">"string"</span> || a ===  <span class="hljs-string">"number"</span>) {
+            o = symbol_table[<span class="hljs-string">"(literal)"</span>];
+            a = <span class="hljs-string">"literal"</span>;
+        } <span class="hljs-keyword">else</span> {
+            error(t, <span class="hljs-string">"Unexpected token."</span>);
+        }
+        token = <span class="hljs-built_in">Object</span>.create(o);
+        token.from  = t.from;
+        token.to    = t.to;
+        token.value = v;
+        token.arity = a;
+        <span class="hljs-keyword">return</span> token;
+    };
+
+    <span class="hljs-keyword">var</span> expression = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">rbp</span>) </span>{
+        <span class="hljs-keyword">var</span> left;
+        <span class="hljs-keyword">var</span> t = token;
+        advance();
+        left = t.nud();
+        <span class="hljs-keyword">while</span> (rbp &lt; token.lbp) {
+            t = token;
+            advance();
+            left = t.led(left);
+        }
+        <span class="hljs-keyword">return</span> left;
+    };</pre></div></div>
             
         </li>
         
@@ -377,15 +400,25 @@ are desugared on parsing.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>trailing semicolon optional for named functions.</p>
+              <p>CSA: statement also always returns an array, since some statements
+are desugared on parsing.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                advance(<span class="string">";"</span>);
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> statement = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> n = token, v;
+
+        <span class="hljs-keyword">if</span> (n.std) {
+            advance();
+            scope.reserve(n);
+            <span class="hljs-keyword">return</span> n.std();
+        } <span class="hljs-keyword">else</span> {
+            v = expression(<span class="hljs-number">0</span>);
+            <span class="hljs-keyword">if</span> ((!v.assignment) &amp;&amp; v.id !== <span class="hljs-string">"("</span> &amp;&amp;
+                !(v.arity === <span class="hljs-string">'function'</span> &amp;&amp; v.name)) {
+                error(v, <span class="hljs-string">"Bad expression statement."</span>);
             }
-        }
-        <span class="keyword">return</span> v ? [ v ] : <span class="literal">null</span>;
-    };</pre></div></div>
+            <span class="hljs-keyword">if</span> (!(v.arity === <span class="hljs-string">'function'</span> &amp;&amp; v.name &amp;&amp; token.id !== <span class="hljs-string">';'</span>)) {</pre></div></div>
             
         </li>
         
@@ -396,32 +429,15 @@ are desugared on parsing.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <p>CSA: hoist all declarations in a block to the top.
-XXX should hoist vars declared in named functions, too?</p>
+              <p>trailing semicolon optional for named functions.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> hoist_var = <span class="keyword">function</span>(stmt_list) {
-        <span class="keyword">var</span> v = [], s = [], i = <span class="number">0</span>;
-        <span class="keyword">while</span> (i &lt; stmt_list.length) {
-            <span class="keyword">if</span> (stmt_list[i].value === <span class="string">"var"</span>) {
-                v.push(stmt_list[i]);
-            } <span class="keyword">else</span> {
-                s.push(stmt_list[i]);
+            <div class="content"><div class='highlight'><pre>                advance(<span class="hljs-string">";"</span>);
             }
-            i += <span class="number">1</span>;
         }
-        <span class="keyword">return</span> v.concat(s);
-    };
-
-    <span class="keyword">var</span> statements = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        <span class="keyword">var</span> a = [], s;
-        <span class="keyword">while</span> (<span class="literal">true</span>) {
-            <span class="keyword">if</span> (token.id === <span class="string">"}"</span> || token.id === <span class="string">"(end)"</span>) {
-                <span class="keyword">break</span>;
-            }
-            s = statement();
-            <span class="keyword">if</span> (s) {</pre></div></div>
+        <span class="hljs-keyword">return</span> v ? [ v ] : <span class="hljs-literal">null</span>;
+    };</pre></div></div>
             
         </li>
         
@@ -431,6 +447,42 @@ XXX should hoist vars declared in named functions, too?</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>CSA: hoist all declarations in a block to the top.
+XXX should hoist vars declared in named functions, too?</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> hoist_var = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">stmt_list</span>) </span>{
+        <span class="hljs-keyword">var</span> v = [], s = [], i = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">while</span> (i &lt; stmt_list.length) {
+            <span class="hljs-keyword">if</span> (stmt_list[i].value === <span class="hljs-string">"var"</span>) {
+                v.push(stmt_list[i]);
+            } <span class="hljs-keyword">else</span> {
+                s.push(stmt_list[i]);
+            }
+            i += <span class="hljs-number">1</span>;
+        }
+        <span class="hljs-keyword">return</span> v.concat(s);
+    };
+
+    <span class="hljs-keyword">var</span> statements = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> a = [], s;
+        <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
+            <span class="hljs-keyword">if</span> (token.id === <span class="hljs-string">"}"</span> || token.id === <span class="hljs-string">"(end)"</span>) {
+                <span class="hljs-keyword">break</span>;
+            }
+            s = statement();
+            <span class="hljs-keyword">if</span> (s) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
               <p>CSA: a statement doesn&#39;t make a new block context</p>
 
@@ -443,278 +495,130 @@ XXX should hoist vars declared in named functions, too?</p>
         </li>
         
         
-        <li id="section-6">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-6">&#182;</a>
-              </div>
-              <p>CSA: statements() should always return a list, with hoisted vars.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">return</span> hoist_var(a);
-    };
-
-    <span class="keyword">var</span> block = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        <span class="keyword">var</span> t = token;
-        advance(<span class="string">"{"</span>);
-        <span class="keyword">return</span> t.std();
-    };
-
-    <span class="keyword">var</span> original_symbol = {
-        nud: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-            error(<span class="keyword">this</span>, <span class="string">"Undefined."</span>);
-        },
-        led: <span class="function"><span class="keyword">function</span> <span class="params">(left)</span> {</span>
-            error(<span class="keyword">this</span>, <span class="string">"Missing operator."</span>);
-        }
-    };
-
-    <span class="keyword">var</span> symbol = <span class="function"><span class="keyword">function</span> <span class="params">(id, bp)</span> {</span>
-        <span class="keyword">var</span> s = symbol_table.hasOwnProperty(id) ? symbol_table[id] : <span class="literal">null</span>;
-        bp = bp || <span class="number">0</span>;
-        <span class="keyword">if</span> (s) {
-            <span class="keyword">if</span> (bp &gt;= s.lbp) {
-                s.lbp = bp;
-            }
-        } <span class="keyword">else</span> {
-            s = Object.create(original_symbol);
-            s.id = s.value = id;
-            s.lbp = bp;
-            symbol_table[id] = s;
-        }
-        <span class="keyword">return</span> s;
-    };
-
-    <span class="keyword">var</span> constant = <span class="function"><span class="keyword">function</span> <span class="params">(s, v)</span> {</span>
-        <span class="keyword">var</span> x = symbol(s);
-        x.nud = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-            scope.reserve(<span class="keyword">this</span>);
-            <span class="keyword">this</span>.value = symbol_table[<span class="keyword">this</span>.id].value;
-            <span class="keyword">this</span>.arity = <span class="string">"literal"</span>;
-            <span class="keyword">return</span> <span class="keyword">this</span>;
-        };
-        x.value = v;
-        <span class="keyword">return</span> x;
-    };
-
-    <span class="keyword">var</span> infix = <span class="function"><span class="keyword">function</span> <span class="params">(id, bp, led)</span> {</span>
-        <span class="keyword">var</span> s = symbol(id, bp);
-        s.led = led || <span class="function"><span class="keyword">function</span> <span class="params">(left)</span> {</span>
-            <span class="keyword">this</span>.first = left;
-            <span class="keyword">this</span>.second = expression(bp);
-            <span class="keyword">this</span>.arity = <span class="string">"binary"</span>;
-            <span class="keyword">return</span> <span class="keyword">this</span>;
-        };
-        <span class="keyword">return</span> s;
-    };
-
-    <span class="keyword">var</span> infixr = <span class="function"><span class="keyword">function</span> <span class="params">(id, bp, led)</span> {</span>
-        <span class="keyword">var</span> s = symbol(id, bp);
-        s.led = led || <span class="function"><span class="keyword">function</span> <span class="params">(left)</span> {</span>
-            <span class="keyword">this</span>.first = left;
-            <span class="keyword">this</span>.second = expression(bp - <span class="number">1</span>);
-            <span class="keyword">this</span>.arity = <span class="string">"binary"</span>;
-            <span class="keyword">return</span> <span class="keyword">this</span>;
-        };
-        <span class="keyword">return</span> s;
-    };
-
-    <span class="keyword">var</span> assignment = <span class="function"><span class="keyword">function</span> <span class="params">(id)</span> {</span>
-        <span class="keyword">return</span> infixr(id, <span class="number">10</span>, <span class="function"><span class="keyword">function</span> <span class="params">(left)</span> {</span>
-            <span class="keyword">if</span> (left.id !== <span class="string">"."</span> &amp;&amp; left.id !== <span class="string">"["</span> &amp;&amp; left.arity !== <span class="string">"name"</span>) {
-                error(left, <span class="string">"Bad lvalue."</span>);
-            }
-            <span class="keyword">this</span>.first = left;
-            <span class="keyword">this</span>.second = expression(<span class="number">9</span>);
-            <span class="keyword">this</span>.assignment = <span class="literal">true</span>;
-            <span class="keyword">this</span>.arity = <span class="string">"binary"</span>;
-            <span class="keyword">return</span> <span class="keyword">this</span>;
-        });
-    };
-
-    <span class="keyword">var</span> prefix = <span class="function"><span class="keyword">function</span> <span class="params">(id, nud)</span> {</span>
-        <span class="keyword">var</span> s = symbol(id);
-        s.nud = nud || <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-            scope.reserve(<span class="keyword">this</span>);
-            <span class="keyword">this</span>.first = expression(<span class="number">70</span>);
-            <span class="keyword">this</span>.arity = <span class="string">"unary"</span>;
-            <span class="keyword">return</span> <span class="keyword">this</span>;
-        };
-        <span class="keyword">return</span> s;
-    };
-
-    <span class="keyword">var</span> stmt = <span class="function"><span class="keyword">function</span> <span class="params">(s, f)</span> {</span>
-        <span class="keyword">var</span> x = symbol(s);
-        x.std = f;
-        <span class="keyword">return</span> x;
-    };
-
-    symbol(<span class="string">"(end)"</span>);
-    symbol(<span class="string">"(name)"</span>);
-    symbol(<span class="string">":"</span>);
-    symbol(<span class="string">";"</span>);
-    symbol(<span class="string">")"</span>);
-    symbol(<span class="string">"]"</span>);
-    symbol(<span class="string">"}"</span>);
-    symbol(<span class="string">","</span>);
-    symbol(<span class="string">"else"</span>);
-
-    constant(<span class="string">"true"</span>, <span class="literal">true</span>);
-    constant(<span class="string">"false"</span>, <span class="literal">false</span>);
-    constant(<span class="string">"null"</span>, <span class="literal">null</span>);
-    constant(<span class="string">"undefined"</span>, <span class="literal">undefined</span>);
-    constant(<span class="string">"NaN"</span>, <span class="literal">NaN</span>);
-    constant(<span class="string">"Infinity"</span>, <span class="literal">Infinity</span>);
-    constant(<span class="string">"Object"</span>, {});
-    constant(<span class="string">"Array"</span>, []);
-
-    symbol(<span class="string">"(literal)"</span>).nud = itself;
-
-    symbol(<span class="string">"this"</span>).nud = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        scope.reserve(<span class="keyword">this</span>);
-        <span class="keyword">this</span>.arity = <span class="string">"this"</span>;
-        <span class="keyword">return</span> <span class="keyword">this</span>;
-    };
-
-    assignment(<span class="string">"="</span>);
-    assignment(<span class="string">"+="</span>);
-    assignment(<span class="string">"-="</span>);
-    assignment(<span class="string">"*="</span>);
-    assignment(<span class="string">"/="</span>);
-
-    infix(<span class="string">"?"</span>, <span class="number">20</span>, <span class="function"><span class="keyword">function</span> <span class="params">(left)</span> {</span>
-        <span class="keyword">this</span>.first = left;
-        <span class="keyword">this</span>.second = expression(<span class="number">0</span>);
-        advance(<span class="string">":"</span>);
-        <span class="keyword">this</span>.third = expression(<span class="number">0</span>);
-        <span class="keyword">this</span>.arity = <span class="string">"ternary"</span>;
-        <span class="keyword">return</span> <span class="keyword">this</span>;
-    });
-
-    infixr(<span class="string">"||"</span>, <span class="number">30</span>);
-    infixr(<span class="string">"&amp;&amp;"</span>, <span class="number">35</span>);
-
-    infixr(<span class="string">"==="</span>, <span class="number">40</span>);
-    infixr(<span class="string">"!=="</span>, <span class="number">40</span>);
-    infixr(<span class="string">"&lt;"</span>, <span class="number">45</span>);
-    infixr(<span class="string">"&lt;="</span>, <span class="number">45</span>);
-    infixr(<span class="string">"&gt;"</span>, <span class="number">45</span>);
-    infixr(<span class="string">"&gt;="</span>, <span class="number">45</span>);
-
-    infix(<span class="string">"+"</span>, <span class="number">50</span>);
-    infix(<span class="string">"-"</span>, <span class="number">50</span>);
-
-    infix(<span class="string">"*"</span>, <span class="number">60</span>);
-    infix(<span class="string">"/"</span>, <span class="number">60</span>);
-
-    infix(<span class="string">"."</span>, <span class="number">80</span>, <span class="function"><span class="keyword">function</span> <span class="params">(left)</span> {</span>
-        <span class="keyword">this</span>.first = left;
-        <span class="keyword">if</span> (token.arity !== <span class="string">"name"</span>) {
-            error(token, <span class="string">"Expected a property name."</span>);
-        }
-        token.arity = <span class="string">"literal"</span>;
-        <span class="keyword">this</span>.second = token;
-        <span class="keyword">this</span>.arity = <span class="string">"binary"</span>;
-        advance();
-        <span class="keyword">return</span> <span class="keyword">this</span>;
-    });
-
-    infix(<span class="string">"["</span>, <span class="number">80</span>, <span class="function"><span class="keyword">function</span> <span class="params">(left)</span> {</span>
-        <span class="keyword">this</span>.first = left;
-        <span class="keyword">this</span>.second = expression(<span class="number">0</span>);
-        <span class="keyword">this</span>.arity = <span class="string">"binary"</span>;
-        advance(<span class="string">"]"</span>);
-        <span class="keyword">return</span> <span class="keyword">this</span>;
-    });
-
-    infix(<span class="string">"("</span>, <span class="number">75</span>, <span class="function"><span class="keyword">function</span> <span class="params">(left)</span> {</span>
-        <span class="keyword">var</span> a = [];
-        <span class="keyword">if</span> (left.id === <span class="string">"."</span> || left.id === <span class="string">"["</span>) {
-            <span class="keyword">this</span>.arity = <span class="string">"ternary"</span>;
-            <span class="keyword">this</span>.first = left.first;
-            <span class="keyword">this</span>.second = left.second;
-            <span class="keyword">this</span>.third = a;
-        } <span class="keyword">else</span> {
-            <span class="keyword">this</span>.arity = <span class="string">"binary"</span>;
-            <span class="keyword">this</span>.first = left;
-            <span class="keyword">this</span>.second = a;
-            <span class="keyword">if</span> (left.arity !== <span class="string">"function"</span> &amp;&amp;
-                    left.arity !== <span class="string">"name"</span> &amp;&amp; left.id !== <span class="string">"("</span> &amp;&amp;
-                    left.id !== <span class="string">"&amp;&amp;"</span> &amp;&amp; left.id !== <span class="string">"||"</span> &amp;&amp; left.id !== <span class="string">"?"</span>) {
-                error(left, <span class="string">"Expected a variable name."</span>);
-            }
-        }
-        <span class="keyword">if</span> (token.id !== <span class="string">")"</span>) {
-            <span class="keyword">while</span> (<span class="literal">true</span>)  {
-                a.push(expression(<span class="number">0</span>));
-                <span class="keyword">if</span> (token.id !== <span class="string">","</span>) {
-                    <span class="keyword">break</span>;
-                }
-                advance(<span class="string">","</span>);
-            }
-        }
-        advance(<span class="string">")"</span>);
-        <span class="keyword">return</span> <span class="keyword">this</span>;
-    });
-
-
-    prefix(<span class="string">"!"</span>);
-    prefix(<span class="string">"-"</span>);
-    prefix(<span class="string">"typeof"</span>);
-
-    prefix(<span class="string">"("</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        <span class="keyword">var</span> e = expression(<span class="number">0</span>);
-        advance(<span class="string">")"</span>);
-        <span class="keyword">return</span> e;
-    });
-
-    prefix(<span class="string">"function"</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        <span class="keyword">var</span> a = [];
-        <span class="keyword">if</span> (token.arity === <span class="string">"name"</span>) {
-            scope.define(token);
-            <span class="keyword">this</span>.name = token.value;
-            <span class="keyword">this</span>.scope = scope;
-            advance();
-        } <span class="keyword">else</span> {
-            <span class="keyword">this</span>.name = <span class="literal">null</span>;
-        }
-        new_scope();</pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-7">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
-              <p>&#39;arguments&#39; is defined inside every function.</p>
+              <p>CSA: statements() should always return a list, with hoisted vars.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        scope.define({ value: <span class="string">"arguments"</span>, arity: <span class="string">"name"</span> });
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">return</span> hoist_var(a);
+    };
 
-        advance(<span class="string">"("</span>);
-        <span class="keyword">if</span> (token.id !== <span class="string">")"</span>) {
-            <span class="keyword">while</span> (<span class="literal">true</span>) {
-                <span class="keyword">if</span> (token.arity !== <span class="string">"name"</span>) {
-                    error(token, <span class="string">"Expected a parameter name."</span>);
-                }
-                scope.define(token);
-                a.push(token);
-                advance();
-                <span class="keyword">if</span> (token.id !== <span class="string">","</span>) {
-                    <span class="keyword">break</span>;
-                }
-                advance(<span class="string">","</span>);
-            }
+    <span class="hljs-keyword">var</span> block = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> t = token;
+        advance(<span class="hljs-string">"{"</span>);
+        <span class="hljs-keyword">return</span> t.std();
+    };
+
+    <span class="hljs-keyword">var</span> original_symbol = {
+        <span class="hljs-attr">nud</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+            error(<span class="hljs-keyword">this</span>, <span class="hljs-string">"Undefined: "</span> + <span class="hljs-keyword">this</span>.value);
+        },
+        <span class="hljs-attr">led</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">left</span>) </span>{
+            error(<span class="hljs-keyword">this</span>, <span class="hljs-string">"Missing operator."</span>);
         }
-        <span class="keyword">this</span>.first = a;
-        advance(<span class="string">")"</span>);
-        advance(<span class="string">"{"</span>);</pre></div></div>
+    };
+
+    <span class="hljs-keyword">var</span> symbol = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">id, bp</span>) </span>{
+        <span class="hljs-keyword">var</span> s = symbol_table.hasOwnProperty(id) ? symbol_table[id] : <span class="hljs-literal">null</span>;
+        bp = bp || <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">if</span> (s) {
+            <span class="hljs-keyword">if</span> (bp &gt;= s.lbp) {
+                s.lbp = bp;
+            }
+        } <span class="hljs-keyword">else</span> {
+            s = <span class="hljs-built_in">Object</span>.create(original_symbol);
+            s.id = s.value = id;
+            s.lbp = bp;
+            symbol_table[id] = s;
+        }
+        <span class="hljs-keyword">return</span> s;
+    };
+
+    <span class="hljs-keyword">var</span> constant = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">s, v</span>) </span>{
+        <span class="hljs-keyword">var</span> x = symbol(s);
+        x.nud = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+            scope.reserve(<span class="hljs-keyword">this</span>);
+            <span class="hljs-keyword">this</span>.value = symbol_table[<span class="hljs-keyword">this</span>.id].value;
+            <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"literal"</span>;
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+        };
+        x.value = v;
+        <span class="hljs-keyword">return</span> x;
+    };
+
+    <span class="hljs-keyword">var</span> infix = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">id, bp, led</span>) </span>{
+        <span class="hljs-keyword">var</span> s = symbol(id, bp);
+        s.led = led || <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">left</span>) </span>{
+            <span class="hljs-keyword">this</span>.first = left;
+            <span class="hljs-keyword">this</span>.second = expression(bp);
+            <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"binary"</span>;
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+        };
+        <span class="hljs-keyword">return</span> s;
+    };
+
+    <span class="hljs-keyword">var</span> infixr = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">id, bp, led</span>) </span>{
+        <span class="hljs-keyword">var</span> s = symbol(id, bp);
+        s.led = led || <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">left</span>) </span>{
+            <span class="hljs-keyword">this</span>.first = left;
+            <span class="hljs-keyword">this</span>.second = expression(bp - <span class="hljs-number">1</span>);
+            <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"binary"</span>;
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+        };
+        <span class="hljs-keyword">return</span> s;
+    };
+
+    <span class="hljs-keyword">var</span> assignment = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">id</span>) </span>{
+        <span class="hljs-keyword">return</span> infixr(id, <span class="hljs-number">10</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">left</span>) </span>{
+            <span class="hljs-keyword">if</span> (left.id !== <span class="hljs-string">"."</span> &amp;&amp; left.id !== <span class="hljs-string">"["</span> &amp;&amp; left.arity !== <span class="hljs-string">"name"</span>) {
+                error(left, <span class="hljs-string">"Bad lvalue."</span>);
+            }
+            <span class="hljs-keyword">this</span>.first = left;
+            <span class="hljs-keyword">this</span>.second = expression(<span class="hljs-number">9</span>);
+            <span class="hljs-keyword">this</span>.assignment = <span class="hljs-literal">true</span>;
+            <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"binary"</span>;
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+        });
+    };
+
+    <span class="hljs-keyword">var</span> prefix = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">id, nud</span>) </span>{
+        <span class="hljs-keyword">var</span> s = symbol(id);
+        s.nud = nud || <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+            scope.reserve(<span class="hljs-keyword">this</span>);
+            <span class="hljs-keyword">this</span>.first = expression(<span class="hljs-number">70</span>);
+            <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"unary"</span>;
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+        };
+        <span class="hljs-keyword">return</span> s;
+    };
+
+    <span class="hljs-keyword">var</span> stmt = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">s, f</span>) </span>{
+        <span class="hljs-keyword">var</span> x = symbol(s);
+        x.std = f;
+        <span class="hljs-keyword">return</span> x;
+    };
+
+    symbol(<span class="hljs-string">"(end)"</span>);
+    symbol(<span class="hljs-string">"(name)"</span>);
+    symbol(<span class="hljs-string">":"</span>);
+    symbol(<span class="hljs-string">";"</span>);
+    symbol(<span class="hljs-string">")"</span>);
+    symbol(<span class="hljs-string">"]"</span>);
+    symbol(<span class="hljs-string">"}"</span>);
+    symbol(<span class="hljs-string">","</span>);
+    symbol(<span class="hljs-string">"else"</span>);
+
+    constant(<span class="hljs-string">"true"</span>, <span class="hljs-literal">true</span>);
+    constant(<span class="hljs-string">"false"</span>, <span class="hljs-literal">false</span>);
+    constant(<span class="hljs-string">"null"</span>, <span class="hljs-literal">null</span>);
+    constant(<span class="hljs-string">"undefined"</span>, <span class="hljs-literal">undefined</span>);
+    constant(<span class="hljs-string">"NaN"</span>, <span class="hljs-literal">NaN</span>);
+    constant(<span class="hljs-string">"Infinity"</span>, <span class="hljs-literal">Infinity</span>);</pre></div></div>
             
         </li>
         
@@ -725,64 +629,122 @@ XXX should hoist vars declared in named functions, too?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
-              <p>allow &quot;use strict&quot; as first statement</p>
+              <p>constant(&quot;Object&quot;, {});
+constant(&quot;Array&quot;, []);</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (token.arity === <span class="string">"literal"</span> &amp;&amp; token.value === <span class="string">"use strict"</span>) {
-            advance(); advance(<span class="string">";"</span>);
-        }
-        <span class="keyword">this</span>.second = statements();
-        advance(<span class="string">"}"</span>);
-        <span class="keyword">this</span>.arity = <span class="string">"function"</span>;
-        scope.pop();
-        <span class="keyword">return</span> <span class="keyword">this</span>;
+            <div class="content"><div class='highlight'><pre>    symbol(<span class="hljs-string">"(literal)"</span>).nud = itself;
+
+    symbol(<span class="hljs-string">"this"</span>).nud = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        scope.reserve(<span class="hljs-keyword">this</span>);
+        <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"this"</span>;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+    assignment(<span class="hljs-string">"="</span>);
+    assignment(<span class="hljs-string">"+="</span>);
+    assignment(<span class="hljs-string">"-="</span>);
+    assignment(<span class="hljs-string">"*="</span>);
+    assignment(<span class="hljs-string">"/="</span>);
+
+    infix(<span class="hljs-string">"?"</span>, <span class="hljs-number">20</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">left</span>) </span>{
+        <span class="hljs-keyword">this</span>.first = left;
+        <span class="hljs-keyword">this</span>.second = expression(<span class="hljs-number">0</span>);
+        advance(<span class="hljs-string">":"</span>);
+        <span class="hljs-keyword">this</span>.third = expression(<span class="hljs-number">0</span>);
+        <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"ternary"</span>;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
     });
 
-    prefix(<span class="string">"["</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        <span class="keyword">var</span> a = [];
-        <span class="keyword">if</span> (token.id !== <span class="string">"]"</span>) {
-            <span class="keyword">while</span> (<span class="literal">true</span>) {
-                a.push(expression(<span class="number">0</span>));
-                <span class="keyword">if</span> (token.id !== <span class="string">","</span>) {
-                    <span class="keyword">break</span>;
-                }
-                advance(<span class="string">","</span>);
+    infixr(<span class="hljs-string">"||"</span>, <span class="hljs-number">30</span>);
+    infixr(<span class="hljs-string">"&amp;&amp;"</span>, <span class="hljs-number">35</span>);
+
+    infixr(<span class="hljs-string">"==="</span>, <span class="hljs-number">40</span>);
+    infixr(<span class="hljs-string">"!=="</span>, <span class="hljs-number">40</span>);
+    infixr(<span class="hljs-string">"&lt;"</span>, <span class="hljs-number">45</span>);
+    infixr(<span class="hljs-string">"&lt;="</span>, <span class="hljs-number">45</span>);
+    infixr(<span class="hljs-string">"&gt;"</span>, <span class="hljs-number">45</span>);
+    infixr(<span class="hljs-string">"&gt;="</span>, <span class="hljs-number">45</span>);
+
+    infix(<span class="hljs-string">"+"</span>, <span class="hljs-number">50</span>);
+    infix(<span class="hljs-string">"-"</span>, <span class="hljs-number">50</span>);
+
+    infix(<span class="hljs-string">"*"</span>, <span class="hljs-number">60</span>);
+    infix(<span class="hljs-string">"/"</span>, <span class="hljs-number">60</span>);
+
+    infix(<span class="hljs-string">"."</span>, <span class="hljs-number">80</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">left</span>) </span>{
+        <span class="hljs-keyword">this</span>.first = left;
+        <span class="hljs-keyword">if</span> (token.arity !== <span class="hljs-string">"name"</span>) {
+            error(token, <span class="hljs-string">"Expected a property name."</span>);
+        }
+        token.arity = <span class="hljs-string">"literal"</span>;
+        <span class="hljs-keyword">this</span>.second = token;
+        <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"binary"</span>;
+        advance();
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    });
+
+    infix(<span class="hljs-string">"["</span>, <span class="hljs-number">80</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">left</span>) </span>{
+        <span class="hljs-keyword">this</span>.first = left;
+        <span class="hljs-keyword">this</span>.second = expression(<span class="hljs-number">0</span>);
+        <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"binary"</span>;
+        advance(<span class="hljs-string">"]"</span>);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    });
+
+    infix(<span class="hljs-string">"("</span>, <span class="hljs-number">75</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">left</span>) </span>{
+        <span class="hljs-keyword">var</span> a = [];
+        <span class="hljs-keyword">if</span> (left.id === <span class="hljs-string">"."</span> || left.id === <span class="hljs-string">"["</span>) {
+            <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"ternary"</span>;
+            <span class="hljs-keyword">this</span>.first = left.first;
+            <span class="hljs-keyword">this</span>.second = left.second;
+            <span class="hljs-keyword">this</span>.third = a;
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"binary"</span>;
+            <span class="hljs-keyword">this</span>.first = left;
+            <span class="hljs-keyword">this</span>.second = a;
+            <span class="hljs-keyword">if</span> (left.arity !== <span class="hljs-string">"function"</span> &amp;&amp;
+                    left.arity !== <span class="hljs-string">"name"</span> &amp;&amp; left.id !== <span class="hljs-string">"("</span> &amp;&amp;
+                    left.id !== <span class="hljs-string">"&amp;&amp;"</span> &amp;&amp; left.id !== <span class="hljs-string">"||"</span> &amp;&amp; left.id !== <span class="hljs-string">"?"</span>) {
+                error(left, <span class="hljs-string">"Expected a variable name."</span>);
             }
         }
-        advance(<span class="string">"]"</span>);
-        <span class="keyword">this</span>.first = a;
-        <span class="keyword">this</span>.arity = <span class="string">"unary"</span>;
-        <span class="keyword">return</span> <span class="keyword">this</span>;
-    });
-
-    prefix(<span class="string">"{"</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        <span class="keyword">var</span> a = [], n, v;
-        <span class="keyword">if</span> (token.id !== <span class="string">"}"</span>) {
-            <span class="keyword">while</span> (<span class="literal">true</span>) {
-                n = token;
-                <span class="keyword">if</span> (n.arity !== <span class="string">"name"</span> &amp;&amp; n.arity !== <span class="string">"literal"</span>) {
-                    error(token, <span class="string">"Bad property name."</span>);
+        <span class="hljs-keyword">if</span> (token.id !== <span class="hljs-string">")"</span>) {
+            <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>)  {
+                a.push(expression(<span class="hljs-number">0</span>));
+                <span class="hljs-keyword">if</span> (token.id !== <span class="hljs-string">","</span>) {
+                    <span class="hljs-keyword">break</span>;
                 }
-                advance();
-                advance(<span class="string">":"</span>);
-                v = expression(<span class="number">0</span>);
-                v.key = n.value;
-                a.push(v);
-                <span class="keyword">if</span> (token.id !== <span class="string">","</span>) {
-                    <span class="keyword">break</span>;
-                }
-                advance(<span class="string">","</span>);
+                advance(<span class="hljs-string">","</span>);
             }
         }
-        advance(<span class="string">"}"</span>);
-        <span class="keyword">this</span>.first = a;
-        <span class="keyword">this</span>.arity = <span class="string">"unary"</span>;
-        <span class="keyword">return</span> <span class="keyword">this</span>;
+        advance(<span class="hljs-string">")"</span>);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
     });
 
 
-    stmt(<span class="string">"{"</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span></pre></div></div>
+    prefix(<span class="hljs-string">"!"</span>);
+    prefix(<span class="hljs-string">"-"</span>);
+    prefix(<span class="hljs-string">"typeof"</span>);
+
+    prefix(<span class="hljs-string">"("</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> e = expression(<span class="hljs-number">0</span>);
+        advance(<span class="hljs-string">")"</span>);
+        <span class="hljs-keyword">return</span> e;
+    });
+
+    prefix(<span class="hljs-string">"function"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> a = [];
+        <span class="hljs-keyword">if</span> (token.arity === <span class="hljs-string">"name"</span>) {
+            scope.define(token);
+            <span class="hljs-keyword">this</span>.name = token.value;
+            <span class="hljs-keyword">this</span>.scope = scope;
+            advance();
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">this</span>.name = <span class="hljs-literal">null</span>;
+        }
+        new_scope();</pre></div></div>
             
         </li>
         
@@ -793,14 +755,30 @@ XXX should hoist vars declared in named functions, too?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
-              <p>XXX: implement proper block scope by creating a new function
-     here: { var x; ... } -&gt; (function() { var x; ... })();
-new_scope();//XXX</p>
+              <p>&#39;arguments&#39; is defined inside every function.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> a = statements();
-        advance(<span class="string">"}"</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        scope.define({ <span class="hljs-attr">value</span>: <span class="hljs-string">"arguments"</span>, <span class="hljs-attr">arity</span>: <span class="hljs-string">"name"</span> });
+
+        advance(<span class="hljs-string">"("</span>);
+        <span class="hljs-keyword">if</span> (token.id !== <span class="hljs-string">")"</span>) {
+            <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
+                <span class="hljs-keyword">if</span> (token.arity !== <span class="hljs-string">"name"</span>) {
+                    error(token, <span class="hljs-string">"Expected a parameter name."</span>);
+                }
+                scope.define(token);
+                a.push(token);
+                advance();
+                <span class="hljs-keyword">if</span> (token.id !== <span class="hljs-string">","</span>) {
+                    <span class="hljs-keyword">break</span>;
+                }
+                advance(<span class="hljs-string">","</span>);
+            }
+        }
+        <span class="hljs-keyword">this</span>.first = a;
+        advance(<span class="hljs-string">")"</span>);
+        advance(<span class="hljs-string">"{"</span>);</pre></div></div>
             
         </li>
         
@@ -811,22 +789,64 @@ new_scope();//XXX</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
-              <p>scope.pop();//XXX
-CSA: make block structure (scope) explicit in the parse tree</p>
+              <p>allow &quot;use strict&quot; as first statement</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">return</span> [ { value: <span class="string">"block"</span>, arity: <span class="string">"statement"</span>, first: a } ];
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (token.arity === <span class="hljs-string">"literal"</span> &amp;&amp; token.value === <span class="hljs-string">"use strict"</span>) {
+            advance(); advance(<span class="hljs-string">";"</span>);
+        }
+        <span class="hljs-keyword">this</span>.second = statements();
+        advance(<span class="hljs-string">"}"</span>);
+        <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"function"</span>;
+        scope.pop();
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
     });
 
-    stmt(<span class="string">"var"</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        <span class="keyword">var</span> a = [], n, t, v;
-        <span class="keyword">while</span> (<span class="literal">true</span>) {
-            n = token;
-            <span class="keyword">if</span> (n.arity !== <span class="string">"name"</span>) {
-                error(n, <span class="string">"Expected a new variable name."</span>);
+    prefix(<span class="hljs-string">"["</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> a = [];
+        <span class="hljs-keyword">if</span> (token.id !== <span class="hljs-string">"]"</span>) {
+            <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
+                a.push(expression(<span class="hljs-number">0</span>));
+                <span class="hljs-keyword">if</span> (token.id !== <span class="hljs-string">","</span>) {
+                    <span class="hljs-keyword">break</span>;
+                }
+                advance(<span class="hljs-string">","</span>);
             }
-            scope.define(n);</pre></div></div>
+        }
+        advance(<span class="hljs-string">"]"</span>);
+        <span class="hljs-keyword">this</span>.first = a;
+        <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"unary"</span>;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    });
+
+    prefix(<span class="hljs-string">"{"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> a = [], n, v;
+        <span class="hljs-keyword">if</span> (token.id !== <span class="hljs-string">"}"</span>) {
+            <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
+                n = token;
+                <span class="hljs-keyword">if</span> (n.arity !== <span class="hljs-string">"name"</span> &amp;&amp; n.arity !== <span class="hljs-string">"literal"</span>) {
+                    error(token, <span class="hljs-string">"Bad property name."</span>);
+                }
+                advance();
+                advance(<span class="hljs-string">":"</span>);
+                v = expression(<span class="hljs-number">0</span>);
+                v.key = n.value;
+                a.push(v);
+                <span class="hljs-keyword">if</span> (token.id !== <span class="hljs-string">","</span>) {
+                    <span class="hljs-keyword">break</span>;
+                }
+                advance(<span class="hljs-string">","</span>);
+            }
+        }
+        advance(<span class="hljs-string">"}"</span>);
+        <span class="hljs-keyword">this</span>.first = a;
+        <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"unary"</span>;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    });
+
+
+    stmt(<span class="hljs-string">"{"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -837,12 +857,14 @@ CSA: make block structure (scope) explicit in the parse tree</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
-              <p>CSA: record &#39;var&#39; as a statement</p>
+              <p>XXX: implement proper block scope by creating a new function
+     here: { var x; ... } -&gt; (function() { var x; ... })();
+new_scope();//XXX</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            v = { value: <span class="string">"var"</span>, arity: <span class="string">"statement"</span>, first: n };
-            a.push(v);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> a = statements();
+        advance(<span class="hljs-string">"}"</span>);</pre></div></div>
             
         </li>
         
@@ -853,114 +875,22 @@ CSA: make block structure (scope) explicit in the parse tree</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
-              <p>END CSA</p>
+              <p>scope.pop();//XXX
+CSA: make block structure (scope) explicit in the parse tree</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            advance();
-            <span class="keyword">if</span> (token.id === <span class="string">"="</span>) {
-                t = token;
-                advance(<span class="string">"="</span>);
-                t.first = n;
-                t.second = expression(<span class="number">0</span>);
-                t.arity = <span class="string">"binary"</span>;
-                a.push(t);
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">return</span> [ { <span class="hljs-attr">value</span>: <span class="hljs-string">"block"</span>, <span class="hljs-attr">arity</span>: <span class="hljs-string">"statement"</span>, <span class="hljs-attr">first</span>: a } ];
+    });
+
+    stmt(<span class="hljs-string">"var"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> a = [], n, t, v;
+        <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
+            n = token;
+            <span class="hljs-keyword">if</span> (n.arity !== <span class="hljs-string">"name"</span>) {
+                error(n, <span class="hljs-string">"Expected a new variable name."</span>);
             }
-            <span class="keyword">if</span> (token.id !== <span class="string">","</span>) {
-                <span class="keyword">break</span>;
-            }
-            advance(<span class="string">","</span>);
-        }
-        advance(<span class="string">";"</span>);
-        <span class="keyword">return</span> a; <span class="comment">// a list of statements, but not a block</span>
-    });
-
-    stmt(<span class="string">"if"</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        advance(<span class="string">"("</span>);
-        <span class="keyword">this</span>.first = expression(<span class="number">0</span>);
-        advance(<span class="string">")"</span>);
-        <span class="keyword">this</span>.second = block()[<span class="number">0</span>];
-        <span class="keyword">if</span> (token.id === <span class="string">"else"</span>) {
-            scope.reserve(token);
-            advance(<span class="string">"else"</span>);
-            <span class="keyword">this</span>.third = token.id === <span class="string">"if"</span> ? { value: <span class="string">"block"</span>, arity: <span class="string">"statement"</span>, first: statement() } : block()[<span class="number">0</span>];
-        } <span class="keyword">else</span> {
-            <span class="keyword">this</span>.third = <span class="literal">null</span>;
-        }
-        <span class="keyword">this</span>.arity = <span class="string">"statement"</span>;
-        <span class="keyword">return</span> [ <span class="keyword">this</span> ];
-    });
-
-    stmt(<span class="string">"return"</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        <span class="keyword">if</span> (token.id !== <span class="string">";"</span>) {
-            <span class="keyword">this</span>.first = expression(<span class="number">0</span>);
-        } <span class="keyword">else</span> {
-            <span class="keyword">this</span>.first = <span class="literal">null</span>;
-        }
-        advance(<span class="string">";"</span>);
-        <span class="keyword">if</span> (token.id !== <span class="string">"}"</span>) {
-            error(token, <span class="string">"Unreachable statement."</span>);
-        }
-        <span class="keyword">this</span>.arity = <span class="string">"statement"</span>;
-        <span class="keyword">return</span> [ <span class="keyword">this</span> ];
-    });
-
-    stmt(<span class="string">"break"</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        advance(<span class="string">";"</span>);
-        <span class="keyword">if</span> (token.id !== <span class="string">"}"</span>) {
-            error(token, <span class="string">"Unreachable statement."</span>);
-        }
-        <span class="keyword">this</span>.arity = <span class="string">"statement"</span>;
-        <span class="keyword">return</span> [ <span class="keyword">this</span> ];
-    });
-
-    stmt(<span class="string">"while"</span>, <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        advance(<span class="string">"("</span>);
-        <span class="keyword">this</span>.first = expression(<span class="number">0</span>);
-        advance(<span class="string">")"</span>);
-        <span class="keyword">this</span>.second = block()[<span class="number">0</span>];
-        <span class="keyword">this</span>.arity = <span class="string">"statement"</span>;
-        <span class="keyword">return</span> [ <span class="keyword">this</span> ];
-    });
-
-    <span class="keyword">var</span> parse = <span class="function"><span class="keyword">function</span> <span class="params">(source, top_level, debug)</span> {</span>
-        DEBUG = debug;
-        tokens = tokenize(source, <span class="string">'=&lt;&gt;!+-*&amp;|/%^'</span>, <span class="string">'=&lt;&gt;&amp;|'</span>);
-        token_nr = <span class="number">0</span>;
-        new_scope();
-        <span class="keyword">if</span> (top_level) {
-            top_level = tokenize(top_level);
-            <span class="keyword">var</span> i = <span class="number">0</span>;
-            <span class="keyword">while</span> (i &lt; top_level.length) {
-                scope.define(top_level[i]);
-                i+=<span class="number">1</span>;
-            }
-        }
-        advance();
-        <span class="keyword">var</span> s = statements();
-        advance(<span class="string">"(end)"</span>);
-        scope.pop();
-        <span class="keyword">return</span> s;
-    };
-    <span class="keyword">var</span> parse_repl = <span class="keyword">function</span>(state, source, top_level, debug) {
-        DEBUG = debug;
-        <span class="keyword">var</span> TOKEN_PREFIX = <span class="string">'=&lt;&gt;!+-*&amp;|/%^'</span>, TOKEN_SUFFIX = <span class="string">'=&lt;&gt;&amp;|'</span>;
-        <span class="keyword">var</span> old_scope = scope;
-        <span class="keyword">if</span> (state) {
-            scope = state.scope;
-        } <span class="keyword">else</span> {
-            new_scope();
-            <span class="keyword">if</span> (top_level) {
-                top_level = tokenize(top_level);
-                <span class="keyword">var</span> i = <span class="number">0</span>;
-                <span class="keyword">while</span> (i &lt; top_level.length) {
-                    scope.define(top_level[i]);
-                    i+=<span class="number">1</span>;
-                }
-            }
-        }
-        <span class="keyword">var</span> nstate = { scope: scope };
-        <span class="keyword">var</span> repl_tokens = tokenize(source, TOKEN_PREFIX, TOKEN_SUFFIX);</pre></div></div>
+            scope.define(n);</pre></div></div>
             
         </li>
         
@@ -971,11 +901,12 @@ CSA: make block structure (scope) explicit in the parse tree</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
-              <p>try to parse as an expression</p>
+              <p>CSA: record &#39;var&#39; as a statement</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> tree;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            v = { <span class="hljs-attr">value</span>: <span class="hljs-string">"var"</span>, <span class="hljs-attr">arity</span>: <span class="hljs-string">"statement"</span>, <span class="hljs-attr">first</span>: n };
+            a.push(v);</pre></div></div>
             
         </li>
         
@@ -986,28 +917,98 @@ CSA: make block structure (scope) explicit in the parse tree</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
-              <p>xxx if exception is thrown (ie, for &quot;var f = function() {}&quot; w/ no
-    trailing semi) we need to reset scope so that f is not defined.</p>
+              <p>END CSA</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        Object.Try(<span class="keyword">this</span>, <span class="keyword">function</span>() {
-            tokens = repl_tokens;
-            token_nr = <span class="number">0</span>;
+            <div class="content"><div class='highlight'><pre>            advance();
+            <span class="hljs-keyword">if</span> (token.id === <span class="hljs-string">"="</span>) {
+                t = token;
+                advance(<span class="hljs-string">"="</span>);
+                t.first = n;
+                t.second = expression(<span class="hljs-number">0</span>);
+                t.arity = <span class="hljs-string">"binary"</span>;
+                a.push(t);
+            }
+            <span class="hljs-keyword">if</span> (token.id !== <span class="hljs-string">","</span>) {
+                <span class="hljs-keyword">break</span>;
+            }
+            advance(<span class="hljs-string">","</span>);
+        }
+        advance(<span class="hljs-string">";"</span>);
+        <span class="hljs-keyword">return</span> a; <span class="hljs-comment">// a list of statements, but not a block</span>
+    });
+
+    stmt(<span class="hljs-string">"if"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        advance(<span class="hljs-string">"("</span>);
+        <span class="hljs-keyword">this</span>.first = expression(<span class="hljs-number">0</span>);
+        advance(<span class="hljs-string">")"</span>);
+        <span class="hljs-keyword">this</span>.second = block()[<span class="hljs-number">0</span>];
+        <span class="hljs-keyword">if</span> (token.id === <span class="hljs-string">"else"</span>) {
+            scope.reserve(token);
+            advance(<span class="hljs-string">"else"</span>);
+            <span class="hljs-keyword">this</span>.third = token.id === <span class="hljs-string">"if"</span> ? { <span class="hljs-attr">value</span>: <span class="hljs-string">"block"</span>, <span class="hljs-attr">arity</span>: <span class="hljs-string">"statement"</span>, <span class="hljs-attr">first</span>: statement() } : block()[<span class="hljs-number">0</span>];
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">this</span>.third = <span class="hljs-literal">null</span>;
+        }
+        <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"statement"</span>;
+        <span class="hljs-keyword">return</span> [ <span class="hljs-keyword">this</span> ];
+    });
+
+    stmt(<span class="hljs-string">"return"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">if</span> (token.id !== <span class="hljs-string">";"</span>) {
+            <span class="hljs-keyword">this</span>.first = expression(<span class="hljs-number">0</span>);
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">this</span>.first = <span class="hljs-literal">null</span>;
+        }
+        advance(<span class="hljs-string">";"</span>);
+        <span class="hljs-keyword">if</span> (token.id !== <span class="hljs-string">"}"</span>) {
+            error(token, <span class="hljs-string">"Unreachable statement."</span>);
+        }
+        <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"statement"</span>;
+        <span class="hljs-keyword">return</span> [ <span class="hljs-keyword">this</span> ];
+    });
+
+    stmt(<span class="hljs-string">"break"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        advance(<span class="hljs-string">";"</span>);
+        <span class="hljs-keyword">if</span> (token.id !== <span class="hljs-string">"}"</span>) {
+            error(token, <span class="hljs-string">"Unreachable statement."</span>);
+        }
+        <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"statement"</span>;
+        <span class="hljs-keyword">return</span> [ <span class="hljs-keyword">this</span> ];
+    });
+
+    stmt(<span class="hljs-string">"while"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        advance(<span class="hljs-string">"("</span>);
+        <span class="hljs-keyword">this</span>.first = expression(<span class="hljs-number">0</span>);
+        advance(<span class="hljs-string">")"</span>);
+        <span class="hljs-keyword">this</span>.second = block()[<span class="hljs-number">0</span>];
+        <span class="hljs-keyword">this</span>.arity = <span class="hljs-string">"statement"</span>;
+        <span class="hljs-keyword">return</span> [ <span class="hljs-keyword">this</span> ];
+    });
+
+    <span class="hljs-keyword">var</span> parse = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">source, top_level, debug</span>) </span>{
+        <span class="hljs-keyword">var</span> old_scope = scope;
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.Try(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            DEBUG = debug;
+            tokens = tokenize(source, <span class="hljs-string">'=&lt;&gt;!+-*&amp;|/%^'</span>, <span class="hljs-string">'=&lt;&gt;&amp;|'</span>);
+            token_nr = <span class="hljs-number">0</span>;
+            new_scope();
+            <span class="hljs-keyword">if</span> (top_level) {
+                top_level = tokenize(top_level);
+                <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+                <span class="hljs-keyword">while</span> (i &lt; top_level.length) {
+                    scope.define(top_level[i]);
+                    scope.escape[top_level[i].value] = <span class="hljs-literal">true</span>;
+                    i+=<span class="hljs-number">1</span>;
+                }
+            }
             advance();
-            <span class="keyword">var</span> e = expression(<span class="number">0</span>);
-            advance(<span class="string">"(end)"</span>);
-            tree = [{
-                value: <span class="string">"return"</span>,
-                arity: <span class="string">"statement"</span>,
-                first: e
-            }];
-            nstate.scope = scope;
-        }, <span class="function"><span class="keyword">function</span> <span class="params">(ee)</span> {</span> <span class="comment">// catch(ee)</span>
-            <span class="comment">/*console.log("FAILED PARSING AS EXPRESSION", ee);*/</span>
-            repl_tokens = tokenize(source, TOKEN_PREFIX, TOKEN_SUFFIX);
-        });
-        <span class="keyword">if</span> (!tree) {</pre></div></div>
+            <span class="hljs-keyword">var</span> s = statements();
+            advance(<span class="hljs-string">"(end)"</span>);
+            scope.pop();
+            <span class="hljs-keyword">return</span> s;
+        }, <span class="hljs-literal">null</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -1018,27 +1019,117 @@ CSA: make block structure (scope) explicit in the parse tree</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
+              <p>finally block</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            scope = old_scope;
+        });
+    };
+    <span class="hljs-keyword">var</span> parse_repl = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state, source, top_level, debug</span>) </span>{
+        DEBUG = debug;
+        <span class="hljs-keyword">var</span> TOKEN_PREFIX = <span class="hljs-string">'=&lt;&gt;!+-*&amp;|/%^'</span>, TOKEN_SUFFIX = <span class="hljs-string">'=&lt;&gt;&amp;|'</span>;
+        <span class="hljs-keyword">var</span> old_scope = scope; <span class="hljs-comment">// save global scope</span>
+        <span class="hljs-keyword">if</span> (state) {
+            scope = state.scope;
+        } <span class="hljs-keyword">else</span> {
+            new_scope();
+            <span class="hljs-keyword">if</span> (top_level) {
+                top_level = tokenize(top_level);
+                <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+                <span class="hljs-keyword">while</span> (i &lt; top_level.length) {
+                    scope.define(top_level[i]);
+                    scope.escape[top_level[i].value] = <span class="hljs-literal">true</span>;
+                    i+=<span class="hljs-number">1</span>;
+                }
+            }
+        }
+        <span class="hljs-keyword">var</span> nstate = { <span class="hljs-attr">scope</span>: scope };
+        <span class="hljs-keyword">var</span> repl_tokens = tokenize(source, TOKEN_PREFIX, TOKEN_SUFFIX);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>try to parse as an expression</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> tree;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>xxx if exception is thrown (ie, for &quot;var f = function() {}&quot; w/ no
+    trailing semi) we need to reset scope so that f is not defined.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-built_in">Object</span>.Try(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            scope = copy_scope();
+            tokens = repl_tokens;
+            token_nr = <span class="hljs-number">0</span>;
+            advance();
+            <span class="hljs-keyword">var</span> e = expression(<span class="hljs-number">0</span>);
+            advance(<span class="hljs-string">"(end)"</span>);
+            tree = [{
+                <span class="hljs-attr">value</span>: <span class="hljs-string">"return"</span>,
+                <span class="hljs-attr">arity</span>: <span class="hljs-string">"statement"</span>,
+                <span class="hljs-attr">first</span>: e
+            }];
+            nstate.scope = scope;
+        }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">ee</span>) </span>{ <span class="hljs-comment">// catch(ee)</span>
+            <span class="hljs-comment">/*console.log("FAILED PARSING AS EXPRESSION", ee);*/</span>
+            scope = nstate.scope;
+            repl_tokens = tokenize(source, TOKEN_PREFIX, TOKEN_SUFFIX);
+        });
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.Try(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">if</span> (!tree) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
               <p>try to parse as a statement</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            tokens = repl_tokens;
-            token_nr = <span class="number">0</span>;
-            advance();
-            <span class="keyword">var</span> s = statements();
-            advance(<span class="string">"(end)"</span>);
-            tree = s;
-            nstate.scope = scope;
-        }
-        scope = old_scope;
-        <span class="keyword">return</span> { state: nstate, tree: tree };
+            <div class="content"><div class='highlight'><pre>                scope = copy_scope();
+                tokens = repl_tokens;
+                token_nr = <span class="hljs-number">0</span>;
+                advance();
+                <span class="hljs-keyword">var</span> s = statements();
+                advance(<span class="hljs-string">"(end)"</span>);
+                tree = s;
+                nstate.scope = scope;
+            }
+            <span class="hljs-keyword">return</span> { <span class="hljs-attr">state</span>: nstate, <span class="hljs-attr">tree</span>: tree };
+        }, <span class="hljs-literal">null</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">ee</span>) </span>{
+            scope = old_scope; <span class="hljs-comment">// restore global scope</span>
+        });
     };
-    parse.__module_name__ = <span class="string">"parse"</span>;
+    parse.__module_name__ = <span class="hljs-string">"parse"</span>;
     parse.__module_init__ = make_parse;
-    parse.__module_deps__ = [<span class="string">"tokenize"</span>];
+    parse.__module_deps__ = [<span class="hljs-string">"tokenize"</span>];
     parse.__module_source__ = parse_source;
     parse.repl = parse_repl;
-    <span class="keyword">return</span> parse;
+    <span class="hljs-keyword">return</span> parse;
 });</pre></div></div>
             
         </li>

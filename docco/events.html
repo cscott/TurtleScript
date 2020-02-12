@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -213,7 +233,7 @@ as such it is:</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="comment">/*
+            <div class="content"><div class='highlight'><pre><span class="hljs-comment">/*
  * Copyright (c) 2006-2009, The Flapjax Team.  All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -242,26 +262,26 @@ as such it is:</p>
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */</span>
-define([<span class="string">"text!events.js"</span>, <span class="string">"!timeouts"</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_flapjax</span><span class="params">(events_source, timeouts)</span> {</span>
-    <span class="keyword">var</span> setTimeout = timeouts.setTimeout;
-    <span class="keyword">var</span> clearTimeout = timeouts.clearTimeout;
+define([<span class="hljs-string">"text!events.js"</span>, <span class="hljs-string">"!timeouts"</span>], <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_flapjax</span>(<span class="hljs-params">events_source, timeouts</span>) </span>{
+    <span class="hljs-keyword">var</span> setTimeout = timeouts.setTimeout;
+    <span class="hljs-keyword">var</span> clearTimeout = timeouts.clearTimeout;
 
-    <span class="keyword">var</span> slice = <span class="keyword">function</span>(arr, start, stop) {
-        <span class="keyword">return</span> Array.prototype.slice.call(arr, start, stop);
+    <span class="hljs-keyword">var</span> slice = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">arr, start, stop</span>) </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Array</span>.prototype.slice.call(arr, start, stop);
     };
 
-    <span class="keyword">var</span> zip = <span class="keyword">function</span>(arrays) {
-        <span class="keyword">var</span> ret = [], i = <span class="number">0</span>;
-        <span class="keyword">if</span> (arrays.length &gt; <span class="number">0</span>) {
-            <span class="keyword">while</span> (i &lt; arrays[<span class="number">0</span>].length) {
+    <span class="hljs-keyword">var</span> zip = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">arrays</span>) </span>{
+        <span class="hljs-keyword">var</span> ret = [], i = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">if</span> (arrays.length &gt; <span class="hljs-number">0</span>) {
+            <span class="hljs-keyword">while</span> (i &lt; arrays[<span class="hljs-number">0</span>].length) {
                 ret.push([]);
-                arrays.forEach(<span class="keyword">function</span>(arr) {
+                arrays.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">arr</span>) </span>{
                     ret[i].push(arr[i]);
                 });
-                i += <span class="number">1</span>;
+                i += <span class="hljs-number">1</span>;
             }
         }
-        <span class="keyword">return</span> ret;
+        <span class="hljs-keyword">return</span> ret;
     };</pre></div></div>
             
         </li>
@@ -273,24 +293,24 @@ define([<span class="string">"text!events.js"</span>, <span class="string">"!tim
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>map: (a <em> ... -&gt; z) </em> [a] * ... -&gt; [z]</p>
+              <p>map: (a * ... -&gt; z) * [a] * ... -&gt; [z]</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> map = <span class="function"><span class="keyword">function</span> <span class="params">(fn)</span> {</span>
-        <span class="keyword">var</span> arrays = slice(arguments, <span class="number">1</span>);
-        <span class="keyword">var</span> ret = [];
-        <span class="keyword">if</span> (arrays.length === <span class="number">1</span>) {
-            arrays[<span class="number">0</span>].forEach(<span class="keyword">function</span>(e) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> map = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">fn</span>) </span>{
+        <span class="hljs-keyword">var</span> arrays = slice(<span class="hljs-built_in">arguments</span>, <span class="hljs-number">1</span>);
+        <span class="hljs-keyword">var</span> ret = [];
+        <span class="hljs-keyword">if</span> (arrays.length === <span class="hljs-number">1</span>) {
+            arrays[<span class="hljs-number">0</span>].forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{
                 ret.push(fn(e));
             });
-        } <span class="keyword">else</span> <span class="keyword">if</span> (arrays.length &gt; <span class="number">1</span>) {
-            <span class="keyword">var</span> o = {};
-            zip(arrays).forEach(<span class="keyword">function</span>(args) {
+        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (arrays.length &gt; <span class="hljs-number">1</span>) {
+            <span class="hljs-keyword">var</span> o = {};
+            zip(arrays).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">args</span>) </span>{
                 ret.push(fn.apply(o, args));
             });
         }
-        <span class="keyword">return</span> ret;
+        <span class="hljs-keyword">return</span> ret;
     };</pre></div></div>
             
         </li>
@@ -306,12 +326,12 @@ define([<span class="string">"text!events.js"</span>, <span class="string">"!tim
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> filter = <span class="function"><span class="keyword">function</span> <span class="params">(predFn, arr)</span> {</span>
-        <span class="keyword">var</span> res = [];
-        arr.forEach(<span class="keyword">function</span>(elem) {
-            <span class="keyword">if</span> (predFn(elem)) { res.push(elem); }
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> filter = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">predFn, arr</span>) </span>{
+        <span class="hljs-keyword">var</span> res = [];
+        arr.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">elem</span>) </span>{
+            <span class="hljs-keyword">if</span> (predFn(elem)) { res.push(elem); }
         });
-        <span class="keyword">return</span> res;
+        <span class="hljs-keyword">return</span> res;
     };</pre></div></div>
             
         </li>
@@ -329,7 +349,7 @@ Flapjax core</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> doNotPropagate = { };</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> doNotPropagate = { };</pre></div></div>
             
         </li>
         
@@ -340,11 +360,11 @@ Flapjax core</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
-              <p>Pulse: Stamp <em> Path </em> Obj</p>
+              <p>Pulse: Stamp * Path * Obj</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> Pulse = <span class="function"><span class="keyword">function</span> <span class="params">(stamp, value)</span> {</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> Pulse = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">stamp, value</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -361,8 +381,8 @@ signal if it has a new stamp.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">this</span>.stamp = stamp;
-  <span class="keyword">this</span>.value = value;
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">this</span>.stamp = stamp;
+  <span class="hljs-keyword">this</span>.value = value;
 };</pre></div></div>
             
         </li>
@@ -379,57 +399,57 @@ XXX csa: replace Math.floor with &gt;&gt;1</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> PQ = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-  <span class="keyword">var</span> ctx = <span class="keyword">this</span>;
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> PQ = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">var</span> ctx = <span class="hljs-keyword">this</span>;
   ctx.val = [];
-  <span class="keyword">this</span>.insert = <span class="function"><span class="keyword">function</span> <span class="params">(kv)</span> {</span>
+  <span class="hljs-keyword">this</span>.insert = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">kv</span>) </span>{
     ctx.val.push(kv);
-    <span class="keyword">var</span> kvpos = ctx.val.length-<span class="number">1</span>;
-    <span class="keyword">while</span>(kvpos &gt; <span class="number">0</span> &amp;&amp; kv.k &lt; ctx.val[Math.floor((kvpos-<span class="number">1</span>)/<span class="number">2</span>)].k) {
-      <span class="keyword">var</span> oldpos = kvpos;
-      kvpos = Math.floor((kvpos-<span class="number">1</span>)/<span class="number">2</span>);
+    <span class="hljs-keyword">var</span> kvpos = ctx.val.length<span class="hljs-number">-1</span>;
+    <span class="hljs-keyword">while</span>(kvpos &gt; <span class="hljs-number">0</span> &amp;&amp; kv.k &lt; ctx.val[<span class="hljs-built_in">Math</span>.floor((kvpos<span class="hljs-number">-1</span>)/<span class="hljs-number">2</span>)].k) {
+      <span class="hljs-keyword">var</span> oldpos = kvpos;
+      kvpos = <span class="hljs-built_in">Math</span>.floor((kvpos<span class="hljs-number">-1</span>)/<span class="hljs-number">2</span>);
       ctx.val[oldpos] = ctx.val[kvpos];
       ctx.val[kvpos] = kv;
     }
   };
-  <span class="keyword">this</span>.isEmpty = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-    <span class="keyword">return</span> ctx.val.length === <span class="number">0</span>;
+  <span class="hljs-keyword">this</span>.isEmpty = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">return</span> ctx.val.length === <span class="hljs-number">0</span>;
   };
-  <span class="keyword">this</span>.pop = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-    <span class="keyword">if</span>(ctx.val.length === <span class="number">1</span>) {
-      <span class="keyword">return</span> ctx.val.pop();
+  <span class="hljs-keyword">this</span>.pop = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">if</span>(ctx.val.length === <span class="hljs-number">1</span>) {
+      <span class="hljs-keyword">return</span> ctx.val.pop();
     }
-    <span class="keyword">var</span> ret = ctx.val.shift();
+    <span class="hljs-keyword">var</span> ret = ctx.val.shift();
     ctx.val.unshift(ctx.val.pop());
-    <span class="keyword">var</span> kvpos = <span class="number">0</span>;
-    <span class="keyword">var</span> kv = ctx.val[<span class="number">0</span>];
-    <span class="keyword">while</span>(<span class="number">1</span>) {
-      <span class="keyword">var</span> leftChild = (kvpos*<span class="number">2</span>+<span class="number">1</span> &lt; ctx.val.length ? ctx.val[kvpos*<span class="number">2</span>+<span class="number">1</span>].k : kv.k+<span class="number">1</span>);
-      <span class="keyword">var</span> rightChild = (kvpos*<span class="number">2</span>+<span class="number">2</span> &lt; ctx.val.length ? ctx.val[kvpos*<span class="number">2</span>+<span class="number">2</span>].k : kv.k+<span class="number">1</span>);
-      <span class="keyword">if</span>(leftChild &gt; kv.k &amp;&amp; rightChild &gt; kv.k) {
-          <span class="keyword">break</span>;
+    <span class="hljs-keyword">var</span> kvpos = <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">var</span> kv = ctx.val[<span class="hljs-number">0</span>];
+    <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>) {
+      <span class="hljs-keyword">var</span> leftChild = (kvpos*<span class="hljs-number">2</span>+<span class="hljs-number">1</span> &lt; ctx.val.length ? ctx.val[kvpos*<span class="hljs-number">2</span>+<span class="hljs-number">1</span>].k : kv.k+<span class="hljs-number">1</span>);
+      <span class="hljs-keyword">var</span> rightChild = (kvpos*<span class="hljs-number">2</span>+<span class="hljs-number">2</span> &lt; ctx.val.length ? ctx.val[kvpos*<span class="hljs-number">2</span>+<span class="hljs-number">2</span>].k : kv.k+<span class="hljs-number">1</span>);
+      <span class="hljs-keyword">if</span>(leftChild &gt; kv.k &amp;&amp; rightChild &gt; kv.k) {
+          <span class="hljs-keyword">break</span>;
       }
 
-      <span class="keyword">if</span>(leftChild &lt; rightChild) {
-        ctx.val[kvpos] = ctx.val[kvpos*<span class="number">2</span>+<span class="number">1</span>];
-        ctx.val[kvpos*<span class="number">2</span>+<span class="number">1</span>] = kv;
-        kvpos = kvpos*<span class="number">2</span>+<span class="number">1</span>;
+      <span class="hljs-keyword">if</span>(leftChild &lt; rightChild) {
+        ctx.val[kvpos] = ctx.val[kvpos*<span class="hljs-number">2</span>+<span class="hljs-number">1</span>];
+        ctx.val[kvpos*<span class="hljs-number">2</span>+<span class="hljs-number">1</span>] = kv;
+        kvpos = kvpos*<span class="hljs-number">2</span>+<span class="hljs-number">1</span>;
       }
-      <span class="keyword">else</span> {
-        ctx.val[kvpos] = ctx.val[kvpos*<span class="number">2</span>+<span class="number">2</span>];
-        ctx.val[kvpos*<span class="number">2</span>+<span class="number">2</span>] = kv;
-        kvpos = kvpos*<span class="number">2</span>+<span class="number">2</span>;
+      <span class="hljs-keyword">else</span> {
+        ctx.val[kvpos] = ctx.val[kvpos*<span class="hljs-number">2</span>+<span class="hljs-number">2</span>];
+        ctx.val[kvpos*<span class="hljs-number">2</span>+<span class="hljs-number">2</span>] = kv;
+        kvpos = kvpos*<span class="hljs-number">2</span>+<span class="hljs-number">2</span>;
       }
     }
-    <span class="keyword">return</span> ret;
+    <span class="hljs-keyword">return</span> ret;
   };
 };
 
-<span class="keyword">var</span> lastRank = <span class="number">0</span>;
-<span class="keyword">var</span> stamp = <span class="number">1</span>;
-<span class="keyword">var</span> nextStamp = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-    stamp += <span class="number">1</span>;
-    <span class="keyword">return</span> stamp;
+<span class="hljs-keyword">var</span> lastRank = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">var</span> stamp = <span class="hljs-number">1</span>;
+<span class="hljs-keyword">var</span> nextStamp = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    stamp += <span class="hljs-number">1</span>;
+    <span class="hljs-keyword">return</span> stamp;
 };</pre></div></div>
             
         </li>
@@ -446,26 +466,26 @@ Send the pulse to each node</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> propagatePulse = <span class="function"><span class="keyword">function</span> <span class="params">(pulse, node)</span> {</span>
-  <span class="keyword">var</span> queue = PQ.New(); <span class="comment">//topological queue for current timestep</span>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> propagatePulse = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">pulse, node</span>) </span>{
+  <span class="hljs-keyword">var</span> queue = PQ.New(); <span class="hljs-comment">//topological queue for current timestep</span>
 
-  queue.insert({k:node.rank,n:node,v:pulse});
-  <span class="keyword">var</span> len = <span class="number">1</span>;
+  queue.insert({<span class="hljs-attr">k</span>:node.rank,<span class="hljs-attr">n</span>:node,<span class="hljs-attr">v</span>:pulse});
+  <span class="hljs-keyword">var</span> len = <span class="hljs-number">1</span>;
 
-  <span class="keyword">while</span> (len) {
-    <span class="keyword">var</span> qv = queue.pop();
-    len-=<span class="number">1</span>;
-    <span class="keyword">var</span> nextPulse = qv.n.updater(Pulse.New(qv.v.stamp, qv.v.value));
-    <span class="keyword">var</span> weaklyHeld = <span class="literal">true</span>;
+  <span class="hljs-keyword">while</span> (len) {
+    <span class="hljs-keyword">var</span> qv = queue.pop();
+    len-=<span class="hljs-number">1</span>;
+    <span class="hljs-keyword">var</span> nextPulse = qv.n.updater(Pulse.New(qv.v.stamp, qv.v.value));
+    <span class="hljs-keyword">var</span> weaklyHeld = <span class="hljs-literal">true</span>;
 
-    <span class="keyword">if</span> (nextPulse !== doNotPropagate) {
-      qv.n.sendsTo.forEach(<span class="keyword">function</span>(n) {
+    <span class="hljs-keyword">if</span> (nextPulse !== doNotPropagate) {
+      qv.n.sendsTo.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">n</span>) </span>{
         weaklyHeld = weaklyHeld &amp;&amp; n.weaklyHeld;
-        len+=<span class="number">1</span>;
-        queue.insert({k:n.rank,n:n,v:nextPulse});
+        len+=<span class="hljs-number">1</span>;
+        queue.insert({<span class="hljs-attr">k</span>:n.rank,<span class="hljs-attr">n</span>:n,<span class="hljs-attr">v</span>:nextPulse});
       });
-      <span class="keyword">if</span> (qv.n.sendsTo.length &gt; <span class="number">0</span> &amp;&amp; weaklyHeld) {
-          qv.n.weaklyHeld = <span class="literal">true</span>;
+      <span class="hljs-keyword">if</span> (qv.n.sendsTo.length &gt; <span class="hljs-number">0</span> &amp;&amp; weaklyHeld) {
+          qv.n.weaklyHeld = <span class="hljs-literal">true</span>;
       }
     }
   }
@@ -480,22 +500,22 @@ Send the pulse to each node</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
-              <p>Event: Array Node b <em> ( (Pulse a -&gt; Void) </em> Pulse b -&gt; Void)</p>
+              <p>Event: Array Node b * ( (Pulse a -&gt; Void) * Pulse b -&gt; Void)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> EventStream = <span class="function"><span class="keyword">function</span> <span class="params">(nodes,updater)</span> {</span>
-  <span class="keyword">this</span>.updater = updater;
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> EventStream = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">nodes,updater</span>) </span>{
+  <span class="hljs-keyword">this</span>.updater = updater;
 
-  <span class="keyword">this</span>.sendsTo = []; <span class="comment">//forward link</span>
-  <span class="keyword">this</span>.weaklyHeld = <span class="literal">false</span>;
+  <span class="hljs-keyword">this</span>.sendsTo = []; <span class="hljs-comment">//forward link</span>
+  <span class="hljs-keyword">this</span>.weaklyHeld = <span class="hljs-literal">false</span>;
 
-  nodes.forEach(<span class="keyword">function</span>(n) {
-        n.attachListener(<span class="keyword">this</span>);
-  }, <span class="keyword">this</span>);
+  nodes.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">n</span>) </span>{
+        n.attachListener(<span class="hljs-keyword">this</span>);
+  }, <span class="hljs-keyword">this</span>);
 
-  lastRank += <span class="number">1</span>;
-  <span class="keyword">this</span>.rank = lastRank;
+  lastRank += <span class="hljs-number">1</span>;
+  <span class="hljs-keyword">this</span>.rank = lastRank;
 };
 EventStream.prototype = {};</pre></div></div>
             
@@ -508,12 +528,12 @@ EventStream.prototype = {};</pre></div></div>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
-              <p>createNode: Array Node a <em> ( (Pulse b -&gt;) </em> (Pulse a) -&gt; Void) -&gt; Node b</p>
+              <p>createNode: Array Node a * ( (Pulse b -&gt;) * (Pulse a) -&gt; Void) -&gt; Node b</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> createNode = <span class="function"><span class="keyword">function</span> <span class="params">(nodes, updater)</span> {</span>
-  <span class="keyword">return</span> EventStream.New(nodes,updater);
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> createNode = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">nodes, updater</span>) </span>{
+  <span class="hljs-keyword">return</span> EventStream.New(nodes,updater);
 };</pre></div></div>
             
         </li>
@@ -529,45 +549,45 @@ EventStream.prototype = {};</pre></div></div>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> sendEvent = <span class="function"><span class="keyword">function</span> <span class="params">(node, value)</span> {</span>
-  <span class="keyword">if</span> (!EventStream.hasInstance(node)) {
-      Object.Throw(<span class="string">'sendEvent: expected Event as first arg'</span>);
-  } <span class="comment">//SAFETY</span>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> sendEvent = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">node, value</span>) </span>{
+  <span class="hljs-keyword">if</span> (!EventStream.hasInstance(node)) {
+      <span class="hljs-built_in">Object</span>.Throw(<span class="hljs-string">'sendEvent: expected Event as first arg'</span>);
+  } <span class="hljs-comment">//SAFETY</span>
 
   propagatePulse(Pulse.New(nextStamp(), value),node);
 };
 
-<span class="keyword">var</span> genericAttachListener = <span class="keyword">function</span>(node, dependent) {
+<span class="hljs-keyword">var</span> genericAttachListener = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">node, dependent</span>) </span>{
   node.sendsTo.push(dependent);
 
-  <span class="keyword">if</span>(node.rank &gt; dependent.rank) {
-    <span class="keyword">var</span> lowest = lastRank+<span class="number">1</span>;
-    <span class="keyword">var</span> q = [dependent];
-    <span class="keyword">while</span>(q.length) {
-      <span class="keyword">var</span> cur = q.splice(<span class="number">0</span>,<span class="number">1</span>)[<span class="number">0</span>];
-      lastRank += <span class="number">1</span>;
+  <span class="hljs-keyword">if</span>(node.rank &gt; dependent.rank) {
+    <span class="hljs-keyword">var</span> lowest = lastRank+<span class="hljs-number">1</span>;
+    <span class="hljs-keyword">var</span> q = [dependent];
+    <span class="hljs-keyword">while</span>(q.length) {
+      <span class="hljs-keyword">var</span> cur = q.splice(<span class="hljs-number">0</span>,<span class="hljs-number">1</span>)[<span class="hljs-number">0</span>];
+      lastRank += <span class="hljs-number">1</span>;
       cur.rank = lastRank;
       q = q.concat(cur.sendsTo);
     }
   }
 };
 
-<span class="keyword">var</span> genericRemoveListener = <span class="function"><span class="keyword">function</span> <span class="params">(node, dependent, isWeakReference)</span> {</span>
-  <span class="keyword">var</span> foundSending = <span class="literal">false</span>;
-  <span class="keyword">var</span> i = <span class="number">0</span>;
-  <span class="keyword">while</span>( i &lt; node.sendsTo.length &amp;&amp; !foundSending ) {
-    <span class="keyword">if</span> (node.sendsTo[i] === dependent) {
-      node.sendsTo.splice(i, <span class="number">1</span>);
-      foundSending = <span class="literal">true</span>;
+<span class="hljs-keyword">var</span> genericRemoveListener = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">node, dependent, isWeakReference</span>) </span>{
+  <span class="hljs-keyword">var</span> foundSending = <span class="hljs-literal">false</span>;
+  <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+  <span class="hljs-keyword">while</span>( i &lt; node.sendsTo.length &amp;&amp; !foundSending ) {
+    <span class="hljs-keyword">if</span> (node.sendsTo[i] === dependent) {
+      node.sendsTo.splice(i, <span class="hljs-number">1</span>);
+      foundSending = <span class="hljs-literal">true</span>;
     }
-    i += <span class="number">1</span>;
+    i += <span class="hljs-number">1</span>;
   }
 
-  <span class="keyword">if</span> (isWeakReference === <span class="literal">true</span> &amp;&amp; node.sendsTo.length === <span class="number">0</span>) {
-    node.weaklyHeld = <span class="literal">true</span>;
+  <span class="hljs-keyword">if</span> (isWeakReference === <span class="hljs-literal">true</span> &amp;&amp; node.sendsTo.length === <span class="hljs-number">0</span>) {
+    node.weaklyHeld = <span class="hljs-literal">true</span>;
   }
 
-  <span class="keyword">return</span> foundSending;
+  <span class="hljs-keyword">return</span> foundSending;
 };</pre></div></div>
             
         </li>
@@ -585,11 +605,11 @@ note: does not add flow as counting for rank nor updates parent ranks</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>EventStream.prototype.attachListener = <span class="keyword">function</span>(dependent) {
-  <span class="keyword">if</span> (!EventStream.hasInstance(dependent)) {
-      Object.Throw(<span class="string">'attachListener: expected an EventStream'</span>);
+            <div class="content"><div class='highlight'><pre>EventStream.prototype.attachListener = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">dependent</span>) </span>{
+  <span class="hljs-keyword">if</span> (!EventStream.hasInstance(dependent)) {
+      <span class="hljs-built_in">Object</span>.Throw(<span class="hljs-string">'attachListener: expected an EventStream'</span>);
   }
-  genericAttachListener(<span class="keyword">this</span>, dependent);
+  genericAttachListener(<span class="hljs-keyword">this</span>, dependent);
 };</pre></div></div>
             
         </li>
@@ -605,12 +625,12 @@ note: does not add flow as counting for rank nor updates parent ranks</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>EventStream.prototype.removeListener = <span class="function"><span class="keyword">function</span> <span class="params">(dependent, isWeak)</span> {</span>
-  <span class="keyword">if</span> (!EventStream.hasInstance(dependent)) {
-    Object.Throw(<span class="string">'removeListener: expected an EventStream'</span>);
+            <div class="content"><div class='highlight'><pre>EventStream.prototype.removeListener = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">dependent, isWeak</span>) </span>{
+  <span class="hljs-keyword">if</span> (!EventStream.hasInstance(dependent)) {
+    <span class="hljs-built_in">Object</span>.Throw(<span class="hljs-string">'removeListener: expected an EventStream'</span>);
   }
 
-  genericRemoveListener(<span class="keyword">this</span>, dependent, isWeak);
+  genericRemoveListener(<span class="hljs-keyword">this</span>, dependent, isWeak);
 };</pre></div></div>
             
         </li>
@@ -627,28 +647,28 @@ combinators.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> internalE = <span class="keyword">function</span>(dependsOn) {
-  <span class="keyword">return</span> createNode(dependsOn || [ ],<span class="keyword">function</span>(pulse) { <span class="keyword">return</span> pulse; });
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> internalE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">dependsOn</span>) </span>{
+  <span class="hljs-keyword">return</span> createNode(dependsOn || [ ],<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pulse</span>) </span>{ <span class="hljs-keyword">return</span> pulse; });
 };
 
-<span class="keyword">var</span> zeroE = <span class="keyword">function</span>() {
-  <span class="keyword">return</span> createNode([],<span class="keyword">function</span>(pulse) {
-      Object.Throw (<span class="string">'zeroE : received a value; zeroE should not receive a value; the value was '</span> + pulse.value);
+<span class="hljs-keyword">var</span> zeroE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> createNode([],<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pulse</span>) </span>{
+      <span class="hljs-built_in">Object</span>.Throw (<span class="hljs-string">'zeroE : received a value; zeroE should not receive a value; the value was '</span> + pulse.value);
   });
 };
 
 
-<span class="keyword">var</span> oneE = <span class="keyword">function</span>(val) {
-  <span class="keyword">var</span> sent = <span class="literal">false</span>;
-  <span class="keyword">var</span> evt = createNode([],<span class="keyword">function</span>(pulse) {
-    <span class="keyword">if</span> (sent) {
-      Object.Throw (<span class="string">'oneE : received an extra value'</span>);
+<span class="hljs-keyword">var</span> oneE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">val</span>) </span>{
+  <span class="hljs-keyword">var</span> sent = <span class="hljs-literal">false</span>;
+  <span class="hljs-keyword">var</span> evt = createNode([],<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pulse</span>) </span>{
+    <span class="hljs-keyword">if</span> (sent) {
+      <span class="hljs-built_in">Object</span>.Throw (<span class="hljs-string">'oneE : received an extra value'</span>);
     }
-    sent = <span class="literal">true</span>;
-    <span class="keyword">return</span> pulse;
+    sent = <span class="hljs-literal">true</span>;
+    <span class="hljs-keyword">return</span> pulse;
   });
-  setTimeout(<span class="keyword">function</span>() { sendEvent(evt,val); },<span class="number">0</span>);
-  <span class="keyword">return</span> evt;
+  setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{ sendEvent(evt,val); },<span class="hljs-number">0</span>);
+  <span class="hljs-keyword">return</span> evt;
 };</pre></div></div>
             
         </li>
@@ -664,33 +684,33 @@ combinators.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> mergeE = <span class="keyword">function</span>() {
-  <span class="keyword">if</span> (arguments.length === <span class="number">0</span>) {
-    <span class="keyword">return</span> zeroE();
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> mergeE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">if</span> (<span class="hljs-built_in">arguments</span>.length === <span class="hljs-number">0</span>) {
+    <span class="hljs-keyword">return</span> zeroE();
   }
-  <span class="keyword">else</span> {
-    <span class="keyword">var</span> deps = slice(arguments,<span class="number">0</span>);
-    <span class="keyword">return</span> internalE(deps);
+  <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">var</span> deps = slice(<span class="hljs-built_in">arguments</span>,<span class="hljs-number">0</span>);
+    <span class="hljs-keyword">return</span> internalE(deps);
   }
 };
 
 
-EventStream.prototype.mergeE = <span class="keyword">function</span>() {
-  <span class="keyword">var</span> deps = slice(arguments,<span class="number">0</span>);
-  deps.push(<span class="keyword">this</span>);
-  <span class="keyword">return</span> internalE(deps);
+EventStream.prototype.mergeE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">var</span> deps = slice(<span class="hljs-built_in">arguments</span>,<span class="hljs-number">0</span>);
+  deps.push(<span class="hljs-keyword">this</span>);
+  <span class="hljs-keyword">return</span> internalE(deps);
 };
 
 
-EventStream.prototype.constantE = <span class="keyword">function</span>(constantValue) {
-  <span class="keyword">return</span> createNode([<span class="keyword">this</span>],<span class="keyword">function</span>(pulse) {
+EventStream.prototype.constantE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">constantValue</span>) </span>{
+  <span class="hljs-keyword">return</span> createNode([<span class="hljs-keyword">this</span>],<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pulse</span>) </span>{
     pulse.value = constantValue;
-    <span class="keyword">return</span> pulse;
+    <span class="hljs-keyword">return</span> pulse;
   });
 };
 
 
-<span class="keyword">var</span> constantE = <span class="keyword">function</span>(e,v) { <span class="keyword">return</span> e.constantE(v); };</pre></div></div>
+<span class="hljs-keyword">var</span> constantE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e,v</span>) </span>{ <span class="hljs-keyword">return</span> e.constantE(v); };</pre></div></div>
             
         </li>
         
@@ -705,13 +725,13 @@ EventStream.prototype.constantE = <span class="keyword">function</span>(constant
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> Behavior = <span class="function"><span class="keyword">function</span> <span class="params">(event, init, updater)</span> {</span>
-  <span class="keyword">if</span> (!EventStream.hasInstance(event)) {
-    Object.Throw (<span class="string">'Behavior: expected event as second arg'</span>);
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> Behavior = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">event, init, updater</span>) </span>{
+  <span class="hljs-keyword">if</span> (!EventStream.hasInstance(event)) {
+    <span class="hljs-built_in">Object</span>.Throw (<span class="hljs-string">'Behavior: expected event as second arg'</span>);
   }
 
-  <span class="keyword">var</span> behave = <span class="keyword">this</span>;
-  <span class="keyword">this</span>.last = init;</pre></div></div>
+  <span class="hljs-keyword">var</span> behave = <span class="hljs-keyword">this</span>;
+  <span class="hljs-keyword">this</span>.last = init;</pre></div></div>
             
         </li>
         
@@ -727,7 +747,7 @@ sendBehavior defaults to this one</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">this</span>.underlyingRaw = event;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">this</span>.underlyingRaw = event;</pre></div></div>
             
         </li>
         
@@ -742,36 +762,36 @@ sendBehavior defaults to this one</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">this</span>.underlying = createNode([event], updater
-    ? <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">this</span>.underlying = createNode([event], updater
+    ? <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">p</span>) </span>{
         behave.last = updater(p.value);
-        p.value = behave.last; <span class="keyword">return</span> p;
+        p.value = behave.last; <span class="hljs-keyword">return</span> p;
       }
-    : <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>
+    : <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">p</span>) </span>{
         behave.last = p.value;
-        <span class="keyword">return</span> p;
+        <span class="hljs-keyword">return</span> p;
       });
 };
 Behavior.prototype = {};
 
-Behavior.prototype.valueNow = <span class="keyword">function</span>() {
-  <span class="keyword">return</span> <span class="keyword">this</span>.last;
+Behavior.prototype.valueNow = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.last;
 };
-<span class="keyword">var</span> valueNow = <span class="keyword">function</span>(behavior) { <span class="keyword">return</span> behavior.valueNow(); };
-<span class="keyword">var</span> constantB;
+<span class="hljs-keyword">var</span> valueNow = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">behavior</span>) </span>{ <span class="hljs-keyword">return</span> behavior.valueNow(); };
+<span class="hljs-keyword">var</span> constantB;
 
-Behavior.prototype.changes = <span class="keyword">function</span>() {
-  <span class="keyword">return</span> <span class="keyword">this</span>.underlying;
+Behavior.prototype.changes = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.underlying;
 };
-<span class="keyword">var</span> changes = <span class="function"><span class="keyword">function</span> <span class="params">(behave)</span> {</span> <span class="keyword">return</span> behave.changes(); };
+<span class="hljs-keyword">var</span> changes = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">behave</span>) </span>{ <span class="hljs-keyword">return</span> behave.changes(); };
 
 
-<span class="keyword">var</span> receiverE = <span class="keyword">function</span>() {
-  <span class="keyword">var</span> evt = internalE();
-  evt.sendEvent = <span class="keyword">function</span>(value) {
+<span class="hljs-keyword">var</span> receiverE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">var</span> evt = internalE();
+  evt.sendEvent = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">value</span>) </span>{
     propagatePulse(Pulse.New(nextStamp(), value),evt);
   };
-  <span class="keyword">return</span> evt;
+  <span class="hljs-keyword">return</span> evt;
 };</pre></div></div>
             
         </li>
@@ -787,58 +807,58 @@ Behavior.prototype.changes = <span class="keyword">function</span>() {
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>EventStream.prototype.bindE = <span class="keyword">function</span>(k) {
-  <span class="comment">/* m.sendsTo resultE
+            <div class="content"><div class='highlight'><pre>EventStream.prototype.bindE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">k</span>) </span>{
+  <span class="hljs-comment">/* m.sendsTo resultE
    * resultE.sendsTo prevE
    * prevE.sendsTo returnE
    */</span>
-  <span class="keyword">var</span> m = <span class="keyword">this</span>;
-  <span class="keyword">var</span> prevE = <span class="literal">false</span>;
+  <span class="hljs-keyword">var</span> m = <span class="hljs-keyword">this</span>;
+  <span class="hljs-keyword">var</span> prevE = <span class="hljs-literal">false</span>;
 
-  <span class="keyword">var</span> outE = createNode([],<span class="keyword">function</span>(pulse) { <span class="keyword">return</span> pulse; });
-  outE.name = <span class="string">"bind outE"</span>;
+  <span class="hljs-keyword">var</span> outE = createNode([],<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pulse</span>) </span>{ <span class="hljs-keyword">return</span> pulse; });
+  outE.name = <span class="hljs-string">"bind outE"</span>;
 
-  <span class="keyword">var</span> inE = createNode([m], <span class="function"><span class="keyword">function</span> <span class="params">(pulse)</span> {</span>
-    <span class="keyword">if</span> (prevE) {
-      prevE.removeListener(outE, <span class="literal">true</span>);
+  <span class="hljs-keyword">var</span> inE = createNode([m], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">pulse</span>) </span>{
+    <span class="hljs-keyword">if</span> (prevE) {
+      prevE.removeListener(outE, <span class="hljs-literal">true</span>);
 
     }
     prevE = k(pulse.value);
-    <span class="keyword">if</span> (EventStream.hasInstance(prevE)) {
+    <span class="hljs-keyword">if</span> (EventStream.hasInstance(prevE)) {
       prevE.attachListener(outE);
     }
-    <span class="keyword">else</span> {
-      Object.Throw(<span class="string">"bindE : expected EventStream"</span>);
+    <span class="hljs-keyword">else</span> {
+      <span class="hljs-built_in">Object</span>.Throw(<span class="hljs-string">"bindE : expected EventStream"</span>);
     }
 
-    <span class="keyword">return</span> doNotPropagate;
+    <span class="hljs-keyword">return</span> doNotPropagate;
   });
-  inE.name = <span class="string">"bind inE"</span>;
+  inE.name = <span class="hljs-string">"bind inE"</span>;
 
-  <span class="keyword">return</span> outE;
+  <span class="hljs-keyword">return</span> outE;
 };
 
-EventStream.prototype.mapE = <span class="keyword">function</span>(f) {
-  <span class="keyword">if</span> (!Function.hasInstance(f)) {
-    Object.Throw (<span class="string">'mapE : expected a function as the first argument; received '</span> + f);
+EventStream.prototype.mapE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">f</span>) </span>{
+  <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">Function</span>.hasInstance(f)) {
+    <span class="hljs-built_in">Object</span>.Throw (<span class="hljs-string">'mapE : expected a function as the first argument; received '</span> + f);
   }
 
-  <span class="keyword">return</span> createNode([<span class="keyword">this</span>],<span class="keyword">function</span>(pulse) {
+  <span class="hljs-keyword">return</span> createNode([<span class="hljs-keyword">this</span>],<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pulse</span>) </span>{
     pulse.value = f(pulse.value);
-    <span class="keyword">return</span> pulse;
+    <span class="hljs-keyword">return</span> pulse;
   });
 };
 
 
-EventStream.prototype.notE = <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.mapE(<span class="keyword">function</span>(v) { <span class="keyword">return</span> !v; }); };
+EventStream.prototype.notE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.mapE(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">v</span>) </span>{ <span class="hljs-keyword">return</span> !v; }); };
 
 
-<span class="keyword">var</span> notE = <span class="keyword">function</span>(e) { <span class="keyword">return</span> e.notE(); };
+<span class="hljs-keyword">var</span> notE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{ <span class="hljs-keyword">return</span> e.notE(); };
 
 
-EventStream.prototype.filterE = <span class="keyword">function</span>(pred) {
-  <span class="keyword">if</span> (!Function.hasInstance(pred)) {
-    Object.Throw (<span class="string">'filterE : expected predicate; received '</span> + pred);
+EventStream.prototype.filterE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pred</span>) </span>{
+  <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">Function</span>.hasInstance(pred)) {
+    <span class="hljs-built_in">Object</span>.Throw (<span class="hljs-string">'filterE : expected predicate; received '</span> + pred);
   }</pre></div></div>
             
         </li>
@@ -854,13 +874,13 @@ EventStream.prototype.filterE = <span class="keyword">function</span>(pred) {
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">return</span> createNode([<span class="keyword">this</span>], <span class="keyword">function</span>(pulse) {
-    <span class="keyword">return</span> pred(pulse.value) ? pulse : doNotPropagate;
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">return</span> createNode([<span class="hljs-keyword">this</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pulse</span>) </span>{
+    <span class="hljs-keyword">return</span> pred(pulse.value) ? pulse : doNotPropagate;
   });
 };
 
 
-<span class="keyword">var</span> filterE = <span class="keyword">function</span>(e,p) { <span class="keyword">return</span> e.filterE(p); };</pre></div></div>
+<span class="hljs-keyword">var</span> filterE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e,p</span>) </span>{ <span class="hljs-keyword">return</span> e.filterE(p); };</pre></div></div>
             
         </li>
         
@@ -875,8 +895,8 @@ EventStream.prototype.filterE = <span class="keyword">function</span>(pred) {
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>EventStream.prototype.onceE = <span class="keyword">function</span>() {
-  <span class="keyword">var</span> done = <span class="literal">false</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>EventStream.prototype.onceE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">var</span> done = <span class="hljs-literal">false</span>;</pre></div></div>
             
         </li>
         
@@ -891,42 +911,42 @@ EventStream.prototype.filterE = <span class="keyword">function</span>(pred) {
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">return</span> createNode([<span class="keyword">this</span>],<span class="keyword">function</span>(pulse) {
-    <span class="keyword">if</span> (!done) { done = <span class="literal">true</span>; <span class="keyword">return</span> pulse; }
-    <span class="keyword">else</span> { <span class="keyword">return</span> doNotPropagate; }
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">return</span> createNode([<span class="hljs-keyword">this</span>],<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pulse</span>) </span>{
+    <span class="hljs-keyword">if</span> (!done) { done = <span class="hljs-literal">true</span>; <span class="hljs-keyword">return</span> pulse; }
+    <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> doNotPropagate; }
   });
 };
 
 
-<span class="keyword">var</span> onceE = <span class="keyword">function</span>(e) { <span class="keyword">return</span> e.onceE(); };
+<span class="hljs-keyword">var</span> onceE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{ <span class="hljs-keyword">return</span> e.onceE(); };
 
 
-EventStream.prototype.skipFirstE = <span class="keyword">function</span>() {
-  <span class="keyword">var</span> skipped = <span class="literal">false</span>;
-  <span class="keyword">return</span> createNode([<span class="keyword">this</span>],<span class="keyword">function</span>(pulse) {
-    <span class="keyword">if</span> (skipped)
-      { <span class="keyword">return</span> pulse; }
-    <span class="keyword">else</span>
-      { <span class="keyword">return</span> doNotPropagate; }
+EventStream.prototype.skipFirstE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">var</span> skipped = <span class="hljs-literal">false</span>;
+  <span class="hljs-keyword">return</span> createNode([<span class="hljs-keyword">this</span>],<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pulse</span>) </span>{
+    <span class="hljs-keyword">if</span> (skipped)
+      { <span class="hljs-keyword">return</span> pulse; }
+    <span class="hljs-keyword">else</span>
+      { <span class="hljs-keyword">return</span> doNotPropagate; }
   });
 };
 
 
-<span class="keyword">var</span> skipFirstE = <span class="keyword">function</span>(e) { <span class="keyword">return</span> e.skipFirstE(); };
+<span class="hljs-keyword">var</span> skipFirstE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{ <span class="hljs-keyword">return</span> e.skipFirstE(); };
 
 
-EventStream.prototype.collectE = <span class="keyword">function</span>(init,fold) {
-  <span class="keyword">var</span> acc = init;
-  <span class="keyword">return</span> <span class="keyword">this</span>.mapE(
-    <span class="function"><span class="keyword">function</span> <span class="params">(n)</span> {</span>
-      <span class="keyword">var</span> next = fold(n, acc);
+EventStream.prototype.collectE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">init,fold</span>) </span>{
+  <span class="hljs-keyword">var</span> acc = init;
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.mapE(
+    <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">n</span>) </span>{
+      <span class="hljs-keyword">var</span> next = fold(n, acc);
       acc = next;
-      <span class="keyword">return</span> next;
+      <span class="hljs-keyword">return</span> next;
     });
 };
 
 
-<span class="keyword">var</span> collectE = <span class="keyword">function</span>(e,i,f) { <span class="keyword">return</span> e.collectE(i,f); };</pre></div></div>
+<span class="hljs-keyword">var</span> collectE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e,i,f</span>) </span>{ <span class="hljs-keyword">return</span> e.collectE(i,f); };</pre></div></div>
             
         </li>
         
@@ -941,28 +961,28 @@ EventStream.prototype.collectE = <span class="keyword">function</span>(init,fold
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>EventStream.prototype.switchE = <span class="keyword">function</span>() {
-  <span class="keyword">return</span> <span class="keyword">this</span>.bindE(<span class="keyword">function</span>(v) { <span class="keyword">return</span> v; });
+            <div class="content"><div class='highlight'><pre>EventStream.prototype.switchE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.bindE(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">v</span>) </span>{ <span class="hljs-keyword">return</span> v; });
 };
 
 
-<span class="keyword">var</span> recE = <span class="keyword">function</span>(fn) {
-  <span class="keyword">var</span> inE = receiverE();
-  <span class="keyword">var</span> outE = fn(inE);
-  outE.mapE(<span class="keyword">function</span>(x) {
+<span class="hljs-keyword">var</span> recE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">fn</span>) </span>{
+  <span class="hljs-keyword">var</span> inE = receiverE();
+  <span class="hljs-keyword">var</span> outE = fn(inE);
+  outE.mapE(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x</span>) </span>{
     inE.sendEvent(x); });
-  <span class="keyword">return</span> outE;
+  <span class="hljs-keyword">return</span> outE;
 };
 
 
-<span class="keyword">var</span> switchE = <span class="keyword">function</span>(e) { <span class="keyword">return</span> e.switchE(); };
+<span class="hljs-keyword">var</span> switchE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{ <span class="hljs-keyword">return</span> e.switchE(); };
 
 
-EventStream.prototype.ifE = <span class="keyword">function</span>(thenE,elseE) {
-  <span class="keyword">var</span> testStamp = -<span class="number">1</span>;
-  <span class="keyword">var</span> testValue = <span class="literal">false</span>;
+EventStream.prototype.ifE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">thenE,elseE</span>) </span>{
+  <span class="hljs-keyword">var</span> testStamp = <span class="hljs-number">-1</span>;
+  <span class="hljs-keyword">var</span> testValue = <span class="hljs-literal">false</span>;
 
-  createNode([<span class="keyword">this</span>],<span class="keyword">function</span>(pulse) { testStamp = pulse.stamp; testValue = pulse.value; <span class="keyword">return</span> doNotPropagate; });</pre></div></div>
+  createNode([<span class="hljs-keyword">this</span>],<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pulse</span>) </span>{ testStamp = pulse.stamp; testValue = pulse.value; <span class="hljs-keyword">return</span> doNotPropagate; });</pre></div></div>
             
         </li>
         
@@ -977,75 +997,75 @@ EventStream.prototype.ifE = <span class="keyword">function</span>(thenE,elseE) {
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">return</span> mergeE(createNode([thenE],<span class="keyword">function</span>(pulse) { <span class="keyword">return</span> (testValue &amp;&amp; (testStamp === pulse.stamp)) ? pulse : doNotPropagate; }),
-                createNode([elseE],<span class="keyword">function</span>(pulse) { <span class="keyword">return</span> (!testValue &amp;&amp; (testStamp === pulse.stamp)) ? pulse : doNotPropagate; }));
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">return</span> mergeE(createNode([thenE],<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pulse</span>) </span>{ <span class="hljs-keyword">return</span> (testValue &amp;&amp; (testStamp === pulse.stamp)) ? pulse : doNotPropagate; }),
+                createNode([elseE],<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pulse</span>) </span>{ <span class="hljs-keyword">return</span> (!testValue &amp;&amp; (testStamp === pulse.stamp)) ? pulse : doNotPropagate; }));
 };
 
 
-<span class="keyword">var</span> ifE = <span class="keyword">function</span>(test,thenE,elseE) {
-  <span class="keyword">if</span> (EventStream.hasInstance(test))
-    { <span class="keyword">return</span> test.ifE(thenE,elseE); }
-  <span class="keyword">else</span>
-    { <span class="keyword">return</span> test ? thenE : elseE; }
+<span class="hljs-keyword">var</span> ifE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">test,thenE,elseE</span>) </span>{
+  <span class="hljs-keyword">if</span> (EventStream.hasInstance(test))
+    { <span class="hljs-keyword">return</span> test.ifE(thenE,elseE); }
+  <span class="hljs-keyword">else</span>
+    { <span class="hljs-keyword">return</span> test ? thenE : elseE; }
 };
 
 
-<span class="keyword">var</span> andE = <span class="function"><span class="keyword">function</span> <span class="params">(<span class="comment">/* . nodes */</span>)</span> {</span>
-  <span class="keyword">var</span> nodes = slice(arguments, <span class="number">0</span>);
+<span class="hljs-keyword">var</span> andE = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"><span class="hljs-regexp">/* . nodes */</span></span>) </span>{
+  <span class="hljs-keyword">var</span> nodes = slice(<span class="hljs-built_in">arguments</span>, <span class="hljs-number">0</span>);
 
-  <span class="keyword">var</span> acc = (nodes.length &gt; <span class="number">0</span>)?
-  nodes[nodes.length - <span class="number">1</span>] : oneE(<span class="literal">true</span>);
+  <span class="hljs-keyword">var</span> acc = (nodes.length &gt; <span class="hljs-number">0</span>)?
+  nodes[nodes.length - <span class="hljs-number">1</span>] : oneE(<span class="hljs-literal">true</span>);
 
-  <span class="keyword">var</span> i = nodes.length - <span class="number">2</span>;
-  <span class="keyword">while</span> (i &gt;= <span class="number">0</span>) {
+  <span class="hljs-keyword">var</span> i = nodes.length - <span class="hljs-number">2</span>;
+  <span class="hljs-keyword">while</span> (i &gt;= <span class="hljs-number">0</span>) {
     acc = ifE(
       nodes[i],
       acc,
-      nodes[i].constantE(<span class="literal">false</span>));
-    i -= <span class="number">1</span>;
+      nodes[i].constantE(<span class="hljs-literal">false</span>));
+    i -= <span class="hljs-number">1</span>;
   }
-  <span class="keyword">return</span> acc;
+  <span class="hljs-keyword">return</span> acc;
 };
 
 
-EventStream.prototype.andE = <span class="keyword">function</span>( <span class="comment">/* others */</span> ) {
-  <span class="keyword">var</span> deps = [<span class="keyword">this</span>].concat(slice(arguments,<span class="number">0</span>));
-  <span class="keyword">return</span> andE.apply(<span class="keyword">this</span>,deps);
+EventStream.prototype.andE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"> <span class="hljs-regexp">/* others */</span> </span>) </span>{
+  <span class="hljs-keyword">var</span> deps = [<span class="hljs-keyword">this</span>].concat(slice(<span class="hljs-built_in">arguments</span>,<span class="hljs-number">0</span>));
+  <span class="hljs-keyword">return</span> andE.apply(<span class="hljs-keyword">this</span>,deps);
 };
 
 
-<span class="keyword">var</span> orE = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-  <span class="keyword">var</span> nodes = slice(arguments, <span class="number">0</span>);
-  <span class="keyword">var</span> acc = (nodes.length &gt; <span class="number">2</span>)?
-  nodes[nodes.length - <span class="number">1</span>] : oneE(<span class="literal">false</span>);
-  <span class="keyword">var</span> i = nodes.length - <span class="number">2</span>;
-  <span class="keyword">while</span> (i &gt;= <span class="number">0</span>) {
+<span class="hljs-keyword">var</span> orE = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">var</span> nodes = slice(<span class="hljs-built_in">arguments</span>, <span class="hljs-number">0</span>);
+  <span class="hljs-keyword">var</span> acc = (nodes.length &gt; <span class="hljs-number">2</span>)?
+  nodes[nodes.length - <span class="hljs-number">1</span>] : oneE(<span class="hljs-literal">false</span>);
+  <span class="hljs-keyword">var</span> i = nodes.length - <span class="hljs-number">2</span>;
+  <span class="hljs-keyword">while</span> (i &gt;= <span class="hljs-number">0</span>) {
     acc = ifE(
       nodes[i],
       nodes[i],
       acc);
-    i -= <span class="number">1</span>;
+    i -= <span class="hljs-number">1</span>;
   }
-  <span class="keyword">return</span> acc;
+  <span class="hljs-keyword">return</span> acc;
 };
 
 
-EventStream.prototype.orE = <span class="keyword">function</span>(<span class="comment">/*others*/</span>) {
-  <span class="keyword">var</span> deps = [<span class="keyword">this</span>].concat(slice(arguments,<span class="number">0</span>));
-  <span class="keyword">return</span> orE.apply(<span class="keyword">this</span>,deps);
+EventStream.prototype.orE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"><span class="hljs-regexp">/*others*/</span></span>) </span>{
+  <span class="hljs-keyword">var</span> deps = [<span class="hljs-keyword">this</span>].concat(slice(<span class="hljs-built_in">arguments</span>,<span class="hljs-number">0</span>));
+  <span class="hljs-keyword">return</span> orE.apply(<span class="hljs-keyword">this</span>,deps);
 };
 
 
-<span class="keyword">var</span> delayStaticE = <span class="function"><span class="keyword">function</span> <span class="params">(event, time)</span> {</span>
+<span class="hljs-keyword">var</span> delayStaticE = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">event, time</span>) </span>{
 
-  <span class="keyword">var</span> resE = internalE();
+  <span class="hljs-keyword">var</span> resE = internalE();
 
-  createNode([event], <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>
-    setTimeout(<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> sendEvent(resE, p.value);},  time );
-    <span class="keyword">return</span> doNotPropagate;
+  createNode([event], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">p</span>) </span>{
+    setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{ sendEvent(resE, p.value);},  time );
+    <span class="hljs-keyword">return</span> doNotPropagate;
   });
 
-  <span class="keyword">return</span> resE;
+  <span class="hljs-keyword">return</span> resE;
 };</pre></div></div>
             
         </li>
@@ -1061,16 +1081,16 @@ EventStream.prototype.orE = <span class="keyword">function</span>(<span class="c
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>EventStream.prototype.delayE = <span class="function"><span class="keyword">function</span> <span class="params">(time)</span> {</span>
-  <span class="keyword">var</span> event = <span class="keyword">this</span>;
+            <div class="content"><div class='highlight'><pre>EventStream.prototype.delayE = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">time</span>) </span>{
+  <span class="hljs-keyword">var</span> event = <span class="hljs-keyword">this</span>;
 
-  <span class="keyword">if</span> (Behavior.hasInstance(time)) {
+  <span class="hljs-keyword">if</span> (Behavior.hasInstance(time)) {
 
-    <span class="keyword">var</span> receiverEE = internalE();
-    <span class="keyword">var</span> link =
+    <span class="hljs-keyword">var</span> receiverEE = internalE();
+    <span class="hljs-keyword">var</span> link =
     {
-      from: event,
-      towards: delayStaticE(event, valueNow(time))
+      <span class="hljs-attr">from</span>: event,
+      <span class="hljs-attr">towards</span>: delayStaticE(event, valueNow(time))
     };</pre></div></div>
             
         </li>
@@ -1086,31 +1106,31 @@ EventStream.prototype.orE = <span class="keyword">function</span>(<span class="c
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> switcherE =
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> switcherE =
     createNode(
       [changes(time)],
-      <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>
+      <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">p</span>) </span>{
         link.from.removeListener(link.towards);
         link =
         {
-          from: event,
-          towards: delayStaticE(event, p.value)
+          <span class="hljs-attr">from</span>: event,
+          <span class="hljs-attr">towards</span>: delayStaticE(event, p.value)
         };
         sendEvent(receiverEE, link.towards);
-        <span class="keyword">return</span> doNotPropagate;
+        <span class="hljs-keyword">return</span> doNotPropagate;
       });
 
-    <span class="keyword">var</span> resE = receiverEE.switchE();
+    <span class="hljs-keyword">var</span> resE = receiverEE.switchE();
 
     sendEvent(switcherE, valueNow(time));
-    <span class="keyword">return</span> resE;
+    <span class="hljs-keyword">return</span> resE;
 
-      } <span class="keyword">else</span> { <span class="keyword">return</span> delayStaticE(event, time); }
+      } <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> delayStaticE(event, time); }
 };
 
 
-<span class="keyword">var</span> delayE = <span class="keyword">function</span>(sourceE,interval) {
-  <span class="keyword">return</span> sourceE.delayE(interval);
+<span class="hljs-keyword">var</span> delayE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">sourceE,interval</span>) </span>{
+  <span class="hljs-keyword">return</span> sourceE.delayE(interval);
 };</pre></div></div>
             
         </li>
@@ -1126,7 +1146,7 @@ EventStream.prototype.orE = <span class="keyword">function</span>(<span class="c
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> mapE = <span class="function"><span class="keyword">function</span> <span class="params">(fn <span class="comment">/*, [node0 | val0], ...*/</span>)</span> {</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> mapE = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">fn <span class="hljs-regexp">/*, [node0 | val0], ...*/</span></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -1138,10 +1158,9 @@ EventStream.prototype.orE = <span class="keyword">function</span>(<span class="c
                 <a class="pilcrow" href="#section-28">&#182;</a>
               </div>
               <pre><code> if (!Function.hasInstance(fn)) { Object.Throw (&#39;mapE: expected fn as second arg&#39;); } //SAFETY</code></pre>
-
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> valsOrNodes = slice(arguments, <span class="number">0</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> valsOrNodes = slice(<span class="hljs-built_in">arguments</span>, <span class="hljs-number">0</span>);</pre></div></div>
             
         </li>
         
@@ -1156,51 +1175,51 @@ EventStream.prototype.orE = <span class="keyword">function</span>(<span class="c
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> selectors = [];
-  <span class="keyword">var</span> selectI = <span class="number">0</span>;
-  <span class="keyword">var</span> nodes = [];
-  valsOrNodes.forEach(<span class="keyword">function</span>(vn) {
-    <span class="keyword">if</span> (EventStream.hasInstance(vn)) {
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> selectors = [];
+  <span class="hljs-keyword">var</span> selectI = <span class="hljs-number">0</span>;
+  <span class="hljs-keyword">var</span> nodes = [];
+  valsOrNodes.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">vn</span>) </span>{
+    <span class="hljs-keyword">if</span> (EventStream.hasInstance(vn)) {
       nodes.push(vn);
       selectors.push(
-        (<span class="keyword">function</span>(ii) {
-            <span class="keyword">return</span> <span class="keyword">function</span>(realArgs) {
-              <span class="keyword">return</span> realArgs[ii];
+        (<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">ii</span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">realArgs</span>) </span>{
+              <span class="hljs-keyword">return</span> realArgs[ii];
             };
         })(selectI));
-      selectI+=<span class="number">1</span>;
-    } <span class="keyword">else</span> {
+      selectI+=<span class="hljs-number">1</span>;
+    } <span class="hljs-keyword">else</span> {
       selectors.push(
-        (<span class="keyword">function</span>(aa) {
-            <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-              <span class="keyword">return</span> aa;
+        (<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">aa</span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+              <span class="hljs-keyword">return</span> aa;
             };
         })(vn));
     }
   });
 
-  <span class="keyword">var</span> context = <span class="keyword">this</span>;
-  <span class="keyword">var</span> nofnodes = slice(selectors,<span class="number">1</span>);
+  <span class="hljs-keyword">var</span> context = <span class="hljs-keyword">this</span>;
+  <span class="hljs-keyword">var</span> nofnodes = slice(selectors,<span class="hljs-number">1</span>);
 
-  <span class="keyword">if</span> (nodes.length === <span class="number">0</span>) {
-    <span class="keyword">return</span> oneE(fn.apply(context, valsOrNodes));
-  } <span class="keyword">else</span> <span class="keyword">if</span> ((nodes.length === <span class="number">1</span>) &amp;&amp; Function.hasInstance(fn)) {
-    <span class="keyword">return</span> nodes[<span class="number">0</span>].mapE(
-      <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        <span class="keyword">var</span> args = arguments;
-        <span class="keyword">return</span> fn.apply(
+  <span class="hljs-keyword">if</span> (nodes.length === <span class="hljs-number">0</span>) {
+    <span class="hljs-keyword">return</span> oneE(fn.apply(context, valsOrNodes));
+  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ((nodes.length === <span class="hljs-number">1</span>) &amp;&amp; <span class="hljs-built_in">Function</span>.hasInstance(fn)) {
+    <span class="hljs-keyword">return</span> nodes[<span class="hljs-number">0</span>].mapE(
+      <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> args = <span class="hljs-built_in">arguments</span>;
+        <span class="hljs-keyword">return</span> fn.apply(
           context,
-          map(<span class="function"><span class="keyword">function</span> <span class="params">(s)</span> {</span><span class="keyword">return</span> s(args);}, nofnodes));
+          map(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">s</span>) </span>{<span class="hljs-keyword">return</span> s(args);}, nofnodes));
       });
-  } <span class="keyword">else</span> <span class="keyword">if</span> (nodes.length === <span class="number">1</span>) {
-    <span class="keyword">return</span> fn.mapE(
-      <span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span>
-        <span class="keyword">var</span> args = arguments;
-        <span class="keyword">return</span> v.apply(
+  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (nodes.length === <span class="hljs-number">1</span>) {
+    <span class="hljs-keyword">return</span> fn.mapE(
+      <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">v</span>) </span>{
+        <span class="hljs-keyword">var</span> args = <span class="hljs-built_in">arguments</span>;
+        <span class="hljs-keyword">return</span> v.apply(
           context,
-          map(<span class="function"><span class="keyword">function</span> <span class="params">(s)</span> {</span><span class="keyword">return</span> s(args);}, nofnodes));
+          map(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">s</span>) </span>{<span class="hljs-keyword">return</span> s(args);}, nofnodes));
       });
-  <span class="comment">/* XXX CSA BROKEN: createTimeSyncNode no longer defined...
+  <span class="hljs-comment">/* XXX CSA BROKEN: createTimeSyncNode no longer defined...
   } else if (Function.hasInstance(fn)) {
     return createTimeSyncNode(nodes).mapE(
       function (arr) {
@@ -1216,20 +1235,20 @@ EventStream.prototype.orE = <span class="keyword">function</span>(<span class="c
           map(function (s) {return s(arr); }, nofnodes));
       });
   XXX end broken bit */</span>
-  } <span class="keyword">else</span> { Object.Throw(<span class="string">'unknown mapE case'</span>); }
+  } <span class="hljs-keyword">else</span> { <span class="hljs-built_in">Object</span>.Throw(<span class="hljs-string">'unknown mapE case'</span>); }
 };
 
 
-EventStream.prototype.snapshotE = <span class="function"><span class="keyword">function</span> <span class="params">(valueB)</span> {</span>
-  <span class="keyword">return</span> createNode([<span class="keyword">this</span>], <span class="function"><span class="keyword">function</span> <span class="params">(pulse)</span> {</span>
+EventStream.prototype.snapshotE = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">valueB</span>) </span>{
+  <span class="hljs-keyword">return</span> createNode([<span class="hljs-keyword">this</span>], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">pulse</span>) </span>{
     pulse.value = valueNow(valueB);
-    <span class="keyword">return</span> pulse;
+    <span class="hljs-keyword">return</span> pulse;
   });
 };
 
 
-<span class="keyword">var</span> snapshotE = <span class="keyword">function</span>(triggerE,valueB) {
-  <span class="keyword">return</span> triggerE.snapshotE(valueB);
+<span class="hljs-keyword">var</span> snapshotE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">triggerE,valueB</span>) </span>{
+  <span class="hljs-keyword">return</span> triggerE.snapshotE(valueB);
 };</pre></div></div>
             
         </li>
@@ -1245,29 +1264,29 @@ EventStream.prototype.snapshotE = <span class="function"><span class="keyword">f
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> _default_eq_ = <span class="keyword">function</span>(x,y) { <span class="keyword">return</span> x===y; };
-<span class="keyword">var</span> _default_cp_ = <span class="keyword">function</span>(x) { <span class="keyword">return</span> x; };
-EventStream.prototype.filterRepeatsE = <span class="keyword">function</span>(optStart, optEq, optClone) {
-  <span class="keyword">var</span> hadFirst = (optStart === <span class="literal">undefined</span>) ? <span class="literal">false</span> : <span class="literal">true</span>;
-  <span class="keyword">var</span> prev = optStart;
-  <span class="keyword">var</span> eq = optEq ? optEq : _default_eq_;
-  <span class="keyword">var</span> cp = optClone ? optClone : _default_cp_;
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> _default_eq_ = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x,y</span>) </span>{ <span class="hljs-keyword">return</span> x===y; };
+<span class="hljs-keyword">var</span> _default_cp_ = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x</span>) </span>{ <span class="hljs-keyword">return</span> x; };
+EventStream.prototype.filterRepeatsE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">optStart, optEq, optClone</span>) </span>{
+  <span class="hljs-keyword">var</span> hadFirst = (optStart === <span class="hljs-literal">undefined</span>) ? <span class="hljs-literal">false</span> : <span class="hljs-literal">true</span>;
+  <span class="hljs-keyword">var</span> prev = optStart;
+  <span class="hljs-keyword">var</span> eq = optEq ? optEq : _default_eq_;
+  <span class="hljs-keyword">var</span> cp = optClone ? optClone : _default_cp_;
 
-  <span class="keyword">return</span> <span class="keyword">this</span>.filterE(<span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span>
-    <span class="keyword">if</span> (!hadFirst || !eq(prev, v)) {
-      hadFirst = <span class="literal">true</span>;
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.filterE(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">v</span>) </span>{
+    <span class="hljs-keyword">if</span> (!hadFirst || !eq(prev, v)) {
+      hadFirst = <span class="hljs-literal">true</span>;
       prev = cp(v);
-      <span class="keyword">return</span> <span class="literal">true</span>;
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
     }
-    <span class="keyword">else</span> {
-      <span class="keyword">return</span> <span class="literal">false</span>;
+    <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
     }
   });
 };
 
 
-<span class="keyword">var</span> filterRepeatsE = <span class="keyword">function</span>(sourceE,optStart) {
-  <span class="keyword">return</span> sourceE.filterRepeatsE(optStart);
+<span class="hljs-keyword">var</span> filterRepeatsE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">sourceE,optStart</span>) </span>{
+  <span class="hljs-keyword">return</span> sourceE.filterRepeatsE(optStart);
 };</pre></div></div>
             
         </li>
@@ -1284,11 +1303,11 @@ extensively hacked by CSA</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> calmE = <span class="function"><span class="keyword">function</span> <span class="params">(triggerE, timeB)</span> {</span>
-  <span class="keyword">if</span> (!Behavior.hasInstance(timeB)) {
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> calmE = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">triggerE, timeB</span>) </span>{
+  <span class="hljs-keyword">if</span> (!Behavior.hasInstance(timeB)) {
       timeB = constantB(timeB);
   }
-  <span class="keyword">var</span> out = internalE();</pre></div></div>
+  <span class="hljs-keyword">var</span> out = internalE();</pre></div></div>
             
         </li>
         
@@ -1303,29 +1322,29 @@ extensively hacked by CSA</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> lastTime = <span class="number">0</span>;
-  <span class="keyword">var</span> towards = <span class="literal">null</span>;
-  <span class="keyword">var</span> lastVal, sawMoreRecent;
-  <span class="keyword">var</span> towardsFunc = <span class="keyword">function</span>() {
-    towards = <span class="literal">null</span>;
-    <span class="keyword">if</span> (sawMoreRecent) {
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> lastTime = <span class="hljs-number">0</span>;
+  <span class="hljs-keyword">var</span> towards = <span class="hljs-literal">null</span>;
+  <span class="hljs-keyword">var</span> lastVal, sawMoreRecent;
+  <span class="hljs-keyword">var</span> towardsFunc = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    towards = <span class="hljs-literal">null</span>;
+    <span class="hljs-keyword">if</span> (sawMoreRecent) {
       sendEvent(out, lastVal);
     }
   };
-  <span class="keyword">var</span> timeChangedE = timeB.changes().mapE(<span class="keyword">function</span>() {
-      <span class="keyword">return</span> sawMoreRecent ? lastVal : doNotPropagate;
+  <span class="hljs-keyword">var</span> timeChangedE = timeB.changes().mapE(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+      <span class="hljs-keyword">return</span> sawMoreRecent ? lastVal : doNotPropagate;
   });
 
-  <span class="keyword">return</span> createNode(
+  <span class="hljs-keyword">return</span> createNode(
     [triggerE, out, timeChangedE],
-    <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>
-        <span class="keyword">var</span> curTime = now();
-        <span class="keyword">var</span> left = (curTime - lastTime) - timeB.valueNow();
-        <span class="keyword">if</span> (towards) { clearTimeout(towards); }
-        <span class="keyword">if</span> (left &gt;= <span class="number">0</span>) {
+    <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">p</span>) </span>{
+        <span class="hljs-keyword">var</span> curTime = now();
+        <span class="hljs-keyword">var</span> left = (curTime - lastTime) - timeB.valueNow();
+        <span class="hljs-keyword">if</span> (towards) { clearTimeout(towards); }
+        <span class="hljs-keyword">if</span> (left &gt;= <span class="hljs-number">0</span>) {
           lastTime = curTime;
-          sawMoreRecent = <span class="literal">false</span>;
-          lastVal = <span class="literal">null</span>; <span class="comment">// free memory</span>
+          sawMoreRecent = <span class="hljs-literal">false</span>;
+          lastVal = <span class="hljs-literal">null</span>; <span class="hljs-comment">// free memory</span>
           towards = setTimeout( towardsFunc, timeB.valueNow() );</pre></div></div>
             
         </li>
@@ -1341,8 +1360,8 @@ extensively hacked by CSA</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>          <span class="keyword">return</span> p;
-        } <span class="keyword">else</span> {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>          <span class="hljs-keyword">return</span> p;
+        } <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -1357,10 +1376,10 @@ extensively hacked by CSA</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>          sawMoreRecent = <span class="literal">true</span>;
+            <div class="content"><div class='highlight'><pre>          sawMoreRecent = <span class="hljs-literal">true</span>;
           lastVal = p;
           towards = setTimeout( towardsFunc, left );
-          <span class="keyword">return</span> doNotPropagate;
+          <span class="hljs-keyword">return</span> doNotPropagate;
         }
     });
 };</pre></div></div>
@@ -1378,47 +1397,47 @@ extensively hacked by CSA</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>EventStream.prototype.calmE = <span class="keyword">function</span>(timeB) {
-    <span class="keyword">return</span> calmE(<span class="keyword">this</span>, timeB);
+            <div class="content"><div class='highlight'><pre>EventStream.prototype.calmE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">timeB</span>) </span>{
+    <span class="hljs-keyword">return</span> calmE(<span class="hljs-keyword">this</span>, timeB);
 };
 
 
-EventStream.prototype.blindE = <span class="function"><span class="keyword">function</span> <span class="params">(time)</span> {</span>
-  <span class="keyword">return</span> createNode(
-    [<span class="keyword">this</span>],
-    <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-      <span class="keyword">var</span> intervalFn =
+EventStream.prototype.blindE = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">time</span>) </span>{
+  <span class="hljs-keyword">return</span> createNode(
+    [<span class="hljs-keyword">this</span>],
+    <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+      <span class="hljs-keyword">var</span> intervalFn =
       Behavior.hasInstance(time)?
-      <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">return</span> valueNow(time); }
-      : <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">return</span> time; };
-      <span class="keyword">var</span> lastSent = now() - intervalFn() - <span class="number">1</span>;
-      <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>
-        <span class="keyword">var</span> curTime = now();
-        <span class="keyword">if</span> (curTime - lastSent &gt; intervalFn()) {
+      <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> valueNow(time); }
+      : <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> time; };
+      <span class="hljs-keyword">var</span> lastSent = now() - intervalFn() - <span class="hljs-number">1</span>;
+      <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">p</span>) </span>{
+        <span class="hljs-keyword">var</span> curTime = now();
+        <span class="hljs-keyword">if</span> (curTime - lastSent &gt; intervalFn()) {
           lastSent = curTime;
-          <span class="keyword">return</span> p;
+          <span class="hljs-keyword">return</span> p;
         }
-        <span class="keyword">else</span> { <span class="keyword">return</span> doNotPropagate; }
+        <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> doNotPropagate; }
       };
     }());
 };
 
 
-<span class="keyword">var</span> blindE = <span class="keyword">function</span>(sourceE,interval) {
-  <span class="keyword">return</span> sourceE.blindE(interval);
+<span class="hljs-keyword">var</span> blindE = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">sourceE,interval</span>) </span>{
+  <span class="hljs-keyword">return</span> sourceE.blindE(interval);
 };
 
 
-EventStream.prototype.startsWith = <span class="keyword">function</span>(init) {
-  <span class="keyword">return</span> Behavior.New(<span class="keyword">this</span>,init);
+EventStream.prototype.startsWith = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">init</span>) </span>{
+  <span class="hljs-keyword">return</span> Behavior.New(<span class="hljs-keyword">this</span>,init);
 };
 
 
-<span class="keyword">var</span> startsWith = <span class="keyword">function</span>(e,init) {
-  <span class="keyword">if</span> (!EventStream.hasInstance(e)) {
-    Object.Throw(<span class="string">'startsWith: expected EventStream; received '</span> + e);
+<span class="hljs-keyword">var</span> startsWith = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e,init</span>) </span>{
+  <span class="hljs-keyword">if</span> (!EventStream.hasInstance(e)) {
+    <span class="hljs-built_in">Object</span>.Throw(<span class="hljs-string">'startsWith: expected EventStream; received '</span> + e);
   }
-  <span class="keyword">return</span> e.startsWith(init);
+  <span class="hljs-keyword">return</span> e.startsWith(init);
 };</pre></div></div>
             
         </li>
@@ -1435,14 +1454,14 @@ createConstantB: a -&gt; Behavior a</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>constantB = <span class="function"><span class="keyword">function</span> <span class="params">(val)</span> {</span>
-  <span class="keyword">return</span> Behavior.New(internalE(), val);
+            <div class="content"><div class='highlight'><pre>constantB = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">val</span>) </span>{
+  <span class="hljs-keyword">return</span> Behavior.New(internalE(), val);
 };
 
 
-<span class="keyword">var</span> liftB = <span class="function"><span class="keyword">function</span> <span class="params">(fn <span class="comment">/* . behaves */</span>)</span> {</span>
+<span class="hljs-keyword">var</span> liftB = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">fn <span class="hljs-regexp">/* . behaves */</span></span>) </span>{
 
-  <span class="keyword">var</span> args = slice(arguments, <span class="number">1</span>);</pre></div></div>
+  <span class="hljs-keyword">var</span> args = slice(<span class="hljs-built_in">arguments</span>, <span class="hljs-number">1</span>);</pre></div></div>
             
         </li>
         
@@ -1457,10 +1476,10 @@ createConstantB: a -&gt; Behavior a</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> constituentsE =
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> constituentsE =
     map(changes,
-    filter(<span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span> <span class="keyword">return</span> Behavior.hasInstance(v); },
-           slice(arguments, <span class="number">0</span>)));</pre></div></div>
+    filter(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">v</span>) </span>{ <span class="hljs-keyword">return</span> Behavior.hasInstance(v); },
+           slice(<span class="hljs-built_in">arguments</span>, <span class="hljs-number">0</span>)));</pre></div></div>
             
         </li>
         
@@ -1475,17 +1494,17 @@ createConstantB: a -&gt; Behavior a</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> getCur = <span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span>
-    <span class="keyword">return</span> Behavior.hasInstance(v) ? v.last : v;
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> getCur = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">v</span>) </span>{
+    <span class="hljs-keyword">return</span> Behavior.hasInstance(v) ? v.last : v;
   };
 
-  <span class="keyword">var</span> ctx = <span class="keyword">this</span>;
-  <span class="keyword">var</span> getRes = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-    <span class="keyword">return</span> getCur(fn).apply(ctx, map(getCur, args));
+  <span class="hljs-keyword">var</span> ctx = <span class="hljs-keyword">this</span>;
+  <span class="hljs-keyword">var</span> getRes = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">return</span> getCur(fn).apply(ctx, map(getCur, args));
   };
 
-  <span class="keyword">if</span>(constituentsE.length === <span class="number">1</span>) {
-    <span class="keyword">return</span> Behavior.New(constituentsE[<span class="number">0</span>],getRes(),getRes);
+  <span class="hljs-keyword">if</span>(constituentsE.length === <span class="hljs-number">1</span>) {
+    <span class="hljs-keyword">return</span> Behavior.New(constituentsE[<span class="hljs-number">0</span>],getRes(),getRes);
   }</pre></div></div>
             
         </li>
@@ -1501,34 +1520,34 @@ createConstantB: a -&gt; Behavior a</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> prevStamp = -<span class="number">1</span>;
-  <span class="keyword">var</span> mid = createNode(constituentsE, <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>
-    <span class="keyword">if</span> (p.stamp !== prevStamp) {
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> prevStamp = <span class="hljs-number">-1</span>;
+  <span class="hljs-keyword">var</span> mid = createNode(constituentsE, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">p</span>) </span>{
+    <span class="hljs-keyword">if</span> (p.stamp !== prevStamp) {
       prevStamp = p.stamp;
-      <span class="keyword">return</span> p;
+      <span class="hljs-keyword">return</span> p;
     }
-    <span class="keyword">else</span> {
-      <span class="keyword">return</span> doNotPropagate;
+    <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">return</span> doNotPropagate;
     }
   });
 
-  <span class="keyword">return</span> Behavior.New(mid,getRes(),getRes);
+  <span class="hljs-keyword">return</span> Behavior.New(mid,getRes(),getRes);
 };
 
 
-Behavior.prototype.liftB = <span class="keyword">function</span>(<span class="comment">/* args */</span>) {
-  <span class="keyword">var</span> args= slice(arguments,<span class="number">0</span>).concat([<span class="keyword">this</span>]);
-  <span class="keyword">return</span> liftB.apply(<span class="keyword">this</span>,args);
+Behavior.prototype.liftB = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"><span class="hljs-regexp">/* args */</span></span>) </span>{
+  <span class="hljs-keyword">var</span> args= slice(<span class="hljs-built_in">arguments</span>,<span class="hljs-number">0</span>).concat([<span class="hljs-keyword">this</span>]);
+  <span class="hljs-keyword">return</span> liftB.apply(<span class="hljs-keyword">this</span>,args);
 };
 
 
-Behavior.prototype.switchB = <span class="keyword">function</span>() {
-  <span class="keyword">var</span> behaviourCreatorsB = <span class="keyword">this</span>;
-  <span class="keyword">var</span> init = valueNow(behaviourCreatorsB);
+Behavior.prototype.switchB = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">var</span> behaviourCreatorsB = <span class="hljs-keyword">this</span>;
+  <span class="hljs-keyword">var</span> init = valueNow(behaviourCreatorsB);
 
-  <span class="keyword">var</span> prevSourceE = <span class="literal">null</span>;
+  <span class="hljs-keyword">var</span> prevSourceE = <span class="hljs-literal">null</span>;
 
-  <span class="keyword">var</span> receiverE = internalE.New();</pre></div></div>
+  <span class="hljs-keyword">var</span> receiverE = internalE.New();</pre></div></div>
             
         </li>
         
@@ -1543,12 +1562,12 @@ Behavior.prototype.switchB = <span class="keyword">function</span>() {
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> makerE =
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> makerE =
   createNode(
     [changes(behaviourCreatorsB)],
-    <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>
-        <span class="keyword">if</span> (!Behavior.hasInstance(p.value)) { Object.Throw (<span class="string">'switchB: expected Behavior as value of Behavior of first argument'</span>); } <span class="comment">//SAFETY</span>
-      <span class="keyword">if</span> (prevSourceE !== <span class="literal">null</span>) {
+    <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">p</span>) </span>{
+        <span class="hljs-keyword">if</span> (!Behavior.hasInstance(p.value)) { <span class="hljs-built_in">Object</span>.Throw (<span class="hljs-string">'switchB: expected Behavior as value of Behavior of first argument'</span>); } <span class="hljs-comment">//SAFETY</span>
+      <span class="hljs-keyword">if</span> (prevSourceE !== <span class="hljs-literal">null</span>) {
         prevSourceE.removeListener(receiverE);
       }
 
@@ -1556,23 +1575,24 @@ Behavior.prototype.switchB = <span class="keyword">function</span>() {
       prevSourceE.attachListener(receiverE);
 
       sendEvent(receiverE, valueNow(p.value));
-      <span class="keyword">return</span> doNotPropagate;
+      <span class="hljs-keyword">return</span> doNotPropagate;
     });
 
-  <span class="keyword">if</span> (Behavior.hasInstance(init)) {
+  <span class="hljs-keyword">if</span> (Behavior.hasInstance(init)) {
     sendEvent(makerE, init);
   }
 
-  <span class="keyword">return</span> startsWith(
+  <span class="hljs-keyword">return</span> startsWith(
     receiverE,
     Behavior.hasInstance(init)? valueNow(init) : init);
 };
 
 
-<span class="keyword">var</span> switchB = <span class="function"><span class="keyword">function</span> <span class="params">(b)</span> {</span> <span class="keyword">return</span> b.switchB(); };
+<span class="hljs-keyword">var</span> switchB = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">b</span>) </span>{ <span class="hljs-keyword">return</span> b.switchB(); };
 
 
-<span class="comment">/* XXX CSA omitted</pre></div></div>
+<span class="hljs-comment">/* XXX CSA omitted
+</span></pre></div></div>
             
         </li>
         
@@ -1605,8 +1625,8 @@ Behavior.prototype.switchB = <span class="keyword">function</span>() {
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> delayStaticB = <span class="function"><span class="keyword">function</span> <span class="params">(triggerB, time, init)</span> {</span>
-  <span class="keyword">return</span> startsWith(delayStaticE(changes(triggerB), time), init);
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> delayStaticB = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">triggerB, time, init</span>) </span>{
+  <span class="hljs-keyword">return</span> startsWith(delayStaticE(changes(triggerB), time), init);
 };</pre></div></div>
             
         </li>
@@ -1622,25 +1642,25 @@ Behavior.prototype.switchB = <span class="keyword">function</span>() {
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Behavior.prototype.delayB = <span class="function"><span class="keyword">function</span> <span class="params">(time, init)</span> {</span>
-  <span class="keyword">var</span> triggerB = <span class="keyword">this</span>;
-  <span class="keyword">if</span> (Behavior.hasInstance(time)) {
-    <span class="keyword">return</span> startsWith(
+            <div class="content"><div class='highlight'><pre>Behavior.prototype.delayB = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">time, init</span>) </span>{
+  <span class="hljs-keyword">var</span> triggerB = <span class="hljs-keyword">this</span>;
+  <span class="hljs-keyword">if</span> (Behavior.hasInstance(time)) {
+    <span class="hljs-keyword">return</span> startsWith(
       delayE(
         changes(triggerB),
         time),
-      arguments.length &gt; <span class="number">3</span> ? init : valueNow(triggerB));
-  } <span class="keyword">else</span> {
-    <span class="keyword">return</span> delayStaticB(
+      <span class="hljs-built_in">arguments</span>.length &gt; <span class="hljs-number">3</span> ? init : valueNow(triggerB));
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">return</span> delayStaticB(
       triggerB,
       time,
-      arguments.length &gt; <span class="number">3</span> ? init : valueNow(triggerB));
+      <span class="hljs-built_in">arguments</span>.length &gt; <span class="hljs-number">3</span> ? init : valueNow(triggerB));
   }
 };
 
 
-<span class="keyword">var</span> delayB = <span class="keyword">function</span>(srcB, timeB, init) {
-  <span class="keyword">return</span> srcB.delayB(timeB,init);
+<span class="hljs-keyword">var</span> delayB = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">srcB, timeB, init</span>) </span>{
+  <span class="hljs-keyword">return</span> srcB.delayB(timeB,init);
 };</pre></div></div>
             
         </li>
@@ -1657,16 +1677,16 @@ note: in use, might want to use a receiver node as a proxy or an identity map</p
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Behavior.prototype.sendBehavior = <span class="keyword">function</span>(val) {
-  sendEvent(<span class="keyword">this</span>.underlyingRaw,val);
+            <div class="content"><div class='highlight'><pre>Behavior.prototype.sendBehavior = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">val</span>) </span>{
+  sendEvent(<span class="hljs-keyword">this</span>.underlyingRaw,val);
 };
 
-<span class="keyword">var</span> sendBehavior = <span class="function"><span class="keyword">function</span> <span class="params">(b,v)</span> {</span> b.sendBehavior(v); };
+<span class="hljs-keyword">var</span> sendBehavior = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">b,v</span>) </span>{ b.sendBehavior(v); };
 
 
 
-Behavior.prototype.ifB = <span class="keyword">function</span>(trueB,falseB) {
-  <span class="keyword">var</span> testB = <span class="keyword">this</span>;</pre></div></div>
+Behavior.prototype.ifB = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">trueB,falseB</span>) </span>{
+  <span class="hljs-keyword">var</span> testB = <span class="hljs-keyword">this</span>;</pre></div></div>
             
         </li>
         
@@ -1681,16 +1701,16 @@ Behavior.prototype.ifB = <span class="keyword">function</span>(trueB,falseB) {
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">if</span> (!Behavior.hasInstance(trueB)) { trueB = constantB(trueB); }
-  <span class="keyword">if</span> (!Behavior.hasInstance(falseB)) { falseB = constantB(falseB); }
-  <span class="keyword">return</span> liftB(<span class="keyword">function</span>(te,t,f) { <span class="keyword">return</span> te ? t : f; },testB,trueB,falseB);
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">if</span> (!Behavior.hasInstance(trueB)) { trueB = constantB(trueB); }
+  <span class="hljs-keyword">if</span> (!Behavior.hasInstance(falseB)) { falseB = constantB(falseB); }
+  <span class="hljs-keyword">return</span> liftB(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">te,t,f</span>) </span>{ <span class="hljs-keyword">return</span> te ? t : f; },testB,trueB,falseB);
 };
 
 
-<span class="keyword">var</span> ifB = <span class="keyword">function</span>(test,cons,altr) {
-  <span class="keyword">if</span> (!Behavior.hasInstance(test)) { test = constantB(test); }
+<span class="hljs-keyword">var</span> ifB = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">test,cons,altr</span>) </span>{
+  <span class="hljs-keyword">if</span> (!Behavior.hasInstance(test)) { test = constantB(test); }
 
-  <span class="keyword">return</span> test.ifB(cons,altr);
+  <span class="hljs-keyword">return</span> test.ifB(cons,altr);
 };</pre></div></div>
             
         </li>
@@ -1706,80 +1726,80 @@ Behavior.prototype.ifB = <span class="keyword">function</span>(trueB,falseB) {
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> condB = <span class="function"><span class="keyword">function</span> <span class="params">(<span class="comment">/* . pairs */</span> )</span> {</span>
-  <span class="keyword">var</span> pairs = slice(arguments, <span class="number">0</span>);
-<span class="keyword">return</span> liftB.apply({},[<span class="keyword">function</span>() {
-    <span class="keyword">var</span> i=<span class="number">0</span>;
-    <span class="keyword">while</span> (i&lt;pairs.length) {
-      <span class="keyword">if</span>(arguments[i]) {
-        <span class="keyword">return</span> arguments[pairs.length+i];
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> condB = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"><span class="hljs-regexp">/* . pairs */</span> </span>) </span>{
+  <span class="hljs-keyword">var</span> pairs = slice(<span class="hljs-built_in">arguments</span>, <span class="hljs-number">0</span>);
+<span class="hljs-keyword">return</span> liftB.apply({},[<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> i=<span class="hljs-number">0</span>;
+    <span class="hljs-keyword">while</span> (i&lt;pairs.length) {
+      <span class="hljs-keyword">if</span>(<span class="hljs-built_in">arguments</span>[i]) {
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">arguments</span>[pairs.length+i];
       }
-      i+=<span class="number">1</span>;
+      i+=<span class="hljs-number">1</span>;
     }
-    <span class="keyword">return</span> <span class="literal">undefined</span>;
-  }].concat(map(<span class="keyword">function</span>(pair) {<span class="keyword">return</span> pair[<span class="number">0</span>];},pairs).concat(map(<span class="keyword">function</span>(pair) {<span class="keyword">return</span> pair[<span class="number">1</span>];},pairs))));
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
+  }].concat(map(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pair</span>) </span>{<span class="hljs-keyword">return</span> pair[<span class="hljs-number">0</span>];},pairs).concat(map(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pair</span>) </span>{<span class="hljs-keyword">return</span> pair[<span class="hljs-number">1</span>];},pairs))));
 };
 
 
-<span class="keyword">var</span> andB = <span class="function"><span class="keyword">function</span> <span class="params">(<span class="comment">/* . behaves */</span>)</span> {</span>
-<span class="keyword">return</span> liftB.apply({},[<span class="keyword">function</span>() {
-    <span class="keyword">var</span> i=<span class="number">0</span>;
-    <span class="keyword">while</span> (i&lt;arguments.length) {
-        <span class="keyword">if</span>(!arguments[i]) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        i+=<span class="number">1</span>;
+<span class="hljs-keyword">var</span> andB = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"><span class="hljs-regexp">/* . behaves */</span></span>) </span>{
+<span class="hljs-keyword">return</span> liftB.apply({},[<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> i=<span class="hljs-number">0</span>;
+    <span class="hljs-keyword">while</span> (i&lt;<span class="hljs-built_in">arguments</span>.length) {
+        <span class="hljs-keyword">if</span>(!<span class="hljs-built_in">arguments</span>[i]) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        i+=<span class="hljs-number">1</span>;
     }
-    <span class="keyword">return</span> <span class="literal">true</span>;
-}].concat(slice(arguments,<span class="number">0</span>)));
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+}].concat(slice(<span class="hljs-built_in">arguments</span>,<span class="hljs-number">0</span>)));
 };
 
 
-Behavior.prototype.andB = <span class="keyword">function</span>() {
-  <span class="keyword">return</span> andB([<span class="keyword">this</span>].concat(arguments));
+Behavior.prototype.andB = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> andB([<span class="hljs-keyword">this</span>].concat(<span class="hljs-built_in">arguments</span>));
 };
 
 
-<span class="keyword">var</span> orB = <span class="function"><span class="keyword">function</span> <span class="params">(<span class="comment">/* . behaves */</span> )</span> {</span>
-<span class="keyword">return</span> liftB.apply({},[<span class="keyword">function</span>() {
-    <span class="keyword">var</span> i=<span class="number">0</span>;
-    <span class="keyword">while</span> (i&lt;arguments.length) {
-        <span class="keyword">if</span>(arguments[i]) { <span class="keyword">return</span> <span class="literal">true</span>; }
-        i+=<span class="number">1</span>;
+<span class="hljs-keyword">var</span> orB = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"><span class="hljs-regexp">/* . behaves */</span> </span>) </span>{
+<span class="hljs-keyword">return</span> liftB.apply({},[<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> i=<span class="hljs-number">0</span>;
+    <span class="hljs-keyword">while</span> (i&lt;<span class="hljs-built_in">arguments</span>.length) {
+        <span class="hljs-keyword">if</span>(<span class="hljs-built_in">arguments</span>[i]) { <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>; }
+        i+=<span class="hljs-number">1</span>;
     }
-    <span class="keyword">return</span> <span class="literal">false</span>;
-}].concat(slice(arguments,<span class="number">0</span>)));
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+}].concat(slice(<span class="hljs-built_in">arguments</span>,<span class="hljs-number">0</span>)));
 };
 
 
-Behavior.prototype.orB = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-  <span class="keyword">return</span> orB([<span class="keyword">this</span>].concat(arguments));
+Behavior.prototype.orB = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> orB([<span class="hljs-keyword">this</span>].concat(<span class="hljs-built_in">arguments</span>));
 };
 
 
-Behavior.prototype.notB = <span class="keyword">function</span>() {
-  <span class="keyword">return</span> <span class="keyword">this</span>.liftB(<span class="keyword">function</span>(v) { <span class="keyword">return</span> !v; });
+Behavior.prototype.notB = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.liftB(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">v</span>) </span>{ <span class="hljs-keyword">return</span> !v; });
 };
 
 
-<span class="keyword">var</span> notB = <span class="keyword">function</span>(b) { <span class="keyword">return</span> b.notB(); };
+<span class="hljs-keyword">var</span> notB = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">b</span>) </span>{ <span class="hljs-keyword">return</span> b.notB(); };
 
 
-Behavior.prototype.blindB = <span class="function"><span class="keyword">function</span> <span class="params">(intervalB)</span> {</span>
-  <span class="keyword">return</span> changes(<span class="keyword">this</span>).blindE(intervalB).startsWith(<span class="keyword">this</span>.valueNow());
+Behavior.prototype.blindB = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">intervalB</span>) </span>{
+  <span class="hljs-keyword">return</span> changes(<span class="hljs-keyword">this</span>).blindE(intervalB).startsWith(<span class="hljs-keyword">this</span>.valueNow());
 };
 
 
-<span class="keyword">var</span> blindB = <span class="keyword">function</span>(srcB,intervalB) {
-  <span class="keyword">return</span> srcB.blindB(intervalB);
+<span class="hljs-keyword">var</span> blindB = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">srcB,intervalB</span>) </span>{
+  <span class="hljs-keyword">return</span> srcB.blindB(intervalB);
 };
 
 
-Behavior.prototype.calmB = <span class="function"><span class="keyword">function</span> <span class="params">(intervalB)</span> {</span>
-  <span class="keyword">return</span> <span class="keyword">this</span>.changes().calmE(intervalB).startsWith(<span class="keyword">this</span>.valueNow());
+Behavior.prototype.calmB = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">intervalB</span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.changes().calmE(intervalB).startsWith(<span class="hljs-keyword">this</span>.valueNow());
 };
 
 
-<span class="keyword">var</span> calmB = <span class="function"><span class="keyword">function</span> <span class="params">(srcB,intervalB)</span> {</span>
-  <span class="keyword">return</span> srcB.calmB(intervalB);
+<span class="hljs-keyword">var</span> calmB = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">srcB,intervalB</span>) </span>{
+  <span class="hljs-keyword">return</span> srcB.calmB(intervalB);
 };</pre></div></div>
             
         </li>
@@ -1795,25 +1815,25 @@ Behavior.prototype.calmB = <span class="function"><span class="keyword">function
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">return</span> {
-        __module_name__: <span class="string">"events"</span>,
-        __module_init__: make_flapjax,
-        __module_deps__: [<span class="string">"timeouts"</span>],
-        __module_source__: events_source,
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">return</span> {
+        <span class="hljs-attr">__module_name__</span>: <span class="hljs-string">"events"</span>,
+        <span class="hljs-attr">__module_init__</span>: make_flapjax,
+        <span class="hljs-attr">__module_deps__</span>: [<span class="hljs-string">"timeouts"</span>],
+        <span class="hljs-attr">__module_source__</span>: events_source,
 
-        constantB: constantB,
-        delayB: delayB,
-        calmB: calmB,
-        blindB: blindB,
-        valueNow: valueNow,
-        switchB: switchB,
-        andB: andB,
-        orB: orB,
-        notB: notB,
-        liftB: liftB,
-        condB: condB,
-        ifB: ifB,
-        <span class="comment">/*
+        <span class="hljs-attr">constantB</span>: constantB,
+        <span class="hljs-attr">delayB</span>: delayB,
+        <span class="hljs-attr">calmB</span>: calmB,
+        <span class="hljs-attr">blindB</span>: blindB,
+        <span class="hljs-attr">valueNow</span>: valueNow,
+        <span class="hljs-attr">switchB</span>: switchB,
+        <span class="hljs-attr">andB</span>: andB,
+        <span class="hljs-attr">orB</span>: orB,
+        <span class="hljs-attr">notB</span>: notB,
+        <span class="hljs-attr">liftB</span>: liftB,
+        <span class="hljs-attr">condB</span>: condB,
+        <span class="hljs-attr">ifB</span>: ifB,
+        <span class="hljs-comment">/*
         timerB: timerB,
         disableTimer: disableTimer,
         insertDomB: insertDomB,
@@ -1838,30 +1858,30 @@ Behavior.prototype.calmB = <span class="function"><span class="keyword">function
         getForeignWebServiceObjectE: getForeignWebServiceObjectE,
         evalForeignScriptValE: evalForeignScriptValE,
         */</span>
-        oneE: oneE,
-        zeroE: zeroE,
-        mapE: mapE,
-        mergeE: mergeE,
-        switchE: switchE,
-        filterE: filterE,
-        ifE: ifE,
-        recE: recE,
-        constantE: constantE,
-        collectE: collectE,
-        andE: andE,
-        orE: orE,
-        notE: notE,
-        filterRepeatsE: filterRepeatsE,
-        receiverE: receiverE,
-        sendEvent: sendEvent,
-        snapshotE: snapshotE,
-        onceE: onceE,
-        skipFirstE: skipFirstE,
-        delayE: delayE,
-        blindE: blindE,
-        calmE: calmE,
-        startsWith: startsWith,
-        <span class="comment">/*
+        <span class="hljs-attr">oneE</span>: oneE,
+        <span class="hljs-attr">zeroE</span>: zeroE,
+        <span class="hljs-attr">mapE</span>: mapE,
+        <span class="hljs-attr">mergeE</span>: mergeE,
+        <span class="hljs-attr">switchE</span>: switchE,
+        <span class="hljs-attr">filterE</span>: filterE,
+        <span class="hljs-attr">ifE</span>: ifE,
+        <span class="hljs-attr">recE</span>: recE,
+        <span class="hljs-attr">constantE</span>: constantE,
+        <span class="hljs-attr">collectE</span>: collectE,
+        <span class="hljs-attr">andE</span>: andE,
+        <span class="hljs-attr">orE</span>: orE,
+        <span class="hljs-attr">notE</span>: notE,
+        <span class="hljs-attr">filterRepeatsE</span>: filterRepeatsE,
+        <span class="hljs-attr">receiverE</span>: receiverE,
+        <span class="hljs-attr">sendEvent</span>: sendEvent,
+        <span class="hljs-attr">snapshotE</span>: snapshotE,
+        <span class="hljs-attr">onceE</span>: onceE,
+        <span class="hljs-attr">skipFirstE</span>: skipFirstE,
+        <span class="hljs-attr">delayE</span>: delayE,
+        <span class="hljs-attr">blindE</span>: blindE,
+        <span class="hljs-attr">calmE</span>: calmE,
+        <span class="hljs-attr">startsWith</span>: startsWith,
+        <span class="hljs-comment">/*
         changes: changes,
         getElementsByClass: getElementsByClass,
         getObj: getObj,
@@ -1873,8 +1893,8 @@ Behavior.prototype.calmB = <span class="function"><span class="keyword">function
         fold: fold,
         foldR: foldR,
         */</span>
-        map: map,
-        <span class="comment">/*
+        <span class="hljs-attr">map</span>: map,
+        <span class="hljs-comment">/*
         filter: filter,
         member: member,
         slice: slice,
@@ -1888,16 +1908,16 @@ Behavior.prototype.calmB = <span class="function"><span class="keyword">function
         compilerUnbehavior: compilerUnbehavior,
         compilerEventStreamArg: compilerEventStreamArg,
         */</span>
-        Behavior: Behavior,
-        EventStream: EventStream,
-        <span class="comment">/* For use by test suite only... */</span>
-        base: {
-            Pulse: Pulse,
-            propagatePulse: propagatePulse
+        <span class="hljs-attr">Behavior</span>: Behavior,
+        <span class="hljs-attr">EventStream</span>: EventStream,
+        <span class="hljs-comment">/* For use by test suite only... */</span>
+        <span class="hljs-attr">base</span>: {
+            <span class="hljs-attr">Pulse</span>: Pulse,
+            <span class="hljs-attr">propagatePulse</span>: propagatePulse
         },
-        engine: {
-            createNode: createNode,
-            doNotPropagate: doNotPropagate
+        <span class="hljs-attr">engine</span>: {
+            <span class="hljs-attr">createNode</span>: createNode,
+            <span class="hljs-attr">doNotPropagate</span>: doNotPropagate
         }
     };
 });</pre></div></div>

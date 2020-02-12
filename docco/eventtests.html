@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -211,10 +231,10 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">"events"</span>], <span class="keyword">function</span>(flapjax) {
-<span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">flapjax_tests</span><span class="params">(info, error)</span> {</span>
+            <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">"events"</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">flapjax</span>) </span>{
+<span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">flapjax_tests</span>(<span class="hljs-params">info, error</span>) </span>{
 
-        <span class="keyword">var</span> a = <span class="function"><span class="keyword">function</span> <span class="params">(b, m)</span> {</span> (b? info : error)(<span class="string">'tests: '</span> + m); };</pre></div></div>
+        <span class="hljs-keyword">var</span> a = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">b, m</span>) </span>{ (b? info : error)(<span class="hljs-string">'tests: '</span> + m); };</pre></div></div>
             
         </li>
         
@@ -229,16 +249,16 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> sTest = <span class="function"><span class="keyword">function</span> <span class="params">(inpt, out, msg, k)</span>
-        {</span>
-                k = <span class="literal">true</span>;
-                <span class="keyword">if</span> (inpt !== out)
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> sTest = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">inpt, out, msg, k</span>)
+        </span>{
+                k = <span class="hljs-literal">true</span>;
+                <span class="hljs-keyword">if</span> (inpt !== out)
                 {
-                        error(msg + <span class="string">' input: '</span> + inpt + <span class="string">' out: '</span> + out);
-                        <span class="keyword">return</span> <span class="literal">false</span>;
+                        error(msg + <span class="hljs-string">' input: '</span> + inpt + <span class="hljs-string">' out: '</span> + out);
+                        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
                 }
-                <span class="keyword">else</span> { <span class="keyword">if</span> (k) {info(<span class="string">' . . . try: '</span> + msg);} }
-                <span class="keyword">return</span> <span class="literal">true</span>;
+                <span class="hljs-keyword">else</span> { <span class="hljs-keyword">if</span> (k) {info(<span class="hljs-string">' . . . try: '</span> + msg);} }
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
         };</pre></div></div>
             
         </li>
@@ -254,15 +274,15 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> swTest = <span class="function"><span class="keyword">function</span> <span class="params">(inpt, out, msg, k)</span>
-        {</span>
-                <span class="keyword">if</span> (inpt != out)
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> swTest = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">inpt, out, msg, k</span>)
+        </span>{
+                <span class="hljs-keyword">if</span> (inpt != out)
                 {
-                        error(msg + <span class="string">' input: '</span> + inpt + <span class="string">' out: '</span> + out);
-                        <span class="keyword">return</span> <span class="literal">false</span>;
+                        error(msg + <span class="hljs-string">' input: '</span> + inpt + <span class="hljs-string">' out: '</span> + out);
+                        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
                 }
-                <span class="keyword">else</span> { <span class="keyword">if</span> (k) {info(<span class="string">' . . . try: '</span> + msg);} }
-                <span class="keyword">return</span> <span class="literal">true</span>;
+                <span class="hljs-keyword">else</span> { <span class="hljs-keyword">if</span> (k) {info(<span class="hljs-string">' . . . try: '</span> + msg);} }
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
         };</pre></div></div>
             
         </li>
@@ -278,33 +298,33 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> aTest = <span class="function"><span class="keyword">function</span> <span class="params">(arr1, arr2, msg)</span>
-        {</span>
-                <span class="keyword">var</span> legit = <span class="literal">true</span>;
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> aTest = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">arr1, arr2, msg</span>)
+        </span>{
+                <span class="hljs-keyword">var</span> legit = <span class="hljs-literal">true</span>;
 
-                <span class="keyword">if</span> (arr1.length != arr2.length)
+                <span class="hljs-keyword">if</span> (arr1.length != arr2.length)
                 {
-                        legit = <span class="literal">false</span>;
-                        error(msg + <span class="string">' array lengths wrong        arr1: ['</span> + arr1.join(<span class="string">':::'</span>)
-                                + <span class="string">']    arr2: ['</span> + arr2.join(<span class="string">':::'</span>) +<span class="string">']'</span>);
+                        legit = <span class="hljs-literal">false</span>;
+                        error(msg + <span class="hljs-string">' array lengths wrong        arr1: ['</span> + arr1.join(<span class="hljs-string">':::'</span>)
+                                + <span class="hljs-string">']    arr2: ['</span> + arr2.join(<span class="hljs-string">':::'</span>) +<span class="hljs-string">']'</span>);
                 }
 
-                <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; Math.min(arr1.length, arr2.length); i++)
+                <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-built_in">Math</span>.min(arr1.length, arr2.length); i++)
                 {
-                        <span class="keyword">if</span> (arr1[i] !== arr2[i])
+                        <span class="hljs-keyword">if</span> (arr1[i] !== arr2[i])
                         {
-                                legit = <span class="literal">false</span>;
-                                error(msg + <span class="string">'  bad arr entries ['</span> + i + <span class="string">']: '</span>
-                                        + <span class="string">'        arr1: '</span> + arr1[i] + <span class="string">'         arr2:'</span> + arr2[i]);
+                                legit = <span class="hljs-literal">false</span>;
+                                error(msg + <span class="hljs-string">'  bad arr entries ['</span> + i + <span class="hljs-string">']: '</span>
+                                        + <span class="hljs-string">'        arr1: '</span> + arr1[i] + <span class="hljs-string">'         arr2:'</span> + arr2[i]);
                         }
                 }
-                <span class="keyword">if</span> (!legit)
+                <span class="hljs-keyword">if</span> (!legit)
                 {
-                        error(<span class="string">'^^^^^^: '</span> + msg + <span class="string">'        arr1: ['</span> + arr1.join(<span class="string">':::'</span>)
-                                + <span class="string">']      arr2: ['</span> + arr2.join(<span class="string">':::'</span>) + <span class="string">']'</span>);
+                        error(<span class="hljs-string">'^^^^^^: '</span> + msg + <span class="hljs-string">'        arr1: ['</span> + arr1.join(<span class="hljs-string">':::'</span>)
+                                + <span class="hljs-string">']      arr2: ['</span> + arr2.join(<span class="hljs-string">':::'</span>) + <span class="hljs-string">']'</span>);
                 }
 
-                <span class="keyword">return</span> legit;
+                <span class="hljs-keyword">return</span> legit;
         };</pre></div></div>
             
         </li>
@@ -320,22 +340,22 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> aaTest = <span class="function"><span class="keyword">function</span> <span class="params">(arr1, arr2, msg)</span>
-        {</span>
-                <span class="keyword">var</span> legit = <span class="literal">true</span>;
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> aaTest = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">arr1, arr2, msg</span>)
+        </span>{
+                <span class="hljs-keyword">var</span> legit = <span class="hljs-literal">true</span>;
 
-                <span class="keyword">if</span> (arr1.length != arr2.length)
+                <span class="hljs-keyword">if</span> (arr1.length != arr2.length)
                 {
-                        legit = <span class="literal">false</span>;
-                        error(msg + <span class="string">' array lengths wrong        arr1: ['</span> + arr1.join(<span class="string">':::'</span>)
-                                + <span class="string">']      arr2: ['</span> + arr2.join(<span class="string">':::'</span>) +<span class="string">']'</span>);
+                        legit = <span class="hljs-literal">false</span>;
+                        error(msg + <span class="hljs-string">' array lengths wrong        arr1: ['</span> + arr1.join(<span class="hljs-string">':::'</span>)
+                                + <span class="hljs-string">']      arr2: ['</span> + arr2.join(<span class="hljs-string">':::'</span>) +<span class="hljs-string">']'</span>);
                 }
 
-                <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; Math.min(arr1.length, arr2.length); i++) {
+                <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-built_in">Math</span>.min(arr1.length, arr2.length); i++) {
                         legit = legit &amp;&amp; aTest(arr1[i], arr2[i], msg);
                 }
 
-                <span class="keyword">return</span> legit;
+                <span class="hljs-keyword">return</span> legit;
         };</pre></div></div>
             
         </li>
@@ -351,7 +371,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        sTest(<span class="number">1</span>, <span class="number">1</span>, <span class="string">'same1'</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        sTest(<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-string">'same1'</span>);</pre></div></div>
             
         </li>
         
@@ -366,9 +386,9 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        aTest([], [], <span class="string">'same3'</span>);
-        aTest([<span class="number">1</span>], [<span class="number">1</span>], <span class="string">'same4'</span>);
-        aTest([<span class="number">1</span>, <span class="number">2</span>], [<span class="number">1</span>, <span class="number">2</span>], <span class="string">'same5'</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        aTest([], [], <span class="hljs-string">'same3'</span>);
+        aTest([<span class="hljs-number">1</span>], [<span class="hljs-number">1</span>], <span class="hljs-string">'same4'</span>);
+        aTest([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>], [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>], <span class="hljs-string">'same5'</span>);</pre></div></div>
             
         </li>
         
@@ -385,30 +405,30 @@ aTest([1,2], [1,3], &#39;not same8&#39;);</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="comment">/* proto =============================================*/</span>
-        <span class="comment">/* lib _______________________________________________*/</span>
-        info(<span class="string">'====flapjax.lib===='</span>);
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-comment">/* proto =============================================*/</span>
+        <span class="hljs-comment">/* lib _______________________________________________*/</span>
+        info(<span class="hljs-string">'====flapjax.lib===='</span>);
 
-        <span class="keyword">var</span> l = flapjax;
+        <span class="hljs-keyword">var</span> l = flapjax;
 
-        <span class="keyword">var</span> bLib = <span class="literal">true</span>;
-        <span class="keyword">var</span> bLSum = <span class="literal">true</span>;
-        <span class="keyword">var</span> bLMax = <span class="literal">true</span>;
-        <span class="keyword">var</span> bLMin = <span class="literal">true</span>;
-        <span class="keyword">var</span> bLWMap = <span class="literal">true</span>;
-        <span class="keyword">var</span> bLWMapM = <span class="literal">true</span>;
-        <span class="keyword">var</span> bLWFoldL = <span class="literal">true</span>;
-        <span class="keyword">var</span> bLWFoldLM = <span class="literal">true</span>;
+        <span class="hljs-keyword">var</span> bLib = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">var</span> bLSum = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">var</span> bLMax = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">var</span> bLMin = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">var</span> bLWMap = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">var</span> bLWMapM = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">var</span> bLWFoldL = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">var</span> bLWFoldLM = <span class="hljs-literal">true</span>;
 
 
-        <span class="keyword">var</span> add1 = <span class="function"><span class="keyword">function</span> <span class="params">(x)</span> {</span><span class="keyword">return</span> <span class="number">1</span> + x;};
-        <span class="keyword">var</span> diff = <span class="function"><span class="keyword">function</span> <span class="params">(n1, n2)</span> {</span><span class="keyword">return</span> n1 - n2;};
-        bLWMapM &amp;= aTest(l.map(diff, []), [], <span class="string">'wmapm1'</span>);
-        bLWMapM &amp;= aTest(l.map(diff, [<span class="number">1</span>,<span class="number">4</span>],[<span class="number">3</span>,<span class="number">5</span>]), [-<span class="number">2</span>,-<span class="number">1</span>], <span class="string">'wmapm2'</span>);
-        bLWMapM &amp;= aTest(l.map(add1, [<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>]), [<span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>], <span class="string">'wmapm3'</span>);
-        a(bLWMapM, <span class="string">'map multiple'</span>);
+        <span class="hljs-keyword">var</span> add1 = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">x</span>) </span>{<span class="hljs-keyword">return</span> <span class="hljs-number">1</span> + x;};
+        <span class="hljs-keyword">var</span> diff = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">n1, n2</span>) </span>{<span class="hljs-keyword">return</span> n1 - n2;};
+        bLWMapM &amp;= aTest(l.map(diff, []), [], <span class="hljs-string">'wmapm1'</span>);
+        bLWMapM &amp;= aTest(l.map(diff, [<span class="hljs-number">1</span>,<span class="hljs-number">4</span>],[<span class="hljs-number">3</span>,<span class="hljs-number">5</span>]), [<span class="hljs-number">-2</span>,<span class="hljs-number">-1</span>], <span class="hljs-string">'wmapm2'</span>);
+        bLWMapM &amp;= aTest(l.map(add1, [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>]), [<span class="hljs-number">2</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>], <span class="hljs-string">'wmapm3'</span>);
+        a(bLWMapM, <span class="hljs-string">'map multiple'</span>);
 
-    <span class="comment">/*
+    <span class="hljs-comment">/*
         var summer = function (x, acc) {return x + acc;};
         bLWFoldLM &amp;= sTest(l.fold(summer, 1, []), 1, 'wfold1');
         bLWFoldLM &amp;= sTest(l.fold(summer, 1, [1,2,3]), 7, 'wfold2');
@@ -425,47 +445,47 @@ aTest([1,2], [1,3], &#39;not same8&#39;);</p>
      */</span>
 
         bLib &amp;= bLSum &amp;&amp; bLMax &amp;&amp; bLMin &amp;&amp; bLWMap &amp;&amp; bLWMapM &amp;&amp; bLWFoldL &amp;&amp; bLWFoldLM;
-        (bLib? info : error)(<span class="string">'====flapjax.lib===='</span>);
+        (bLib? info : error)(<span class="hljs-string">'====flapjax.lib===='</span>);
 
-        <span class="keyword">var</span> b = flapjax.base;
+        <span class="hljs-keyword">var</span> b = flapjax.base;
 
-        <span class="comment">/* engine ____________________________________________*/</span>
-        info(<span class="string">'====flapjax.engine===='</span>);
+        <span class="hljs-comment">/* engine ____________________________________________*/</span>
+        info(<span class="hljs-string">'====flapjax.engine===='</span>);
 
-        <span class="keyword">var</span> bEng = <span class="literal">true</span>;
-        <span class="keyword">var</span> bStamp = <span class="literal">true</span>;
+        <span class="hljs-keyword">var</span> bEng = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">var</span> bStamp = <span class="hljs-literal">true</span>;
 
-        <span class="keyword">var</span> e = flapjax.engine;
+        <span class="hljs-keyword">var</span> e = flapjax.engine;
 
-        <span class="keyword">var</span> bCreateNode = <span class="literal">true</span>;
+        <span class="hljs-keyword">var</span> bCreateNode = <span class="hljs-literal">true</span>;
 
-        <span class="keyword">var</span> pulse2 = <span class="keyword">new</span> b.Pulse(<span class="number">70</span>, <span class="number">2</span>);
-                <span class="keyword">var</span> recConst = <span class="number">0</span>;
+        <span class="hljs-keyword">var</span> pulse2 = <span class="hljs-keyword">new</span> b.Pulse(<span class="hljs-number">70</span>, <span class="hljs-number">2</span>);
+                <span class="hljs-keyword">var</span> recConst = <span class="hljs-number">0</span>;
 
-        <span class="keyword">var</span> secondsNode =
+        <span class="hljs-keyword">var</span> secondsNode =
                 e.createNode(
                         [],
-                        <span class="function"><span class="keyword">function</span> <span class="params">(pulse)</span> {</span>
-                            <span class="keyword">return</span> pulse;
+                        <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">pulse</span>) </span>{
+                            <span class="hljs-keyword">return</span> pulse;
                         });
 
-        <span class="keyword">var</span> secondsAdd1Node =
+        <span class="hljs-keyword">var</span> secondsAdd1Node =
                 e.createNode(
                         [secondsNode],
-                        <span class="function"><span class="keyword">function</span> <span class="params">(pulse)</span> {</span>
-                                recConst = pulse.value + <span class="number">1</span>;
+                        <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">pulse</span>) </span>{
+                                recConst = pulse.value + <span class="hljs-number">1</span>;
                                 pulse.value  = recConst;
-                                <span class="keyword">return</span> pulse;
+                                <span class="hljs-keyword">return</span> pulse;
                         });
 
         bCreateNode &amp;= sTest(
-                (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                        b.propagatePulse(pulse2, secondsNode); <span class="keyword">return</span> recConst;})(),
-                <span class="number">3</span>,
-                <span class="string">'createNode1'</span>);
-        a(bCreateNode, <span class="string">'createNode'</span>);
+                (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                        b.propagatePulse(pulse2, secondsNode); <span class="hljs-keyword">return</span> recConst;})(),
+                <span class="hljs-number">3</span>,
+                <span class="hljs-string">'createNode1'</span>);
+        a(bCreateNode, <span class="hljs-string">'createNode'</span>);
 
-        <span class="keyword">var</span> bConstantNode = <span class="literal">true</span>;</pre></div></div>
+        <span class="hljs-keyword">var</span> bConstantNode = <span class="hljs-literal">true</span>;</pre></div></div>
             
         </li>
         
@@ -480,137 +500,137 @@ aTest([1,2], [1,3], &#39;not same8&#39;);</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    e.createConstantNode = <span class="keyword">function</span>(nodes, val) {
-        <span class="keyword">return</span> e.createNode(nodes, <span class="keyword">function</span>(pulse) { pulse.value = val; <span class="keyword">return</span> pulse; });
+            <div class="content"><div class='highlight'><pre>    e.createConstantNode = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">nodes, val</span>) </span>{
+        <span class="hljs-keyword">return</span> e.createNode(nodes, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pulse</span>) </span>{ pulse.value = val; <span class="hljs-keyword">return</span> pulse; });
     };
 
-        recConst = -<span class="number">2</span>;
-        <span class="keyword">var</span> const1      = e.createConstantNode([], <span class="number">1</span>);
-        <span class="keyword">var</span> receiveN =
+        recConst = <span class="hljs-number">-2</span>;
+        <span class="hljs-keyword">var</span> const1      = e.createConstantNode([], <span class="hljs-number">1</span>);
+        <span class="hljs-keyword">var</span> receiveN =
                 e.createNode(
                         [const1],
-                        <span class="function"><span class="keyword">function</span> <span class="params">(pulse)</span> {</span>
-                                recConst = pulse.value; <span class="keyword">return</span> pulse;});
+                        <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">pulse</span>) </span>{
+                                recConst = pulse.value; <span class="hljs-keyword">return</span> pulse;});
         bConstantNode &amp;=
                 sTest(
-                        (<span class="keyword">function</span>(){b.propagatePulse(pulse2, const1); <span class="keyword">return</span> recConst;})(),
-                        <span class="number">1</span>,
-                        <span class="string">'constantNode1'</span>,
-                        <span class="literal">false</span>);
-        a(bConstantNode, <span class="string">'createConstantNode'</span>);
+                        (<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{b.propagatePulse(pulse2, const1); <span class="hljs-keyword">return</span> recConst;})(),
+                        <span class="hljs-number">1</span>,
+                        <span class="hljs-string">'constantNode1'</span>,
+                        <span class="hljs-literal">false</span>);
+        a(bConstantNode, <span class="hljs-string">'createConstantNode'</span>);
 
         bEng &amp;= bStamp &amp;&amp; bCreateNode &amp;&amp; bConstantNode;
-                (bEng? info : error)(<span class="string">'====flapjax.engine===='</span>);
+                (bEng? info : error)(<span class="hljs-string">'====flapjax.engine===='</span>);
 
 
-                <span class="comment">/* combinators ____________________________________________*/</span>
-                info(<span class="string">'====flapjax.combinators===='</span>);
-        <span class="keyword">var</span> bComb = <span class="literal">true</span>;
-        <span class="keyword">var</span> c = flapjax.combinators;
+                <span class="hljs-comment">/* combinators ____________________________________________*/</span>
+                info(<span class="hljs-string">'====flapjax.combinators===='</span>);
+        <span class="hljs-keyword">var</span> bComb = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">var</span> c = flapjax.combinators;
 
-        <span class="keyword">var</span> bEventReceiver = <span class="literal">true</span>;
-        <span class="keyword">var</span> received = <span class="number">0</span>;
-        <span class="keyword">var</span> receiver = flapjax.receiverE();
-        <span class="keyword">var</span> passer = e.createNode([receiver], <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>received = p.value; <span class="keyword">return</span> e.doNotPropagate;});
+        <span class="hljs-keyword">var</span> bEventReceiver = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">var</span> received = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">var</span> receiver = flapjax.receiverE();
+        <span class="hljs-keyword">var</span> passer = e.createNode([receiver], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">p</span>) </span>{received = p.value; <span class="hljs-keyword">return</span> e.doNotPropagate;});
 
-        bEventReceiver &amp;= sTest( (<span class="keyword">function</span>(){b.propagatePulse(pulse2, receiver); <span class="keyword">return</span> received;})(),
-                <span class="number">2</span>, <span class="string">'createEventReceiver1'</span>);
-        a(bEventReceiver, <span class="string">'createEventReceiver'</span>);
+        bEventReceiver &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{b.propagatePulse(pulse2, receiver); <span class="hljs-keyword">return</span> received;})(),
+                <span class="hljs-number">2</span>, <span class="hljs-string">'createEventReceiver1'</span>);
+        a(bEventReceiver, <span class="hljs-string">'createEventReceiver'</span>);
 
-        <span class="keyword">var</span> bSendEvent = <span class="literal">true</span>;
-        received = <span class="number">0</span>;
+        <span class="hljs-keyword">var</span> bSendEvent = <span class="hljs-literal">true</span>;
+        received = <span class="hljs-number">0</span>;
 
-        bSendEvent &amp;= sTest( (<span class="keyword">function</span>(){flapjax.sendEvent(passer, <span class="number">3</span>); <span class="keyword">return</span> received;})(),
-                <span class="number">3</span>, <span class="string">'sendEvent1'</span>);
-        a(bSendEvent, <span class="string">'sendEvent'</span>);
+        bSendEvent &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{flapjax.sendEvent(passer, <span class="hljs-number">3</span>); <span class="hljs-keyword">return</span> received;})(),
+                <span class="hljs-number">3</span>, <span class="hljs-string">'sendEvent1'</span>);
+        a(bSendEvent, <span class="hljs-string">'sendEvent'</span>);
 
-        <span class="keyword">var</span> bMapEV = <span class="literal">true</span>;
-        received = <span class="number">0</span>;
-        <span class="keyword">var</span> receiver2 = flapjax.receiverE();
-        <span class="keyword">var</span> doubler = flapjax.mapE(<span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span>received = <span class="number">2</span> * v; <span class="keyword">return</span> <span class="number">2</span>*v;}, receiver2);
+        <span class="hljs-keyword">var</span> bMapEV = <span class="hljs-literal">true</span>;
+        received = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">var</span> receiver2 = flapjax.receiverE();
+        <span class="hljs-keyword">var</span> doubler = flapjax.mapE(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">v</span>) </span>{received = <span class="hljs-number">2</span> * v; <span class="hljs-keyword">return</span> <span class="hljs-number">2</span>*v;}, receiver2);
 
-        bMapEV &amp;= sTest( (<span class="keyword">function</span>(){flapjax.sendEvent(receiver2, <span class="number">3</span>); <span class="keyword">return</span> received;})(),
-                <span class="number">6</span>, <span class="string">'bMapEV1'</span>);
-        a(bMapEV, <span class="string">'mapE'</span>);
+        bMapEV &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{flapjax.sendEvent(receiver2, <span class="hljs-number">3</span>); <span class="hljs-keyword">return</span> received;})(),
+                <span class="hljs-number">6</span>, <span class="hljs-string">'bMapEV1'</span>);
+        a(bMapEV, <span class="hljs-string">'mapE'</span>);
 
-        <span class="keyword">var</span> bFilterEV = <span class="literal">true</span>;
-        received = <span class="number">0</span>;
-        <span class="keyword">var</span> receiver3 = flapjax.receiverE();
-        <span class="keyword">var</span> gt5 = receiver3.filterE(<span class="keyword">function</span>(v){<span class="keyword">return</span> (v &gt; <span class="number">5</span>);});
-        <span class="keyword">var</span> recorder = e.createNode([gt5], <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>received = p.value; <span class="keyword">return</span> p;});
+        <span class="hljs-keyword">var</span> bFilterEV = <span class="hljs-literal">true</span>;
+        received = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">var</span> receiver3 = flapjax.receiverE();
+        <span class="hljs-keyword">var</span> gt5 = receiver3.filterE(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">v</span>)</span>{<span class="hljs-keyword">return</span> (v &gt; <span class="hljs-number">5</span>);});
+        <span class="hljs-keyword">var</span> recorder = e.createNode([gt5], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">p</span>) </span>{received = p.value; <span class="hljs-keyword">return</span> p;});
 
-        bFilterEV &amp;= sTest((<span class="keyword">function</span>(){flapjax.sendEvent(receiver3, <span class="number">1</span>); <span class="keyword">return</span> received;})(),
-                <span class="number">0</span>, <span class="string">'filter_ev1'</span>);
-        received = <span class="number">0</span>;
-        bFilterEV &amp;= sTest((<span class="keyword">function</span>(){flapjax.sendEvent(receiver3, <span class="number">6</span>); <span class="keyword">return</span> received;})(),
-                <span class="number">6</span>, <span class="string">'filter_ev2'</span>);
+        bFilterEV &amp;= sTest((<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{flapjax.sendEvent(receiver3, <span class="hljs-number">1</span>); <span class="hljs-keyword">return</span> received;})(),
+                <span class="hljs-number">0</span>, <span class="hljs-string">'filter_ev1'</span>);
+        received = <span class="hljs-number">0</span>;
+        bFilterEV &amp;= sTest((<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{flapjax.sendEvent(receiver3, <span class="hljs-number">6</span>); <span class="hljs-keyword">return</span> received;})(),
+                <span class="hljs-number">6</span>, <span class="hljs-string">'filter_ev2'</span>);
 
-        a(bFilterEV, <span class="string">'filter_ev'</span>);
+        a(bFilterEV, <span class="hljs-string">'filter_ev'</span>);
 
-    <span class="keyword">var</span> bFilterRepeatsE = <span class="literal">true</span>;
-    bFilterRepeatsE &amp;= sTest((<span class="function"><span class="keyword">function</span> <span class="params">()</span>{</span>
-            <span class="keyword">var</span> received = <span class="number">0</span>;
-            <span class="keyword">var</span> receiver = flapjax.receiverE();
-            <span class="keyword">var</span> f = receiver.filterRepeatsE();
-            e.createNode([f], <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span> received += p.value; <span class="keyword">return</span> p;});
-            flapjax.sendEvent(receiver, <span class="number">1</span>);
-            flapjax.sendEvent(receiver, <span class="number">1</span>);
-            <span class="keyword">return</span> received;})(), <span class="number">1</span>, <span class="string">'filterRepeats_e1'</span>);
-     bFilterRepeatsE &amp;= sTest((<span class="function"><span class="keyword">function</span> <span class="params">()</span>{</span>
-            <span class="keyword">var</span> received = <span class="number">0</span>;
-            <span class="keyword">var</span> receiver = flapjax.receiverE();
-            <span class="keyword">var</span> f = receiver.filterRepeatsE();
-            e.createNode([f], <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span> received += p.value; <span class="keyword">return</span> (p);});
-            flapjax.sendEvent(receiver, <span class="number">1</span>);
-            flapjax.sendEvent(receiver, <span class="number">2</span>);
-            flapjax.sendEvent(receiver, <span class="number">1</span>);
-            <span class="keyword">return</span> received;})(), <span class="number">4</span>, <span class="string">'filterRepeats_e2'</span>);
-     bFilterRepeatsE &amp;= sTest((<span class="function"><span class="keyword">function</span> <span class="params">()</span>{</span>
-            <span class="keyword">var</span> received = <span class="string">'asdf'</span>;
-            <span class="keyword">var</span> receiver = flapjax.receiverE();
-            <span class="keyword">var</span> f = receiver.filterRepeatsE();
-            e.createNode([f], <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span> received += p.value; <span class="keyword">return</span>(p);});
-            flapjax.sendEvent(receiver, <span class="string">'a'</span>);
-            flapjax.sendEvent(receiver, <span class="string">'a'</span>);
-            <span class="keyword">return</span> received;})(), <span class="string">'asdfa'</span>, <span class="string">'filterRepeats_e3'</span>);
-     a(bFilterRepeatsE, <span class="string">'filterRepeats_e3'</span>);
+    <span class="hljs-keyword">var</span> bFilterRepeatsE = <span class="hljs-literal">true</span>;
+    bFilterRepeatsE &amp;= sTest((<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>)</span>{
+            <span class="hljs-keyword">var</span> received = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">var</span> receiver = flapjax.receiverE();
+            <span class="hljs-keyword">var</span> f = receiver.filterRepeatsE();
+            e.createNode([f], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">p</span>) </span>{ received += p.value; <span class="hljs-keyword">return</span> p;});
+            flapjax.sendEvent(receiver, <span class="hljs-number">1</span>);
+            flapjax.sendEvent(receiver, <span class="hljs-number">1</span>);
+            <span class="hljs-keyword">return</span> received;})(), <span class="hljs-number">1</span>, <span class="hljs-string">'filterRepeats_e1'</span>);
+     bFilterRepeatsE &amp;= sTest((<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>)</span>{
+            <span class="hljs-keyword">var</span> received = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">var</span> receiver = flapjax.receiverE();
+            <span class="hljs-keyword">var</span> f = receiver.filterRepeatsE();
+            e.createNode([f], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">p</span>) </span>{ received += p.value; <span class="hljs-keyword">return</span> (p);});
+            flapjax.sendEvent(receiver, <span class="hljs-number">1</span>);
+            flapjax.sendEvent(receiver, <span class="hljs-number">2</span>);
+            flapjax.sendEvent(receiver, <span class="hljs-number">1</span>);
+            <span class="hljs-keyword">return</span> received;})(), <span class="hljs-number">4</span>, <span class="hljs-string">'filterRepeats_e2'</span>);
+     bFilterRepeatsE &amp;= sTest((<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>)</span>{
+            <span class="hljs-keyword">var</span> received = <span class="hljs-string">'asdf'</span>;
+            <span class="hljs-keyword">var</span> receiver = flapjax.receiverE();
+            <span class="hljs-keyword">var</span> f = receiver.filterRepeatsE();
+            e.createNode([f], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">p</span>) </span>{ received += p.value; <span class="hljs-keyword">return</span>(p);});
+            flapjax.sendEvent(receiver, <span class="hljs-string">'a'</span>);
+            flapjax.sendEvent(receiver, <span class="hljs-string">'a'</span>);
+            <span class="hljs-keyword">return</span> received;})(), <span class="hljs-string">'asdfa'</span>, <span class="hljs-string">'filterRepeats_e3'</span>);
+     a(bFilterRepeatsE, <span class="hljs-string">'filterRepeats_e3'</span>);
 
 
-        <span class="keyword">var</span> bMergeE = <span class="literal">true</span>;
-        <span class="keyword">var</span> mergeERcva = flapjax.receiverE();
-        <span class="keyword">var</span> mergeERcvb = flapjax.receiverE();
-        bMergeE &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                <span class="keyword">var</span> mergeERcvd0 = <span class="number">0</span>;
-                <span class="keyword">var</span> mergeERcvr0 = flapjax.mergeE(mergeERcva);
-                flapjax.mapE(<span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span><span class="keyword">return</span> (mergeERcvd0 = v);},
+        <span class="hljs-keyword">var</span> bMergeE = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">var</span> mergeERcva = flapjax.receiverE();
+        <span class="hljs-keyword">var</span> mergeERcvb = flapjax.receiverE();
+        bMergeE &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                <span class="hljs-keyword">var</span> mergeERcvd0 = <span class="hljs-number">0</span>;
+                <span class="hljs-keyword">var</span> mergeERcvr0 = flapjax.mergeE(mergeERcva);
+                flapjax.mapE(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">v</span>) </span>{<span class="hljs-keyword">return</span> (mergeERcvd0 = v);},
                 mergeERcvr0);
-                flapjax.sendEvent(mergeERcva, <span class="number">1</span>);
-                <span class="keyword">return</span> mergeERcvd0; })(), <span class="number">1</span>, <span class="string">'merge_e1'</span>);
-        bMergeE &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                <span class="keyword">var</span> mergeERcvd1 = <span class="number">1</span>;
-                <span class="keyword">var</span> mergeERcvr1 = flapjax.mergeE(mergeERcva, mergeERcvb);
-                flapjax.mapE(<span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span> <span class="keyword">return</span> (mergeERcvd1 *= v); },
+                flapjax.sendEvent(mergeERcva, <span class="hljs-number">1</span>);
+                <span class="hljs-keyword">return</span> mergeERcvd0; })(), <span class="hljs-number">1</span>, <span class="hljs-string">'merge_e1'</span>);
+        bMergeE &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                <span class="hljs-keyword">var</span> mergeERcvd1 = <span class="hljs-number">1</span>;
+                <span class="hljs-keyword">var</span> mergeERcvr1 = flapjax.mergeE(mergeERcva, mergeERcvb);
+                flapjax.mapE(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">v</span>) </span>{ <span class="hljs-keyword">return</span> (mergeERcvd1 *= v); },
                 mergeERcvr1);
-                flapjax.sendEvent(mergeERcva, <span class="number">3</span>);
-                flapjax.sendEvent(mergeERcvb, <span class="number">5</span>);
-                <span class="keyword">return</span> mergeERcvd1; })(), <span class="number">15</span>, <span class="string">'merge_e2'</span>);
-        a(bMergeE, <span class="string">'merge_e'</span>);
+                flapjax.sendEvent(mergeERcva, <span class="hljs-number">3</span>);
+                flapjax.sendEvent(mergeERcvb, <span class="hljs-number">5</span>);
+                <span class="hljs-keyword">return</span> mergeERcvd1; })(), <span class="hljs-number">15</span>, <span class="hljs-string">'merge_e2'</span>);
+        a(bMergeE, <span class="hljs-string">'merge_e'</span>);
 
-        <span class="keyword">var</span> bOnceE = <span class="literal">true</span>;
-        <span class="keyword">var</span> onceERcvE = flapjax.receiverE();
+        <span class="hljs-keyword">var</span> bOnceE = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">var</span> onceERcvE = flapjax.receiverE();
         bOnceE &amp;= sTest(
-                (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                        <span class="keyword">var</span> result = <span class="number">0</span>;
+                (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                        <span class="hljs-keyword">var</span> result = <span class="hljs-number">0</span>;
                         flapjax.mapE(
-                                <span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span> result = v; <span class="keyword">return</span> v; },
+                                <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">v</span>) </span>{ result = v; <span class="hljs-keyword">return</span> v; },
                                 flapjax.onceE(onceERcvE));
-                        flapjax.sendEvent(onceERcvE, <span class="number">1</span>);
-                        flapjax.sendEvent(onceERcvE, <span class="number">2</span>);
-                        <span class="keyword">return</span> result; })(),
-                <span class="number">1</span>,
-                <span class="string">'once_e1'</span>);
+                        flapjax.sendEvent(onceERcvE, <span class="hljs-number">1</span>);
+                        flapjax.sendEvent(onceERcvE, <span class="hljs-number">2</span>);
+                        <span class="hljs-keyword">return</span> result; })(),
+                <span class="hljs-number">1</span>,
+                <span class="hljs-string">'once_e1'</span>);
 
-        a(bOnceE, <span class="string">'once_e'</span>);</pre></div></div>
+        a(bOnceE, <span class="hljs-string">'once_e'</span>);</pre></div></div>
             
         </li>
         
@@ -625,117 +645,117 @@ aTest([1,2], [1,3], &#39;not same8&#39;);</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> bSwitchE = <span class="literal">true</span>;
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> bSwitchE = <span class="hljs-literal">true</span>;
 
         bSwitchE &amp;=
                 sTest(
-                        (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                                <span class="keyword">var</span> stream1 = flapjax.receiverE();
-                                <span class="keyword">var</span> stream2 = flapjax.receiverE();
-                                <span class="keyword">var</span> streamReceiverE = flapjax.receiverE();
-                                <span class="keyword">var</span> switchedE = flapjax.switchE(streamReceiverE);
-                                <span class="keyword">var</span> lastReceived = <span class="literal">undefined</span>;
+                        (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                                <span class="hljs-keyword">var</span> stream1 = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> stream2 = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> streamReceiverE = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> switchedE = flapjax.switchE(streamReceiverE);
+                                <span class="hljs-keyword">var</span> lastReceived = <span class="hljs-literal">undefined</span>;
                                 flapjax.mapE(
-                                        <span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span> lastReceived = v; },
+                                        <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">v</span>) </span>{ lastReceived = v; },
                                         switchedE);
                                 flapjax.sendEvent(streamReceiverE, stream1);
-                                flapjax.sendEvent(stream1, <span class="number">1</span>);
-                                <span class="keyword">return</span> lastReceived;
+                                flapjax.sendEvent(stream1, <span class="hljs-number">1</span>);
+                                <span class="hljs-keyword">return</span> lastReceived;
                         })(),
-                        <span class="number">1</span>,
-                        <span class="string">'switch_e1'</span>);
+                        <span class="hljs-number">1</span>,
+                        <span class="hljs-string">'switch_e1'</span>);
 
         bSwitchE &amp;=
                 sTest(
-                        (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                                <span class="keyword">var</span> stream1 = flapjax.receiverE();
-                                <span class="keyword">var</span> stream2 = flapjax.receiverE();
-                                <span class="keyword">var</span> streamReceiverE = flapjax.receiverE();
-                                <span class="keyword">var</span> switchedE = flapjax.switchE(streamReceiverE);
-                                <span class="keyword">var</span> lastReceived = <span class="literal">undefined</span>;
+                        (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                                <span class="hljs-keyword">var</span> stream1 = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> stream2 = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> streamReceiverE = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> switchedE = flapjax.switchE(streamReceiverE);
+                                <span class="hljs-keyword">var</span> lastReceived = <span class="hljs-literal">undefined</span>;
                                 flapjax.mapE(
-                                        <span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span> lastReceived = v; },
-                                        switchedE);
-                                flapjax.sendEvent(streamReceiverE, stream1);
-                                flapjax.sendEvent(streamReceiverE, stream2);
-                                flapjax.sendEvent(stream2, <span class="number">2</span>);
-                                <span class="keyword">return</span> lastReceived;
-                        })(),
-                        <span class="number">2</span>,
-                        <span class="string">'switch_e2'</span>);
-
-        bSwitchE &amp;=
-                sTest(
-                        (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                                <span class="keyword">var</span> stream1 = flapjax.receiverE();
-                                <span class="keyword">var</span> stream2 = flapjax.receiverE();
-                                <span class="keyword">var</span> streamReceiverE = flapjax.receiverE();
-                                <span class="keyword">var</span> switchedE = flapjax.switchE(streamReceiverE);
-                                <span class="keyword">var</span> lastReceived = <span class="literal">undefined</span>;
-                                flapjax.mapE(
-                                        <span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span> lastReceived = v; },
+                                        <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">v</span>) </span>{ lastReceived = v; },
                                         switchedE);
                                 flapjax.sendEvent(streamReceiverE, stream1);
                                 flapjax.sendEvent(streamReceiverE, stream2);
-                                flapjax.sendEvent(stream2, <span class="number">2</span>);
-                                flapjax.sendEvent(stream1, <span class="number">1</span>);
-                                <span class="keyword">return</span> lastReceived;
+                                flapjax.sendEvent(stream2, <span class="hljs-number">2</span>);
+                                <span class="hljs-keyword">return</span> lastReceived;
                         })(),
-                        <span class="number">2</span>,
-                        <span class="string">'switch_e3'</span>);
+                        <span class="hljs-number">2</span>,
+                        <span class="hljs-string">'switch_e2'</span>);
 
-        a(bSwitchE, <span class="string">'switch_e'</span>);
+        bSwitchE &amp;=
+                sTest(
+                        (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                                <span class="hljs-keyword">var</span> stream1 = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> stream2 = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> streamReceiverE = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> switchedE = flapjax.switchE(streamReceiverE);
+                                <span class="hljs-keyword">var</span> lastReceived = <span class="hljs-literal">undefined</span>;
+                                flapjax.mapE(
+                                        <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">v</span>) </span>{ lastReceived = v; },
+                                        switchedE);
+                                flapjax.sendEvent(streamReceiverE, stream1);
+                                flapjax.sendEvent(streamReceiverE, stream2);
+                                flapjax.sendEvent(stream2, <span class="hljs-number">2</span>);
+                                flapjax.sendEvent(stream1, <span class="hljs-number">1</span>);
+                                <span class="hljs-keyword">return</span> lastReceived;
+                        })(),
+                        <span class="hljs-number">2</span>,
+                        <span class="hljs-string">'switch_e3'</span>);
+
+        a(bSwitchE, <span class="hljs-string">'switch_e'</span>);
 
 
-        <span class="keyword">var</span> bIfE = <span class="literal">true</span>;
-        received = <span class="number">0</span>;
+        <span class="hljs-keyword">var</span> bIfE = <span class="hljs-literal">true</span>;
+        received = <span class="hljs-number">0</span>;
         receiver3 = flapjax.receiverE();
-        <span class="keyword">var</span> iffer = flapjax.ifE(
+        <span class="hljs-keyword">var</span> iffer = flapjax.ifE(
                 receiver3,
-                e.createConstantNode([receiver3], <span class="number">2</span>),
-                        e.createConstantNode([receiver3], <span class="number">3</span>));
-        <span class="keyword">var</span> receiver4 = e.createNode([iffer], <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>
-                 received = p.value; <span class="keyword">return</span> (p);});
-        bIfE &amp;= sTest((<span class="keyword">function</span>(){
-                        flapjax.sendEvent(receiver3, <span class="literal">true</span>); <span class="keyword">return</span> received;})(),
-                <span class="number">2</span>, <span class="string">'if_e1'</span>);
-        received = <span class="number">0</span>;
-        bIfE &amp;= sTest((<span class="keyword">function</span>(){
-                        flapjax.sendEvent(receiver3, <span class="literal">true</span>); <span class="keyword">return</span> received;})(),
-                <span class="number">2</span>, <span class="string">'if_e2'</span>);
-        received = <span class="number">0</span>;
-        bIfE &amp;= sTest((<span class="keyword">function</span>(){
-                        flapjax.sendEvent(receiver3, <span class="literal">false</span>); <span class="keyword">return</span> received;})(),
-                <span class="number">3</span>, <span class="string">'if_e3'</span>);
-        received = <span class="number">0</span>;
-        bIfE &amp;= sTest((<span class="keyword">function</span>(){
-                        flapjax.sendEvent(receiver3, <span class="literal">false</span>); <span class="keyword">return</span> received;})(),
-                <span class="number">3</span>, <span class="string">'if_e4'</span>);
-        received = <span class="number">0</span>;
-        bIfE &amp;= sTest((<span class="keyword">function</span>(){
-                        flapjax.sendEvent(receiver3, <span class="literal">true</span>); <span class="keyword">return</span> received;})(),
-                <span class="number">2</span>, <span class="string">'if_e5'</span>);
-        received = <span class="number">0</span>;
-        bIfE &amp;= sTest((<span class="keyword">function</span>(){
-                        flapjax.sendEvent(receiver3, <span class="literal">false</span>); <span class="keyword">return</span> received;})(),
-                <span class="number">3</span>, <span class="string">'if_e6'</span>);
-        <span class="keyword">var</span> ifReceiver5 = flapjax.receiverE();
-        <span class="keyword">var</span> ifReceiver6b = flapjax.receiverE();
-        <span class="keyword">var</span> iffer2 = flapjax.ifE(ifReceiver5, ifReceiver5, ifReceiver6b);
-        <span class="keyword">var</span> ifReceiver6 = e.createNode([iffer2], <span class="function"><span class="keyword">function</span> <span class="params">(p)</span> {</span>
-                        received = p.value; <span class="keyword">return</span> (p); });
-        received = <span class="number">0</span>;
-        bIfE &amp;= sTest((<span class="keyword">function</span>(){
-                        flapjax.sendEvent(ifReceiver5, <span class="literal">true</span>); <span class="keyword">return</span> received;})(),
-                        <span class="literal">true</span>, <span class="string">'if_e7'</span>);
-        received = <span class="number">0</span>;
-        bIfE &amp;= sTest((<span class="keyword">function</span>(){
-                        flapjax.sendEvent(ifReceiver5, <span class="literal">false</span>); <span class="keyword">return</span> received;})(),
-                        <span class="number">0</span>, <span class="string">'if_e8'</span>);
-        a(bIfE, <span class="string">'if_e'</span>);
+                e.createConstantNode([receiver3], <span class="hljs-number">2</span>),
+                        e.createConstantNode([receiver3], <span class="hljs-number">3</span>));
+        <span class="hljs-keyword">var</span> receiver4 = e.createNode([iffer], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">p</span>) </span>{
+                 received = p.value; <span class="hljs-keyword">return</span> (p);});
+        bIfE &amp;= sTest((<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+                        flapjax.sendEvent(receiver3, <span class="hljs-literal">true</span>); <span class="hljs-keyword">return</span> received;})(),
+                <span class="hljs-number">2</span>, <span class="hljs-string">'if_e1'</span>);
+        received = <span class="hljs-number">0</span>;
+        bIfE &amp;= sTest((<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+                        flapjax.sendEvent(receiver3, <span class="hljs-literal">true</span>); <span class="hljs-keyword">return</span> received;})(),
+                <span class="hljs-number">2</span>, <span class="hljs-string">'if_e2'</span>);
+        received = <span class="hljs-number">0</span>;
+        bIfE &amp;= sTest((<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+                        flapjax.sendEvent(receiver3, <span class="hljs-literal">false</span>); <span class="hljs-keyword">return</span> received;})(),
+                <span class="hljs-number">3</span>, <span class="hljs-string">'if_e3'</span>);
+        received = <span class="hljs-number">0</span>;
+        bIfE &amp;= sTest((<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+                        flapjax.sendEvent(receiver3, <span class="hljs-literal">false</span>); <span class="hljs-keyword">return</span> received;})(),
+                <span class="hljs-number">3</span>, <span class="hljs-string">'if_e4'</span>);
+        received = <span class="hljs-number">0</span>;
+        bIfE &amp;= sTest((<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+                        flapjax.sendEvent(receiver3, <span class="hljs-literal">true</span>); <span class="hljs-keyword">return</span> received;})(),
+                <span class="hljs-number">2</span>, <span class="hljs-string">'if_e5'</span>);
+        received = <span class="hljs-number">0</span>;
+        bIfE &amp;= sTest((<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+                        flapjax.sendEvent(receiver3, <span class="hljs-literal">false</span>); <span class="hljs-keyword">return</span> received;})(),
+                <span class="hljs-number">3</span>, <span class="hljs-string">'if_e6'</span>);
+        <span class="hljs-keyword">var</span> ifReceiver5 = flapjax.receiverE();
+        <span class="hljs-keyword">var</span> ifReceiver6b = flapjax.receiverE();
+        <span class="hljs-keyword">var</span> iffer2 = flapjax.ifE(ifReceiver5, ifReceiver5, ifReceiver6b);
+        <span class="hljs-keyword">var</span> ifReceiver6 = e.createNode([iffer2], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">p</span>) </span>{
+                        received = p.value; <span class="hljs-keyword">return</span> (p); });
+        received = <span class="hljs-number">0</span>;
+        bIfE &amp;= sTest((<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+                        flapjax.sendEvent(ifReceiver5, <span class="hljs-literal">true</span>); <span class="hljs-keyword">return</span> received;})(),
+                        <span class="hljs-literal">true</span>, <span class="hljs-string">'if_e7'</span>);
+        received = <span class="hljs-number">0</span>;
+        bIfE &amp;= sTest((<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+                        flapjax.sendEvent(ifReceiver5, <span class="hljs-literal">false</span>); <span class="hljs-keyword">return</span> received;})(),
+                        <span class="hljs-number">0</span>, <span class="hljs-string">'if_e8'</span>);
+        a(bIfE, <span class="hljs-string">'if_e'</span>);
 
-        <span class="keyword">var</span> bCondE = <span class="literal">true</span>;
-    <span class="comment">/*
+        <span class="hljs-keyword">var</span> bCondE = <span class="hljs-literal">true</span>;
+    <span class="hljs-comment">/*
         var rcvCond1 = flapjax.receiverE();
         var conder1 = flapjax.condE();
         bCondE &amp;= sTest((function(){
@@ -780,60 +800,60 @@ aTest([1,2], [1,3], &#39;not same8&#39;);</p>
         a(bCondE, 'cond_e');
 */</span>
 
-        <span class="keyword">var</span> bAndE = <span class="literal">true</span>;
-        <span class="keyword">var</span> andReceiver1 = flapjax.receiverE();
-        <span class="keyword">var</span> and1N = flapjax.andE(andReceiver1);
-        <span class="keyword">var</span> andResult = <span class="number">0</span>;
-        <span class="keyword">var</span> andRecord1 = flapjax.mapE(
-                <span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span>andResult = v; <span class="keyword">return</span> v;},
+        <span class="hljs-keyword">var</span> bAndE = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">var</span> andReceiver1 = flapjax.receiverE();
+        <span class="hljs-keyword">var</span> and1N = flapjax.andE(andReceiver1);
+        <span class="hljs-keyword">var</span> andResult = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">var</span> andRecord1 = flapjax.mapE(
+                <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">v</span>) </span>{andResult = v; <span class="hljs-keyword">return</span> v;},
                 and1N);
-        bAndE &amp;= sTest( (<span class="keyword">function</span>(){
-                        andResult = <span class="number">0</span>;
-                        flapjax.sendEvent(andReceiver1, <span class="literal">true</span>);
-                        <span class="keyword">return</span> andResult;})(),
-                <span class="literal">true</span>, <span class="string">'and_e1'</span>);
-        bAndE &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span>{</span>
-                        andResult = <span class="number">0</span>;
-                        flapjax.sendEvent(andReceiver1, <span class="literal">false</span>);
-                        <span class="keyword">return</span> andResult;})(),
-                <span class="literal">false</span>, <span class="string">'and_e2'</span>);
+        bAndE &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+                        andResult = <span class="hljs-number">0</span>;
+                        flapjax.sendEvent(andReceiver1, <span class="hljs-literal">true</span>);
+                        <span class="hljs-keyword">return</span> andResult;})(),
+                <span class="hljs-literal">true</span>, <span class="hljs-string">'and_e1'</span>);
+        bAndE &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>)</span>{
+                        andResult = <span class="hljs-number">0</span>;
+                        flapjax.sendEvent(andReceiver1, <span class="hljs-literal">false</span>);
+                        <span class="hljs-keyword">return</span> andResult;})(),
+                <span class="hljs-literal">false</span>, <span class="hljs-string">'and_e2'</span>);
 
-        <span class="keyword">var</span> andResult2 = <span class="number">0</span>;
-        <span class="keyword">var</span> and2N = flapjax.andE(and1N, and1N);
-        <span class="keyword">var</span> andRecord2 = flapjax.mapE(
-                <span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span>andResult2 = v; <span class="keyword">return</span> v;},
+        <span class="hljs-keyword">var</span> andResult2 = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">var</span> and2N = flapjax.andE(and1N, and1N);
+        <span class="hljs-keyword">var</span> andRecord2 = flapjax.mapE(
+                <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">v</span>) </span>{andResult2 = v; <span class="hljs-keyword">return</span> v;},
                 and2N);
-        bAndE &amp;= sTest( (<span class="keyword">function</span>(){
-                        andResult2 = -<span class="number">2</span>;
-                        flapjax.sendEvent(andReceiver1, <span class="literal">true</span>);
-                        <span class="keyword">return</span> andResult2;})(),
-                <span class="literal">true</span>, <span class="string">'and_e3'</span>);
+        bAndE &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+                        andResult2 = <span class="hljs-number">-2</span>;
+                        flapjax.sendEvent(andReceiver1, <span class="hljs-literal">true</span>);
+                        <span class="hljs-keyword">return</span> andResult2;})(),
+                <span class="hljs-literal">true</span>, <span class="hljs-string">'and_e3'</span>);
 
 
 
-        bAndE &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span>{</span>
-                        andResult2 = -<span class="number">2</span>;
-                        flapjax.sendEvent(andReceiver1, <span class="literal">false</span>);
-                        <span class="keyword">return</span> andResult2;})(),
-                <span class="literal">false</span>, <span class="string">'and_e4'</span>);
+        bAndE &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>)</span>{
+                        andResult2 = <span class="hljs-number">-2</span>;
+                        flapjax.sendEvent(andReceiver1, <span class="hljs-literal">false</span>);
+                        <span class="hljs-keyword">return</span> andResult2;})(),
+                <span class="hljs-literal">false</span>, <span class="hljs-string">'and_e4'</span>);
 
-        <span class="keyword">var</span> bOrE = <span class="literal">true</span>;
+        <span class="hljs-keyword">var</span> bOrE = <span class="hljs-literal">true</span>;
 
-        <span class="keyword">var</span> bTimer = <span class="literal">true</span>;
+        <span class="hljs-keyword">var</span> bTimer = <span class="hljs-literal">true</span>;
 
-        <span class="comment">/* should print a couple times */</span>
-<span class="comment">/*
+        <span class="hljs-comment">/* should print a couple times */</span>
+<span class="hljs-comment">/*
         var oftenTimer = c.createTimerNode(100);
         var timeReceiver = e.createNode([oftenTimer], function(s, p) {
                 info('timer test (2x): ' + p.value); s(p); });
         setTimeout(function () {c.disableTimerNode(oftenTimer)}, 201);
 */</span>
 
-        <span class="keyword">var</span> bDelay = <span class="literal">true</span>;
+        <span class="hljs-keyword">var</span> bDelay = <span class="hljs-literal">true</span>;
 
 
-        <span class="comment">/* should print twice */</span>
-    <span class="comment">/*
+        <span class="hljs-comment">/* should print twice */</span>
+    <span class="hljs-comment">/*
         var delayTimerE = c.createTimerNode(100);
         flapjax.mapE(
                 function (v) {info('delay test received: ' + (new Date()).getTime()); return v;},
@@ -845,10 +865,10 @@ aTest([1,2], [1,3], &#39;not same8&#39;);</p>
         setTimeout(function () {c.disableTimerNode(delayTimerE)}, 201);
 */</span>
 
-        <span class="keyword">var</span> bLift = <span class="literal">true</span>;
+        <span class="hljs-keyword">var</span> bLift = <span class="hljs-literal">true</span>;
 
-        <span class="keyword">var</span> bLiftE = <span class="literal">true</span>;
-        <span class="comment">/*
+        <span class="hljs-keyword">var</span> bLiftE = <span class="hljs-literal">true</span>;
+        <span class="hljs-comment">/*
         var toLiftAddXY = function (x, y) { return x + y; };
         var liftX = flapjax.receiverE();
         var liftY = e.createConstantNode([liftX], 3);
@@ -1050,330 +1070,330 @@ aTest([1,2], [1,3], &#39;not same8&#39;);</p>
 
         bComb &amp;= bEventReceiver &amp;&amp; bSendEvent &amp;&amp; bMapEV &amp;&amp; bFilterEV &amp;&amp; bIfE;
         bComb &amp;= bAndE &amp;&amp; bOrE &amp;&amp; bTimer &amp;&amp; bMergeE &amp;&amp; bLiftE &amp;&amp; bOnceE;
-                (bComb? info : error)(<span class="string">'====flapjax.combinators===='</span>);
+                (bComb? info : error)(<span class="hljs-string">'====flapjax.combinators===='</span>);
 
 
-        <span class="comment">/* behaviors  ____________________________________________*/</span>
-                info(<span class="string">'====flapjax.behaviors===='</span>);
-        <span class="keyword">var</span> bBehavior = <span class="literal">true</span>;
+        <span class="hljs-comment">/* behaviors  ____________________________________________*/</span>
+                info(<span class="hljs-string">'====flapjax.behaviors===='</span>);
+        <span class="hljs-keyword">var</span> bBehavior = <span class="hljs-literal">true</span>;
 
-        <span class="keyword">var</span> beReceiverB = <span class="keyword">new</span> flapjax.Behavior(
+        <span class="hljs-keyword">var</span> beReceiverB = <span class="hljs-keyword">new</span> flapjax.Behavior(
                 flapjax.receiverE(),
-                <span class="number">1</span>);
+                <span class="hljs-number">1</span>);
 
-        bBehavior &amp;= sTest( flapjax.valueNow(beReceiverB), <span class="number">1</span>, <span class="string">'basic behavior'</span>);
+        bBehavior &amp;= sTest( flapjax.valueNow(beReceiverB), <span class="hljs-number">1</span>, <span class="hljs-string">'basic behavior'</span>);
 
-        <span class="keyword">var</span> bMapB = <span class="literal">true</span>;
-        <span class="keyword">var</span> beMapAdd1B = flapjax.liftB(
-                <span class="function"><span class="keyword">function</span> <span class="params">(v)</span> {</span><span class="keyword">return</span> <span class="number">1</span> + v;},
+        <span class="hljs-keyword">var</span> bMapB = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">var</span> beMapAdd1B = flapjax.liftB(
+                <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">v</span>) </span>{<span class="hljs-keyword">return</span> <span class="hljs-number">1</span> + v;},
                 beReceiverB);
-        bMapB &amp;= sTest( flapjax.valueNow(beMapAdd1B), <span class="number">2</span>, <span class="string">'map init'</span>);
-        bMapB &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                flapjax.sendEvent(beReceiverB.changes(), <span class="number">3</span>);
-                <span class="keyword">return</span> flapjax.valueNow(beMapAdd1B);})(),
-                <span class="number">4</span>, <span class="string">'lift_b'</span>);
-        a(bMapB, <span class="string">'lift_b'</span>);
+        bMapB &amp;= sTest( flapjax.valueNow(beMapAdd1B), <span class="hljs-number">2</span>, <span class="hljs-string">'map init'</span>);
+        bMapB &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                flapjax.sendEvent(beReceiverB.changes(), <span class="hljs-number">3</span>);
+                <span class="hljs-keyword">return</span> flapjax.valueNow(beMapAdd1B);})(),
+                <span class="hljs-number">4</span>, <span class="hljs-string">'lift_b'</span>);
+        a(bMapB, <span class="hljs-string">'lift_b'</span>);
 
-        <span class="keyword">var</span> bConstantB = <span class="literal">true</span>;
-        <span class="keyword">var</span> beConstant1 = flapjax.constantB(<span class="number">1</span>);
-        bConstantB &amp;= sTest(flapjax.valueNow(beConstant1), <span class="number">1</span>, <span class="string">'constant_b'</span>);
-        <span class="keyword">var</span> bIfB = <span class="literal">true</span>;
+        <span class="hljs-keyword">var</span> bConstantB = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">var</span> beConstant1 = flapjax.constantB(<span class="hljs-number">1</span>);
+        bConstantB &amp;= sTest(flapjax.valueNow(beConstant1), <span class="hljs-number">1</span>, <span class="hljs-string">'constant_b'</span>);
+        <span class="hljs-keyword">var</span> bIfB = <span class="hljs-literal">true</span>;
 
-        <span class="keyword">var</span> beIfReceiver = flapjax.constantB(<span class="literal">true</span>);
-        <span class="keyword">var</span> beIfThenReceiver = flapjax.constantB(<span class="number">1</span>);
-        <span class="keyword">var</span> beIfElseReceiver = flapjax.constantB(<span class="number">2</span>);
-        <span class="keyword">var</span> beIf1 = flapjax.ifB(
+        <span class="hljs-keyword">var</span> beIfReceiver = flapjax.constantB(<span class="hljs-literal">true</span>);
+        <span class="hljs-keyword">var</span> beIfThenReceiver = flapjax.constantB(<span class="hljs-number">1</span>);
+        <span class="hljs-keyword">var</span> beIfElseReceiver = flapjax.constantB(<span class="hljs-number">2</span>);
+        <span class="hljs-keyword">var</span> beIf1 = flapjax.ifB(
                  beIfReceiver, beIfThenReceiver, beIfElseReceiver);
-    bIfB &amp;= sTest(flapjax.valueNow(beIf1), <span class="number">1</span>, <span class="string">'if_b1'</span>);
-        bIfB &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                beIfElseReceiver.sendBehavior(<span class="number">7</span>);
-                <span class="keyword">return</span> flapjax.valueNow(beIf1);})(),
-                <span class="number">1</span>, <span class="string">'if_b2'</span>);
-        bIfB &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                beIfThenReceiver.sendBehavior(<span class="number">11</span>);
-                <span class="keyword">return</span> flapjax.valueNow(beIf1); })(),
-                <span class="number">11</span>, <span class="string">'if_b3'</span>);
-        bIfB &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                beIfReceiver.sendBehavior(<span class="literal">false</span>);
-                <span class="keyword">return</span> flapjax.valueNow(beIf1);})(),
-                <span class="number">7</span>, <span class="string">'if_b4'</span>);
-        bIfB &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                beIfElseReceiver.sendBehavior(<span class="number">13</span>);
-                <span class="keyword">return</span> flapjax.valueNow(beIf1);})(),
-                <span class="number">13</span>, <span class="string">'if_b5'</span>);
-        bIfB &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                beIfReceiver.sendBehavior(<span class="literal">true</span>);
-                <span class="keyword">return</span> flapjax.valueNow(beIf1);})(),
-                <span class="number">11</span>, <span class="string">'if_b6'</span>);
+    bIfB &amp;= sTest(flapjax.valueNow(beIf1), <span class="hljs-number">1</span>, <span class="hljs-string">'if_b1'</span>);
+        bIfB &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                beIfElseReceiver.sendBehavior(<span class="hljs-number">7</span>);
+                <span class="hljs-keyword">return</span> flapjax.valueNow(beIf1);})(),
+                <span class="hljs-number">1</span>, <span class="hljs-string">'if_b2'</span>);
+        bIfB &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                beIfThenReceiver.sendBehavior(<span class="hljs-number">11</span>);
+                <span class="hljs-keyword">return</span> flapjax.valueNow(beIf1); })(),
+                <span class="hljs-number">11</span>, <span class="hljs-string">'if_b3'</span>);
+        bIfB &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                beIfReceiver.sendBehavior(<span class="hljs-literal">false</span>);
+                <span class="hljs-keyword">return</span> flapjax.valueNow(beIf1);})(),
+                <span class="hljs-number">7</span>, <span class="hljs-string">'if_b4'</span>);
+        bIfB &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                beIfElseReceiver.sendBehavior(<span class="hljs-number">13</span>);
+                <span class="hljs-keyword">return</span> flapjax.valueNow(beIf1);})(),
+                <span class="hljs-number">13</span>, <span class="hljs-string">'if_b5'</span>);
+        bIfB &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                beIfReceiver.sendBehavior(<span class="hljs-literal">true</span>);
+                <span class="hljs-keyword">return</span> flapjax.valueNow(beIf1);})(),
+                <span class="hljs-number">11</span>, <span class="hljs-string">'if_b6'</span>);
 
-        a(bIfB, <span class="string">'if_b'</span>);
+        a(bIfB, <span class="hljs-string">'if_b'</span>);
 
-        <span class="keyword">var</span> bCondB = <span class="literal">true</span>;
+        <span class="hljs-keyword">var</span> bCondB = <span class="hljs-literal">true</span>;
 
         bCondB &amp;= sTest(
                 flapjax.valueNow(flapjax.condB([])),
-                <span class="literal">undefined</span>,
-                <span class="string">'cond_b1'</span>);
+                <span class="hljs-literal">undefined</span>,
+                <span class="hljs-string">'cond_b1'</span>);
 
         bCondB &amp;= sTest(
                 flapjax.valueNow(
                         flapjax.condB(
-                                [flapjax.constantB(<span class="literal">true</span>), <span class="number">1</span>],
-                                [flapjax.constantB(<span class="literal">true</span>), <span class="number">2</span>])),
-                <span class="number">1</span>, <span class="string">'cond_b2'</span>);
+                                [flapjax.constantB(<span class="hljs-literal">true</span>), <span class="hljs-number">1</span>],
+                                [flapjax.constantB(<span class="hljs-literal">true</span>), <span class="hljs-number">2</span>])),
+                <span class="hljs-number">1</span>, <span class="hljs-string">'cond_b2'</span>);
 
         bCondB &amp;= sTest(
                 flapjax.valueNow(
                         flapjax.condB(
-                                [flapjax.constantB(<span class="literal">false</span>), <span class="number">1</span>],
-                                [flapjax.constantB(<span class="literal">true</span>), <span class="number">2</span>])),
-                <span class="number">2</span>, <span class="string">'cond_b3'</span>);
+                                [flapjax.constantB(<span class="hljs-literal">false</span>), <span class="hljs-number">1</span>],
+                                [flapjax.constantB(<span class="hljs-literal">true</span>), <span class="hljs-number">2</span>])),
+                <span class="hljs-number">2</span>, <span class="hljs-string">'cond_b3'</span>);
 
         bCondB &amp;= sTest(
                 flapjax.valueNow(
                         flapjax.condB(
-                                [flapjax.constantB(<span class="literal">true</span>), <span class="number">1</span>],
-                                [flapjax.constantB(<span class="literal">false</span>), <span class="number">2</span>])),
-                <span class="number">1</span>, <span class="string">'cond_b4'</span>);
+                                [flapjax.constantB(<span class="hljs-literal">true</span>), <span class="hljs-number">1</span>],
+                                [flapjax.constantB(<span class="hljs-literal">false</span>), <span class="hljs-number">2</span>])),
+                <span class="hljs-number">1</span>, <span class="hljs-string">'cond_b4'</span>);
 
         bCondB &amp;= sTest(
                 flapjax.valueNow(
                         flapjax.condB(
-                                [flapjax.constantB(<span class="literal">false</span>), <span class="number">1</span>],
-                                [flapjax.constantB(<span class="literal">false</span>), <span class="number">2</span>])),
-                <span class="literal">undefined</span>, <span class="string">'cond_b5'</span>);
+                                [flapjax.constantB(<span class="hljs-literal">false</span>), <span class="hljs-number">1</span>],
+                                [flapjax.constantB(<span class="hljs-literal">false</span>), <span class="hljs-number">2</span>])),
+                <span class="hljs-literal">undefined</span>, <span class="hljs-string">'cond_b5'</span>);
 
         bCondB &amp;= sTest(
                 flapjax.valueNow(
                         flapjax.condB(
-                                [flapjax.constantB(<span class="literal">true</span>),
-                                 flapjax.constantB(<span class="number">1</span>)])),
-                <span class="number">1</span>, <span class="string">'cond_b6'</span>);
+                                [flapjax.constantB(<span class="hljs-literal">true</span>),
+                                 flapjax.constantB(<span class="hljs-number">1</span>)])),
+                <span class="hljs-number">1</span>, <span class="hljs-string">'cond_b6'</span>);
 
-        bCondB &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                        <span class="keyword">var</span> receiverE = flapjax.receiverE();
-                        <span class="keyword">var</span> condb =
+        bCondB &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                        <span class="hljs-keyword">var</span> receiverE = flapjax.receiverE();
+                        <span class="hljs-keyword">var</span> condb =
                                 flapjax.condB(
-                                        [flapjax.startsWith(receiverE, <span class="literal">false</span>), <span class="number">1</span>]);
-                        flapjax.sendEvent(receiverE, <span class="literal">true</span>);
-                        <span class="keyword">return</span> flapjax.valueNow(condb);
+                                        [flapjax.startsWith(receiverE, <span class="hljs-literal">false</span>), <span class="hljs-number">1</span>]);
+                        flapjax.sendEvent(receiverE, <span class="hljs-literal">true</span>);
+                        <span class="hljs-keyword">return</span> flapjax.valueNow(condb);
                 })(),
-                <span class="number">1</span>, <span class="string">'cond_b7'</span>);
+                <span class="hljs-number">1</span>, <span class="hljs-string">'cond_b7'</span>);
 
-        bCondB &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                        <span class="keyword">var</span> receiverE = flapjax.receiverE();
-                        <span class="keyword">var</span> condb =
+        bCondB &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                        <span class="hljs-keyword">var</span> receiverE = flapjax.receiverE();
+                        <span class="hljs-keyword">var</span> condb =
                                 flapjax.condB(
-                                        [flapjax.startsWith(receiverE, <span class="literal">false</span>), <span class="number">1</span>]);
-                        flapjax.sendEvent(receiverE, <span class="literal">false</span>);
-                        <span class="keyword">return</span> flapjax.valueNow(condb);
+                                        [flapjax.startsWith(receiverE, <span class="hljs-literal">false</span>), <span class="hljs-number">1</span>]);
+                        flapjax.sendEvent(receiverE, <span class="hljs-literal">false</span>);
+                        <span class="hljs-keyword">return</span> flapjax.valueNow(condb);
                 })(),
-                <span class="literal">undefined</span>, <span class="string">'cond_b8'</span>);
+                <span class="hljs-literal">undefined</span>, <span class="hljs-string">'cond_b8'</span>);
 
-        bCondB &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                        <span class="keyword">var</span> receiverE = flapjax.receiverE();
-                        <span class="keyword">var</span> condb =
+        bCondB &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                        <span class="hljs-keyword">var</span> receiverE = flapjax.receiverE();
+                        <span class="hljs-keyword">var</span> condb =
                                 flapjax.condB(
-                                        [<span class="literal">true</span>, <span class="number">1</span>],
-                                        [flapjax.startsWith(receiverE, <span class="literal">false</span>), <span class="number">2</span>]);
-                        flapjax.sendEvent(receiverE, <span class="literal">true</span>);
-                        <span class="keyword">return</span> flapjax.valueNow(condb);
+                                        [<span class="hljs-literal">true</span>, <span class="hljs-number">1</span>],
+                                        [flapjax.startsWith(receiverE, <span class="hljs-literal">false</span>), <span class="hljs-number">2</span>]);
+                        flapjax.sendEvent(receiverE, <span class="hljs-literal">true</span>);
+                        <span class="hljs-keyword">return</span> flapjax.valueNow(condb);
                 })(),
-                <span class="number">1</span>, <span class="string">'cond_b9'</span>);
+                <span class="hljs-number">1</span>, <span class="hljs-string">'cond_b9'</span>);
 
 
-        a(bCondB, <span class="string">'cond_b'</span>);
+        a(bCondB, <span class="hljs-string">'cond_b'</span>);
 
-        <span class="keyword">var</span> bLiftB = <span class="literal">true</span>;
-        <span class="keyword">var</span> liftBConstF = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">return</span> <span class="number">2</span>; };
+        <span class="hljs-keyword">var</span> bLiftB = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">var</span> liftBConstF = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-number">2</span>; };
         bLiftB &amp;= sTest(flapjax.valueNow(flapjax.liftB(liftBConstF)),
-                <span class="number">2</span>, <span class="string">'lift_b1'</span>);
+                <span class="hljs-number">2</span>, <span class="hljs-string">'lift_b1'</span>);
 
-        <span class="keyword">var</span> liftB1F = <span class="function"><span class="keyword">function</span> <span class="params">(x)</span> {</span> <span class="keyword">return</span> <span class="number">1</span> + x; };
-        <span class="keyword">var</span> liftBa1 = flapjax.constantB(<span class="number">3</span>);
-        <span class="keyword">var</span> liftedB2 = flapjax.liftB(liftB1F, liftBa1);
-        bLiftB &amp;= sTest(flapjax.valueNow(liftedB2), <span class="number">4</span>, <span class="string">'lift_b2'</span>);
-        bLiftB &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                liftBa1.sendBehavior(<span class="number">5</span>);
-                <span class="keyword">return</span> flapjax.valueNow(liftedB2);
-                })(), <span class="number">6</span>, <span class="string">'lift_b3'</span>);
-        <span class="keyword">var</span> liftB2F = <span class="function"><span class="keyword">function</span> <span class="params">(x, y)</span> {</span> <span class="keyword">return</span> x + y; };
-        <span class="keyword">var</span> liftBa2 = flapjax.constantB(<span class="number">3</span>);
-        <span class="keyword">var</span> liftedB3 = flapjax.liftB(liftB2F, liftBa1, liftBa2);
-        bLiftB &amp;= sTest(flapjax.valueNow(liftedB3), <span class="number">8</span>, <span class="string">'lift_b4'</span>);
-        bLiftB &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                liftBa2.sendBehavior(<span class="number">7</span>);
-                <span class="keyword">return</span> flapjax.valueNow(liftedB3);
-                })(), <span class="number">12</span>, <span class="string">'lift_b4'</span>);
-        bLiftB &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                liftBa1.sendBehavior(<span class="number">11</span>);
-                <span class="keyword">return</span> flapjax.valueNow(liftedB3);
-                })(), <span class="number">18</span>, <span class="string">'lift_b5'</span>);
-    bLiftB &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        <span class="keyword">var</span> hit = <span class="number">0</span>;
-        <span class="keyword">var</span> r = flapjax.receiverE();
-        <span class="keyword">var</span> fnB = flapjax.startsWith(r, <span class="function"><span class="keyword">function</span> <span class="params">(x)</span> {</span> hit = x; <span class="keyword">return</span> x; });
-        flapjax.liftB(fnB, <span class="number">5</span>);
-        <span class="keyword">return</span> hit;
-        })(), <span class="number">5</span>, <span class="string">'lift_b6'</span>);
-   bLiftB &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        <span class="keyword">var</span> hit = <span class="number">0</span>;
-        <span class="keyword">var</span> r = flapjax.receiverE();
-        <span class="keyword">var</span> fnB = flapjax.startsWith(r, <span class="function"><span class="keyword">function</span> <span class="params">(x)</span> {</span> hit = x; <span class="keyword">return</span> x; });
-        flapjax.liftB(fnB, <span class="number">5</span>);
-        flapjax.sendEvent(r, <span class="function"><span class="keyword">function</span> <span class="params">(y)</span> {</span> hit = y * <span class="number">2</span>; <span class="keyword">return</span> y * <span class="number">2</span>; });
-        <span class="keyword">return</span> hit;
-        })(), <span class="number">10</span>, <span class="string">'lift_b7'</span>);
-        a(bLiftB, <span class="string">'lift_b'</span>);
+        <span class="hljs-keyword">var</span> liftB1F = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">x</span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-number">1</span> + x; };
+        <span class="hljs-keyword">var</span> liftBa1 = flapjax.constantB(<span class="hljs-number">3</span>);
+        <span class="hljs-keyword">var</span> liftedB2 = flapjax.liftB(liftB1F, liftBa1);
+        bLiftB &amp;= sTest(flapjax.valueNow(liftedB2), <span class="hljs-number">4</span>, <span class="hljs-string">'lift_b2'</span>);
+        bLiftB &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                liftBa1.sendBehavior(<span class="hljs-number">5</span>);
+                <span class="hljs-keyword">return</span> flapjax.valueNow(liftedB2);
+                })(), <span class="hljs-number">6</span>, <span class="hljs-string">'lift_b3'</span>);
+        <span class="hljs-keyword">var</span> liftB2F = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">x, y</span>) </span>{ <span class="hljs-keyword">return</span> x + y; };
+        <span class="hljs-keyword">var</span> liftBa2 = flapjax.constantB(<span class="hljs-number">3</span>);
+        <span class="hljs-keyword">var</span> liftedB3 = flapjax.liftB(liftB2F, liftBa1, liftBa2);
+        bLiftB &amp;= sTest(flapjax.valueNow(liftedB3), <span class="hljs-number">8</span>, <span class="hljs-string">'lift_b4'</span>);
+        bLiftB &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                liftBa2.sendBehavior(<span class="hljs-number">7</span>);
+                <span class="hljs-keyword">return</span> flapjax.valueNow(liftedB3);
+                })(), <span class="hljs-number">12</span>, <span class="hljs-string">'lift_b4'</span>);
+        bLiftB &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                liftBa1.sendBehavior(<span class="hljs-number">11</span>);
+                <span class="hljs-keyword">return</span> flapjax.valueNow(liftedB3);
+                })(), <span class="hljs-number">18</span>, <span class="hljs-string">'lift_b5'</span>);
+    bLiftB &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> hit = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">var</span> r = flapjax.receiverE();
+        <span class="hljs-keyword">var</span> fnB = flapjax.startsWith(r, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">x</span>) </span>{ hit = x; <span class="hljs-keyword">return</span> x; });
+        flapjax.liftB(fnB, <span class="hljs-number">5</span>);
+        <span class="hljs-keyword">return</span> hit;
+        })(), <span class="hljs-number">5</span>, <span class="hljs-string">'lift_b6'</span>);
+   bLiftB &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> hit = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">var</span> r = flapjax.receiverE();
+        <span class="hljs-keyword">var</span> fnB = flapjax.startsWith(r, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">x</span>) </span>{ hit = x; <span class="hljs-keyword">return</span> x; });
+        flapjax.liftB(fnB, <span class="hljs-number">5</span>);
+        flapjax.sendEvent(r, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">y</span>) </span>{ hit = y * <span class="hljs-number">2</span>; <span class="hljs-keyword">return</span> y * <span class="hljs-number">2</span>; });
+        <span class="hljs-keyword">return</span> hit;
+        })(), <span class="hljs-number">10</span>, <span class="hljs-string">'lift_b7'</span>);
+        a(bLiftB, <span class="hljs-string">'lift_b'</span>);
 
-        <span class="keyword">var</span> bAndB = <span class="literal">true</span>;
-        <span class="keyword">var</span> andB0 = flapjax.andB();
-        bAndB &amp;= sTest(flapjax.valueNow(andB0), <span class="literal">true</span>, <span class="string">'and_b1'</span>);
-        <span class="keyword">var</span> andBa1 = flapjax.constantB( <span class="literal">true</span>);
-        <span class="keyword">var</span> andBa2 = flapjax.constantB( <span class="literal">false</span>);
-        <span class="keyword">var</span> andB11 = flapjax.andB( andBa1);
-        <span class="keyword">var</span> andB12 = flapjax.andB( andBa2);
-        <span class="keyword">var</span> andB2 = flapjax.andB( andBa1, andBa2);
-        bAndB &amp;= sTest(flapjax.valueNow(andB11), <span class="literal">true</span>, <span class="string">'and_b2'</span>);
-        bAndB &amp;= sTest(flapjax.valueNow(andB12), <span class="literal">false</span>, <span class="string">'and_b3'</span>);
-        bAndB &amp;= sTest(flapjax.valueNow(andB2), <span class="literal">false</span>, <span class="string">'and_b4'</span>);
-        bAndB &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                andBa2.sendBehavior(<span class="literal">true</span>);
-                <span class="keyword">return</span> flapjax.valueNow(andB12);
-                })(), <span class="literal">true</span>, <span class="string">'and_b5'</span>);
-        bAndB &amp;= sTest(flapjax.valueNow(andB2), <span class="literal">true</span>, <span class="string">'and_b6'</span>);
-        bAndB &amp;= sTest( (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                andBa1.sendBehavior(<span class="literal">false</span>);
-                <span class="keyword">return</span> flapjax.valueNow(andB11);
-                })(), <span class="literal">false</span>, <span class="string">'and_b6'</span>);
-        bAndB &amp;= sTest(flapjax.valueNow(andB2), <span class="literal">false</span>, <span class="string">'and_b7'</span>);
+        <span class="hljs-keyword">var</span> bAndB = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">var</span> andB0 = flapjax.andB();
+        bAndB &amp;= sTest(flapjax.valueNow(andB0), <span class="hljs-literal">true</span>, <span class="hljs-string">'and_b1'</span>);
+        <span class="hljs-keyword">var</span> andBa1 = flapjax.constantB( <span class="hljs-literal">true</span>);
+        <span class="hljs-keyword">var</span> andBa2 = flapjax.constantB( <span class="hljs-literal">false</span>);
+        <span class="hljs-keyword">var</span> andB11 = flapjax.andB( andBa1);
+        <span class="hljs-keyword">var</span> andB12 = flapjax.andB( andBa2);
+        <span class="hljs-keyword">var</span> andB2 = flapjax.andB( andBa1, andBa2);
+        bAndB &amp;= sTest(flapjax.valueNow(andB11), <span class="hljs-literal">true</span>, <span class="hljs-string">'and_b2'</span>);
+        bAndB &amp;= sTest(flapjax.valueNow(andB12), <span class="hljs-literal">false</span>, <span class="hljs-string">'and_b3'</span>);
+        bAndB &amp;= sTest(flapjax.valueNow(andB2), <span class="hljs-literal">false</span>, <span class="hljs-string">'and_b4'</span>);
+        bAndB &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                andBa2.sendBehavior(<span class="hljs-literal">true</span>);
+                <span class="hljs-keyword">return</span> flapjax.valueNow(andB12);
+                })(), <span class="hljs-literal">true</span>, <span class="hljs-string">'and_b5'</span>);
+        bAndB &amp;= sTest(flapjax.valueNow(andB2), <span class="hljs-literal">true</span>, <span class="hljs-string">'and_b6'</span>);
+        bAndB &amp;= sTest( (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                andBa1.sendBehavior(<span class="hljs-literal">false</span>);
+                <span class="hljs-keyword">return</span> flapjax.valueNow(andB11);
+                })(), <span class="hljs-literal">false</span>, <span class="hljs-string">'and_b6'</span>);
+        bAndB &amp;= sTest(flapjax.valueNow(andB2), <span class="hljs-literal">false</span>, <span class="hljs-string">'and_b7'</span>);
 
-        a(bAndB, <span class="string">'and_b'</span>);
+        a(bAndB, <span class="hljs-string">'and_b'</span>);
 
 
-        <span class="keyword">var</span> bSwitchB = <span class="literal">true</span>;
+        <span class="hljs-keyword">var</span> bSwitchB = <span class="hljs-literal">true</span>;
 
         bSwitchE &amp;=
                 sTest(
-                        (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                                <span class="keyword">var</span> stream1E = flapjax.receiverE();
-                                <span class="keyword">var</span> stream1B = flapjax.startsWith( stream1E, <span class="number">1</span>);
-                                <span class="keyword">var</span> stream2E = flapjax.receiverE();
-                                <span class="keyword">var</span> stream2B = flapjax.startsWith( stream2E, <span class="number">2</span>);
-                                <span class="keyword">var</span> streamReceiverE = flapjax.receiverE();
-                                <span class="keyword">var</span> streamReceiverB = flapjax.startsWith( streamReceiverE, flapjax.constantB( <span class="number">0</span>));
-                                <span class="keyword">var</span> switchedB = flapjax.switchB( streamReceiverB);
-                                <span class="keyword">return</span> flapjax.valueNow(switchedB);
+                        (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                                <span class="hljs-keyword">var</span> stream1E = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> stream1B = flapjax.startsWith( stream1E, <span class="hljs-number">1</span>);
+                                <span class="hljs-keyword">var</span> stream2E = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> stream2B = flapjax.startsWith( stream2E, <span class="hljs-number">2</span>);
+                                <span class="hljs-keyword">var</span> streamReceiverE = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> streamReceiverB = flapjax.startsWith( streamReceiverE, flapjax.constantB( <span class="hljs-number">0</span>));
+                                <span class="hljs-keyword">var</span> switchedB = flapjax.switchB( streamReceiverB);
+                                <span class="hljs-keyword">return</span> flapjax.valueNow(switchedB);
                         })(),
-                        <span class="number">0</span>,
-                        <span class="string">'switch_b1'</span>);
+                        <span class="hljs-number">0</span>,
+                        <span class="hljs-string">'switch_b1'</span>);
 
         bSwitchE &amp;=
                 sTest(
-                        (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                                <span class="keyword">var</span> stream1E = flapjax.receiverE();
-                                <span class="keyword">var</span> stream1B = flapjax.startsWith( stream1E, <span class="number">1</span>);
-                                <span class="keyword">var</span> stream2E = flapjax.receiverE();
-                                <span class="keyword">var</span> stream2B = flapjax.startsWith( stream2E, <span class="number">2</span>);
-                                <span class="keyword">var</span> streamReceiverE = flapjax.receiverE();
-                                <span class="keyword">var</span> streamReceiverB = flapjax.startsWith( streamReceiverE, flapjax.constantB( <span class="number">0</span>));
-                                <span class="keyword">var</span> switchedB = flapjax.switchB( streamReceiverB);
+                        (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                                <span class="hljs-keyword">var</span> stream1E = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> stream1B = flapjax.startsWith( stream1E, <span class="hljs-number">1</span>);
+                                <span class="hljs-keyword">var</span> stream2E = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> stream2B = flapjax.startsWith( stream2E, <span class="hljs-number">2</span>);
+                                <span class="hljs-keyword">var</span> streamReceiverE = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> streamReceiverB = flapjax.startsWith( streamReceiverE, flapjax.constantB( <span class="hljs-number">0</span>));
+                                <span class="hljs-keyword">var</span> switchedB = flapjax.switchB( streamReceiverB);
                                 flapjax.sendEvent(streamReceiverE, stream1B);
-                                <span class="keyword">return</span> flapjax.valueNow(switchedB);
+                                <span class="hljs-keyword">return</span> flapjax.valueNow(switchedB);
                         })(),
-                        <span class="number">1</span>,
-                        <span class="string">'switch_b2'</span>);
+                        <span class="hljs-number">1</span>,
+                        <span class="hljs-string">'switch_b2'</span>);
 
         bSwitchE &amp;=
                 sTest(
-                        (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                                <span class="keyword">var</span> stream1E = flapjax.receiverE();
-                                <span class="keyword">var</span> stream1B = flapjax.startsWith( stream1E, <span class="number">1</span>);
-                                <span class="keyword">var</span> stream2E = flapjax.receiverE();
-                                <span class="keyword">var</span> stream2B = flapjax.startsWith( stream2E, <span class="number">2</span>);
-                                <span class="keyword">var</span> streamReceiverE = flapjax.receiverE();
-                                <span class="keyword">var</span> streamReceiverB = flapjax.startsWith( streamReceiverE, flapjax.constantB( <span class="number">0</span>));
-                                <span class="keyword">var</span> switchedB = flapjax.switchB( streamReceiverB);
+                        (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                                <span class="hljs-keyword">var</span> stream1E = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> stream1B = flapjax.startsWith( stream1E, <span class="hljs-number">1</span>);
+                                <span class="hljs-keyword">var</span> stream2E = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> stream2B = flapjax.startsWith( stream2E, <span class="hljs-number">2</span>);
+                                <span class="hljs-keyword">var</span> streamReceiverE = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> streamReceiverB = flapjax.startsWith( streamReceiverE, flapjax.constantB( <span class="hljs-number">0</span>));
+                                <span class="hljs-keyword">var</span> switchedB = flapjax.switchB( streamReceiverB);
                                 flapjax.sendEvent(streamReceiverE, stream1B);
-                                flapjax.sendEvent(stream1E, <span class="number">2</span>);
-                                <span class="keyword">return</span> flapjax.valueNow(switchedB);
+                                flapjax.sendEvent(stream1E, <span class="hljs-number">2</span>);
+                                <span class="hljs-keyword">return</span> flapjax.valueNow(switchedB);
                         })(),
-                        <span class="number">2</span>,
-                        <span class="string">'switch_b3'</span>);
+                        <span class="hljs-number">2</span>,
+                        <span class="hljs-string">'switch_b3'</span>);
 
         bSwitchE &amp;=
                 sTest(
-                        (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                                <span class="keyword">var</span> stream1E = flapjax.receiverE();
-                                <span class="keyword">var</span> stream1B = flapjax.startsWith( stream1E, <span class="number">1</span>);
-                                <span class="keyword">var</span> stream2E = flapjax.receiverE();
-                                <span class="keyword">var</span> stream2B = flapjax.startsWith( stream2E, <span class="number">2</span>);
-                                <span class="keyword">var</span> streamReceiverE = flapjax.receiverE();
-                                <span class="keyword">var</span> streamReceiverB = flapjax.startsWith( streamReceiverE, flapjax.constantB( <span class="number">0</span>));
-                                <span class="keyword">var</span> switchedB = flapjax.switchB( streamReceiverB);
-                                flapjax.sendEvent(streamReceiverE, stream1B);
-                                flapjax.sendEvent(streamReceiverE, stream2B);
-                                <span class="keyword">return</span> flapjax.valueNow(switchedB);
-                        })(),
-                        <span class="number">2</span>,
-                        <span class="string">'switch_b4'</span>);
-
-        bSwitchE &amp;=
-                sTest(
-                        (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                                <span class="keyword">var</span> stream1E = flapjax.receiverE();
-                                <span class="keyword">var</span> stream1B = flapjax.startsWith( stream1E, <span class="number">1</span>);
-                                <span class="keyword">var</span> stream2E = flapjax.receiverE();
-                                <span class="keyword">var</span> stream2B = flapjax.startsWith( stream2E, <span class="number">2</span>);
-                                <span class="keyword">var</span> streamReceiverE = flapjax.receiverE();
-                                <span class="keyword">var</span> streamReceiverB = flapjax.startsWith( streamReceiverE, flapjax.constantB( <span class="number">0</span>));
-                                <span class="keyword">var</span> switchedB = flapjax.switchB( streamReceiverB);
+                        (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                                <span class="hljs-keyword">var</span> stream1E = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> stream1B = flapjax.startsWith( stream1E, <span class="hljs-number">1</span>);
+                                <span class="hljs-keyword">var</span> stream2E = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> stream2B = flapjax.startsWith( stream2E, <span class="hljs-number">2</span>);
+                                <span class="hljs-keyword">var</span> streamReceiverE = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> streamReceiverB = flapjax.startsWith( streamReceiverE, flapjax.constantB( <span class="hljs-number">0</span>));
+                                <span class="hljs-keyword">var</span> switchedB = flapjax.switchB( streamReceiverB);
                                 flapjax.sendEvent(streamReceiverE, stream1B);
                                 flapjax.sendEvent(streamReceiverE, stream2B);
-                                flapjax.sendEvent(stream1E, <span class="number">1</span>);
-                                <span class="keyword">return</span> flapjax.valueNow(switchedB);
+                                <span class="hljs-keyword">return</span> flapjax.valueNow(switchedB);
                         })(),
-                        <span class="number">2</span>,
-                        <span class="string">'switch_b5'</span>);
+                        <span class="hljs-number">2</span>,
+                        <span class="hljs-string">'switch_b4'</span>);
 
         bSwitchE &amp;=
                 sTest(
-                        (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                                <span class="keyword">var</span> stream1E = flapjax.receiverE();
-                                <span class="keyword">var</span> stream1B = flapjax.startsWith( stream1E, <span class="number">1</span>);
-                                <span class="keyword">var</span> stream2E = flapjax.receiverE();
-                                <span class="keyword">var</span> stream2B = flapjax.startsWith( stream2E, <span class="number">2</span>);
-                                <span class="keyword">var</span> streamReceiverE = flapjax.receiverE();
-                                <span class="keyword">var</span> streamReceiverB = flapjax.startsWith( streamReceiverE, flapjax.constantB( <span class="number">0</span>));
-                                <span class="keyword">var</span> switchedB = flapjax.switchB( streamReceiverB);
+                        (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                                <span class="hljs-keyword">var</span> stream1E = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> stream1B = flapjax.startsWith( stream1E, <span class="hljs-number">1</span>);
+                                <span class="hljs-keyword">var</span> stream2E = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> stream2B = flapjax.startsWith( stream2E, <span class="hljs-number">2</span>);
+                                <span class="hljs-keyword">var</span> streamReceiverE = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> streamReceiverB = flapjax.startsWith( streamReceiverE, flapjax.constantB( <span class="hljs-number">0</span>));
+                                <span class="hljs-keyword">var</span> switchedB = flapjax.switchB( streamReceiverB);
                                 flapjax.sendEvent(streamReceiverE, stream1B);
                                 flapjax.sendEvent(streamReceiverE, stream2B);
-                                flapjax.sendEvent(stream2E, <span class="number">3</span>);
-                                <span class="keyword">return</span> flapjax.valueNow(switchedB);
+                                flapjax.sendEvent(stream1E, <span class="hljs-number">1</span>);
+                                <span class="hljs-keyword">return</span> flapjax.valueNow(switchedB);
                         })(),
-                        <span class="number">3</span>,
-                        <span class="string">'switch_b6'</span>);
+                        <span class="hljs-number">2</span>,
+                        <span class="hljs-string">'switch_b5'</span>);
+
+        bSwitchE &amp;=
+                sTest(
+                        (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                                <span class="hljs-keyword">var</span> stream1E = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> stream1B = flapjax.startsWith( stream1E, <span class="hljs-number">1</span>);
+                                <span class="hljs-keyword">var</span> stream2E = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> stream2B = flapjax.startsWith( stream2E, <span class="hljs-number">2</span>);
+                                <span class="hljs-keyword">var</span> streamReceiverE = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> streamReceiverB = flapjax.startsWith( streamReceiverE, flapjax.constantB( <span class="hljs-number">0</span>));
+                                <span class="hljs-keyword">var</span> switchedB = flapjax.switchB( streamReceiverB);
+                                flapjax.sendEvent(streamReceiverE, stream1B);
+                                flapjax.sendEvent(streamReceiverE, stream2B);
+                                flapjax.sendEvent(stream2E, <span class="hljs-number">3</span>);
+                                <span class="hljs-keyword">return</span> flapjax.valueNow(switchedB);
+                        })(),
+                        <span class="hljs-number">3</span>,
+                        <span class="hljs-string">'switch_b6'</span>);
 
 
         bSwitchE &amp;=
                 sTest(
-                        (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                                <span class="keyword">var</span> stream1E = flapjax.receiverE();
-                                <span class="keyword">var</span> stream1B = flapjax.startsWith( stream1E, <span class="number">1</span>);
-                                <span class="keyword">var</span> stream2E = flapjax.receiverE();
-                                <span class="keyword">var</span> stream2B = flapjax.startsWith( stream2E, <span class="number">2</span>);
-                                <span class="keyword">var</span> streamReceiverE = flapjax.receiverE();
-                                <span class="keyword">var</span> streamReceiverB = flapjax.startsWith( streamReceiverE, flapjax.constantB( <span class="number">0</span>));
-                                <span class="keyword">var</span> switchedB = flapjax.switchB( streamReceiverB);
+                        (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                                <span class="hljs-keyword">var</span> stream1E = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> stream1B = flapjax.startsWith( stream1E, <span class="hljs-number">1</span>);
+                                <span class="hljs-keyword">var</span> stream2E = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> stream2B = flapjax.startsWith( stream2E, <span class="hljs-number">2</span>);
+                                <span class="hljs-keyword">var</span> streamReceiverE = flapjax.receiverE();
+                                <span class="hljs-keyword">var</span> streamReceiverB = flapjax.startsWith( streamReceiverE, flapjax.constantB( <span class="hljs-number">0</span>));
+                                <span class="hljs-keyword">var</span> switchedB = flapjax.switchB( streamReceiverB);
                                 flapjax.sendEvent(streamReceiverE, stream1B);
                                 flapjax.sendEvent(streamReceiverE, stream2B);
-                                flapjax.sendEvent(stream1E, <span class="number">1</span>);
-                                <span class="keyword">return</span> flapjax.valueNow(switchedB);
+                                flapjax.sendEvent(stream1E, <span class="hljs-number">1</span>);
+                                <span class="hljs-keyword">return</span> flapjax.valueNow(switchedB);
                         })(),
-                        <span class="number">2</span>,
-                        <span class="string">'switch_b1'</span>);
+                        <span class="hljs-number">2</span>,
+                        <span class="hljs-string">'switch_b1'</span>);
 
-        a(bSwitchB, <span class="string">'switch_b'</span>);</pre></div></div>
+        a(bSwitchB, <span class="hljs-string">'switch_b'</span>);</pre></div></div>
             
         </li>
         
@@ -1389,9 +1409,9 @@ aTest([1,2], [1,3], &#39;not same8&#39;);</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>        bBehavior &amp;= bMapB &amp;&amp; bConstantB &amp;&amp; bIfB &amp;&amp; bCondB &amp;&amp; bLiftB &amp;&amp; bAndB;
-                (bBehavior? info : error)(<span class="string">'====flapjax.behavior===='</span>);
+                (bBehavior? info : error)(<span class="hljs-string">'====flapjax.behavior===='</span>);
 
-        <span class="keyword">return</span> <span class="literal">true</span>;
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
 };
 });</pre></div></div>
             

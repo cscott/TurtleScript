@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -213,11 +233,11 @@ a standard node module.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> requirejs = require(<span class="string">'requirejs'</span>);
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> requirejs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'requirejs'</span>);
 requirejs.config({
-    nodeRequire: require,
-    baseUrl: __dirname,
-    deps:[<span class="string">'./extensions'</span>]
+    <span class="hljs-attr">nodeRequire</span>: <span class="hljs-built_in">require</span>,
+    <span class="hljs-attr">baseUrl</span>: __dirname,
+    <span class="hljs-attr">deps</span>:[<span class="hljs-string">'./extensions'</span>]
 });</pre></div></div>
             
         </li>
@@ -233,7 +253,7 @@ requirejs.config({
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>requirejs.define(<span class="string">'timeouts'</span>, {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>requirejs.define(<span class="hljs-string">'timeouts'</span>, {</pre></div></div>
             
         </li>
         
@@ -249,7 +269,7 @@ requirejs.config({
             </div>
             
             <div class="content"><div class='highlight'><pre>    setTimeout: setTimeout,
-    clearTimeout: clearTimeout
+    <span class="hljs-attr">clearTimeout</span>: clearTimeout
 });</pre></div></div>
             
         </li>
@@ -265,9 +285,9 @@ requirejs.config({
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>requirejs(<span class="string">'./extensions'</span>);
+            <div class="content"><div class='highlight'><pre>requirejs(<span class="hljs-string">'./extensions'</span>);
 
-module.exports = Object.create(<span class="literal">null</span>);</pre></div></div>
+<span class="hljs-built_in">module</span>.exports = <span class="hljs-built_in">Object</span>.create(<span class="hljs-literal">null</span>);</pre></div></div>
             
         </li>
         
@@ -282,7 +302,7 @@ module.exports = Object.create(<span class="literal">null</span>);</pre></div></
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>[<span class="string">'parse'</span>, <span class="string">'jcompile'</span>,</pre></div></div>
+            <div class="content"><div class='highlight'><pre>[<span class="hljs-string">'parse'</span>, <span class="hljs-string">'jcompile'</span>,</pre></div></div>
             
         </li>
         
@@ -297,7 +317,7 @@ module.exports = Object.create(<span class="literal">null</span>);</pre></div></
 
             </div>
             
-            <div class="content"><div class='highlight'><pre> <span class="string">'bytecode-table'</span>, <span class="string">'bcompile'</span>, <span class="string">'binterp'</span>, <span class="string">'stdlib'</span>,</pre></div></div>
+            <div class="content"><div class='highlight'><pre> <span class="hljs-string">'bytecode-table'</span>, <span class="hljs-string">'bcompile'</span>, <span class="hljs-string">'binterp'</span>, <span class="hljs-string">'stdlib'</span>,</pre></div></div>
             
         </li>
         
@@ -312,7 +332,7 @@ module.exports = Object.create(<span class="literal">null</span>);</pre></div></
 
             </div>
             
-            <div class="content"><div class='highlight'><pre> <span class="string">'asm-llvm'</span>,</pre></div></div>
+            <div class="content"><div class='highlight'><pre> <span class="hljs-string">'asm-llvm'</span>,</pre></div></div>
             
         </li>
         
@@ -327,7 +347,7 @@ module.exports = Object.create(<span class="literal">null</span>);</pre></div></
 
             </div>
             
-            <div class="content"><div class='highlight'><pre> <span class="string">'events'</span>, <span class="string">'eventtests'</span>,</pre></div></div>
+            <div class="content"><div class='highlight'><pre> <span class="hljs-string">'events'</span>, <span class="hljs-string">'eventtests'</span>,</pre></div></div>
             
         </li>
         
@@ -342,7 +362,7 @@ module.exports = Object.create(<span class="literal">null</span>);</pre></div></
 
             </div>
             
-            <div class="content"><div class='highlight'><pre> <span class="string">'top-level'</span>,</pre></div></div>
+            <div class="content"><div class='highlight'><pre> <span class="hljs-string">'top-level'</span>,</pre></div></div>
             
         </li>
         
@@ -357,9 +377,9 @@ module.exports = Object.create(<span class="literal">null</span>);</pre></div></
 
             </div>
             
-            <div class="content"><div class='highlight'><pre> <span class="string">'tests'</span>
-].forEach(<span class="keyword">function</span>(m) {
-     module.exports[m.replace(<span class="string">'-'</span>,<span class="string">'_'</span>)] = requirejs(<span class="string">'./'</span>+m);
+            <div class="content"><div class='highlight'><pre> <span class="hljs-string">'tests'</span>
+].forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">m</span>) </span>{
+     <span class="hljs-built_in">module</span>.exports[m.replace(<span class="hljs-string">'-'</span>,<span class="hljs-string">'_'</span>)] = requirejs(<span class="hljs-string">'./'</span>+m);
  });</pre></div></div>
             
         </li>
@@ -375,7 +395,7 @@ module.exports = Object.create(<span class="literal">null</span>);</pre></div></
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>module.exports.write_rust_bytecode = <span class="keyword">function</span>() {</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-built_in">module</span>.exports.write_rust_bytecode = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -390,9 +410,9 @@ module.exports = Object.create(<span class="literal">null</span>);</pre></div></
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    requirejs(<span class="string">'./write-rust-bytecode'</span>);
+            <div class="content"><div class='highlight'><pre>    requirejs(<span class="hljs-string">'./write-rust-bytecode'</span>);
 };
-module.exports.write_rust_ops = <span class="keyword">function</span>() {</pre></div></div>
+<span class="hljs-built_in">module</span>.exports.write_rust_ops = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -407,7 +427,75 @@ module.exports.write_rust_ops = <span class="keyword">function</span>() {</pre><
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    requirejs(<span class="string">'./write-rust-ops'</span>);
+            <div class="content"><div class='highlight'><pre>    requirejs(<span class="hljs-string">'./write-rust-ops'</span>);
+};
+<span class="hljs-built_in">module</span>.exports.write_php_bytecode = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>This module has side-effects when imported.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    requirejs(<span class="hljs-string">'./write-php-bytecode'</span>);
+};
+<span class="hljs-built_in">module</span>.exports.write_php_ops = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>This module has side-effects when imported.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    requirejs(<span class="hljs-string">'./write-php-ops'</span>);
+};
+<span class="hljs-built_in">module</span>.exports.write_lua_bytecode = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>This module has side-effects when imported.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    requirejs(<span class="hljs-string">'./write-lua-bytecode'</span>);
+};
+<span class="hljs-built_in">module</span>.exports.write_lua_ops = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>This module has side-effects when imported.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    requirejs(<span class="hljs-string">'./write-lua-ops'</span>);
 };</pre></div></div>
             
         </li>

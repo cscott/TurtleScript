@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>write-php-ops.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="asm-llvm.html">
+                asm-llvm.js
+              </a>
+            
+              
+              <a class="source" href="bcompile.html">
+                bcompile.js
+              </a>
+            
+              
+              <a class="source" href="binterp.html">
+                binterp.js
+              </a>
+            
+              
+              <a class="source" href="browsercanvas.html">
+                browsercanvas.js
+              </a>
+            
+              
+              <a class="source" href="bytecode-table.html">
+                bytecode-table.js
+              </a>
+            
+              
+              <a class="source" href="canvastest.html">
+                canvastest.js
+              </a>
+            
+              
+              <a class="source" href="ccanvas.html">
+                ccanvas.js
+              </a>
+            
+              
+              <a class="source" href="crender-styles.html">
+                crender-styles.js
+              </a>
+            
+              
+              <a class="source" href="crender.html">
+                crender.js
+              </a>
+            
+              
+              <a class="source" href="ctiles.html">
+                ctiles.js
+              </a>
+            
+              
+              <a class="source" href="events.html">
+                events.js
+              </a>
+            
+              
+              <a class="source" href="eventtests.html">
+                eventtests.js
+              </a>
+            
+              
+              <a class="source" href="extensions.html">
+                extensions.js
+              </a>
+            
+              
+              <a class="source" href="global-es5.html">
+                global-es5.js
+              </a>
+            
+              
+              <a class="source" href="global.html">
+                global.js
+              </a>
+            
+              
+              <a class="source" href="html-escape.html">
+                html-escape.js
+              </a>
+            
+              
+              <a class="source" href="jcompile.html">
+                jcompile.js
+              </a>
+            
+              
+              <a class="source" href="json2.html">
+                json2.js
+              </a>
+            
+              
+              <a class="source" href="nodemain.html">
+                nodemain.js
+              </a>
+            
+              
+              <a class="source" href="parse.html">
+                parse.js
+              </a>
+            
+              
+              <a class="source" href="render.html">
+                render.js
+              </a>
+            
+              
+              <a class="source" href="render2.html">
+                render2.js
+              </a>
+            
+              
+              <a class="source" href="require.html">
+                require.js
+              </a>
+            
+              
+              <a class="source" href="stdlib.html">
+                stdlib.js
+              </a>
+            
+              
+              <a class="source" href="str-escape.html">
+                str-escape.js
+              </a>
+            
+              
+              <a class="source" href="tdop.html">
+                tdop.js
+              </a>
+            
+              
+              <a class="source" href="tests.html">
+                tests.js
+              </a>
+            
+              
+              <a class="source" href="text.html">
+                text.js
+              </a>
+            
+              
+              <a class="source" href="tiles.html">
+                tiles.js
+              </a>
+            
+              
+              <a class="source" href="tokenize.html">
+                tokenize.js
+              </a>
+            
+              
+              <a class="source" href="top-level.html">
+                top-level.js
+              </a>
+            
+              
+              <a class="source" href="ts.html">
+                ts.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-bytecode.html">
+                write-rust-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-rust-ops.html">
+                write-rust-ops.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>write-php-ops.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>Utility to write out the opcode mapping from <code>bytecode-table.js</code>
+as a PHP file.</p>
+<p>Run it under <code>node</code> with the CLI in <code>bin/write-php-ops.js</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">'./bytecode-table'</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bytecode_table</span>) </span>{
+    <span class="hljs-keyword">var</span> bops = [];
+    <span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>) {
+        <span class="hljs-keyword">var</span> bc = bytecode_table.for_num(bops.length);
+        <span class="hljs-keyword">if</span> (!bc) { <span class="hljs-keyword">break</span>; }
+        bops.push(bc);
+    }
+    <span class="hljs-keyword">var</span> comma = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">i</span>) </span>{ <span class="hljs-keyword">return</span> (i &lt; (bops.length<span class="hljs-number">-1</span>)) ? <span class="hljs-string">','</span> : <span class="hljs-string">''</span>; };
+    <span class="hljs-keyword">var</span> phpName = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bc</span>) </span>{
+        <span class="hljs-keyword">var</span> name = bc.name.toUpperCase();
+        <span class="hljs-keyword">if</span> (name===<span class="hljs-string">'2DUP'</span>) { <span class="hljs-keyword">return</span> <span class="hljs-string">'DUP2'</span>; }
+        <span class="hljs-keyword">return</span> name;
+    };
+
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'&lt;?php'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'// generated by TurtleScript write-php-ops.js'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'namespace Wikimedia\\PhpTurtle;'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);
+
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'class Op {'</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <h2 id="emit-op-enumeration">Emit <code>Op</code> enumeration.</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    bops.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bc, i</span>) </span>{
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\tpublic const '</span> + phpName(bc) + <span class="hljs-string">' = '</span> + i + <span class="hljs-string">';'</span>);
+    });
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);
+
+    <span class="hljs-keyword">var</span> buildSwitch = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">fn</span>) </span>{
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t\tswitch ( $op ) {'</span>);
+        <span class="hljs-keyword">var</span> group = [];
+        bops.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bc</span>) </span>{
+            <span class="hljs-keyword">var</span> val = fn(bc);
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> val === <span class="hljs-string">'function'</span>) {
+                <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t\tcase self::'</span> + phpName(bc) + <span class="hljs-string">':'</span>);
+                <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t\t\treturn '</span> + val() + <span class="hljs-string">';'</span>);
+            } <span class="hljs-keyword">else</span> {
+                <span class="hljs-keyword">if</span> (group[val]===<span class="hljs-literal">undefined</span>) { group[val] = []; }
+                group[val].push(bc);
+            }
+        });
+        <span class="hljs-keyword">var</span> i = <span class="hljs-number">1</span>;
+        <span class="hljs-keyword">while</span> (i &lt; group.length) {
+            <span class="hljs-keyword">if</span> (group[i] !== <span class="hljs-literal">undefined</span> &amp;&amp; group[i].length &gt; <span class="hljs-number">0</span>) {
+                group[i].forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bc</span>) </span>{
+                    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t\tcase self::'</span> + phpName(bc) + <span class="hljs-string">':'</span>);
+                });
+                <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t\t\treturn '</span> + i + <span class="hljs-string">';'</span>);
+            }
+            i+=<span class="hljs-number">1</span>;
+        }
+        <span class="hljs-keyword">if</span> (group[<span class="hljs-number">0</span>] !== <span class="hljs-literal">undefined</span> &amp;&amp; group[<span class="hljs-number">0</span>].length &gt; <span class="hljs-number">0</span>) {
+            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t\tdefault:'</span>);
+            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t\t\treturn 0;'</span>);
+        }
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t\t}'</span>);
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <h2 id="emit-op-functions">Emit <code>Op</code> functions.</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t/**'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t * Return the number of arguments used for the given opcode.'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t * @param int $op The opcode'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t * @return int The number of arguments required'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t */'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\tpublic static function args( int $op ): int {'</span>);
+    buildSwitch(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bc</span>) </span>{ <span class="hljs-keyword">return</span> bc.args; });
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t}'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);
+
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t/**'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t * Return the number of stack slots pushed by the given opcode.'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t * @param int $op The opcode'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t * @return int The number of stack slots pushed'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t */'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\tpublic static function stackpush( int $op ): int {'</span>);
+    buildSwitch(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bc</span>) </span>{ <span class="hljs-keyword">return</span> bc.stackpush(); });
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t}'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);
+
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t/**'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t * Return the number of stack slots popped by the given opcode.'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t * @param int $op The opcode'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t * @param array $args The arguments to that opcode'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t * @return int The number of stack slots popped'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t */'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\tpublic static function stackpop( int $op, array $args ): int {'</span>);
+    buildSwitch(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bc</span>) </span>{
+        <span class="hljs-keyword">if</span> (bc.name === <span class="hljs-string">'invoke'</span>) {
+            <span class="hljs-keyword">return</span> (<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-string">'$args[0] + 2'</span>; });
+        }
+        <span class="hljs-keyword">return</span> bc.stackpop();
+    });
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t}'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">''</span>);
+
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t/**'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t * Return the human-readable name for the given opcode.'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t * @param int $op The opcode'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t * @return string The name of the opcode'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t */'</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\tpublic static function name( int $op ): string {'</span>);
+    buildSwitch(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bc</span>) </span>{ <span class="hljs-keyword">return</span> (<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-string">'"'</span> + bc.name + <span class="hljs-string">'"'</span>;
+    }); });
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'\t}'</span>);
+
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'}'</span>);
+});</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -212,39 +232,39 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">'gfx/Color'</span>], <span class="keyword">function</span>(Color) {
+            <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">'gfx/Color'</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">Color</span>) </span>{
 
-<span class="keyword">var</span> styles = {
-   textHeight: <span class="number">20</span>,
-   tilePadding: { left: <span class="number">4</span>, top: <span class="number">1</span>, right: <span class="number">3</span>, bottom: <span class="number">5</span>},
-   textColor: Color.From8888(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-   nameColor: Color.From8888(<span class="number">160</span>, <span class="number">82</span>, <span class="number">45</span>), <span class="comment">// variable names</span>
-   commentColor: Color.From8888(<span class="number">178</span>, <span class="number">34</span>, <span class="number">34</span>), <span class="comment">// comments</span>
-   keywordColor: Color.From8888(<span class="number">160</span>, <span class="number">32</span>, <span class="number">240</span>),<span class="comment">// keywords</span>
-   constColor: Color.From8888(<span class="number">0</span>, <span class="number">139</span>, <span class="number">139</span>), <span class="comment">// constants,this,arguments</span>
-   slotColor: Color.From8888(<span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>), <span class="comment">// slots in objects</span>
-   literalColor: Color.From8888(<span class="number">139</span>, <span class="number">34</span>, <span class="number">82</span>), <span class="comment">// string literals</span>
-   semiColor: Color.From8888(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">76</span>),<span class="comment">// semicolon</span>
-   tileColor: Color.From8888(<span class="number">253</span>, <span class="number">250</span>, <span class="number">235</span>),
-   tileOutlineColor: Color.From8888(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">125</span>),<span class="comment">//(255, 204, 106, 125),</span>
-   yadaColor: Color.From8888(<span class="number">249</span>, <span class="number">250</span>, <span class="number">215</span>, <span class="number">0</span>), <span class="comment">// background of ... expr</span>
-   stmtColor: Color.From8888(<span class="number">253</span>, <span class="number">250</span>, <span class="number">215</span>),
-   tileCornerRadius: <span class="number">4</span>,
-   puzzleIndent: <span class="number">5</span>,
-   puzzleRadius: <span class="number">5</span>,
-   expHalfHeight: <span class="number">12</span>,
-   expWidth: <span class="number">6</span>,
-   expUnderHeight: <span class="number">5</span>,
-   expUnderWidth: <span class="number">5</span>, <span class="comment">/* underline when it's running along the sides */</span>
-   blockIndent: <span class="number">26</span>,
-   objIndent: <span class="number">12</span>, <span class="comment">/* indent for the slot names in an object initializer */</span>
-   blockBottomPadding: <span class="number">8</span>, <span class="comment">/* below last tile in a block */</span>
-   functionIndent: <span class="number">5</span>, <span class="comment">/* thin line on left side of function */</span>
-   functionNameSpace: <span class="number">3</span>, <span class="comment">/* space to leave for a missing function name */</span>
-   listEndPadding: <span class="number">0</span>, <span class="comment">/* empty space on right side of lists */</span>
-   commaBreakWidth: <span class="number">600</span> <span class="comment">/* line wrapping HACK */</span>
+<span class="hljs-keyword">var</span> styles = {
+   <span class="hljs-attr">textHeight</span>: <span class="hljs-number">20</span>,
+   <span class="hljs-attr">tilePadding</span>: { <span class="hljs-attr">left</span>: <span class="hljs-number">4</span>, <span class="hljs-attr">top</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">right</span>: <span class="hljs-number">3</span>, <span class="hljs-attr">bottom</span>: <span class="hljs-number">5</span>},
+   <span class="hljs-attr">textColor</span>: Color.From8888(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>),
+   <span class="hljs-attr">nameColor</span>: Color.From8888(<span class="hljs-number">160</span>, <span class="hljs-number">82</span>, <span class="hljs-number">45</span>), <span class="hljs-comment">// variable names</span>
+   <span class="hljs-attr">commentColor</span>: Color.From8888(<span class="hljs-number">178</span>, <span class="hljs-number">34</span>, <span class="hljs-number">34</span>), <span class="hljs-comment">// comments</span>
+   <span class="hljs-attr">keywordColor</span>: Color.From8888(<span class="hljs-number">160</span>, <span class="hljs-number">32</span>, <span class="hljs-number">240</span>),<span class="hljs-comment">// keywords</span>
+   <span class="hljs-attr">constColor</span>: Color.From8888(<span class="hljs-number">0</span>, <span class="hljs-number">139</span>, <span class="hljs-number">139</span>), <span class="hljs-comment">// constants,this,arguments</span>
+   <span class="hljs-attr">slotColor</span>: Color.From8888(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">255</span>), <span class="hljs-comment">// slots in objects</span>
+   <span class="hljs-attr">literalColor</span>: Color.From8888(<span class="hljs-number">139</span>, <span class="hljs-number">34</span>, <span class="hljs-number">82</span>), <span class="hljs-comment">// string literals</span>
+   <span class="hljs-attr">semiColor</span>: Color.From8888(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">76</span>),<span class="hljs-comment">// semicolon</span>
+   <span class="hljs-attr">tileColor</span>: Color.From8888(<span class="hljs-number">253</span>, <span class="hljs-number">250</span>, <span class="hljs-number">235</span>),
+   <span class="hljs-attr">tileOutlineColor</span>: Color.From8888(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">125</span>),<span class="hljs-comment">//(255, 204, 106, 125),</span>
+   <span class="hljs-attr">yadaColor</span>: Color.From8888(<span class="hljs-number">249</span>, <span class="hljs-number">250</span>, <span class="hljs-number">215</span>, <span class="hljs-number">0</span>), <span class="hljs-comment">// background of ... expr</span>
+   <span class="hljs-attr">stmtColor</span>: Color.From8888(<span class="hljs-number">253</span>, <span class="hljs-number">250</span>, <span class="hljs-number">215</span>),
+   <span class="hljs-attr">tileCornerRadius</span>: <span class="hljs-number">4</span>,
+   <span class="hljs-attr">puzzleIndent</span>: <span class="hljs-number">5</span>,
+   <span class="hljs-attr">puzzleRadius</span>: <span class="hljs-number">5</span>,
+   <span class="hljs-attr">expHalfHeight</span>: <span class="hljs-number">12</span>,
+   <span class="hljs-attr">expWidth</span>: <span class="hljs-number">6</span>,
+   <span class="hljs-attr">expUnderHeight</span>: <span class="hljs-number">5</span>,
+   <span class="hljs-attr">expUnderWidth</span>: <span class="hljs-number">5</span>, <span class="hljs-comment">/* underline when it's running along the sides */</span>
+   <span class="hljs-attr">blockIndent</span>: <span class="hljs-number">26</span>,
+   <span class="hljs-attr">objIndent</span>: <span class="hljs-number">12</span>, <span class="hljs-comment">/* indent for the slot names in an object initializer */</span>
+   <span class="hljs-attr">blockBottomPadding</span>: <span class="hljs-number">8</span>, <span class="hljs-comment">/* below last tile in a block */</span>
+   <span class="hljs-attr">functionIndent</span>: <span class="hljs-number">5</span>, <span class="hljs-comment">/* thin line on left side of function */</span>
+   <span class="hljs-attr">functionNameSpace</span>: <span class="hljs-number">3</span>, <span class="hljs-comment">/* space to leave for a missing function name */</span>
+   <span class="hljs-attr">listEndPadding</span>: <span class="hljs-number">0</span>, <span class="hljs-comment">/* empty space on right side of lists */</span>
+   <span class="hljs-attr">commaBreakWidth</span>: <span class="hljs-number">600</span> <span class="hljs-comment">/* line wrapping HACK */</span>
 };
-<span class="keyword">if</span> (<span class="number">0</span>) {</pre></div></div>
+<span class="hljs-keyword">if</span> (<span class="hljs-number">0</span>) {</pre></div></div>
             
         </li>
         
@@ -260,16 +280,16 @@
             </div>
             
             <div class="content"><div class='highlight'><pre>  styles = {
-    __proto__: styles,
-    tileColor: Color.From8888(<span class="number">253</span>, <span class="number">250</span>, <span class="number">235</span>, <span class="number">10</span>),
-    tileOutlineColor: Color.From8888(<span class="number">255</span>, <span class="number">204</span>, <span class="number">106</span>, <span class="number">205</span>),
-    expUnderHeight: <span class="number">8</span>,
-    expUnderWidth: <span class="number">8</span>, <span class="comment">/* underline when it's running along the sides */</span>
-    functionIndent: <span class="number">8</span>, <span class="comment">/* thin line on left side of function */</span>
-    functionNameSpace: <span class="number">8</span>
+    <span class="hljs-attr">__proto__</span>: styles,
+    <span class="hljs-attr">tileColor</span>: Color.From8888(<span class="hljs-number">253</span>, <span class="hljs-number">250</span>, <span class="hljs-number">235</span>, <span class="hljs-number">10</span>),
+    <span class="hljs-attr">tileOutlineColor</span>: Color.From8888(<span class="hljs-number">255</span>, <span class="hljs-number">204</span>, <span class="hljs-number">106</span>, <span class="hljs-number">205</span>),
+    <span class="hljs-attr">expUnderHeight</span>: <span class="hljs-number">8</span>,
+    <span class="hljs-attr">expUnderWidth</span>: <span class="hljs-number">8</span>, <span class="hljs-comment">/* underline when it's running along the sides */</span>
+    <span class="hljs-attr">functionIndent</span>: <span class="hljs-number">8</span>, <span class="hljs-comment">/* thin line on left side of function */</span>
+    <span class="hljs-attr">functionNameSpace</span>: <span class="hljs-number">8</span>
   };
 }
-<span class="keyword">return</span> styles;
+<span class="hljs-keyword">return</span> styles;
 
 });</pre></div></div>
             

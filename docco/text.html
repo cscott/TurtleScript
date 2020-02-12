@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -211,34 +231,34 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="comment">/**
- * @license RequireJS text 2.0.7 Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
+            <div class="content"><div class='highlight'><pre><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@license </span>RequireJS text 2.0.7 Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/requirejs/text for details
  */</span>
-<span class="comment">/*jslint regexp: true */</span>
-<span class="comment">/*global require, XMLHttpRequest, ActiveXObject,
+<span class="hljs-comment">/*jslint regexp: true */</span>
+<span class="hljs-comment">/*global require, XMLHttpRequest, ActiveXObject,
   define, window, process, Packages,
   java, location, Components, FileUtils */</span>
 
-define([<span class="string">'module'</span>], <span class="function"><span class="keyword">function</span> <span class="params">(module)</span> {</span>
-    <span class="string">'use strict'</span>;
+define([<span class="hljs-string">'module'</span>], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">module</span>) </span>{
+    <span class="hljs-string">'use strict'</span>;
 
-    <span class="keyword">var</span> text, fs, Cc, Ci,
-        progIds = [<span class="string">'Msxml2.XMLHTTP'</span>, <span class="string">'Microsoft.XMLHTTP'</span>, <span class="string">'Msxml2.XMLHTTP.4.0'</span>],
-        xmlRegExp = <span class="regexp">/^\s*&lt;\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?&gt;/im</span>,
-        bodyRegExp = <span class="regexp">/&lt;body[^&gt;]*&gt;\s*([\s\S]+)\s*&lt;\/body&gt;/im</span>,
-        hasLocation = <span class="keyword">typeof</span> location !== <span class="string">'undefined'</span> &amp;&amp; location.href,
-        defaultProtocol = hasLocation &amp;&amp; location.protocol &amp;&amp; location.protocol.replace(<span class="regexp">/\:/</span>, <span class="string">''</span>),
+    <span class="hljs-keyword">var</span> text, fs, Cc, Ci,
+        progIds = [<span class="hljs-string">'Msxml2.XMLHTTP'</span>, <span class="hljs-string">'Microsoft.XMLHTTP'</span>, <span class="hljs-string">'Msxml2.XMLHTTP.4.0'</span>],
+        xmlRegExp = <span class="hljs-regexp">/^\s*&lt;\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?&gt;/im</span>,
+        bodyRegExp = <span class="hljs-regexp">/&lt;body[^&gt;]*&gt;\s*([\s\S]+)\s*&lt;\/body&gt;/im</span>,
+        hasLocation = <span class="hljs-keyword">typeof</span> location !== <span class="hljs-string">'undefined'</span> &amp;&amp; location.href,
+        defaultProtocol = hasLocation &amp;&amp; location.protocol &amp;&amp; location.protocol.replace(<span class="hljs-regexp">/\:/</span>, <span class="hljs-string">''</span>),
         defaultHostName = hasLocation &amp;&amp; location.hostname,
-        defaultPort = hasLocation &amp;&amp; (location.port || <span class="literal">undefined</span>),
+        defaultPort = hasLocation &amp;&amp; (location.port || <span class="hljs-literal">undefined</span>),
         buildMap = {},
-        masterConfig = (module.config &amp;&amp; module.config()) || {};
+        masterConfig = (<span class="hljs-built_in">module</span>.config &amp;&amp; <span class="hljs-built_in">module</span>.config()) || {};
 
     text = {
-        version: <span class="string">'2.0.7'</span>,
+        <span class="hljs-attr">version</span>: <span class="hljs-string">'2.0.7'</span>,
 
-        strip: <span class="function"><span class="keyword">function</span> <span class="params">(content)</span> {</span></pre></div></div>
+        <span class="hljs-attr">strip</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">content</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -249,36 +269,36 @@ define([<span class="string">'module'</span>], <span class="function"><span clas
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Strips &lt;?xml ...?&gt; declarations so that external SVG and XML
+              <p>Strips <?xml ...?> declarations so that external SVG and XML
 documents can be added to a document without worry. Also, if the string
 is an HTML document, only the part inside the body tag is returned.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (content) {
-                content = content.replace(xmlRegExp, <span class="string">""</span>);
-                <span class="keyword">var</span> matches = content.match(bodyRegExp);
-                <span class="keyword">if</span> (matches) {
-                    content = matches[<span class="number">1</span>];
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (content) {
+                content = content.replace(xmlRegExp, <span class="hljs-string">""</span>);
+                <span class="hljs-keyword">var</span> matches = content.match(bodyRegExp);
+                <span class="hljs-keyword">if</span> (matches) {
+                    content = matches[<span class="hljs-number">1</span>];
                 }
-            } <span class="keyword">else</span> {
-                content = <span class="string">""</span>;
+            } <span class="hljs-keyword">else</span> {
+                content = <span class="hljs-string">""</span>;
             }
-            <span class="keyword">return</span> content;
+            <span class="hljs-keyword">return</span> content;
         },
 
-        jsEscape: <span class="function"><span class="keyword">function</span> <span class="params">(content)</span> {</span>
-            <span class="keyword">return</span> content.replace(<span class="regexp">/(['\\])/g</span>, <span class="string">'\\$1'</span>)
-                .replace(<span class="regexp">/[\f]/g</span>, <span class="string">"\\f"</span>)
-                .replace(<span class="regexp">/[\b]/g</span>, <span class="string">"\\b"</span>)
-                .replace(<span class="regexp">/[\n]/g</span>, <span class="string">"\\n"</span>)
-                .replace(<span class="regexp">/[\t]/g</span>, <span class="string">"\\t"</span>)
-                .replace(<span class="regexp">/[\r]/g</span>, <span class="string">"\\r"</span>)
-                .replace(<span class="regexp">/[\u2028]/g</span>, <span class="string">"\\u2028"</span>)
-                .replace(<span class="regexp">/[\u2029]/g</span>, <span class="string">"\\u2029"</span>);
+        <span class="hljs-attr">jsEscape</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">content</span>) </span>{
+            <span class="hljs-keyword">return</span> content.replace(<span class="hljs-regexp">/(['\\])/g</span>, <span class="hljs-string">'\\$1'</span>)
+                .replace(<span class="hljs-regexp">/[\f]/g</span>, <span class="hljs-string">"\\f"</span>)
+                .replace(<span class="hljs-regexp">/[\b]/g</span>, <span class="hljs-string">"\\b"</span>)
+                .replace(<span class="hljs-regexp">/[\n]/g</span>, <span class="hljs-string">"\\n"</span>)
+                .replace(<span class="hljs-regexp">/[\t]/g</span>, <span class="hljs-string">"\\t"</span>)
+                .replace(<span class="hljs-regexp">/[\r]/g</span>, <span class="hljs-string">"\\r"</span>)
+                .replace(<span class="hljs-regexp">/[\u2028]/g</span>, <span class="hljs-string">"\\u2028"</span>)
+                .replace(<span class="hljs-regexp">/[\u2029]/g</span>, <span class="hljs-string">"\\u2029"</span>);
         },
 
-        createXhr: masterConfig.createXhr || <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span></pre></div></div>
+        <span class="hljs-attr">createXhr</span>: masterConfig.createXhr || <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -293,51 +313,51 @@ is an HTML document, only the part inside the body tag is returned.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> xhr, i, progId;
-            <span class="keyword">if</span> (<span class="keyword">typeof</span> XMLHttpRequest !== <span class="string">"undefined"</span>) {
-                <span class="keyword">return</span> <span class="keyword">new</span> XMLHttpRequest();
-            } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span> ActiveXObject !== <span class="string">"undefined"</span>) {
-                <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i += <span class="number">1</span>) {
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> xhr, i, progId;
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> XMLHttpRequest !== <span class="hljs-string">"undefined"</span>) {
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> XMLHttpRequest();
+            } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> ActiveXObject !== <span class="hljs-string">"undefined"</span>) {
+                <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">3</span>; i += <span class="hljs-number">1</span>) {
                     progId = progIds[i];
-                    <span class="keyword">try</span> {
-                        xhr = <span class="keyword">new</span> ActiveXObject(progId);
-                    } <span class="keyword">catch</span> (e) {}
+                    <span class="hljs-keyword">try</span> {
+                        xhr = <span class="hljs-keyword">new</span> ActiveXObject(progId);
+                    } <span class="hljs-keyword">catch</span> (e) {}
 
-                    <span class="keyword">if</span> (xhr) {
-                        progIds = [progId];  <span class="comment">// so faster next time</span>
-                        <span class="keyword">break</span>;
+                    <span class="hljs-keyword">if</span> (xhr) {
+                        progIds = [progId];  <span class="hljs-comment">// so faster next time</span>
+                        <span class="hljs-keyword">break</span>;
                     }
                 }
             }
 
-            <span class="keyword">return</span> xhr;
+            <span class="hljs-keyword">return</span> xhr;
         },
 
-        <span class="comment">/**
+        <span class="hljs-comment">/**
          * Parses a resource name into its component parts. Resource names
          * look like: module/name.ext!strip, where the !strip part is
          * optional.
-         * @param {String} name the resource name
-         * @returns {Object} with properties "moduleName", "ext" and "strip"
+         * <span class="hljs-doctag">@param <span class="hljs-type">{String}</span> </span>name the resource name
+         * <span class="hljs-doctag">@returns <span class="hljs-type">{Object}</span> </span>with properties "moduleName", "ext" and "strip"
          * where strip is a boolean.
          */</span>
-        parseName: <span class="function"><span class="keyword">function</span> <span class="params">(name)</span> {</span>
-            <span class="keyword">var</span> modName, ext, temp,
-                strip = <span class="literal">false</span>,
-                index = name.indexOf(<span class="string">"."</span>),
-                isRelative = name.indexOf(<span class="string">'./'</span>) === <span class="number">0</span> ||
-                             name.indexOf(<span class="string">'../'</span>) === <span class="number">0</span>;
+        <span class="hljs-attr">parseName</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name</span>) </span>{
+            <span class="hljs-keyword">var</span> modName, ext, temp,
+                strip = <span class="hljs-literal">false</span>,
+                index = name.indexOf(<span class="hljs-string">"."</span>),
+                isRelative = name.indexOf(<span class="hljs-string">'./'</span>) === <span class="hljs-number">0</span> ||
+                             name.indexOf(<span class="hljs-string">'../'</span>) === <span class="hljs-number">0</span>;
 
-            <span class="keyword">if</span> (index !== -<span class="number">1</span> &amp;&amp; (!isRelative || index &gt; <span class="number">1</span>)) {
-                modName = name.substring(<span class="number">0</span>, index);
-                ext = name.substring(index + <span class="number">1</span>, name.length);
-            } <span class="keyword">else</span> {
+            <span class="hljs-keyword">if</span> (index !== <span class="hljs-number">-1</span> &amp;&amp; (!isRelative || index &gt; <span class="hljs-number">1</span>)) {
+                modName = name.substring(<span class="hljs-number">0</span>, index);
+                ext = name.substring(index + <span class="hljs-number">1</span>, name.length);
+            } <span class="hljs-keyword">else</span> {
                 modName = name;
             }
 
             temp = ext || modName;
-            index = temp.indexOf(<span class="string">"!"</span>);
-            <span class="keyword">if</span> (index !== -<span class="number">1</span>) {</pre></div></div>
+            index = temp.indexOf(<span class="hljs-string">"!"</span>);
+            <span class="hljs-keyword">if</span> (index !== <span class="hljs-number">-1</span>) {</pre></div></div>
             
         </li>
         
@@ -352,59 +372,59 @@ is an HTML document, only the part inside the body tag is returned.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                strip = temp.substring(index + <span class="number">1</span>) === <span class="string">"strip"</span>;
-                temp = temp.substring(<span class="number">0</span>, index);
-                <span class="keyword">if</span> (ext) {
+            <div class="content"><div class='highlight'><pre>                strip = temp.substring(index + <span class="hljs-number">1</span>) === <span class="hljs-string">"strip"</span>;
+                temp = temp.substring(<span class="hljs-number">0</span>, index);
+                <span class="hljs-keyword">if</span> (ext) {
                     ext = temp;
-                } <span class="keyword">else</span> {
+                } <span class="hljs-keyword">else</span> {
                     modName = temp;
                 }
             }
 
-            <span class="keyword">return</span> {
-                moduleName: modName,
-                ext: ext,
-                strip: strip
+            <span class="hljs-keyword">return</span> {
+                <span class="hljs-attr">moduleName</span>: modName,
+                <span class="hljs-attr">ext</span>: ext,
+                <span class="hljs-attr">strip</span>: strip
             };
         },
 
-        xdRegExp: <span class="regexp">/^((\w+)\:)?\/\/([^\/\\]+)/</span>,
+        <span class="hljs-attr">xdRegExp</span>: <span class="hljs-regexp">/^((\w+)\:)?\/\/([^\/\\]+)/</span>,
 
-        <span class="comment">/**
+        <span class="hljs-comment">/**
          * Is an URL on another domain. Only works for browser use, returns
          * false in non-browser environments. Only used to know if an
          * optimized .js version of a text resource should be loaded
          * instead.
-         * @param {String} url
-         * @returns Boolean
+         * <span class="hljs-doctag">@param <span class="hljs-type">{String}</span> <span class="hljs-variable">url</span></span>
+         * <span class="hljs-doctag">@returns <span class="hljs-variable">Boolean</span></span>
          */</span>
-        useXhr: <span class="function"><span class="keyword">function</span> <span class="params">(url, protocol, hostname, port)</span> {</span>
-            <span class="keyword">var</span> uProtocol, uHostName, uPort,
+        <span class="hljs-attr">useXhr</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">url, protocol, hostname, port</span>) </span>{
+            <span class="hljs-keyword">var</span> uProtocol, uHostName, uPort,
                 match = text.xdRegExp.exec(url);
-            <span class="keyword">if</span> (!match) {
-                <span class="keyword">return</span> <span class="literal">true</span>;
+            <span class="hljs-keyword">if</span> (!match) {
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
             }
-            uProtocol = match[<span class="number">2</span>];
-            uHostName = match[<span class="number">3</span>];
+            uProtocol = match[<span class="hljs-number">2</span>];
+            uHostName = match[<span class="hljs-number">3</span>];
 
-            uHostName = uHostName.split(<span class="string">':'</span>);
-            uPort = uHostName[<span class="number">1</span>];
-            uHostName = uHostName[<span class="number">0</span>];
+            uHostName = uHostName.split(<span class="hljs-string">':'</span>);
+            uPort = uHostName[<span class="hljs-number">1</span>];
+            uHostName = uHostName[<span class="hljs-number">0</span>];
 
-            <span class="keyword">return</span> (!uProtocol || uProtocol === protocol) &amp;&amp;
+            <span class="hljs-keyword">return</span> (!uProtocol || uProtocol === protocol) &amp;&amp;
                    (!uHostName || uHostName.toLowerCase() === hostname.toLowerCase()) &amp;&amp;
                    ((!uPort &amp;&amp; !uHostName) || uPort === port);
         },
 
-        finishLoad: <span class="function"><span class="keyword">function</span> <span class="params">(name, strip, content, onLoad)</span> {</span>
+        <span class="hljs-attr">finishLoad</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name, strip, content, onLoad</span>) </span>{
             content = strip ? text.strip(content) : content;
-            <span class="keyword">if</span> (masterConfig.isBuild) {
+            <span class="hljs-keyword">if</span> (masterConfig.isBuild) {
                 buildMap[name] = content;
             }
             onLoad(content);
         },
 
-        load: <span class="function"><span class="keyword">function</span> <span class="params">(name, req, onLoad, config)</span> {</span></pre></div></div>
+        <span class="hljs-attr">load</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name, req, onLoad, config</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -419,23 +439,23 @@ is an HTML document, only the part inside the body tag is returned.</p>
 The strip part is optional.
 if strip is present, then that means only get the string contents
 inside a body tag in an HTML string. For XML/SVG content it means
-removing the &lt;?xml ...?&gt; declarations so the content can be inserted
+removing the <?xml ...?> declarations so the content can be inserted
 into the current doc without problems.</p>
 <p>Do not bother with the work if a build and text will
 not be inlined.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (config.isBuild &amp;&amp; !config.inlineText) {
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (config.isBuild &amp;&amp; !config.inlineText) {
                 onLoad();
-                <span class="keyword">return</span>;
+                <span class="hljs-keyword">return</span>;
             }
 
             masterConfig.isBuild = config.isBuild;
 
-            <span class="keyword">var</span> parsed = text.parseName(name),
+            <span class="hljs-keyword">var</span> parsed = text.parseName(name),
                 nonStripName = parsed.moduleName +
-                    (parsed.ext ? <span class="string">'.'</span> + parsed.ext : <span class="string">''</span>),
+                    (parsed.ext ? <span class="hljs-string">'.'</span> + parsed.ext : <span class="hljs-string">''</span>),
                 url = req.toUrl(nonStripName),
                 useXhr = (masterConfig.useXhr) ||
                          text.useXhr;</pre></div></div>
@@ -453,15 +473,15 @@ not be inlined.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (!hasLocation || useXhr(url, defaultProtocol, defaultHostName, defaultPort)) {
-                text.get(url, <span class="function"><span class="keyword">function</span> <span class="params">(content)</span> {</span>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (!hasLocation || useXhr(url, defaultProtocol, defaultHostName, defaultPort)) {
+                text.get(url, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">content</span>) </span>{
                     text.finishLoad(name, parsed.strip, content, onLoad);
-                }, <span class="function"><span class="keyword">function</span> <span class="params">(err)</span> {</span>
-                    <span class="keyword">if</span> (onLoad.error) {
+                }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err</span>) </span>{
+                    <span class="hljs-keyword">if</span> (onLoad.error) {
                         onLoad.error(err);
                     }
                 });
-            } <span class="keyword">else</span> {</pre></div></div>
+            } <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -479,26 +499,26 @@ by the module name + extension, but do not include the
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                req([nonStripName], <span class="function"><span class="keyword">function</span> <span class="params">(content)</span> {</span>
-                    text.finishLoad(parsed.moduleName + <span class="string">'.'</span> + parsed.ext,
+            <div class="content"><div class='highlight'><pre>                req([nonStripName], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">content</span>) </span>{
+                    text.finishLoad(parsed.moduleName + <span class="hljs-string">'.'</span> + parsed.ext,
                                     parsed.strip, content, onLoad);
                 });
             }
         },
 
-        write: <span class="function"><span class="keyword">function</span> <span class="params">(pluginName, moduleName, write, config)</span> {</span>
-            <span class="keyword">if</span> (buildMap.hasOwnProperty(moduleName)) {
-                <span class="keyword">var</span> content = text.jsEscape(buildMap[moduleName]);
-                write.asModule(pluginName + <span class="string">"!"</span> + moduleName,
-                               <span class="string">"define(function () { return '"</span> +
+        <span class="hljs-attr">write</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">pluginName, moduleName, write, config</span>) </span>{
+            <span class="hljs-keyword">if</span> (buildMap.hasOwnProperty(moduleName)) {
+                <span class="hljs-keyword">var</span> content = text.jsEscape(buildMap[moduleName]);
+                write.asModule(pluginName + <span class="hljs-string">"!"</span> + moduleName,
+                               <span class="hljs-string">"define(function () { return '"</span> +
                                    content +
-                               <span class="string">"';});\n"</span>);
+                               <span class="hljs-string">"';});\n"</span>);
             }
         },
 
-        writeFile: <span class="function"><span class="keyword">function</span> <span class="params">(pluginName, moduleName, req, write, config)</span> {</span>
-            <span class="keyword">var</span> parsed = text.parseName(moduleName),
-                extPart = parsed.ext ? <span class="string">'.'</span> + parsed.ext : <span class="string">''</span>,
+        <span class="hljs-attr">writeFile</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">pluginName, moduleName, req, write, config</span>) </span>{
+            <span class="hljs-keyword">var</span> parsed = text.parseName(moduleName),
+                extPart = parsed.ext ? <span class="hljs-string">'.'</span> + parsed.ext : <span class="hljs-string">''</span>,
                 nonStripName = parsed.moduleName + extPart,</pre></div></div>
             
         </li>
@@ -515,7 +535,7 @@ script that can be loaded across domains.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                fileName = req.toUrl(parsed.moduleName + extPart) + <span class="string">'.js'</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                fileName = req.toUrl(parsed.moduleName + extPart) + <span class="hljs-string">'.js'</span>;</pre></div></div>
             
         </li>
         
@@ -532,7 +552,7 @@ to avoid any potential issues with ! in file names.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            text.load(nonStripName, req, <span class="function"><span class="keyword">function</span> <span class="params">(value)</span> {</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>            text.load(nonStripName, req, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">value</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -549,11 +569,11 @@ write() to the right interface.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> textWrite = <span class="function"><span class="keyword">function</span> <span class="params">(contents)</span> {</span>
-                    <span class="keyword">return</span> write(fileName, contents);
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">var</span> textWrite = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">contents</span>) </span>{
+                    <span class="hljs-keyword">return</span> write(fileName, contents);
                 };
-                textWrite.asModule = <span class="function"><span class="keyword">function</span> <span class="params">(moduleName, contents)</span> {</span>
-                    <span class="keyword">return</span> write.asModule(moduleName, fileName, contents);
+                textWrite.asModule = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">moduleName, contents</span>) </span>{
+                    <span class="hljs-keyword">return</span> write.asModule(moduleName, fileName, contents);
                 };
 
                 text.write(pluginName, nonStripName, textWrite, config);
@@ -561,8 +581,8 @@ write() to the right interface.</p>
         }
     };
 
-    <span class="keyword">if</span> (masterConfig.env === <span class="string">'node'</span> || (!masterConfig.env &amp;&amp;
-            <span class="keyword">typeof</span> process !== <span class="string">"undefined"</span> &amp;&amp;
+    <span class="hljs-keyword">if</span> (masterConfig.env === <span class="hljs-string">'node'</span> || (!masterConfig.env &amp;&amp;
+            <span class="hljs-keyword">typeof</span> process !== <span class="hljs-string">"undefined"</span> &amp;&amp;
             process.versions &amp;&amp;
             !!process.versions.node)) {</pre></div></div>
             
@@ -579,11 +599,11 @@ write() to the right interface.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        fs = require.nodeRequire(<span class="string">'fs'</span>);
+            <div class="content"><div class='highlight'><pre>        fs = <span class="hljs-built_in">require</span>.nodeRequire(<span class="hljs-string">'fs'</span>);
 
-        text.get = <span class="function"><span class="keyword">function</span> <span class="params">(url, callback, errback)</span> {</span>
-            <span class="keyword">try</span> {
-                <span class="keyword">var</span> file = fs.readFileSync(url, <span class="string">'utf8'</span>);</pre></div></div>
+        text.get = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">url, callback, errback</span>) </span>{
+            <span class="hljs-keyword">try</span> {
+                <span class="hljs-keyword">var</span> file = fs.readFileSync(url, <span class="hljs-string">'utf8'</span>);</pre></div></div>
             
         </li>
         
@@ -598,19 +618,19 @@ write() to the right interface.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (file.indexOf(<span class="string">'\uFEFF'</span>) === <span class="number">0</span>) {
-                    file = file.substring(<span class="number">1</span>);
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (file.indexOf(<span class="hljs-string">'\uFEFF'</span>) === <span class="hljs-number">0</span>) {
+                    file = file.substring(<span class="hljs-number">1</span>);
                 }
                 callback(file);
-            } <span class="keyword">catch</span> (e) {
+            } <span class="hljs-keyword">catch</span> (e) {
                 errback(e);
             }
         };
-    } <span class="keyword">else</span> <span class="keyword">if</span> (masterConfig.env === <span class="string">'xhr'</span> || (!masterConfig.env &amp;&amp;
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (masterConfig.env === <span class="hljs-string">'xhr'</span> || (!masterConfig.env &amp;&amp;
             text.createXhr())) {
-        text.get = <span class="function"><span class="keyword">function</span> <span class="params">(url, callback, errback, headers)</span> {</span>
-            <span class="keyword">var</span> xhr = text.createXhr(), header;
-            xhr.open(<span class="string">'GET'</span>, url, <span class="literal">true</span>);</pre></div></div>
+        text.get = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">url, callback, errback, headers</span>) </span>{
+            <span class="hljs-keyword">var</span> xhr = text.createXhr(), header;
+            xhr.open(<span class="hljs-string">'GET'</span>, url, <span class="hljs-literal">true</span>);</pre></div></div>
             
         </li>
         
@@ -625,9 +645,9 @@ write() to the right interface.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (headers) {
-                <span class="keyword">for</span> (header <span class="keyword">in</span> headers) {
-                    <span class="keyword">if</span> (headers.hasOwnProperty(header)) {
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (headers) {
+                <span class="hljs-keyword">for</span> (header <span class="hljs-keyword">in</span> headers) {
+                    <span class="hljs-keyword">if</span> (headers.hasOwnProperty(header)) {
                         xhr.setRequestHeader(header.toLowerCase(), headers[header]);
                     }
                 }
@@ -646,12 +666,12 @@ write() to the right interface.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (masterConfig.onXhr) {
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (masterConfig.onXhr) {
                 masterConfig.onXhr(xhr, url);
             }
 
-            xhr.onreadystatechange = <span class="function"><span class="keyword">function</span> <span class="params">(evt)</span> {</span>
-                <span class="keyword">var</span> status, err;</pre></div></div>
+            xhr.onreadystatechange = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">evt</span>) </span>{
+                <span class="hljs-keyword">var</span> status, err;</pre></div></div>
             
         </li>
         
@@ -667,9 +687,9 @@ visible via console output in the browser.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (xhr.readyState === <span class="number">4</span>) {
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (xhr.readyState === <span class="hljs-number">4</span>) {
                     status = xhr.status;
-                    <span class="keyword">if</span> (status &gt; <span class="number">399</span> &amp;&amp; status &lt; <span class="number">600</span>) {</pre></div></div>
+                    <span class="hljs-keyword">if</span> (status &gt; <span class="hljs-number">399</span> &amp;&amp; status &lt; <span class="hljs-number">600</span>) {</pre></div></div>
             
         </li>
         
@@ -684,22 +704,22 @@ visible via console output in the browser.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                        err = <span class="keyword">new</span> Error(url + <span class="string">' HTTP status: '</span> + status);
+            <div class="content"><div class='highlight'><pre>                        err = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(url + <span class="hljs-string">' HTTP status: '</span> + status);
                         err.xhr = xhr;
                         errback(err);
-                    } <span class="keyword">else</span> {
+                    } <span class="hljs-keyword">else</span> {
                         callback(xhr.responseText);
                     }
 
-                    <span class="keyword">if</span> (masterConfig.onXhrComplete) {
+                    <span class="hljs-keyword">if</span> (masterConfig.onXhrComplete) {
                         masterConfig.onXhrComplete(xhr, url);
                     }
                 }
             };
-            xhr.send(<span class="literal">null</span>);
+            xhr.send(<span class="hljs-literal">null</span>);
         };
-    } <span class="keyword">else</span> <span class="keyword">if</span> (masterConfig.env === <span class="string">'rhino'</span> || (!masterConfig.env &amp;&amp;
-            <span class="keyword">typeof</span> Packages !== <span class="string">'undefined'</span> &amp;&amp; <span class="keyword">typeof</span> java !== <span class="string">'undefined'</span>)) {</pre></div></div>
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (masterConfig.env === <span class="hljs-string">'rhino'</span> || (!masterConfig.env &amp;&amp;
+            <span class="hljs-keyword">typeof</span> Packages !== <span class="hljs-string">'undefined'</span> &amp;&amp; <span class="hljs-keyword">typeof</span> java !== <span class="hljs-string">'undefined'</span>)) {</pre></div></div>
             
         </li>
         
@@ -714,15 +734,15 @@ visible via console output in the browser.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        text.get = <span class="function"><span class="keyword">function</span> <span class="params">(url, callback)</span> {</span>
-            <span class="keyword">var</span> stringBuffer, line,
-                encoding = <span class="string">"utf-8"</span>,
-                file = <span class="keyword">new</span> java.io.File(url),
-                lineSeparator = java.lang.System.getProperty(<span class="string">"line.separator"</span>),
-                input = <span class="keyword">new</span> java.io.BufferedReader(<span class="keyword">new</span> java.io.InputStreamReader(<span class="keyword">new</span> java.io.FileInputStream(file), encoding)),
-                content = <span class="string">''</span>;
-            <span class="keyword">try</span> {
-                stringBuffer = <span class="keyword">new</span> java.lang.StringBuffer();
+            <div class="content"><div class='highlight'><pre>        text.get = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">url, callback</span>) </span>{
+            <span class="hljs-keyword">var</span> stringBuffer, line,
+                encoding = <span class="hljs-string">"utf-8"</span>,
+                file = <span class="hljs-keyword">new</span> java.io.File(url),
+                lineSeparator = java.lang.System.getProperty(<span class="hljs-string">"line.separator"</span>),
+                input = <span class="hljs-keyword">new</span> java.io.BufferedReader(<span class="hljs-keyword">new</span> java.io.InputStreamReader(<span class="hljs-keyword">new</span> java.io.FileInputStream(file), encoding)),
+                content = <span class="hljs-string">''</span>;
+            <span class="hljs-keyword">try</span> {
+                stringBuffer = <span class="hljs-keyword">new</span> java.lang.StringBuffer();
                 line = input.readLine();</pre></div></div>
             
         </li>
@@ -741,7 +761,7 @@ visible via console output in the browser.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (line &amp;&amp; line.length() &amp;&amp; line.charAt(<span class="number">0</span>) === <span class="number">0xfeff</span>) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (line &amp;&amp; line.length() &amp;&amp; line.charAt(<span class="hljs-number">0</span>) === <span class="hljs-number">0xfeff</span>) {</pre></div></div>
             
         </li>
         
@@ -758,14 +778,14 @@ only appear at the top of a file.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    line = line.substring(<span class="number">1</span>);
+            <div class="content"><div class='highlight'><pre>                    line = line.substring(<span class="hljs-number">1</span>);
                 }
 
-                <span class="keyword">if</span> (line !== <span class="literal">null</span>) {
+                <span class="hljs-keyword">if</span> (line !== <span class="hljs-literal">null</span>) {
                     stringBuffer.append(line);
                 }
 
-                <span class="keyword">while</span> ((line = input.readLine()) !== <span class="literal">null</span>) {
+                <span class="hljs-keyword">while</span> ((line = input.readLine()) !== <span class="hljs-literal">null</span>) {
                     stringBuffer.append(lineSeparator);
                     stringBuffer.append(line);
                 }</pre></div></div>
@@ -783,14 +803,14 @@ only appear at the top of a file.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                content = String(stringBuffer.toString()); <span class="comment">//String</span>
-            } <span class="keyword">finally</span> {
+            <div class="content"><div class='highlight'><pre>                content = <span class="hljs-built_in">String</span>(stringBuffer.toString()); <span class="hljs-comment">//String</span>
+            } <span class="hljs-keyword">finally</span> {
                 input.close();
             }
             callback(content);
         };
-    } <span class="keyword">else</span> <span class="keyword">if</span> (masterConfig.env === <span class="string">'xpconnect'</span> || (!masterConfig.env &amp;&amp;
-            <span class="keyword">typeof</span> Components !== <span class="string">'undefined'</span> &amp;&amp; Components.classes &amp;&amp;
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (masterConfig.env === <span class="hljs-string">'xpconnect'</span> || (!masterConfig.env &amp;&amp;
+            <span class="hljs-keyword">typeof</span> Components !== <span class="hljs-string">'undefined'</span> &amp;&amp; Components.classes &amp;&amp;
             Components.interfaces)) {</pre></div></div>
             
         </li>
@@ -808,12 +828,12 @@ only appear at the top of a file.</p>
             
             <div class="content"><div class='highlight'><pre>        Cc = Components.classes,
         Ci = Components.interfaces;
-        Components.utils[<span class="string">'import'</span>](<span class="string">'resource://gre/modules/FileUtils.jsm'</span>);
+        Components.utils[<span class="hljs-string">'import'</span>](<span class="hljs-string">'resource://gre/modules/FileUtils.jsm'</span>);
 
-        text.get = <span class="function"><span class="keyword">function</span> <span class="params">(url, callback)</span> {</span>
-            <span class="keyword">var</span> inStream, convertStream,
+        text.get = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">url, callback</span>) </span>{
+            <span class="hljs-keyword">var</span> inStream, convertStream,
                 readData = {},
-                fileObj = <span class="keyword">new</span> FileUtils.File(url);</pre></div></div>
+                fileObj = <span class="hljs-keyword">new</span> FileUtils.File(url);</pre></div></div>
             
         </li>
         
@@ -828,26 +848,26 @@ only appear at the top of a file.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">try</span> {
-                inStream = Cc[<span class="string">'@mozilla.org/network/file-input-stream;1'</span>]
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">try</span> {
+                inStream = Cc[<span class="hljs-string">'@mozilla.org/network/file-input-stream;1'</span>]
                            .createInstance(Ci.nsIFileInputStream);
-                inStream.init(fileObj, <span class="number">1</span>, <span class="number">0</span>, <span class="literal">false</span>);
+                inStream.init(fileObj, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-literal">false</span>);
 
-                convertStream = Cc[<span class="string">'@mozilla.org/intl/converter-input-stream;1'</span>]
+                convertStream = Cc[<span class="hljs-string">'@mozilla.org/intl/converter-input-stream;1'</span>]
                                 .createInstance(Ci.nsIConverterInputStream);
-                convertStream.init(inStream, <span class="string">"utf-8"</span>, inStream.available(),
+                convertStream.init(inStream, <span class="hljs-string">"utf-8"</span>, inStream.available(),
                 Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
 
                 convertStream.readString(inStream.available(), readData);
                 convertStream.close();
                 inStream.close();
                 callback(readData.value);
-            } <span class="keyword">catch</span> (e) {
-                <span class="keyword">throw</span> <span class="keyword">new</span> Error((fileObj &amp;&amp; fileObj.path || <span class="string">''</span>) + <span class="string">': '</span> + e);
+            } <span class="hljs-keyword">catch</span> (e) {
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>((fileObj &amp;&amp; fileObj.path || <span class="hljs-string">''</span>) + <span class="hljs-string">': '</span> + e);
             }
         };
     }
-    <span class="keyword">return</span> text;
+    <span class="hljs-keyword">return</span> text;
 });</pre></div></div>
             
         </li>

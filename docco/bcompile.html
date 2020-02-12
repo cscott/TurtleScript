@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -199,10 +219,10 @@
         <li id="section-1">
             <div class="annotation">
               
-              <div class="pilwrap for-h1">
+              <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1>bcompile.js</h1>
+              <h1 id="bcompilejs">bcompile.js</h1>
 <p>Bytecode compiler for parsed Simplified JavaScript written in
 Simplified JavaScript.</p>
 <p>Implements lexical scope using object operations.  Eg.</p>
@@ -211,8 +231,7 @@ Simplified JavaScript.</p>
   function bar() {
     return x;
   }
-}</code></pre>
-<p>is desugared to something like:</p>
+}</code></pre><p>is desugared to something like:</p>
 <pre><code> function addscope(f, scope) {
     return function() {
         var $frame = { function: f, scope: {} };
@@ -226,14 +245,19 @@ Simplified JavaScript.</p>
      $frame.scope.bar = addscope(function($frame) {
         return $frame.scope.x;
      }, $frame.scope);
- }, $scope);</code></pre>
-<p> where <code>$frame</code> is the activation record for the function.</p>
+ }, $scope);</code></pre><p> where <code>$frame</code> is the activation record for the function.</p>
+<p> As an optimization, a separate $localFrame object is kept.  Variables
+ which don&#39;t escape their scope (not used inside a child function)
+ are allocated in the $localFrame, which is not passed along to child
+ functions created in the scope.  Downstream code-generation can use
+ this as a hint to register allocate these variables, although a simple
+ implementation may safely set $localFrame = $frame.</p>
 <p>C. Scott Ananian
-2011-05-10</p>
+2011-05-10 / 2020-02-12</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">"text!bcompile.js"</span>, <span class="string">"bytecode-table"</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_bcompile</span><span class="params">(bcompile_source, bytecode_table)</span> {</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">"text!bcompile.js"</span>, <span class="hljs-string">"bytecode-table"</span>], <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_bcompile</span>(<span class="hljs-params">bcompile_source, bytecode_table</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -248,14 +272,14 @@ Simplified JavaScript.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> assert = <span class="keyword">function</span>(b, obj) {
-        <span class="keyword">if</span> (!b) {
-            console.log(<span class="string">"ASSERTION FAILURE"</span>, obj);
-            console.assert(<span class="literal">false</span>);
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> assert = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">b, obj</span>) </span>{
+        <span class="hljs-keyword">if</span> (!b) {
+            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"ASSERTION FAILURE"</span>, obj);
+            <span class="hljs-built_in">console</span>.assert(<span class="hljs-literal">false</span>);
         }
     };
 
-    <span class="keyword">var</span> dispatch = {};</pre></div></div>
+    <span class="hljs-keyword">var</span> dispatch = {};</pre></div></div>
             
         </li>
         
@@ -270,7 +294,7 @@ Simplified JavaScript.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> mkstate = <span class="keyword">function</span>() {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> mkstate = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">dont_desugar_frame_get</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -286,9 +310,9 @@ We also need to count lexical scope nesting depth during compilation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> state = {
-            functions: [],
-            literals: [],</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> state = {
+            <span class="hljs-attr">functions</span>: [],
+            <span class="hljs-attr">literals</span>: [],</pre></div></div>
             
         </li>
         
@@ -303,7 +327,8 @@ We also need to count lexical scope nesting depth during compilation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            scope: <span class="number">0</span>
+            <div class="content"><div class='highlight'><pre>            scope: <span class="hljs-number">0</span>,
+            <span class="hljs-attr">desugar_frame_get</span>: !dont_desugar_frame_get
         };</pre></div></div>
             
         </li>
@@ -319,18 +344,18 @@ We also need to count lexical scope nesting depth during compilation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        state.literal = <span class="keyword">function</span>(val) {
-            <span class="keyword">var</span> i = <span class="number">0</span>;
-            <span class="keyword">var</span> nn = !(val === val); <span class="comment">// true iff val is NaN</span>
-            <span class="keyword">while</span> (i &lt; <span class="keyword">this</span>.literals.length) {
-                <span class="keyword">var</span> l = <span class="keyword">this</span>.literals[i];
-                <span class="keyword">if</span> (nn ? !(l === l) : (l === val)) {
-                    <span class="keyword">return</span> i;
+            <div class="content"><div class='highlight'><pre>        state.literal = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">val</span>) </span>{
+            <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">var</span> nn = !(val === val); <span class="hljs-comment">// true iff val is NaN</span>
+            <span class="hljs-keyword">while</span> (i &lt; <span class="hljs-keyword">this</span>.literals.length) {
+                <span class="hljs-keyword">var</span> l = <span class="hljs-keyword">this</span>.literals[i];
+                <span class="hljs-keyword">if</span> (nn ? !(l === l) : (l === val)) {
+                    <span class="hljs-keyword">return</span> i;
                 }
-                i += <span class="number">1</span>;
+                i += <span class="hljs-number">1</span>;
             }
-            <span class="keyword">this</span>.literals[i] = val;
-            <span class="keyword">return</span> i;
+            <span class="hljs-keyword">this</span>.literals[i] = val;
+            <span class="hljs-keyword">return</span> i;
         };</pre></div></div>
             
         </li>
@@ -346,12 +371,12 @@ We also need to count lexical scope nesting depth during compilation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        state.new_function = <span class="keyword">function</span>(nargs) {
-            <span class="keyword">var</span> newf = {
-                id: <span class="keyword">this</span>.functions.length,
-                nargs: nargs,
-                max_stack: <span class="number">0</span>,
-                bytecode: [],</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        state.new_function = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">nargs</span>) </span>{
+            <span class="hljs-keyword">var</span> newf = {
+                <span class="hljs-attr">id</span>: <span class="hljs-keyword">this</span>.functions.length,
+                <span class="hljs-attr">nargs</span>: nargs,
+                <span class="hljs-attr">max_stack</span>: <span class="hljs-number">0</span>,
+                <span class="hljs-attr">bytecode</span>: [],</pre></div></div>
             
         </li>
         
@@ -366,11 +391,11 @@ We also need to count lexical scope nesting depth during compilation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                stack_depth: <span class="number">0</span>,
-                loop_label_stack: []
+            <div class="content"><div class='highlight'><pre>                stack_depth: <span class="hljs-number">0</span>,
+                <span class="hljs-attr">loop_label_stack</span>: []
             };
-            <span class="keyword">this</span>.functions[newf.id] = newf;
-            <span class="keyword">return</span> newf;
+            <span class="hljs-keyword">this</span>.functions[newf.id] = newf;
+            <span class="hljs-keyword">return</span> newf;
         };</pre></div></div>
             
         </li>
@@ -386,23 +411,23 @@ We also need to count lexical scope nesting depth during compilation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        state.emit = <span class="keyword">function</span>(bytecode_op) {
-            <span class="keyword">var</span> op = bytecode_table.for_name(bytecode_op);
-            <span class="keyword">var</span> cf = <span class="keyword">this</span>.current_func;
-            <span class="keyword">var</span> i=<span class="number">1</span>;
+            <div class="content"><div class='highlight'><pre>        state.emit = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bytecode_op</span>) </span>{
+            <span class="hljs-keyword">var</span> op = bytecode_table.for_name(bytecode_op);
+            <span class="hljs-keyword">var</span> cf = <span class="hljs-keyword">this</span>.current_func;
+            <span class="hljs-keyword">var</span> i=<span class="hljs-number">1</span>;
             assert(op, bytecode_op);
-            assert(cf.stack_depth &gt;= op.stackpop.apply(op, arguments));
+            assert(cf.stack_depth &gt;= op.stackpop.apply(op, <span class="hljs-built_in">arguments</span>));
             cf.bytecode.push(op.id);
-            <span class="keyword">while</span> (i &lt; arguments.length) {
-                cf.bytecode.push(arguments[i]);
-                i += <span class="number">1</span>;
+            <span class="hljs-keyword">while</span> (i &lt; <span class="hljs-built_in">arguments</span>.length) {
+                cf.bytecode.push(<span class="hljs-built_in">arguments</span>[i]);
+                i += <span class="hljs-number">1</span>;
             }
-            cf.stack_depth -= op.stackpop.apply(op, arguments);
-            cf.stack_depth += op.stackpush.apply(op, arguments);
-            <span class="keyword">if</span> (cf.stack_depth &gt; cf.max_stack) {
+            cf.stack_depth -= op.stackpop.apply(op, <span class="hljs-built_in">arguments</span>);
+            cf.stack_depth += op.stackpush.apply(op, <span class="hljs-built_in">arguments</span>);
+            <span class="hljs-keyword">if</span> (cf.stack_depth &gt; cf.max_stack) {
                 cf.max_stack = cf.stack_depth;
             }
-            cf.can_fall_off = <span class="literal">true</span>;
+            cf.can_fall_off = <span class="hljs-literal">true</span>;
         };</pre></div></div>
             
         </li>
@@ -418,20 +443,20 @@ We also need to count lexical scope nesting depth during compilation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        state.decompile = <span class="keyword">function</span>(func_id) {
-            <span class="keyword">var</span> result = <span class="string">""</span>;
-            <span class="keyword">var</span> f = <span class="keyword">this</span>.functions[func_id];
-            <span class="keyword">var</span> pc = <span class="number">0</span>;
-            <span class="keyword">while</span> ( pc &lt; f.bytecode.length ) {
-                <span class="keyword">var</span> op = bytecode_table.for_num(f.bytecode[pc]);
-                <span class="keyword">var</span> i = <span class="number">0</span>;
-                result += (pc +<span class="string">": "</span>);
+            <div class="content"><div class='highlight'><pre>        state.decompile = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">func_id</span>) </span>{
+            <span class="hljs-keyword">var</span> result = <span class="hljs-string">""</span>;
+            <span class="hljs-keyword">var</span> f = <span class="hljs-keyword">this</span>.functions[func_id];
+            <span class="hljs-keyword">var</span> pc = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">while</span> ( pc &lt; f.bytecode.length ) {
+                <span class="hljs-keyword">var</span> op = bytecode_table.for_num(f.bytecode[pc]);
+                <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+                result += (pc +<span class="hljs-string">": "</span>);
                 result += op.name;
-                result += op.printargs(<span class="keyword">this</span>, f.bytecode, pc);
-                result += <span class="string">"\n"</span>;
-                pc += <span class="number">1</span> + op.args;
+                result += op.printargs(<span class="hljs-keyword">this</span>, f.bytecode, pc);
+                result += <span class="hljs-string">"\n"</span>;
+                pc += <span class="hljs-number">1</span> + op.args;
             }
-            <span class="keyword">return</span> result;
+            <span class="hljs-keyword">return</span> result;
         };</pre></div></div>
             
         </li>
@@ -447,16 +472,16 @@ We also need to count lexical scope nesting depth during compilation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> encode_uint = <span class="keyword">function</span>(out, val) {
-            assert(val &gt;= <span class="number">0</span>, val);
-            <span class="keyword">if</span> (val &lt; <span class="number">128</span>) {
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> encode_uint = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">out, val</span>) </span>{
+            assert(val &gt;= <span class="hljs-number">0</span>, val);
+            <span class="hljs-keyword">if</span> (val &lt; <span class="hljs-number">128</span>) {
                 out.push(val);
-                <span class="keyword">return</span>;
+                <span class="hljs-keyword">return</span>;
             }
-            <span class="keyword">var</span> msb = Math.floor(val / <span class="number">128</span>);
-            <span class="keyword">var</span> lsb = (val - <span class="number">128</span>*msb);
-            assert(lsb &gt;= <span class="number">0</span> &amp;&amp; lsb &lt; <span class="number">128</span>, val);
-            assert(msb &gt; <span class="number">0</span>, val);</pre></div></div>
+            <span class="hljs-keyword">var</span> msb = <span class="hljs-built_in">Math</span>.floor(val / <span class="hljs-number">128</span>);
+            <span class="hljs-keyword">var</span> lsb = (val - <span class="hljs-number">128</span>*msb);
+            assert(lsb &gt;= <span class="hljs-number">0</span> &amp;&amp; lsb &lt; <span class="hljs-number">128</span>, val);
+            assert(msb &gt; <span class="hljs-number">0</span>, val);</pre></div></div>
             
         </li>
         
@@ -471,13 +496,13 @@ We also need to count lexical scope nesting depth during compilation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            out.push(lsb + <span class="number">128</span>);
+            <div class="content"><div class='highlight'><pre>            out.push(lsb + <span class="hljs-number">128</span>);
             encode_uint(out, msb);
         };
-        <span class="keyword">var</span> encode_str = <span class="keyword">function</span>(out, str) {
-            <span class="keyword">var</span> i = <span class="number">0</span>;
+        <span class="hljs-keyword">var</span> encode_str = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">out, str</span>) </span>{
+            <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
             encode_uint(out, str.length);
-            <span class="keyword">while</span> (i &lt; str.length) {</pre></div></div>
+            <span class="hljs-keyword">while</span> (i &lt; str.length) {</pre></div></div>
             
         </li>
         
@@ -493,11 +518,11 @@ We also need to count lexical scope nesting depth during compilation</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                encode_uint(out, str.charCodeAt(i));
-                i += <span class="number">1</span>;
+                i += <span class="hljs-number">1</span>;
             }
         };
-        state.encode = <span class="keyword">function</span>() {
-            <span class="keyword">var</span> out = [];</pre></div></div>
+        state.encode = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> out = [];</pre></div></div>
             
         </li>
         
@@ -512,7 +537,7 @@ We also need to count lexical scope nesting depth during compilation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            encode_uint(out, <span class="keyword">this</span>.functions.length);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            encode_uint(out, <span class="hljs-keyword">this</span>.functions.length);</pre></div></div>
             
         </li>
         
@@ -527,21 +552,21 @@ We also need to count lexical scope nesting depth during compilation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> i = <span class="number">0</span>;
-            <span class="keyword">while</span> (i &lt; <span class="keyword">this</span>.functions.length) {
-                <span class="keyword">var</span> f = <span class="keyword">this</span>.functions[i];
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">while</span> (i &lt; <span class="hljs-keyword">this</span>.functions.length) {
+                <span class="hljs-keyword">var</span> f = <span class="hljs-keyword">this</span>.functions[i];
                 encode_uint(out, f.nargs);
                 encode_uint(out, f.max_stack);
-                encode_str(out, f.name || <span class="string">''</span>);
+                encode_str(out, f.name || <span class="hljs-string">''</span>);
                 encode_uint(out, f.bytecode.length);
-                <span class="keyword">var</span> j = <span class="number">0</span>;
-                <span class="keyword">while</span> (j &lt; f.bytecode.length) {
-                    <span class="keyword">var</span> v = f.bytecode[j];
-                    v = (<span class="keyword">typeof</span>(v) === <span class="string">"number"</span>) ? v : v.label;
+                <span class="hljs-keyword">var</span> j = <span class="hljs-number">0</span>;
+                <span class="hljs-keyword">while</span> (j &lt; f.bytecode.length) {
+                    <span class="hljs-keyword">var</span> v = f.bytecode[j];
+                    v = (<span class="hljs-keyword">typeof</span>(v) === <span class="hljs-string">"number"</span>) ? v : v.label;
                     encode_uint(out, v);
-                    j += <span class="number">1</span>;
+                    j += <span class="hljs-number">1</span>;
                 }
-                i += <span class="number">1</span>;
+                i += <span class="hljs-number">1</span>;
             }</pre></div></div>
             
         </li>
@@ -557,29 +582,29 @@ We also need to count lexical scope nesting depth during compilation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            encode_uint(out, <span class="keyword">this</span>.literals.length);
-            i = <span class="number">0</span>;
-            <span class="keyword">while</span> (i &lt; <span class="keyword">this</span>.literals.length) {
-                <span class="keyword">var</span> lv = <span class="keyword">this</span>.literals[i];
-                <span class="keyword">if</span> (<span class="keyword">typeof</span>(lv) === <span class="string">"number"</span>) {
-                    encode_uint(out, <span class="number">0</span> <span class="comment">/* number tag */</span>);
-                    encode_str(out, lv.toString()); <span class="comment">/* not ideal! */</span>
-                } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span>(lv) === <span class="string">"string"</span>) {
-                    encode_uint(out, <span class="number">1</span> <span class="comment">/* string tag */</span>);
+            <div class="content"><div class='highlight'><pre>            encode_uint(out, <span class="hljs-keyword">this</span>.literals.length);
+            i = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">while</span> (i &lt; <span class="hljs-keyword">this</span>.literals.length) {
+                <span class="hljs-keyword">var</span> lv = <span class="hljs-keyword">this</span>.literals[i];
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(lv) === <span class="hljs-string">"number"</span>) {
+                    encode_uint(out, <span class="hljs-number">0</span> <span class="hljs-comment">/* number tag */</span>);
+                    encode_str(out, lv.toString()); <span class="hljs-comment">/* not ideal! */</span>
+                } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(lv) === <span class="hljs-string">"string"</span>) {
+                    encode_uint(out, <span class="hljs-number">1</span> <span class="hljs-comment">/* string tag */</span>);
                     encode_str(out, lv);
-                } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span>(lv) === <span class="string">"boolean"</span>) {
-                    encode_uint(out, lv ? <span class="number">2</span> : <span class="number">3</span>); <span class="comment">/* boolean tags */</span>
-                } <span class="keyword">else</span> <span class="keyword">if</span> (lv === <span class="literal">null</span>) {
-                    encode_uint(out, <span class="number">4</span> <span class="comment">/* null tag */</span>);
-                } <span class="keyword">else</span> <span class="keyword">if</span> (lv === <span class="literal">undefined</span>) {
-                    encode_uint(out, <span class="number">5</span> <span class="comment">/* undefined tag */</span>);
-                } <span class="keyword">else</span> {
-                    console.log(<span class="string">"UNKNOWN LITERAL TYPE"</span>, lv);
-                    encode_uint(out, <span class="number">6</span> <span class="comment">/* unknown */</span>);
+                } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(lv) === <span class="hljs-string">"boolean"</span>) {
+                    encode_uint(out, lv ? <span class="hljs-number">2</span> : <span class="hljs-number">3</span>); <span class="hljs-comment">/* boolean tags */</span>
+                } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (lv === <span class="hljs-literal">null</span>) {
+                    encode_uint(out, <span class="hljs-number">4</span> <span class="hljs-comment">/* null tag */</span>);
+                } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (lv === <span class="hljs-literal">undefined</span>) {
+                    encode_uint(out, <span class="hljs-number">5</span> <span class="hljs-comment">/* undefined tag */</span>);
+                } <span class="hljs-keyword">else</span> {
+                    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"UNKNOWN LITERAL TYPE"</span>, lv);
+                    encode_uint(out, <span class="hljs-number">6</span> <span class="hljs-comment">/* unknown */</span>);
                 }
-                i += <span class="number">1</span>;
+                i += <span class="hljs-number">1</span>;
             }
-            <span class="keyword">return</span> out;
+            <span class="hljs-keyword">return</span> out;
         };</pre></div></div>
             
         </li>
@@ -595,21 +620,21 @@ We also need to count lexical scope nesting depth during compilation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        state.new_label = <span class="keyword">function</span>() {
-            <span class="keyword">return</span> { label: <span class="string">"&lt;undefined&gt;"</span> };
+            <div class="content"><div class='highlight'><pre>        state.new_label = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">return</span> { <span class="hljs-attr">label</span>: <span class="hljs-string">"&lt;undefined&gt;"</span> };
         };
-        state.set_label = <span class="keyword">function</span>(label) {
-            label.label = <span class="keyword">this</span>.current_func.bytecode.length;
+        state.set_label = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">label</span>) </span>{
+            label.label = <span class="hljs-keyword">this</span>.current_func.bytecode.length;
         };
-        state.peek_loop_label = <span class="keyword">function</span>() {
-            <span class="keyword">var</span> lls = <span class="keyword">this</span>.current_func.loop_label_stack;
-            <span class="keyword">return</span> lls[lls.length-<span class="number">1</span>];
+        state.peek_loop_label = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> lls = <span class="hljs-keyword">this</span>.current_func.loop_label_stack;
+            <span class="hljs-keyword">return</span> lls[lls.length<span class="hljs-number">-1</span>];
         };
-        state.pop_loop_label = <span class="keyword">function</span>() {
-            <span class="keyword">return</span> <span class="keyword">this</span>.current_func.loop_label_stack.pop();
+        state.pop_loop_label = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.current_func.loop_label_stack.pop();
         };
-        state.push_loop_label = <span class="keyword">function</span>(label) {
-            <span class="keyword">return</span> <span class="keyword">this</span>.current_func.loop_label_stack.push(label);
+        state.push_loop_label = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">label</span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.current_func.loop_label_stack.push(label);
         };</pre></div></div>
             
         </li>
@@ -625,18 +650,18 @@ We also need to count lexical scope nesting depth during compilation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        state.bcompile_stmts = <span class="keyword">function</span>(tree_lst) {
-            <span class="keyword">this</span>.bcompile_stmt({ value: <span class="string">"block"</span>,
-                                 arity: <span class="string">"statement"</span>,
-                                 first: tree_lst
+            <div class="content"><div class='highlight'><pre>        state.bcompile_stmts = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">tree_lst</span>) </span>{
+            <span class="hljs-keyword">this</span>.bcompile_stmt({ <span class="hljs-attr">value</span>: <span class="hljs-string">"block"</span>,
+                                 <span class="hljs-attr">arity</span>: <span class="hljs-string">"statement"</span>,
+                                 <span class="hljs-attr">first</span>: tree_lst
                                });
         };
-        state.bcompile_stmt = <span class="keyword">function</span>(tree) {
-            assert(state.current_func.stack_depth === <span class="number">0</span>, tree);
-            <span class="keyword">if</span> (tree.arity === <span class="string">"binary"</span> &amp;&amp;
-                (tree.value === <span class="string">"="</span> || tree.value === <span class="string">"+="</span> ||
-                 tree.value === <span class="string">"-="</span> || tree.value === <span class="string">"*="</span> ||
-                 tree.value === <span class="string">"/="</span> )) {</pre></div></div>
+        state.bcompile_stmt = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">tree</span>) </span>{
+            assert(state.current_func.stack_depth === <span class="hljs-number">0</span>, tree);
+            <span class="hljs-keyword">if</span> (tree.arity === <span class="hljs-string">"binary"</span> &amp;&amp;
+                (tree.value === <span class="hljs-string">"="</span> || tree.value === <span class="hljs-string">"+="</span> ||
+                 tree.value === <span class="hljs-string">"-="</span> || tree.value === <span class="hljs-string">"*="</span> ||
+                 tree.value === <span class="hljs-string">"/="</span> )) {</pre></div></div>
             
         </li>
         
@@ -651,18 +676,18 @@ We also need to count lexical scope nesting depth during compilation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                dispatch[tree.arity].call(tree, <span class="keyword">this</span>, <span class="number">1</span><span class="comment">/*is stmt*/</span>);
-                assert(state.current_func.stack_depth === <span class="number">0</span>, tree);
-                <span class="keyword">return</span>;
+            <div class="content"><div class='highlight'><pre>                dispatch[tree.arity].call(tree, <span class="hljs-keyword">this</span>, <span class="hljs-number">1</span><span class="hljs-comment">/*is stmt*/</span>);
+                assert(state.current_func.stack_depth === <span class="hljs-number">0</span>, tree);
+                <span class="hljs-keyword">return</span>;
             }
-            <span class="keyword">this</span>.bcompile_expr(tree);
-            <span class="keyword">if</span> (tree.arity !== <span class="string">"statement"</span>) {
-                assert(state.current_func.stack_depth === <span class="number">1</span>, tree);
-                <span class="keyword">this</span>.emit(<span class="string">"pop"</span>); <span class="comment">// discard value from expr evaluation</span>
+            <span class="hljs-keyword">this</span>.bcompile_expr(tree);
+            <span class="hljs-keyword">if</span> (tree.arity !== <span class="hljs-string">"statement"</span>) {
+                assert(state.current_func.stack_depth === <span class="hljs-number">1</span>, tree);
+                <span class="hljs-keyword">this</span>.emit(<span class="hljs-string">"pop"</span>); <span class="hljs-comment">// discard value from expr evaluation</span>
             }
-            assert(state.current_func.stack_depth === <span class="number">0</span>, tree);
+            assert(state.current_func.stack_depth === <span class="hljs-number">0</span>, tree);
         };
-        state.bcompile_expr = <span class="keyword">function</span>(tree) {</pre></div></div>
+        state.bcompile_expr = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">tree</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -678,13 +703,14 @@ We also need to count lexical scope nesting depth during compilation</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>            assert(dispatch[tree.arity], tree);
-            <span class="keyword">return</span> dispatch[tree.arity].call(tree, <span class="keyword">this</span>);
+            <span class="hljs-keyword">return</span> dispatch[tree.arity].call(tree, <span class="hljs-keyword">this</span>);
         };
-        <span class="keyword">return</span> state;
+        <span class="hljs-keyword">return</span> state;
     };
 
-    dispatch.name = <span class="keyword">function</span>(state) {
-        <span class="keyword">var</span> i = <span class="number">0</span>, depth = state.scope - <span class="keyword">this</span>.scope.level;</pre></div></div>
+    dispatch.name = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>, depth = state.scope - <span class="hljs-keyword">this</span>.scope.level;
+        <span class="hljs-keyword">var</span> escapes = <span class="hljs-keyword">this</span>.scope.escape[<span class="hljs-keyword">this</span>.value];</pre></div></div>
             
         </li>
         
@@ -699,7 +725,8 @@ We also need to count lexical scope nesting depth during compilation</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        state.emit(<span class="string">"push_frame"</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        state.emit(escapes ? <span class="hljs-string">"push_frame"</span> : <span class="hljs-string">"push_local_frame"</span>);
+        assert(escapes || depth === <span class="hljs-number">0</span>);</pre></div></div>
             
         </li>
         
@@ -712,43 +739,47 @@ We also need to count lexical scope nesting depth during compilation</p>
               </div>
               <p>This loop is actually optional; the parent chain will do
 the lookup correctly even if you don&#39;t take care to look
-in the exact right frame (like we do here)</p>
+in the exact right frame (like we do here)
+(might be faster to let the object model do this traversal)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">while</span> ( i &lt; depth ) {
-            state.emit(<span class="string">"get_slot_direct"</span>, state.literal(<span class="string">"__proto__"</span>));
-            i += <span class="number">1</span>;
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> ( state.desugar_frame_get ) {
+            <span class="hljs-keyword">while</span> ( i &lt; depth ) {
+                state.emit(<span class="hljs-string">"get_slot_direct"</span>, state.literal(<span class="hljs-string">"__proto__"</span>));
+                i += <span class="hljs-number">1</span>;
+            }
         }
-        state.emit(<span class="string">"get_slot_direct"</span>, state.literal(<span class="keyword">this</span>.value));
+        state.emit(<span class="hljs-string">"get_slot_direct"</span>, state.literal(<span class="hljs-keyword">this</span>.value));
     };
-    dispatch.literal = <span class="keyword">function</span>(state) {
-        <span class="keyword">if</span> (<span class="keyword">this</span>.value === <span class="literal">undefined</span>) {
-            state.emit(<span class="string">"push_literal"</span>, state.literal(<span class="literal">undefined</span>));
-            <span class="keyword">return</span>;
+    dispatch.literal = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.value === <span class="hljs-literal">undefined</span>) {
+            state.emit(<span class="hljs-string">"push_literal"</span>, state.literal(<span class="hljs-literal">undefined</span>));
+            <span class="hljs-keyword">return</span>;
         }
-        <span class="keyword">if</span> (<span class="keyword">this</span>.value === <span class="literal">null</span>) {
-            state.emit(<span class="string">"push_literal"</span>, state.literal(<span class="literal">null</span>));
-            <span class="keyword">return</span>;
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.value === <span class="hljs-literal">null</span>) {
+            state.emit(<span class="hljs-string">"push_literal"</span>, state.literal(<span class="hljs-literal">null</span>));
+            <span class="hljs-keyword">return</span>;
         }
-        <span class="keyword">if</span> (<span class="keyword">typeof</span>(<span class="keyword">this</span>.value)===<span class="string">'object'</span>) {
-            <span class="keyword">var</span> which = <span class="string">"Object"</span>;
-            <span class="keyword">if</span> (<span class="keyword">this</span>.value.length === <span class="number">0</span>) { which = <span class="string">"Array"</span>; }
-            state.emit(<span class="string">"push_frame"</span>);
-            state.emit(<span class="string">"get_slot_direct"</span>, state.literal(which));
-            <span class="keyword">return</span>;
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(<span class="hljs-keyword">this</span>.value)===<span class="hljs-string">'object'</span>) {
+            assert(<span class="hljs-literal">false</span>, <span class="hljs-string">"This isn't actually emitted by the parser anymore"</span>);
+            <span class="hljs-keyword">var</span> which = <span class="hljs-string">"Object"</span>;
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.value.length === <span class="hljs-number">0</span>) { which = <span class="hljs-string">"Array"</span>; }
+            state.emit(<span class="hljs-string">"push_frame"</span>);
+            state.emit(<span class="hljs-string">"get_slot_direct"</span>, state.literal(which));
+            <span class="hljs-keyword">return</span>;
         }
-        <span class="keyword">if</span> (<span class="keyword">typeof</span>(<span class="keyword">this</span>.value)===<span class="string">'string'</span>) {
-            state.emit(<span class="string">"push_literal"</span>, state.literal(<span class="keyword">this</span>.value));
-            <span class="keyword">return</span>;
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(<span class="hljs-keyword">this</span>.value)===<span class="hljs-string">'string'</span>) {
+            state.emit(<span class="hljs-string">"push_literal"</span>, state.literal(<span class="hljs-keyword">this</span>.value));
+            <span class="hljs-keyword">return</span>;
         }
-        <span class="keyword">if</span> (<span class="keyword">typeof</span>(<span class="keyword">this</span>.value)===<span class="string">'boolean'</span>) {
-            state.emit(<span class="string">"push_literal"</span>, state.literal(<span class="keyword">this</span>.value));
-            <span class="keyword">return</span>;
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(<span class="hljs-keyword">this</span>.value)===<span class="hljs-string">'boolean'</span>) {
+            state.emit(<span class="hljs-string">"push_literal"</span>, state.literal(<span class="hljs-keyword">this</span>.value));
+            <span class="hljs-keyword">return</span>;
         }
-        assert(<span class="keyword">typeof</span>(<span class="keyword">this</span>.value) === <span class="string">'number'</span>);
-        state.emit(<span class="string">"push_literal"</span>, state.literal(<span class="keyword">this</span>.value));
-        <span class="keyword">return</span>;
+        assert(<span class="hljs-keyword">typeof</span>(<span class="hljs-keyword">this</span>.value) === <span class="hljs-string">'number'</span>);
+        state.emit(<span class="hljs-string">"push_literal"</span>, state.literal(<span class="hljs-keyword">this</span>.value));
+        <span class="hljs-keyword">return</span>;
     };</pre></div></div>
             
         </li>
@@ -764,12 +795,12 @@ in the exact right frame (like we do here)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    dispatch.unary = <span class="keyword">function</span>(state) {
-        assert(dispatch.unary[<span class="keyword">this</span>.value], <span class="keyword">this</span>);
-        dispatch.unary[<span class="keyword">this</span>.value].call(<span class="keyword">this</span>, state);
+            <div class="content"><div class='highlight'><pre>    dispatch.unary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        assert(dispatch.unary[<span class="hljs-keyword">this</span>.value], <span class="hljs-keyword">this</span>);
+        dispatch.unary[<span class="hljs-keyword">this</span>.value].call(<span class="hljs-keyword">this</span>, state);
     };
-    <span class="keyword">var</span> unary = <span class="keyword">function</span>(op, f) {
-        <span class="keyword">if</span> (<span class="keyword">typeof</span>(f) === <span class="string">"string"</span>) {</pre></div></div>
+    <span class="hljs-keyword">var</span> unary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">op, f</span>) </span>{
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(f) === <span class="hljs-string">"string"</span>) {</pre></div></div>
             
         </li>
         
@@ -784,18 +815,18 @@ in the exact right frame (like we do here)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            dispatch.unary[op] = <span class="keyword">function</span>(state) {
-                state.bcompile_expr(<span class="keyword">this</span>.first);
+            <div class="content"><div class='highlight'><pre>            dispatch.unary[op] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+                state.bcompile_expr(<span class="hljs-keyword">this</span>.first);
                 state.emit(f);
             };
-        } <span class="keyword">else</span> {
+        } <span class="hljs-keyword">else</span> {
             dispatch.unary[op] = f;
         }
     };
-    unary(<span class="string">'!'</span>, <span class="string">"un_not"</span>);
-    unary(<span class="string">'-'</span>, <span class="string">"un_minus"</span>);
-    unary(<span class="string">'typeof'</span>, <span class="string">"un_typeof"</span>);
-    unary(<span class="string">'['</span>, <span class="keyword">function</span>(state) {</pre></div></div>
+    unary(<span class="hljs-string">'!'</span>, <span class="hljs-string">"un_not"</span>);
+    unary(<span class="hljs-string">'-'</span>, <span class="hljs-string">"un_minus"</span>);
+    unary(<span class="hljs-string">'typeof'</span>, <span class="hljs-string">"un_typeof"</span>);
+    unary(<span class="hljs-string">'['</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -810,8 +841,8 @@ in the exact right frame (like we do here)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> i=<span class="number">0</span>;
-        state.emit(<span class="string">"new_array"</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> i=<span class="hljs-number">0</span>;
+        state.emit(<span class="hljs-string">"new_array"</span>);</pre></div></div>
             
         </li>
         
@@ -826,13 +857,13 @@ in the exact right frame (like we do here)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">this</span>.first.forEach(<span class="keyword">function</span>(e, i) {
-            state.emit(<span class="string">"dup"</span>);
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">this</span>.first.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e, i</span>) </span>{
+            state.emit(<span class="hljs-string">"dup"</span>);
             state.bcompile_expr(e);
-            state.emit(<span class="string">"set_slot_direct"</span>, state.literal(i));
+            state.emit(<span class="hljs-string">"set_slot_direct"</span>, state.literal(i));
         });
     });
-    unary(<span class="string">'{'</span>, <span class="keyword">function</span>(state) {</pre></div></div>
+    unary(<span class="hljs-string">'{'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -847,8 +878,8 @@ in the exact right frame (like we do here)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> i=<span class="number">0</span>;
-        state.emit(<span class="string">"new_object"</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> i=<span class="hljs-number">0</span>;
+        state.emit(<span class="hljs-string">"new_object"</span>);</pre></div></div>
             
         </li>
         
@@ -863,8 +894,8 @@ in the exact right frame (like we do here)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">this</span>.first.forEach(<span class="keyword">function</span>(e, i) {
-            state.emit(<span class="string">"dup"</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">this</span>.first.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e, i</span>) </span>{
+            state.emit(<span class="hljs-string">"dup"</span>);</pre></div></div>
             
         </li>
         
@@ -879,11 +910,11 @@ in the exact right frame (like we do here)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (e.arity === <span class="string">"function"</span>) {
-                e.extra_name = e.key+<span class="string">':'</span>;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (e.arity === <span class="hljs-string">"function"</span>) {
+                e.extra_name = e.key+<span class="hljs-string">':'</span>;
             }
             state.bcompile_expr(e);
-            state.emit(<span class="string">"set_slot_direct"</span>, state.literal(e.key));
+            state.emit(<span class="hljs-string">"set_slot_direct"</span>, state.literal(e.key));
         });
     });</pre></div></div>
             
@@ -900,12 +931,12 @@ in the exact right frame (like we do here)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    dispatch.binary = <span class="keyword">function</span>(state, is_stmt) {
-        assert(dispatch.binary[<span class="keyword">this</span>.value], <span class="keyword">this</span>);
-        dispatch.binary[<span class="keyword">this</span>.value].call(<span class="keyword">this</span>, state, is_stmt);
+            <div class="content"><div class='highlight'><pre>    dispatch.binary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state, is_stmt</span>) </span>{
+        assert(dispatch.binary[<span class="hljs-keyword">this</span>.value], <span class="hljs-keyword">this</span>);
+        dispatch.binary[<span class="hljs-keyword">this</span>.value].call(<span class="hljs-keyword">this</span>, state, is_stmt);
     };
-    <span class="keyword">var</span> binary = <span class="keyword">function</span>(op, f, swap) {
-        <span class="keyword">if</span> (<span class="keyword">typeof</span>(f) === <span class="string">"string"</span>) {</pre></div></div>
+    <span class="hljs-keyword">var</span> binary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">op, f, swap</span>) </span>{
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(f) === <span class="hljs-string">"string"</span>) {</pre></div></div>
             
         </li>
         
@@ -920,20 +951,20 @@ in the exact right frame (like we do here)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            dispatch.binary[op] = <span class="keyword">function</span>(state) {
-                state.bcompile_expr(<span class="keyword">this</span>.first);
-                state.bcompile_expr(<span class="keyword">this</span>.second);
-                <span class="keyword">if</span> (swap) {
-                    state.emit(<span class="string">"swap"</span>);
+            <div class="content"><div class='highlight'><pre>            dispatch.binary[op] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+                state.bcompile_expr(<span class="hljs-keyword">this</span>.first);
+                state.bcompile_expr(<span class="hljs-keyword">this</span>.second);
+                <span class="hljs-keyword">if</span> (swap) {
+                    state.emit(<span class="hljs-string">"swap"</span>);
                 }
                 state.emit(f);
             };
-        } <span class="keyword">else</span> {
+        } <span class="hljs-keyword">else</span> {
             dispatch.binary[op] = f;
         }
     };
-    <span class="keyword">var</span> assignment = <span class="keyword">function</span>(mode) {
-        <span class="keyword">return</span> <span class="keyword">function</span>(state, is_stmt) {</pre></div></div>
+    <span class="hljs-keyword">var</span> assignment = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">mode</span>) </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state, is_stmt</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -948,18 +979,11 @@ in the exact right frame (like we do here)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (<span class="keyword">this</span>.first.arity === <span class="string">"name"</span>) {
-                <span class="keyword">var</span> i = <span class="number">0</span>, depth = state.scope - <span class="keyword">this</span>.first.scope.level;
-                state.emit(<span class="string">"push_frame"</span>);
-                <span class="keyword">while</span> ( i &lt; depth ) {
-                    state.emit(<span class="string">"get_slot_direct"</span>, state.literal(<span class="string">"__proto__"</span>));
-                    i += <span class="number">1</span>;
-                }
-                <span class="keyword">if</span> (mode) {
-                    state.emit(<span class="string">"dup"</span>);
-                    state.emit(<span class="string">"get_slot_direct"</span>,
-                               state.literal(<span class="keyword">this</span>.first.value));
-                }</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.first.arity === <span class="hljs-string">"name"</span>) {
+                <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>, depth = state.scope - <span class="hljs-keyword">this</span>.first.scope.level;
+                <span class="hljs-keyword">var</span> escapes = <span class="hljs-keyword">this</span>.first.scope.escape[<span class="hljs-keyword">this</span>.first.value];
+                state.emit(escapes ? <span class="hljs-string">"push_frame"</span> : <span class="hljs-string">"push_local_frame"</span>);
+                assert(escapes || depth === <span class="hljs-number">0</span>);</pre></div></div>
             
         </li>
         
@@ -970,18 +994,21 @@ in the exact right frame (like we do here)</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
-              <p>hack to preserve function names</p>
+              <p>Unlike the lookup in dispatch.name, if we left off the
+parent chain traversal here we wouldn&#39;t be able to affect
+variables in the outer scope.  So this isn&#39;t optional.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (<span class="keyword">this</span>.second.arity === <span class="string">"function"</span>) {
-                    <span class="keyword">this</span>.second.extra_name = <span class="keyword">this</span>.first.value;
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">while</span> ( i &lt; depth ) {
+                    state.emit(<span class="hljs-string">"get_slot_direct"</span>, state.literal(<span class="hljs-string">"__proto__"</span>));
+                    i += <span class="hljs-number">1</span>;
                 }
-                state.bcompile_expr(<span class="keyword">this</span>.second);
-                <span class="keyword">if</span> (mode) {
-                    state.emit(mode);
-                }
-                <span class="keyword">if</span> (!is_stmt) {</pre></div></div>
+                <span class="hljs-keyword">if</span> (mode) {
+                    state.emit(<span class="hljs-string">"dup"</span>);
+                    state.emit(<span class="hljs-string">"get_slot_direct"</span>,
+                               state.literal(<span class="hljs-keyword">this</span>.first.value));
+                }</pre></div></div>
             
         </li>
         
@@ -992,24 +1019,18 @@ in the exact right frame (like we do here)</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-34">&#182;</a>
               </div>
-              <p>keep value we&#39;re setting as the value of the expression</p>
+              <p>hack to preserve function names</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    state.emit(<span class="string">"over"</span>);
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.second.arity === <span class="hljs-string">"function"</span>) {
+                    <span class="hljs-keyword">this</span>.second.extra_name = <span class="hljs-keyword">this</span>.first.value;
                 }
-                state.emit(<span class="string">"set_slot_direct"</span>, state.literal(<span class="keyword">this</span>.first.value));
-                <span class="keyword">return</span>;
-            }
-            assert(<span class="keyword">this</span>.first.arity === <span class="string">"binary"</span>, <span class="keyword">this</span>.first);
-            <span class="keyword">if</span> (<span class="keyword">this</span>.first.value === <span class="string">"."</span>) {
-                assert(<span class="keyword">this</span>.first.second.arity === <span class="string">"literal"</span>, <span class="keyword">this</span>.first);
-                state.bcompile_expr(<span class="keyword">this</span>.first.first);
-                <span class="keyword">if</span> (mode) {
-                    state.emit(<span class="string">"dup"</span>);
-                    state.emit(<span class="string">"get_slot_direct"</span>,
-                               state.literal(<span class="keyword">this</span>.first.second.value));
-                }</pre></div></div>
+                state.bcompile_expr(<span class="hljs-keyword">this</span>.second);
+                <span class="hljs-keyword">if</span> (mode) {
+                    state.emit(mode);
+                }
+                <span class="hljs-keyword">if</span> (!is_stmt) {</pre></div></div>
             
         </li>
         
@@ -1020,18 +1041,24 @@ in the exact right frame (like we do here)</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
-              <p>hack to preserve function names</p>
+              <p>keep value we&#39;re setting as the value of the expression</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (<span class="keyword">this</span>.second.arity === <span class="string">"function"</span>) {
-                    <span class="keyword">this</span>.second.extra_name = <span class="string">'.'</span>+<span class="keyword">this</span>.first.second.value;
+            <div class="content"><div class='highlight'><pre>                    state.emit(<span class="hljs-string">"over"</span>);
                 }
-                state.bcompile_expr(<span class="keyword">this</span>.second);
-                <span class="keyword">if</span> (mode) {
-                    state.emit(mode);
-                }
-                <span class="keyword">if</span> (!is_stmt) {</pre></div></div>
+                state.emit(<span class="hljs-string">"set_slot_direct"</span>, state.literal(<span class="hljs-keyword">this</span>.first.value));
+                <span class="hljs-keyword">return</span>;
+            }
+            assert(<span class="hljs-keyword">this</span>.first.arity === <span class="hljs-string">"binary"</span>, <span class="hljs-keyword">this</span>.first);
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.first.value === <span class="hljs-string">"."</span>) {
+                assert(<span class="hljs-keyword">this</span>.first.second.arity === <span class="hljs-string">"literal"</span>, <span class="hljs-keyword">this</span>.first);
+                state.bcompile_expr(<span class="hljs-keyword">this</span>.first.first);
+                <span class="hljs-keyword">if</span> (mode) {
+                    state.emit(<span class="hljs-string">"dup"</span>);
+                    state.emit(<span class="hljs-string">"get_slot_direct"</span>,
+                               state.literal(<span class="hljs-keyword">this</span>.first.second.value));
+                }</pre></div></div>
             
         </li>
         
@@ -1042,28 +1069,18 @@ in the exact right frame (like we do here)</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-36">&#182;</a>
               </div>
-              <p>keep value we&#39;re setting as the value of the expression</p>
+              <p>hack to preserve function names</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    state.emit(<span class="string">"over"</span>);
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.second.arity === <span class="hljs-string">"function"</span>) {
+                    <span class="hljs-keyword">this</span>.second.extra_name = <span class="hljs-string">'.'</span>+<span class="hljs-keyword">this</span>.first.second.value;
                 }
-                state.emit(<span class="string">"set_slot_direct"</span>,
-                           state.literal(<span class="keyword">this</span>.first.second.value));
-                <span class="keyword">return</span>;
-            }
-            <span class="keyword">if</span> (<span class="keyword">this</span>.first.value === <span class="string">"["</span>) {
-                state.bcompile_expr(<span class="keyword">this</span>.first.first);
-                state.bcompile_expr(<span class="keyword">this</span>.first.second);
-                <span class="keyword">if</span> (mode) {
-                    state.emit(<span class="string">"2dup"</span>);
-                    state.emit(<span class="string">"get_slot_indirect"</span>);
-                }
-                state.bcompile_expr(<span class="keyword">this</span>.second);
-                <span class="keyword">if</span> (mode) {
+                state.bcompile_expr(<span class="hljs-keyword">this</span>.second);
+                <span class="hljs-keyword">if</span> (mode) {
                     state.emit(mode);
                 }
-                <span class="keyword">if</span> (!is_stmt) {</pre></div></div>
+                <span class="hljs-keyword">if</span> (!is_stmt) {</pre></div></div>
             
         </li>
         
@@ -1078,20 +1095,24 @@ in the exact right frame (like we do here)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    state.emit(<span class="string">"over2"</span>);
+            <div class="content"><div class='highlight'><pre>                    state.emit(<span class="hljs-string">"over"</span>);
                 }
-                state.emit(<span class="string">"set_slot_indirect"</span>);
-                <span class="keyword">return</span>;
+                state.emit(<span class="hljs-string">"set_slot_direct"</span>,
+                           state.literal(<span class="hljs-keyword">this</span>.first.second.value));
+                <span class="hljs-keyword">return</span>;
             }
-            assert(<span class="literal">false</span>, <span class="keyword">this</span>.first);
-        };
-    };
-    binary(<span class="string">'='</span>, assignment(<span class="literal">null</span>));
-    binary(<span class="string">'+='</span>, assignment(<span class="string">"bi_add"</span>));
-    binary(<span class="string">'-='</span>, assignment(<span class="string">"bi_sub"</span>));
-    binary(<span class="string">'*='</span>, assignment(<span class="string">"bi_mul"</span>));
-    binary(<span class="string">'/='</span>, assignment(<span class="string">"bi_div"</span>));
-    binary(<span class="string">'||'</span>, <span class="keyword">function</span>(state) {</pre></div></div>
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.first.value === <span class="hljs-string">"["</span>) {
+                state.bcompile_expr(<span class="hljs-keyword">this</span>.first.first);
+                state.bcompile_expr(<span class="hljs-keyword">this</span>.first.second);
+                <span class="hljs-keyword">if</span> (mode) {
+                    state.emit(<span class="hljs-string">"2dup"</span>);
+                    state.emit(<span class="hljs-string">"get_slot_indirect"</span>);
+                }
+                state.bcompile_expr(<span class="hljs-keyword">this</span>.second);
+                <span class="hljs-keyword">if</span> (mode) {
+                    state.emit(mode);
+                }
+                <span class="hljs-keyword">if</span> (!is_stmt) {</pre></div></div>
             
         </li>
         
@@ -1102,13 +1123,24 @@ in the exact right frame (like we do here)</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-38">&#182;</a>
               </div>
-              <p>expr1 || expr2 returns expr1 if it can be converted to true;
-               else returns expr2</p>
+              <p>keep value we&#39;re setting as the value of the expression</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> sd_before, sd_after;
-        <span class="keyword">var</span> mergeLabel = state.new_label();</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                    state.emit(<span class="hljs-string">"over2"</span>);
+                }
+                state.emit(<span class="hljs-string">"set_slot_indirect"</span>);
+                <span class="hljs-keyword">return</span>;
+            }
+            assert(<span class="hljs-literal">false</span>, <span class="hljs-keyword">this</span>.first);
+        };
+    };
+    binary(<span class="hljs-string">'='</span>, assignment(<span class="hljs-literal">null</span>));
+    binary(<span class="hljs-string">'+='</span>, assignment(<span class="hljs-string">"bi_add"</span>));
+    binary(<span class="hljs-string">'-='</span>, assignment(<span class="hljs-string">"bi_sub"</span>));
+    binary(<span class="hljs-string">'*='</span>, assignment(<span class="hljs-string">"bi_mul"</span>));
+    binary(<span class="hljs-string">'/='</span>, assignment(<span class="hljs-string">"bi_div"</span>));
+    binary(<span class="hljs-string">'||'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -1119,22 +1151,13 @@ in the exact right frame (like we do here)</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-39">&#182;</a>
               </div>
-              <p>short circuit operator</p>
+              <p>expr1 || expr2 returns expr1 if it can be converted to true;
+               else returns expr2</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        state.bcompile_expr(<span class="keyword">this</span>.first);
-        state.emit(<span class="string">"dup"</span>);
-        state.emit(<span class="string">"un_not"</span>);
-        state.emit(<span class="string">"jmp_unless"</span>, mergeLabel);
-        sd_before = state.current_func.stack_depth;
-        state.emit(<span class="string">"pop"</span>);
-        state.bcompile_expr(<span class="keyword">this</span>.second);
-        state.set_label(mergeLabel);
-        sd_after = state.current_func.stack_depth;
-        assert(sd_before === sd_after, <span class="keyword">this</span>);
-    });
-    binary(<span class="string">'&amp;&amp;'</span>, <span class="keyword">function</span>(state) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> sd_before, sd_after;
+        <span class="hljs-keyword">var</span> mergeLabel = state.new_label();</pre></div></div>
             
         </li>
         
@@ -1145,13 +1168,22 @@ in the exact right frame (like we do here)</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-40">&#182;</a>
               </div>
-              <p>expr1 &amp;&amp; expr2 returns expr1 if it can be converted to false;
-               else returns expr2</p>
+              <p>short circuit operator</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> sd_before, sd_after;
-        <span class="keyword">var</span> mergeLabel = state.new_label();</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        state.bcompile_expr(<span class="hljs-keyword">this</span>.first);
+        state.emit(<span class="hljs-string">"dup"</span>);
+        state.emit(<span class="hljs-string">"un_not"</span>);
+        state.emit(<span class="hljs-string">"jmp_unless"</span>, mergeLabel);
+        sd_before = state.current_func.stack_depth;
+        state.emit(<span class="hljs-string">"pop"</span>);
+        state.bcompile_expr(<span class="hljs-keyword">this</span>.second);
+        state.set_label(mergeLabel);
+        sd_after = state.current_func.stack_depth;
+        assert(sd_before === sd_after, <span class="hljs-keyword">this</span>);
+    });
+    binary(<span class="hljs-string">'&amp;&amp;'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -1162,52 +1194,13 @@ in the exact right frame (like we do here)</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-41">&#182;</a>
               </div>
-              <p>short circuit operator</p>
+              <p>expr1 &amp;&amp; expr2 returns expr1 if it can be converted to false;
+               else returns expr2</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        state.bcompile_expr(<span class="keyword">this</span>.first);
-        state.emit(<span class="string">"dup"</span>);
-        state.emit(<span class="string">"jmp_unless"</span>, mergeLabel);
-        sd_before = state.current_func.stack_depth;
-        state.emit(<span class="string">"pop"</span>);
-        state.bcompile_expr(<span class="keyword">this</span>.second);
-        state.set_label(mergeLabel);
-        sd_after = state.current_func.stack_depth;
-        assert(sd_before === sd_after, <span class="keyword">this</span>);
-    });
-    binary(<span class="string">'==='</span>, <span class="string">"bi_eq"</span>);
-    binary(<span class="string">'!=='</span>, <span class="keyword">function</span>(state) {
-        state.bcompile_expr({
-            value: <span class="string">'!'</span>,
-            arity: <span class="string">'unary'</span>,
-            first: {
-                value: <span class="string">'==='</span>,
-                arity: <span class="string">'binary'</span>,
-                first: <span class="keyword">this</span>.first,
-                second: <span class="keyword">this</span>.second
-            }
-        });
-    });
-    binary(<span class="string">'&lt;'</span>, <span class="string">'bi_gt'</span>, <span class="number">1</span><span class="comment">/*swap*/</span>);
-    binary(<span class="string">'&lt;='</span>, <span class="string">'bi_gte'</span>, <span class="number">1</span><span class="comment">/*swap*/</span>);
-    binary(<span class="string">'&gt;'</span>, <span class="string">'bi_gt'</span>);
-    binary(<span class="string">'&gt;='</span>,<span class="string">'bi_gte'</span>);
-    binary(<span class="string">'+'</span>, <span class="string">'bi_add'</span>);
-    binary(<span class="string">'-'</span>, <span class="string">'bi_sub'</span>);
-    binary(<span class="string">'*'</span>, <span class="string">'bi_mul'</span>);
-    binary(<span class="string">'/'</span>, <span class="string">'bi_div'</span>);
-    binary(<span class="string">"."</span>, <span class="keyword">function</span>(state) {
-        state.bcompile_expr(<span class="keyword">this</span>.first);
-        assert(<span class="keyword">this</span>.second.arity === <span class="string">"literal"</span>, <span class="keyword">this</span>.second);
-        state.emit(<span class="string">"get_slot_direct"</span>, state.literal(<span class="keyword">this</span>.second.value));
-    });
-    binary(<span class="string">'['</span>, <span class="keyword">function</span>(state) {
-        state.bcompile_expr(<span class="keyword">this</span>.first);
-        state.bcompile_expr(<span class="keyword">this</span>.second);
-        state.emit(<span class="string">"get_slot_indirect"</span>);
-    });
-    binary(<span class="string">'('</span>, <span class="keyword">function</span>(state) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> sd_before, sd_after;
+        <span class="hljs-keyword">var</span> mergeLabel = state.new_label();</pre></div></div>
             
         </li>
         
@@ -1218,12 +1211,52 @@ in the exact right frame (like we do here)</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-42">&#182;</a>
               </div>
-              <p>this doesn&#39;t change &#39;this&#39; (which is passed as first arg)
-function object</p>
+              <p>short circuit operator</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        state.bcompile_expr(<span class="keyword">this</span>.first);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        state.bcompile_expr(<span class="hljs-keyword">this</span>.first);
+        state.emit(<span class="hljs-string">"dup"</span>);
+        state.emit(<span class="hljs-string">"jmp_unless"</span>, mergeLabel);
+        sd_before = state.current_func.stack_depth;
+        state.emit(<span class="hljs-string">"pop"</span>);
+        state.bcompile_expr(<span class="hljs-keyword">this</span>.second);
+        state.set_label(mergeLabel);
+        sd_after = state.current_func.stack_depth;
+        assert(sd_before === sd_after, <span class="hljs-keyword">this</span>);
+    });
+    binary(<span class="hljs-string">'==='</span>, <span class="hljs-string">"bi_eq"</span>);
+    binary(<span class="hljs-string">'!=='</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        state.bcompile_expr({
+            <span class="hljs-attr">value</span>: <span class="hljs-string">'!'</span>,
+            <span class="hljs-attr">arity</span>: <span class="hljs-string">'unary'</span>,
+            <span class="hljs-attr">first</span>: {
+                <span class="hljs-attr">value</span>: <span class="hljs-string">'==='</span>,
+                <span class="hljs-attr">arity</span>: <span class="hljs-string">'binary'</span>,
+                <span class="hljs-attr">first</span>: <span class="hljs-keyword">this</span>.first,
+                <span class="hljs-attr">second</span>: <span class="hljs-keyword">this</span>.second
+            }
+        });
+    });
+    binary(<span class="hljs-string">'&lt;'</span>, <span class="hljs-string">'bi_gt'</span>, <span class="hljs-number">1</span><span class="hljs-comment">/*swap*/</span>);
+    binary(<span class="hljs-string">'&lt;='</span>, <span class="hljs-string">'bi_gte'</span>, <span class="hljs-number">1</span><span class="hljs-comment">/*swap*/</span>);
+    binary(<span class="hljs-string">'&gt;'</span>, <span class="hljs-string">'bi_gt'</span>);
+    binary(<span class="hljs-string">'&gt;='</span>,<span class="hljs-string">'bi_gte'</span>);
+    binary(<span class="hljs-string">'+'</span>, <span class="hljs-string">'bi_add'</span>);
+    binary(<span class="hljs-string">'-'</span>, <span class="hljs-string">'bi_sub'</span>);
+    binary(<span class="hljs-string">'*'</span>, <span class="hljs-string">'bi_mul'</span>);
+    binary(<span class="hljs-string">'/'</span>, <span class="hljs-string">'bi_div'</span>);
+    binary(<span class="hljs-string">"."</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        state.bcompile_expr(<span class="hljs-keyword">this</span>.first);
+        assert(<span class="hljs-keyword">this</span>.second.arity === <span class="hljs-string">"literal"</span>, <span class="hljs-keyword">this</span>.second);
+        state.emit(<span class="hljs-string">"get_slot_direct"</span>, state.literal(<span class="hljs-keyword">this</span>.second.value));
+    });
+    binary(<span class="hljs-string">'['</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        state.bcompile_expr(<span class="hljs-keyword">this</span>.first);
+        state.bcompile_expr(<span class="hljs-keyword">this</span>.second);
+        state.emit(<span class="hljs-string">"get_slot_indirect"</span>);
+    });
+    binary(<span class="hljs-string">'('</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -1234,11 +1267,12 @@ function object</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-43">&#182;</a>
               </div>
-              <p>first arg is &#39;this&#39;</p>
+              <p>this doesn&#39;t change &#39;this&#39; (which is passed as first arg)
+function object</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        state.bcompile_expr({ value: <span class="string">"this"</span>, arity: <span class="string">"this"</span> });</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        state.bcompile_expr(<span class="hljs-keyword">this</span>.first);</pre></div></div>
             
         </li>
         
@@ -1249,15 +1283,11 @@ function object</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-44">&#182;</a>
               </div>
-              <p>arguments</p>
+              <p>first arg is &#39;this&#39;</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">this</span>.second.forEach(<span class="keyword">function</span>(e, i) {
-            state.bcompile_expr(e);
-        });
-        state.emit(<span class="string">"invoke"</span>, <span class="keyword">this</span>.second.length);
-    });</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        state.bcompile_expr({ <span class="hljs-attr">value</span>: <span class="hljs-string">"this"</span>, <span class="hljs-attr">arity</span>: <span class="hljs-string">"this"</span> });</pre></div></div>
             
         </li>
         
@@ -1268,23 +1298,15 @@ function object</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-45">&#182;</a>
               </div>
-              <p>Ternary ASTs</p>
+              <p>arguments</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    dispatch.ternary = <span class="keyword">function</span>(state) {
-        assert(dispatch.ternary[<span class="keyword">this</span>.value], <span class="keyword">this</span>);
-        dispatch.ternary[<span class="keyword">this</span>.value].call(<span class="keyword">this</span>, state);
-    };
-    <span class="keyword">var</span> ternary = <span class="keyword">function</span>(op, f) {
-        dispatch.ternary[op] = f;
-    };
-    ternary(<span class="string">"?"</span>, <span class="keyword">function</span>(state) {
-        <span class="keyword">var</span> sd_before, sd_after;
-        <span class="keyword">var</span> falseLabel = state.new_label();
-        <span class="keyword">var</span> mergeLabel = state.new_label();
-        state.bcompile_expr(<span class="keyword">this</span>.first);
-        state.emit(<span class="string">"jmp_unless"</span>, falseLabel);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">this</span>.second.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e, i</span>) </span>{
+            state.bcompile_expr(e);
+        });
+        state.emit(<span class="hljs-string">"invoke"</span>, <span class="hljs-keyword">this</span>.second.length);
+    });</pre></div></div>
             
         </li>
         
@@ -1295,14 +1317,23 @@ function object</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-46">&#182;</a>
               </div>
-              <p>&quot;true&quot; case</p>
+              <p>Ternary ASTs</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        sd_before = state.current_func.stack_depth;
-        state.bcompile_expr(<span class="keyword">this</span>.second);
-        state.emit(<span class="string">"jmp"</span>, mergeLabel);
-        sd_after = state.current_func.stack_depth;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    dispatch.ternary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        assert(dispatch.ternary[<span class="hljs-keyword">this</span>.value], <span class="hljs-keyword">this</span>);
+        dispatch.ternary[<span class="hljs-keyword">this</span>.value].call(<span class="hljs-keyword">this</span>, state);
+    };
+    <span class="hljs-keyword">var</span> ternary = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">op, f</span>) </span>{
+        dispatch.ternary[op] = f;
+    };
+    ternary(<span class="hljs-string">"?"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        <span class="hljs-keyword">var</span> sd_before, sd_after;
+        <span class="hljs-keyword">var</span> falseLabel = state.new_label();
+        <span class="hljs-keyword">var</span> mergeLabel = state.new_label();
+        state.bcompile_expr(<span class="hljs-keyword">this</span>.first);
+        state.emit(<span class="hljs-string">"jmp_unless"</span>, falseLabel);</pre></div></div>
             
         </li>
         
@@ -1313,17 +1344,14 @@ function object</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-47">&#182;</a>
               </div>
-              <p>&quot;false&quot; case</p>
+              <p>&quot;true&quot; case</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        state.current_func.stack_depth = sd_before;
-        state.set_label(falseLabel);
-        state.bcompile_expr(<span class="keyword">this</span>.third);
-        state.set_label(mergeLabel);
-        assert(state.current_func.stack_depth === sd_after, <span class="keyword">this</span>);
-    });
-    ternary(<span class="string">"("</span>, <span class="keyword">function</span>(state) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        sd_before = state.current_func.stack_depth;
+        state.bcompile_expr(<span class="hljs-keyword">this</span>.second);
+        state.emit(<span class="hljs-string">"jmp"</span>, mergeLabel);
+        sd_after = state.current_func.stack_depth;</pre></div></div>
             
         </li>
         
@@ -1334,17 +1362,17 @@ function object</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-48">&#182;</a>
               </div>
-              <p>version of method call which sets &#39;this&#39;</p>
+              <p>&quot;false&quot; case</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        state.bcompile_expr(<span class="keyword">this</span>.first); <span class="comment">// this will be 'this'</span>
-        state.emit(<span class="string">"dup"</span>);
-        <span class="keyword">if</span> (<span class="keyword">this</span>.second.arity===<span class="string">'literal'</span> &amp;&amp;
-            <span class="keyword">typeof</span>(<span class="keyword">this</span>.second.value)===<span class="string">'string'</span>) {
-            state.emit(<span class="string">"get_slot_direct_check"</span>,
-                       state.literal(<span class="keyword">this</span>.second.value));
-        } <span class="keyword">else</span> {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        state.current_func.stack_depth = sd_before;
+        state.set_label(falseLabel);
+        state.bcompile_expr(<span class="hljs-keyword">this</span>.third);
+        state.set_label(mergeLabel);
+        assert(state.current_func.stack_depth === sd_after, <span class="hljs-keyword">this</span>);
+    });
+    ternary(<span class="hljs-string">"("</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -1355,14 +1383,17 @@ function object</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-49">&#182;</a>
               </div>
-              <p>invocation via []</p>
+              <p>version of method call which sets &#39;this&#39;</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            state.bcompile_expr(<span class="keyword">this</span>.second);
-            state.emit(<span class="string">"get_slot_indirect"</span>);
-        }
-        state.emit(<span class="string">"swap"</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        state.bcompile_expr(<span class="hljs-keyword">this</span>.first); <span class="hljs-comment">// this will be 'this'</span>
+        state.emit(<span class="hljs-string">"dup"</span>);
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.second.arity===<span class="hljs-string">'literal'</span> &amp;&amp;
+            <span class="hljs-keyword">typeof</span>(<span class="hljs-keyword">this</span>.second.value)===<span class="hljs-string">'string'</span>) {
+            state.emit(<span class="hljs-string">"get_slot_direct_check"</span>,
+                       state.literal(<span class="hljs-keyword">this</span>.second.value));
+        } <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -1373,13 +1404,14 @@ function object</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-50">&#182;</a>
               </div>
-              <p>now order is &quot;<top> this function&quot;.  Push arguments.</p>
+              <p>invocation via []</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">this</span>.third.forEach(<span class="keyword">function</span>(e, i) {
-            state.bcompile_expr(e);
-        });</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            state.bcompile_expr(<span class="hljs-keyword">this</span>.second);
+            state.emit(<span class="hljs-string">"get_slot_indirect"</span>);
+        }
+        state.emit(<span class="hljs-string">"swap"</span>);</pre></div></div>
             
         </li>
         
@@ -1390,12 +1422,13 @@ function object</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-51">&#182;</a>
               </div>
-              <p>invoke!</p>
+              <p>now order is &quot;<top> this function&quot;.  Push arguments.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        state.emit(<span class="string">"invoke"</span>, <span class="keyword">this</span>.third.length);
-    });</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">this</span>.third.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e, i</span>) </span>{
+            state.bcompile_expr(e);
+        });</pre></div></div>
             
         </li>
         
@@ -1406,23 +1439,12 @@ function object</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-52">&#182;</a>
               </div>
-              <p>Statements</p>
+              <p>invoke!</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    dispatch.statement = <span class="keyword">function</span>(state) {
-        assert(dispatch.statement[<span class="keyword">this</span>.value], <span class="keyword">this</span>);
-        dispatch.statement[<span class="keyword">this</span>.value].call(<span class="keyword">this</span>, state);
-    };
-    <span class="keyword">var</span> stmt = <span class="keyword">function</span>(value, f) {
-        dispatch.statement[value] = f;
-    };
-    stmt(<span class="string">"block"</span>, <span class="keyword">function</span>(state) {
-        <span class="keyword">this</span>.first.forEach(<span class="keyword">function</span>(e, i) {
-            state.bcompile_stmt(e);
-        });
-    });
-    stmt(<span class="string">"var"</span>, <span class="keyword">function</span>(state) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        state.emit(<span class="hljs-string">"invoke"</span>, <span class="hljs-keyword">this</span>.third.length);
+    });</pre></div></div>
             
         </li>
         
@@ -1433,66 +1455,23 @@ function object</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-53">&#182;</a>
               </div>
-              <p>Set variables to &#39;undefined&#39; in our
-local frame, in order to properly hide definitions in
-surrounding contexts.</p>
+              <p>Statements</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        state.bcompile_stmt({
-            arity: <span class="string">'binary'</span>,
-            value: <span class="string">'='</span>,
-            first: <span class="keyword">this</span>.first,
-            second: {
-                arity: <span class="string">'literal'</span>,
-                value: <span class="literal">undefined</span>
-            }
+            <div class="content"><div class='highlight'><pre>    dispatch.statement = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        assert(dispatch.statement[<span class="hljs-keyword">this</span>.value], <span class="hljs-keyword">this</span>);
+        dispatch.statement[<span class="hljs-keyword">this</span>.value].call(<span class="hljs-keyword">this</span>, state);
+    };
+    <span class="hljs-keyword">var</span> stmt = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">value, f</span>) </span>{
+        dispatch.statement[value] = f;
+    };
+    stmt(<span class="hljs-string">"block"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        <span class="hljs-keyword">this</span>.first.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e, i</span>) </span>{
+            state.bcompile_stmt(e);
         });
     });
-    stmt(<span class="string">"if"</span>, <span class="keyword">function</span>(state) {
-        <span class="keyword">var</span> falseLabel = state.new_label();
-        state.bcompile_expr(<span class="keyword">this</span>.first);
-        state.emit(<span class="string">"jmp_unless"</span>, falseLabel);
-        state.bcompile_stmt(<span class="keyword">this</span>.second);
-        <span class="keyword">if</span> (<span class="keyword">this</span>.third) {
-            <span class="keyword">var</span> mergeLabel = state.new_label();
-            state.emit(<span class="string">"jmp"</span>, mergeLabel);
-            state.set_label(falseLabel);
-            state.bcompile_stmt(<span class="keyword">this</span>.third);
-            state.set_label(mergeLabel);
-        } <span class="keyword">else</span> {
-            state.set_label(falseLabel);
-        }
-    });
-    stmt(<span class="string">"return"</span>, <span class="keyword">function</span>(state) {
-        <span class="keyword">if</span> (<span class="keyword">this</span>.first) {
-            state.bcompile_expr(<span class="keyword">this</span>.first);
-        } <span class="keyword">else</span> {
-            state.emit(<span class="string">"push_literal"</span>, state.literal(<span class="literal">undefined</span>));
-        }
-        state.emit(<span class="string">"return"</span>);
-        state.current_func.can_fall_off = <span class="literal">false</span>;
-    });
-    stmt(<span class="string">"break"</span>, <span class="keyword">function</span>(state) {
-        state.emit(<span class="string">"jmp"</span>, state.peek_loop_label());
-    });
-    stmt(<span class="string">"while"</span>, <span class="keyword">function</span>(state) {
-        <span class="keyword">var</span> startLabel = state.new_label();
-        <span class="keyword">var</span> testLabel = state.new_label();
-        <span class="keyword">var</span> endLabel = state.new_label();
-        state.push_loop_label(endLabel);
-
-        state.emit(<span class="string">"jmp"</span>, testLabel);
-        state.set_label(startLabel);
-        state.bcompile_stmt(<span class="keyword">this</span>.second);
-        state.set_label(testLabel);
-        state.bcompile_expr(<span class="keyword">this</span>.first);
-        state.emit(<span class="string">"un_not"</span>);
-        state.emit(<span class="string">"jmp_unless"</span>, startLabel);
-        state.set_label(endLabel);
-
-        state.pop_loop_label();
-    });</pre></div></div>
+    stmt(<span class="hljs-string">"var"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -1503,24 +1482,66 @@ surrounding contexts.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-54">&#182;</a>
               </div>
-              <p>Odd cases</p>
+              <p>Set variables to &#39;undefined&#39; in our
+local frame, in order to properly hide definitions in
+surrounding contexts.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    dispatch[<span class="string">'this'</span>] = <span class="keyword">function</span>(state) {
-        state.emit(<span class="string">"push_frame"</span>);
-        state.emit(<span class="string">"get_slot_direct"</span>, state.literal(<span class="string">"this"</span>));
-    };
-    dispatch[<span class="string">'function'</span>] = <span class="keyword">function</span>(state) {
-        <span class="keyword">if</span> (<span class="keyword">this</span>.name) {
-            state.bcompile_expr({ value: <span class="string">"="</span>,
-                                  arity: <span class="string">"binary"</span>,
-                                  first: {
-                                      value: <span class="keyword">this</span>.name,
-                                      arity: <span class="string">"name"</span>,
-                                      scope: <span class="keyword">this</span>.scope
-                                  },
-                                  second: {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        state.bcompile_stmt({
+            <span class="hljs-attr">arity</span>: <span class="hljs-string">'binary'</span>,
+            <span class="hljs-attr">value</span>: <span class="hljs-string">'='</span>,
+            <span class="hljs-attr">first</span>: <span class="hljs-keyword">this</span>.first,
+            <span class="hljs-attr">second</span>: {
+                <span class="hljs-attr">arity</span>: <span class="hljs-string">'literal'</span>,
+                <span class="hljs-attr">value</span>: <span class="hljs-literal">undefined</span>
+            }
+        });
+    });
+    stmt(<span class="hljs-string">"if"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        <span class="hljs-keyword">var</span> falseLabel = state.new_label();
+        state.bcompile_expr(<span class="hljs-keyword">this</span>.first);
+        state.emit(<span class="hljs-string">"jmp_unless"</span>, falseLabel);
+        state.bcompile_stmt(<span class="hljs-keyword">this</span>.second);
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.third) {
+            <span class="hljs-keyword">var</span> mergeLabel = state.new_label();
+            state.emit(<span class="hljs-string">"jmp"</span>, mergeLabel);
+            state.set_label(falseLabel);
+            state.bcompile_stmt(<span class="hljs-keyword">this</span>.third);
+            state.set_label(mergeLabel);
+        } <span class="hljs-keyword">else</span> {
+            state.set_label(falseLabel);
+        }
+    });
+    stmt(<span class="hljs-string">"return"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.first) {
+            state.bcompile_expr(<span class="hljs-keyword">this</span>.first);
+        } <span class="hljs-keyword">else</span> {
+            state.emit(<span class="hljs-string">"push_literal"</span>, state.literal(<span class="hljs-literal">undefined</span>));
+        }
+        state.emit(<span class="hljs-string">"return"</span>);
+        state.current_func.can_fall_off = <span class="hljs-literal">false</span>;
+    });
+    stmt(<span class="hljs-string">"break"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        state.emit(<span class="hljs-string">"jmp"</span>, state.peek_loop_label());
+    });
+    stmt(<span class="hljs-string">"while"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        <span class="hljs-keyword">var</span> startLabel = state.new_label();
+        <span class="hljs-keyword">var</span> testLabel = state.new_label();
+        <span class="hljs-keyword">var</span> endLabel = state.new_label();
+        state.push_loop_label(endLabel);
+
+        state.emit(<span class="hljs-string">"jmp"</span>, testLabel);
+        state.set_label(startLabel);
+        state.bcompile_stmt(<span class="hljs-keyword">this</span>.second);
+        state.set_label(testLabel);
+        state.bcompile_expr(<span class="hljs-keyword">this</span>.first);
+        state.emit(<span class="hljs-string">"un_not"</span>);
+        state.emit(<span class="hljs-string">"jmp_unless"</span>, startLabel);
+        state.set_label(endLabel);
+
+        state.pop_loop_label();
+    });</pre></div></div>
             
         </li>
         
@@ -1531,14 +1552,24 @@ surrounding contexts.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-55">&#182;</a>
               </div>
-              <p>clone of this, except w/o &#39;name&#39;</p>
+              <p>Odd cases</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                                      value: <span class="string">"function"</span>,
-                                      arity: <span class="string">"function"</span>,
-                                      first: <span class="keyword">this</span>.first,
-                                      second: <span class="keyword">this</span>.second,</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    dispatch[<span class="hljs-string">'this'</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        state.emit(<span class="hljs-string">"push_local_frame"</span>);
+        state.emit(<span class="hljs-string">"get_slot_direct"</span>, state.literal(<span class="hljs-string">"this"</span>));
+    };
+    dispatch[<span class="hljs-string">'function'</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">state</span>) </span>{
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.name) {
+            state.bcompile_expr({ <span class="hljs-attr">value</span>: <span class="hljs-string">"="</span>,
+                                  <span class="hljs-attr">arity</span>: <span class="hljs-string">"binary"</span>,
+                                  <span class="hljs-attr">first</span>: {
+                                      <span class="hljs-attr">value</span>: <span class="hljs-keyword">this</span>.name,
+                                      <span class="hljs-attr">arity</span>: <span class="hljs-string">"name"</span>,
+                                      <span class="hljs-attr">scope</span>: <span class="hljs-keyword">this</span>.scope
+                                  },
+                                  <span class="hljs-attr">second</span>: {</pre></div></div>
             
         </li>
         
@@ -1549,15 +1580,14 @@ surrounding contexts.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-56">&#182;</a>
               </div>
-              <p>keep name around to associate later.</p>
+              <p>clone of this, except w/o &#39;name&#39;</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                                      extra_name: <span class="keyword">this</span>.name
-                                  }
-                                });
-            <span class="keyword">return</span>;
-        }</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                                      value: <span class="hljs-string">"function"</span>,
+                                      <span class="hljs-attr">arity</span>: <span class="hljs-string">"function"</span>,
+                                      <span class="hljs-attr">first</span>: <span class="hljs-keyword">this</span>.first,
+                                      <span class="hljs-attr">second</span>: <span class="hljs-keyword">this</span>.second,</pre></div></div>
             
         </li>
         
@@ -1568,17 +1598,15 @@ surrounding contexts.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-57">&#182;</a>
               </div>
-              <p>create and compile a new function object.</p>
+              <p>keep name around to associate later.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> this_func = state.current_func;
-        <span class="keyword">var</span> new_func = state.new_function(<span class="keyword">this</span>.first.length);
-        <span class="keyword">if</span> (<span class="keyword">this</span>.extra_name) {
-            new_func.name = <span class="keyword">this</span>.extra_name;
-        }
-        state.current_func = new_func;
-        state.scope += <span class="number">1</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                                      extra_name: <span class="hljs-keyword">this</span>.name
+                                  }
+                                });
+            <span class="hljs-keyword">return</span>;
+        }</pre></div></div>
             
         </li>
         
@@ -1589,22 +1617,17 @@ surrounding contexts.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-58">&#182;</a>
               </div>
-              <p>compile the new function.
-at start, we have an empty stack and a (properly-linked) frame w/ 2
-field, &quot;arguments&quot; and &quot;this&quot;.  Name the arguments in the local
-context.</p>
+              <p>create and compile a new function object.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        state.emit(<span class="string">"push_frame"</span>);
-        state.emit(<span class="string">"get_slot_direct"</span>, state.literal(<span class="string">"arguments"</span>));
-        <span class="keyword">this</span>.first.forEach(<span class="keyword">function</span>(e, i) {
-            state.emit(<span class="string">"dup"</span>);
-            state.emit(<span class="string">"get_slot_direct"</span>, state.literal(i));
-            state.emit(<span class="string">"push_frame"</span>);
-            state.emit(<span class="string">"swap"</span>);
-            state.emit(<span class="string">"set_slot_direct"</span>, state.literal(e.value));
-        });</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> this_func = state.current_func;
+        <span class="hljs-keyword">var</span> new_func = state.new_function(<span class="hljs-keyword">this</span>.first.length);
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.extra_name) {
+            new_func.name = <span class="hljs-keyword">this</span>.extra_name;
+        }
+        state.current_func = new_func;
+        state.scope += <span class="hljs-number">1</span>;</pre></div></div>
             
         </li>
         
@@ -1615,11 +1638,23 @@ context.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-59">&#182;</a>
               </div>
-              <p>done using the arguments array</p>
+              <p>compile the new function.
+at start, we have an empty stack and a (properly-linked) frame w/ 2
+field, &quot;arguments&quot; and &quot;this&quot;.  Name the arguments in the local
+context.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        state.emit(<span class="string">"pop"</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        state.emit(<span class="hljs-string">"push_local_frame"</span>);
+        state.emit(<span class="hljs-string">"get_slot_direct"</span>, state.literal(<span class="hljs-string">"arguments"</span>));
+        <span class="hljs-keyword">this</span>.first.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e, i</span>) </span>{
+            <span class="hljs-keyword">var</span> escapes = e.scope.escape[e.value];
+            state.emit(<span class="hljs-string">"dup"</span>);
+            state.emit(<span class="hljs-string">"get_slot_direct"</span>, state.literal(i));
+            state.emit(escapes ? <span class="hljs-string">"push_frame"</span> : <span class="hljs-string">"push_local_frame"</span>);
+            state.emit(<span class="hljs-string">"swap"</span>);
+            state.emit(<span class="hljs-string">"set_slot_direct"</span>, state.literal(e.value));
+        });</pre></div></div>
             
         </li>
         
@@ -1630,11 +1665,11 @@ context.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-60">&#182;</a>
               </div>
-              <p>handle the body</p>
+              <p>done using the arguments array</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        state.bcompile_stmts(<span class="keyword">this</span>.second);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        state.emit(<span class="hljs-string">"pop"</span>);</pre></div></div>
             
         </li>
         
@@ -1645,13 +1680,11 @@ context.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-61">&#182;</a>
               </div>
-              <p>finish w/ no-arg return</p>
+              <p>handle the body</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (state.current_func.can_fall_off) {
-            state.bcompile_stmt({ value: <span class="string">"return"</span>, arity: <span class="string">"statement"</span> });
-        }</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        state.bcompile_stmts(<span class="hljs-keyword">this</span>.second);</pre></div></div>
             
         </li>
         
@@ -1662,30 +1695,47 @@ context.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-62">&#182;</a>
               </div>
+              <p>finish w/ no-arg return</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (state.current_func.can_fall_off) {
+            state.bcompile_stmt({ <span class="hljs-attr">value</span>: <span class="hljs-string">"return"</span>, <span class="hljs-attr">arity</span>: <span class="hljs-string">"statement"</span> });
+        }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-63">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-63">&#182;</a>
+              </div>
               <p>restore original function.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>        state.current_func = this_func;
-        state.scope -= <span class="number">1</span>;
-        state.emit(<span class="string">"new_function"</span>, new_func.id);
-        <span class="keyword">return</span>;
+        state.scope -= <span class="hljs-number">1</span>;
+        state.emit(<span class="hljs-string">"new_function"</span>, new_func.id);
+        <span class="hljs-keyword">return</span>;
     };
 
-    <span class="keyword">var</span> bcompile = <span class="function"><span class="keyword">function</span> <span class="params">(parse_tree)</span> {</span>
-        <span class="keyword">var</span> state = mkstate();
-        state.current_func = state.new_function(<span class="number">0</span>);
+    <span class="hljs-keyword">var</span> bcompile = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">parse_tree, dont_desugar_frame_get</span>) </span>{
+        <span class="hljs-keyword">var</span> state = mkstate(dont_desugar_frame_get);
+        state.current_func = state.new_function(<span class="hljs-number">0</span>);
         state.bcompile_stmts(parse_tree);
-        <span class="keyword">if</span> (state.current_func.can_fall_off) {
-            state.bcompile_stmt({ value: <span class="string">"return"</span>, arity: <span class="string">"statement"</span> });
+        <span class="hljs-keyword">if</span> (state.current_func.can_fall_off) {
+            state.bcompile_stmt({ <span class="hljs-attr">value</span>: <span class="hljs-string">"return"</span>, <span class="hljs-attr">arity</span>: <span class="hljs-string">"statement"</span> });
         }
-        <span class="keyword">return</span> state;
+        <span class="hljs-keyword">return</span> state;
     };
-    bcompile.__module_name__ = <span class="string">"bcompile"</span>;
+    bcompile.__module_name__ = <span class="hljs-string">"bcompile"</span>;
     bcompile.__module_init__ = make_bcompile;
-    bcompile.__module_deps__ = [<span class="string">"bytecode-table"</span>];
+    bcompile.__module_deps__ = [<span class="hljs-string">"bytecode-table"</span>];
     bcompile.__module_source__ = bcompile_source;
-    <span class="keyword">return</span> bcompile;
+    <span class="hljs-keyword">return</span> bcompile;
 });</pre></div></div>
             
         </li>

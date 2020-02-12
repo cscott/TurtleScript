@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -211,18 +231,18 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="comment">/** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 0.24.0 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
+            <div class="content"><div class='highlight'><pre><span class="hljs-comment">/** vim: et:ts=4:sw=4:sts=4
+ * <span class="hljs-doctag">@license </span>RequireJS 0.24.0 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */</span>
-<span class="comment">/*jslint strict: false, plusplus: false */</span>
-<span class="comment">/*global window: false, navigator: false, document: false, importScripts: false,
+<span class="hljs-comment">/*jslint strict: false, plusplus: false */</span>
+<span class="hljs-comment">/*global window: false, navigator: false, document: false, importScripts: false,
   jQuery: false, clearInterval: false, setInterval: false, self: false,
   setTimeout: false, opera: false */</span>
 
-<span class="keyword">var</span> require, define;
-(<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span></pre></div></div>
+<span class="hljs-keyword">var</span> <span class="hljs-built_in">require</span>, define;
+(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -237,17 +257,17 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> version = <span class="string">"0.24.0"</span>,
-        commentRegExp = <span class="regexp">/(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg</span>,
-        cjsRequireRegExp = <span class="regexp">/require\(["']([^'"\s]+)["']\)/g</span>,
-        currDirRegExp = <span class="regexp">/^\.\//</span>,
-        jsSuffixRegExp = <span class="regexp">/\.js$/</span>,
-        ostring = Object.prototype.toString,
-        ap = Array.prototype,
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> version = <span class="hljs-string">"0.24.0"</span>,
+        commentRegExp = <span class="hljs-regexp">/(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg</span>,
+        cjsRequireRegExp = <span class="hljs-regexp">/require\(["']([^'"\s]+)["']\)/g</span>,
+        currDirRegExp = <span class="hljs-regexp">/^\.\//</span>,
+        jsSuffixRegExp = <span class="hljs-regexp">/\.js$/</span>,
+        ostring = <span class="hljs-built_in">Object</span>.prototype.toString,
+        ap = <span class="hljs-built_in">Array</span>.prototype,
         aps = ap.slice,
         apsp = ap.splice,
-        isBrowser = !!(<span class="keyword">typeof</span> window !== <span class="string">"undefined"</span> &amp;&amp; navigator &amp;&amp; document),
-        isWebWorker = !isBrowser &amp;&amp; <span class="keyword">typeof</span> importScripts !== <span class="string">"undefined"</span>,</pre></div></div>
+        isBrowser = !!(<span class="hljs-keyword">typeof</span> <span class="hljs-built_in">window</span> !== <span class="hljs-string">"undefined"</span> &amp;&amp; navigator &amp;&amp; <span class="hljs-built_in">document</span>),
+        isWebWorker = !isBrowser &amp;&amp; <span class="hljs-keyword">typeof</span> importScripts !== <span class="hljs-string">"undefined"</span>,</pre></div></div>
             
         </li>
         
@@ -265,9 +285,9 @@ to feature test w/o causing perf issues.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        readyRegExp = isBrowser &amp;&amp; navigator.platform === <span class="string">'PLAYSTATION 3'</span> ?
-                      <span class="regexp">/^complete$/</span> : <span class="regexp">/^(complete|loaded)$/</span>,
-        defContextName = <span class="string">"_"</span>,</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        readyRegExp = isBrowser &amp;&amp; navigator.platform === <span class="hljs-string">'PLAYSTATION 3'</span> ?
+                      <span class="hljs-regexp">/^complete$/</span> : <span class="hljs-regexp">/^(complete|loaded)$/</span>,
+        defContextName = <span class="hljs-string">"_"</span>,</pre></div></div>
             
         </li>
         
@@ -282,52 +302,52 @@ to feature test w/o causing perf issues.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        isOpera = <span class="keyword">typeof</span> opera !== <span class="string">"undefined"</span> &amp;&amp; opera.toString() === <span class="string">"[object Opera]"</span>,
-        reqWaitIdPrefix = <span class="string">"_r@@"</span>,
+            <div class="content"><div class='highlight'><pre>        isOpera = <span class="hljs-keyword">typeof</span> opera !== <span class="hljs-string">"undefined"</span> &amp;&amp; opera.toString() === <span class="hljs-string">"[object Opera]"</span>,
+        reqWaitIdPrefix = <span class="hljs-string">"_r@@"</span>,
         empty = {},
         contexts = {},
         globalDefQueue = [],
-        interactiveScript = <span class="literal">null</span>,
-        isDone = <span class="literal">false</span>,
-        useInteractive = <span class="literal">false</span>,
+        interactiveScript = <span class="hljs-literal">null</span>,
+        isDone = <span class="hljs-literal">false</span>,
+        useInteractive = <span class="hljs-literal">false</span>,
         req, cfg = {}, currentlyAddingScript, s, head, baseElement, scripts, script,
         src, subPath, mainScript, dataMain, i, scrollIntervalId, setReadyState, ctx;
 
-    <span class="function"><span class="keyword">function</span> <span class="title">isFunction</span><span class="params">(it)</span> {</span>
-        <span class="keyword">return</span> ostring.call(it) === <span class="string">"[object Function]"</span>;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isFunction</span>(<span class="hljs-params">it</span>) </span>{
+        <span class="hljs-keyword">return</span> ostring.call(it) === <span class="hljs-string">"[object Function]"</span>;
     }
 
-    <span class="function"><span class="keyword">function</span> <span class="title">isArray</span><span class="params">(it)</span> {</span>
-        <span class="keyword">return</span> ostring.call(it) === <span class="string">"[object Array]"</span>;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isArray</span>(<span class="hljs-params">it</span>) </span>{
+        <span class="hljs-keyword">return</span> ostring.call(it) === <span class="hljs-string">"[object Array]"</span>;
     }
 
-    <span class="comment">/**
+    <span class="hljs-comment">/**
      * Simple function to mix in properties from source into target,
      * but only if target does not already have a property of the same name.
      * This is not robust in IE for transferring methods that match
      * Object.prototype names, but the uses of mixin here seem unlikely to
      * trigger a problem related to that.
      */</span>
-    <span class="function"><span class="keyword">function</span> <span class="title">mixin</span><span class="params">(target, source, force)</span> {</span>
-        <span class="keyword">for</span> (<span class="keyword">var</span> prop <span class="keyword">in</span> source) {
-            <span class="keyword">if</span> (!(prop <span class="keyword">in</span> empty) &amp;&amp; (!(prop <span class="keyword">in</span> target) || force)) {
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">mixin</span>(<span class="hljs-params">target, source, force</span>) </span>{
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> prop <span class="hljs-keyword">in</span> source) {
+            <span class="hljs-keyword">if</span> (!(prop <span class="hljs-keyword">in</span> empty) &amp;&amp; (!(prop <span class="hljs-keyword">in</span> target) || force)) {
                 target[prop] = source[prop];
             }
         }
-        <span class="keyword">return</span> req;
+        <span class="hljs-keyword">return</span> req;
     }
 
-    <span class="comment">/**
+    <span class="hljs-comment">/**
      * Used to set up package paths from a packagePaths or packages config object.
-     * @param {Object} pkgs the object to store the new package config
-     * @param {Array} currentPackages an array of packages to configure
-     * @param {String} [dir] a prefix dir to use.
+     * <span class="hljs-doctag">@param <span class="hljs-type">{Object}</span> </span>pkgs the object to store the new package config
+     * <span class="hljs-doctag">@param <span class="hljs-type">{Array}</span> </span>currentPackages an array of packages to configure
+     * <span class="hljs-doctag">@param <span class="hljs-type">{String}</span> </span>[dir] a prefix dir to use.
      */</span>
-    <span class="function"><span class="keyword">function</span> <span class="title">configurePackageDir</span><span class="params">(pkgs, currentPackages, dir)</span> {</span>
-        <span class="keyword">var</span> i, location, pkgObj;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">configurePackageDir</span>(<span class="hljs-params">pkgs, currentPackages, dir</span>) </span>{
+        <span class="hljs-keyword">var</span> i, location, pkgObj;
 
-        <span class="keyword">for</span> (i = <span class="number">0</span>; (pkgObj = currentPackages[i]); i++) {
-            pkgObj = <span class="keyword">typeof</span> pkgObj === <span class="string">"string"</span> ? { name: pkgObj } : pkgObj;
+        <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; (pkgObj = currentPackages[i]); i++) {
+            pkgObj = <span class="hljs-keyword">typeof</span> pkgObj === <span class="hljs-string">"string"</span> ? { <span class="hljs-attr">name</span>: pkgObj } : pkgObj;
             location = pkgObj.location;</pre></div></div>
             
         </li>
@@ -344,8 +364,8 @@ or have a colon (indicates a protocol)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (dir &amp;&amp; (!location || (location.indexOf(<span class="string">"/"</span>) !== <span class="number">0</span> &amp;&amp; location.indexOf(<span class="string">":"</span>) === -<span class="number">1</span>))) {
-                location = dir + <span class="string">"/"</span> + (location || pkgObj.name);
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (dir &amp;&amp; (!location || (location.indexOf(<span class="hljs-string">"/"</span>) !== <span class="hljs-number">0</span> &amp;&amp; location.indexOf(<span class="hljs-string">":"</span>) === <span class="hljs-number">-1</span>))) {
+                location = dir + <span class="hljs-string">"/"</span> + (location || pkgObj.name);
             }</pre></div></div>
             
         </li>
@@ -364,9 +384,9 @@ state for all package configs.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>            pkgs[pkgObj.name] = {
-                name: pkgObj.name,
-                location: location || pkgObj.name,
-                lib: pkgObj.lib || <span class="string">"lib"</span>,</pre></div></div>
+                <span class="hljs-attr">name</span>: pkgObj.name,
+                <span class="hljs-attr">location</span>: location || pkgObj.name,
+                <span class="hljs-attr">lib</span>: pkgObj.lib || <span class="hljs-string">"lib"</span>,</pre></div></div>
             
         </li>
         
@@ -384,9 +404,9 @@ some use a file name.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                main: (pkgObj.main || <span class="string">"lib/main"</span>)
-                      .replace(currDirRegExp, <span class="string">''</span>)
-                      .replace(jsSuffixRegExp, <span class="string">''</span>)
+            <div class="content"><div class='highlight'><pre>                main: (pkgObj.main || <span class="hljs-string">"lib/main"</span>)
+                      .replace(currDirRegExp, <span class="hljs-string">''</span>)
+                      .replace(jsSuffixRegExp, <span class="hljs-string">''</span>)
             };
         }
     }</pre></div></div>
@@ -406,10 +426,10 @@ config object, just exit quickly if require is an actual function.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span> (<span class="keyword">typeof</span> require !== <span class="string">"undefined"</span>) {
-        <span class="keyword">if</span> (isFunction(require)) {
-            <span class="keyword">return</span>;
-        } <span class="keyword">else</span> {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> <span class="hljs-built_in">require</span> !== <span class="hljs-string">"undefined"</span>) {
+        <span class="hljs-keyword">if</span> (isFunction(<span class="hljs-built_in">require</span>)) {
+            <span class="hljs-keyword">return</span>;
+        } <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -424,11 +444,11 @@ config object, just exit quickly if require is an actual function.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            cfg = require;
+            <div class="content"><div class='highlight'><pre>            cfg = <span class="hljs-built_in">require</span>;
         }
     }
 
-    <span class="comment">/**
+    <span class="hljs-comment">/**
      * Creates a new context for use in require and define calls.
      * Handle most of the heavy lifting. Do not want to use an object
      * with prototype here to avoid using "this" in require, in case it
@@ -438,49 +458,49 @@ config object, just exit quickly if require is an actual function.</p>
      * or if a package needs a special context for a dependency that conflicts
      * with the standard context.
      */</span>
-    <span class="function"><span class="keyword">function</span> <span class="title">newContext</span><span class="params">(contextName)</span> {</span>
-        <span class="keyword">var</span> context, resume,
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">newContext</span>(<span class="hljs-params">contextName</span>) </span>{
+        <span class="hljs-keyword">var</span> context, resume,
             config = {
-                waitSeconds: <span class="number">7</span>,
-                baseUrl: s.baseUrl || <span class="string">"./"</span>,
-                paths: {},
-                pkgs: {}
+                <span class="hljs-attr">waitSeconds</span>: <span class="hljs-number">7</span>,
+                <span class="hljs-attr">baseUrl</span>: s.baseUrl || <span class="hljs-string">"./"</span>,
+                <span class="hljs-attr">paths</span>: {},
+                <span class="hljs-attr">pkgs</span>: {}
             },
             defQueue = [],
             specified = {
-                <span class="string">"require"</span>: <span class="literal">true</span>,
-                <span class="string">"exports"</span>: <span class="literal">true</span>,
-                <span class="string">"module"</span>: <span class="literal">true</span>
+                <span class="hljs-string">"require"</span>: <span class="hljs-literal">true</span>,
+                <span class="hljs-string">"exports"</span>: <span class="hljs-literal">true</span>,
+                <span class="hljs-string">"module"</span>: <span class="hljs-literal">true</span>
             },
             urlMap = {},
             defined = {},
             loaded = {},
             waiting = {},
             waitAry = [],
-            waitIdCounter = <span class="number">0</span>,
+            waitIdCounter = <span class="hljs-number">0</span>,
             managerCallbacks = {},
             plugins = {},
             pluginsQueue = {},
-            resumeDepth = <span class="number">0</span>,
+            resumeDepth = <span class="hljs-number">0</span>,
             normalizedWaiting = {};
 
-        <span class="comment">/**
+        <span class="hljs-comment">/**
          * Trims the . and .. from an array of path segments.
          * It will keep a leading path segment if a .. will become
          * the first path segment, to help with module name lookups,
          * which act like paths, but can be remapped. But the end result,
          * all paths that use this function should look normalized.
-         * NOTE: this method MODIFIES the input array.
+         * <span class="hljs-doctag">NOTE:</span> this method MODIFIES the input array.
          * @param {Array} ary the array of path segments.
          */</span>
-        <span class="function"><span class="keyword">function</span> <span class="title">trimDots</span><span class="params">(ary)</span> {</span>
-            <span class="keyword">var</span> i, part;
-            <span class="keyword">for</span> (i = <span class="number">0</span>; (part = ary[i]); i++) {
-                <span class="keyword">if</span> (part === <span class="string">"."</span>) {
-                    ary.splice(i, <span class="number">1</span>);
-                    i -= <span class="number">1</span>;
-                } <span class="keyword">else</span> <span class="keyword">if</span> (part === <span class="string">".."</span>) {
-                    <span class="keyword">if</span> (i === <span class="number">1</span> &amp;&amp; (ary[<span class="number">2</span>] === <span class="string">'..'</span> || ary[<span class="number">0</span>] === <span class="string">'..'</span>)) {</pre></div></div>
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">trimDots</span>(<span class="hljs-params">ary</span>) </span>{
+            <span class="hljs-keyword">var</span> i, part;
+            <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; (part = ary[i]); i++) {
+                <span class="hljs-keyword">if</span> (part === <span class="hljs-string">"."</span>) {
+                    ary.splice(i, <span class="hljs-number">1</span>);
+                    i -= <span class="hljs-number">1</span>;
+                } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (part === <span class="hljs-string">".."</span>) {
+                    <span class="hljs-keyword">if</span> (i === <span class="hljs-number">1</span> &amp;&amp; (ary[<span class="hljs-number">2</span>] === <span class="hljs-string">'..'</span> || ary[<span class="hljs-number">0</span>] === <span class="hljs-string">'..'</span>)) {</pre></div></div>
             
         </li>
         
@@ -500,25 +520,25 @@ uses of ..</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                        <span class="keyword">break</span>;
-                    } <span class="keyword">else</span> <span class="keyword">if</span> (i &gt; <span class="number">0</span>) {
-                        ary.splice(i - <span class="number">1</span>, <span class="number">2</span>);
-                        i -= <span class="number">2</span>;
+            <div class="content"><div class='highlight'><pre>                        <span class="hljs-keyword">break</span>;
+                    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (i &gt; <span class="hljs-number">0</span>) {
+                        ary.splice(i - <span class="hljs-number">1</span>, <span class="hljs-number">2</span>);
+                        i -= <span class="hljs-number">2</span>;
                     }
                 }
             }
         }
 
-        <span class="comment">/**
+        <span class="hljs-comment">/**
          * Given a relative module name, like ./something, normalize it to
          * a real name that can be mapped to a path.
-         * @param {String} name the relative name
-         * @param {String} baseName a real name that the name arg is relative
+         * <span class="hljs-doctag">@param <span class="hljs-type">{String}</span> </span>name the relative name
+         * <span class="hljs-doctag">@param <span class="hljs-type">{String}</span> </span>baseName a real name that the name arg is relative
          * to.
-         * @returns {String} normalized name
+         * <span class="hljs-doctag">@returns <span class="hljs-type">{String}</span> </span>normalized name
          */</span>
-        <span class="function"><span class="keyword">function</span> <span class="title">normalize</span><span class="params">(name, baseName)</span> {</span>
-            <span class="keyword">var</span> pkgName, pkgConfig;</pre></div></div>
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">normalize</span>(<span class="hljs-params">name, baseName</span>) </span>{
+            <span class="hljs-keyword">var</span> pkgName, pkgConfig;</pre></div></div>
             
         </li>
         
@@ -533,7 +553,7 @@ uses of ..</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (name.charAt(<span class="number">0</span>) === <span class="string">"."</span>) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (name.charAt(<span class="hljs-number">0</span>) === <span class="hljs-string">"."</span>) {</pre></div></div>
             
         </li>
         
@@ -550,8 +570,8 @@ be relative to baseUrl in the end.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (baseName) {
-                    <span class="keyword">if</span> (config.pkgs[baseName]) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (baseName) {
+                    <span class="hljs-keyword">if</span> (config.pkgs[baseName]) {</pre></div></div>
             
         </li>
         
@@ -568,7 +588,7 @@ name to concat the name with.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                        baseName = [baseName];
-                    } <span class="keyword">else</span> {</pre></div></div>
+                    } <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -587,11 +607,11 @@ this normalization.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                        baseName = baseName.split(<span class="string">"/"</span>);
-                        baseName = baseName.slice(<span class="number">0</span>, baseName.length - <span class="number">1</span>);
+            <div class="content"><div class='highlight'><pre>                        baseName = baseName.split(<span class="hljs-string">"/"</span>);
+                        baseName = baseName.slice(<span class="hljs-number">0</span>, baseName.length - <span class="hljs-number">1</span>);
                     }
 
-                    name = baseName.concat(name.split(<span class="string">"/"</span>));
+                    name = baseName.concat(name.split(<span class="hljs-string">"/"</span>));
                     trimDots(name);</pre></div></div>
             
         </li>
@@ -608,40 +628,40 @@ this normalization.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    pkgConfig = config.pkgs[(pkgName = name[<span class="number">0</span>])];
-                    name = name.join(<span class="string">"/"</span>);
-                    <span class="keyword">if</span> (pkgConfig &amp;&amp; name === pkgName + <span class="string">'/'</span> + pkgConfig.main) {
+            <div class="content"><div class='highlight'><pre>                    pkgConfig = config.pkgs[(pkgName = name[<span class="hljs-number">0</span>])];
+                    name = name.join(<span class="hljs-string">"/"</span>);
+                    <span class="hljs-keyword">if</span> (pkgConfig &amp;&amp; name === pkgName + <span class="hljs-string">'/'</span> + pkgConfig.main) {
                         name = pkgName;
                     }
                 }
             }
-            <span class="keyword">return</span> name;
+            <span class="hljs-keyword">return</span> name;
         }
 
-        <span class="comment">/**
+        <span class="hljs-comment">/**
          * Creates a module mapping that includes plugin prefix, module
          * name, and path. If parentModuleMap is provided it will
          * also normalize the name via require.normalize()
          *
-         * @param {String} name the module name
-         * @param {String} [parentModuleMap] parent module map
+         * <span class="hljs-doctag">@param <span class="hljs-type">{String}</span> </span>name the module name
+         * <span class="hljs-doctag">@param <span class="hljs-type">{String}</span> </span>[parentModuleMap] parent module map
          * for the module name, used to resolve relative names.
          *
-         * @returns {Object}
+         * <span class="hljs-doctag">@returns <span class="hljs-type">{Object}</span></span>
          */</span>
-        <span class="function"><span class="keyword">function</span> <span class="title">makeModuleMap</span><span class="params">(name, parentModuleMap)</span> {</span>
-            <span class="keyword">var</span> index = name ? name.indexOf(<span class="string">"!"</span>) : -<span class="number">1</span>,
-                prefix = <span class="literal">null</span>,
-                parentName = parentModuleMap ? parentModuleMap.name : <span class="literal">null</span>,
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">makeModuleMap</span>(<span class="hljs-params">name, parentModuleMap</span>) </span>{
+            <span class="hljs-keyword">var</span> index = name ? name.indexOf(<span class="hljs-string">"!"</span>) : <span class="hljs-number">-1</span>,
+                prefix = <span class="hljs-literal">null</span>,
+                parentName = parentModuleMap ? parentModuleMap.name : <span class="hljs-literal">null</span>,
                 originalName = name,
                 normalizedName, url, pluginModule;
 
-            <span class="keyword">if</span> (index !== -<span class="number">1</span>) {
-                prefix = name.substring(<span class="number">0</span>, index);
-                name = name.substring(index + <span class="number">1</span>, name.length);
+            <span class="hljs-keyword">if</span> (index !== <span class="hljs-number">-1</span>) {
+                prefix = name.substring(<span class="hljs-number">0</span>, index);
+                name = name.substring(index + <span class="hljs-number">1</span>, name.length);
             }
 
-            <span class="keyword">if</span> (prefix) {
+            <span class="hljs-keyword">if</span> (prefix) {
                 prefix = normalize(prefix, parentName);
             }</pre></div></div>
             
@@ -658,10 +678,10 @@ this normalization.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (name) {
-                <span class="keyword">if</span> (prefix) {
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (name) {
+                <span class="hljs-keyword">if</span> (prefix) {
                     pluginModule = defined[prefix];
-                    <span class="keyword">if</span> (pluginModule) {</pre></div></div>
+                    <span class="hljs-keyword">if</span> (pluginModule) {</pre></div></div>
             
         </li>
         
@@ -677,14 +697,14 @@ normalize name as usual.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                        <span class="keyword">if</span> (pluginModule.normalize) {
-                            normalizedName = pluginModule.normalize(name, <span class="function"><span class="keyword">function</span> <span class="params">(name)</span> {</span>
-                                <span class="keyword">return</span> normalize(name, parentName);
+            <div class="content"><div class='highlight'><pre>                        <span class="hljs-keyword">if</span> (pluginModule.normalize) {
+                            normalizedName = pluginModule.normalize(name, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name</span>) </span>{
+                                <span class="hljs-keyword">return</span> normalize(name, parentName);
                             });
-                        } <span class="keyword">else</span> {
+                        } <span class="hljs-keyword">else</span> {
                             normalizedName = normalize(name, parentName);
                         }
-                    } <span class="keyword">else</span> {</pre></div></div>
+                    } <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -703,14 +723,14 @@ plugin, use the parent&#39;s name as part of this name.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                        normalizedName = <span class="string">'__$p'</span> + parentName + <span class="string">'@'</span> + name;
+            <div class="content"><div class='highlight'><pre>                        normalizedName = <span class="hljs-string">'__$p'</span> + parentName + <span class="hljs-string">'@'</span> + name;
                     }
-                } <span class="keyword">else</span> {
+                } <span class="hljs-keyword">else</span> {
                     normalizedName = normalize(name, parentName);
                 }
 
                 url = urlMap[normalizedName];
-                <span class="keyword">if</span> (!url) {</pre></div></div>
+                <span class="hljs-keyword">if</span> (!url) {</pre></div></div>
             
         </li>
         
@@ -725,7 +745,7 @@ plugin, use the parent&#39;s name as part of this name.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    <span class="keyword">if</span> (req.toModuleUrl) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                    <span class="hljs-keyword">if</span> (req.toModuleUrl) {</pre></div></div>
             
         </li>
         
@@ -742,8 +762,8 @@ like Node.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                        url = req.toModuleUrl(context, name, parentModuleMap);
-                    } <span class="keyword">else</span> {
-                        url = context.nameToUrl(name, <span class="literal">null</span>, parentModuleMap);
+                    } <span class="hljs-keyword">else</span> {
+                        url = context.nameToUrl(name, <span class="hljs-literal">null</span>, parentModuleMap);
                     }</pre></div></div>
             
         </li>
@@ -763,50 +783,50 @@ like Node.</p>
                 }
             }
 
-            <span class="keyword">return</span> {
-                prefix: prefix,
-                name: normalizedName,
-                parentMap: parentModuleMap,
-                url: url,
-                originalName: originalName,
-                fullName: prefix ? prefix + <span class="string">"!"</span> + normalizedName : normalizedName
+            <span class="hljs-keyword">return</span> {
+                <span class="hljs-attr">prefix</span>: prefix,
+                <span class="hljs-attr">name</span>: normalizedName,
+                <span class="hljs-attr">parentMap</span>: parentModuleMap,
+                <span class="hljs-attr">url</span>: url,
+                <span class="hljs-attr">originalName</span>: originalName,
+                <span class="hljs-attr">fullName</span>: prefix ? prefix + <span class="hljs-string">"!"</span> + normalizedName : normalizedName
             };
         }
 
-        <span class="comment">/**
+        <span class="hljs-comment">/**
          * Determine if priority loading is done. If so clear the priorityWait
          */</span>
-        <span class="function"><span class="keyword">function</span> <span class="title">isPriorityDone</span><span class="params">()</span> {</span>
-            <span class="keyword">var</span> priorityDone = <span class="literal">true</span>,
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isPriorityDone</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> priorityDone = <span class="hljs-literal">true</span>,
                 priorityWait = config.priorityWait,
                 priorityName, i;
-            <span class="keyword">if</span> (priorityWait) {
-                <span class="keyword">for</span> (i = <span class="number">0</span>; (priorityName = priorityWait[i]); i++) {
-                    <span class="keyword">if</span> (!loaded[priorityName]) {
-                        priorityDone = <span class="literal">false</span>;
-                        <span class="keyword">break</span>;
+            <span class="hljs-keyword">if</span> (priorityWait) {
+                <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; (priorityName = priorityWait[i]); i++) {
+                    <span class="hljs-keyword">if</span> (!loaded[priorityName]) {
+                        priorityDone = <span class="hljs-literal">false</span>;
+                        <span class="hljs-keyword">break</span>;
                     }
                 }
-                <span class="keyword">if</span> (priorityDone) {
-                    <span class="keyword">delete</span> config.priorityWait;
+                <span class="hljs-keyword">if</span> (priorityDone) {
+                    <span class="hljs-keyword">delete</span> config.priorityWait;
                 }
             }
-            <span class="keyword">return</span> priorityDone;
+            <span class="hljs-keyword">return</span> priorityDone;
         }
 
-        <span class="comment">/**
+        <span class="hljs-comment">/**
          * Helper function that creates a setExports function for a "module"
          * CommonJS dependency. Do this here to avoid creating a closure that
          * is part of a loop.
          */</span>
-        <span class="function"><span class="keyword">function</span> <span class="title">makeSetExports</span><span class="params">(moduleObj)</span> {</span>
-            <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="params">(exports)</span> {</span>
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">makeSetExports</span>(<span class="hljs-params">moduleObj</span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">exports</span>) </span>{
                 moduleObj.exports = exports;
             };
         }
 
-        <span class="function"><span class="keyword">function</span> <span class="title">makeContextModuleFunc</span><span class="params">(func, relModuleMap, enableBuildCallback)</span> {</span>
-            <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span></pre></div></div>
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">makeContextModuleFunc</span>(<span class="hljs-params">func, relModuleMap, enableBuildCallback</span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -823,31 +843,31 @@ look up paths relative to the moduleName</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> args = [].concat(aps.call(arguments, <span class="number">0</span>)), lastArg;
-                <span class="keyword">if</span> (enableBuildCallback &amp;&amp;
-                    isFunction((lastArg = args[args.length - <span class="number">1</span>]))) {
-                    lastArg.__requireJsBuild = <span class="literal">true</span>;
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">var</span> args = [].concat(aps.call(<span class="hljs-built_in">arguments</span>, <span class="hljs-number">0</span>)), lastArg;
+                <span class="hljs-keyword">if</span> (enableBuildCallback &amp;&amp;
+                    isFunction((lastArg = args[args.length - <span class="hljs-number">1</span>]))) {
+                    lastArg.__requireJsBuild = <span class="hljs-literal">true</span>;
                 }
                 args.push(relModuleMap);
-                <span class="keyword">return</span> func.apply(<span class="literal">null</span>, args);
+                <span class="hljs-keyword">return</span> func.apply(<span class="hljs-literal">null</span>, args);
             };
         }
 
-        <span class="comment">/**
+        <span class="hljs-comment">/**
          * Helper function that creates a require function object to give to
          * modules that ask for it as a dependency. It needs to be specific
          * per module because of the implication of path mappings that may
          * need to be relative to the module name.
          */</span>
-        <span class="function"><span class="keyword">function</span> <span class="title">makeRequire</span><span class="params">(relModuleMap, enableBuildCallback)</span> {</span>
-            <span class="keyword">var</span> modRequire = makeContextModuleFunc(context.require, relModuleMap, enableBuildCallback);
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">makeRequire</span>(<span class="hljs-params">relModuleMap, enableBuildCallback</span>) </span>{
+            <span class="hljs-keyword">var</span> modRequire = makeContextModuleFunc(context.require, relModuleMap, enableBuildCallback);
 
             mixin(modRequire, {
-                nameToUrl: makeContextModuleFunc(context.nameToUrl, relModuleMap),
-                toUrl: makeContextModuleFunc(context.toUrl, relModuleMap),
-                isDefined: makeContextModuleFunc(context.isDefined, relModuleMap),
-                ready: req.ready,
-                isBrowser: req.isBrowser
+                <span class="hljs-attr">nameToUrl</span>: makeContextModuleFunc(context.nameToUrl, relModuleMap),
+                <span class="hljs-attr">toUrl</span>: makeContextModuleFunc(context.toUrl, relModuleMap),
+                <span class="hljs-attr">isDefined</span>: makeContextModuleFunc(context.isDefined, relModuleMap),
+                <span class="hljs-attr">ready</span>: req.ready,
+                <span class="hljs-attr">isBrowser</span>: req.isBrowser
             });</pre></div></div>
             
         </li>
@@ -863,25 +883,25 @@ look up paths relative to the moduleName</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (req.paths) {
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (req.paths) {
                 modRequire.paths = req.paths;
             }
-            <span class="keyword">return</span> modRequire;
+            <span class="hljs-keyword">return</span> modRequire;
         }
 
-        <span class="comment">/**
+        <span class="hljs-comment">/**
          * Used to update the normalized name for plugin-based dependencies
          * after a plugin loads, since it can have its own normalization structure.
-         * @param {String} pluginName the normalized plugin module name.
+         * <span class="hljs-doctag">@param <span class="hljs-type">{String}</span> </span>pluginName the normalized plugin module name.
          */</span>
-        <span class="function"><span class="keyword">function</span> <span class="title">updateNormalizedNames</span><span class="params">(pluginName)</span> {</span>
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">updateNormalizedNames</span>(<span class="hljs-params">pluginName</span>) </span>{
 
-            <span class="keyword">var</span> oldFullName, oldModuleMap, moduleMap, fullName, callbacks,
+            <span class="hljs-keyword">var</span> oldFullName, oldModuleMap, moduleMap, fullName, callbacks,
                 i, j, k, depArray, existingCallbacks,
                 maps = normalizedWaiting[pluginName];
 
-            <span class="keyword">if</span> (maps) {
-                <span class="keyword">for</span> (i = <span class="number">0</span>; (oldModuleMap = maps[i]); i++) {
+            <span class="hljs-keyword">if</span> (maps) {
+                <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; (oldModuleMap = maps[i]); i++) {
                     oldFullName = oldModuleMap.fullName;
                     moduleMap = makeModuleMap(oldModuleMap.originalName, oldModuleMap.parentMap);
                     fullName = moduleMap.fullName;</pre></div></div>
@@ -903,7 +923,7 @@ required twice in a row, so use empty array in that case.</p>
             <div class="content"><div class='highlight'><pre>                    callbacks = managerCallbacks[oldFullName] || [];
                     existingCallbacks = managerCallbacks[fullName];
 
-                    <span class="keyword">if</span> (fullName !== oldFullName) {</pre></div></div>
+                    <span class="hljs-keyword">if</span> (fullName !== oldFullName) {</pre></div></div>
             
         </li>
         
@@ -919,9 +939,9 @@ in there. In sync environments, it may not be yet.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                        <span class="keyword">if</span> (oldFullName <span class="keyword">in</span> specified) {
-                            <span class="keyword">delete</span> specified[oldFullName];
-                            specified[fullName] = <span class="literal">true</span>;
+            <div class="content"><div class='highlight'><pre>                        <span class="hljs-keyword">if</span> (oldFullName <span class="hljs-keyword">in</span> specified) {
+                            <span class="hljs-keyword">delete</span> specified[oldFullName];
+                            specified[fullName] = <span class="hljs-literal">true</span>;
                         }</pre></div></div>
             
         </li>
@@ -939,12 +959,12 @@ just add to them.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                        <span class="keyword">if</span> (existingCallbacks) {
+            <div class="content"><div class='highlight'><pre>                        <span class="hljs-keyword">if</span> (existingCallbacks) {
                             managerCallbacks[fullName] = existingCallbacks.concat(callbacks);
-                        } <span class="keyword">else</span> {
+                        } <span class="hljs-keyword">else</span> {
                             managerCallbacks[fullName] = callbacks;
                         }
-                        <span class="keyword">delete</span> managerCallbacks[oldFullName];</pre></div></div>
+                        <span class="hljs-keyword">delete</span> managerCallbacks[oldFullName];</pre></div></div>
             
         </li>
         
@@ -959,10 +979,10 @@ just add to them.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                        <span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; callbacks.length; j++) {
+            <div class="content"><div class='highlight'><pre>                        <span class="hljs-keyword">for</span> (j = <span class="hljs-number">0</span>; j &lt; callbacks.length; j++) {
                             depArray = callbacks[j].depArray;
-                            <span class="keyword">for</span> (k = <span class="number">0</span>; k &lt; depArray.length; k++) {
-                                <span class="keyword">if</span> (depArray[k] === oldFullName) {
+                            <span class="hljs-keyword">for</span> (k = <span class="hljs-number">0</span>; k &lt; depArray.length; k++) {
+                                <span class="hljs-keyword">if</span> (depArray[k] === oldFullName) {
                                     depArray[k] = fullName;
                                 }
                             }
@@ -971,17 +991,17 @@ just add to them.</p>
                 }
             }
 
-            <span class="keyword">delete</span> normalizedWaiting[pluginName];
+            <span class="hljs-keyword">delete</span> normalizedWaiting[pluginName];
         }
 
-        <span class="comment">/*
+        <span class="hljs-comment">/*
          * Queues a dependency for checking after the loader is out of a
          * "paused" state, for example while a script file is being loaded
          * in the browser, where it may have many modules defined in it.
          *
          * depName will be fully qualified, no relative . or .. path.
          */</span>
-        <span class="function"><span class="keyword">function</span> <span class="title">queueDependency</span><span class="params">(dep)</span> {</span></pre></div></div>
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">queueDependency</span>(<span class="hljs-params">dep</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -997,7 +1017,7 @@ with that plugin.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> prefix = dep.prefix,
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> prefix = dep.prefix,
                 fullName = dep.fullName;</pre></div></div>
             
         </li>
@@ -1013,11 +1033,11 @@ with that plugin.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (specified[fullName] || fullName <span class="keyword">in</span> defined) {
-                <span class="keyword">return</span>;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (specified[fullName] || fullName <span class="hljs-keyword">in</span> defined) {
+                <span class="hljs-keyword">return</span>;
             }
 
-            <span class="keyword">if</span> (prefix &amp;&amp; !plugins[prefix]) {</pre></div></div>
+            <span class="hljs-keyword">if</span> (prefix &amp;&amp; !plugins[prefix]) {</pre></div></div>
             
         </li>
         
@@ -1035,7 +1055,7 @@ special.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                plugins[prefix] = <span class="literal">undefined</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                plugins[prefix] = <span class="hljs-literal">undefined</span>;</pre></div></div>
             
         </li>
         
@@ -1071,8 +1091,8 @@ name.</p>
             
             <div class="content"><div class='highlight'><pre>                (managerCallbacks[prefix] ||
                 (managerCallbacks[prefix] = [])).push({
-                    onDep: <span class="function"><span class="keyword">function</span> <span class="params">(name, value)</span> {</span>
-                        <span class="keyword">if</span> (name === prefix) {
+                    <span class="hljs-attr">onDep</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name, value</span>) </span>{
+                        <span class="hljs-keyword">if</span> (name === prefix) {
                             updateNormalizedNames(prefix);
                         }
                     }
@@ -1084,8 +1104,8 @@ name.</p>
             context.paused.push(dep);
         }
 
-        <span class="function"><span class="keyword">function</span> <span class="title">execManager</span><span class="params">(manager)</span> {</span>
-            <span class="keyword">var</span> i, ret, waitingCallbacks,
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">execManager</span>(<span class="hljs-params">manager</span>) </span>{
+            <span class="hljs-keyword">var</span> i, ret, waitingCallbacks,
                 cb = manager.callback,
                 fullName = manager.fullName,
                 args = [],
@@ -1104,7 +1124,7 @@ name.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (cb &amp;&amp; isFunction(cb)) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (cb &amp;&amp; isFunction(cb)) {</pre></div></div>
             
         </li>
         
@@ -1120,15 +1140,15 @@ values to the callback.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (ary) {
-                    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; ary.length; i++) {
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (ary) {
+                    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; ary.length; i++) {
                         args.push(manager.deps[ary[i]]);
                     }
                 }
 
                 ret = req.execCb(fullName, manager.callback, args);
 
-                <span class="keyword">if</span> (fullName) {</pre></div></div>
+                <span class="hljs-keyword">if</span> (fullName) {</pre></div></div>
             
         </li>
         
@@ -1145,20 +1165,20 @@ define an exported value, then use the exports object.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    <span class="keyword">if</span> (manager.usingExports &amp;&amp; ret === <span class="literal">undefined</span> &amp;&amp; (!manager.cjsModule || !(<span class="string">"exports"</span> <span class="keyword">in</span> manager.cjsModule))) {
+            <div class="content"><div class='highlight'><pre>                    <span class="hljs-keyword">if</span> (manager.usingExports &amp;&amp; ret === <span class="hljs-literal">undefined</span> &amp;&amp; (!manager.cjsModule || !(<span class="hljs-string">"exports"</span> <span class="hljs-keyword">in</span> manager.cjsModule))) {
                         ret = defined[fullName];
-                    } <span class="keyword">else</span> {
-                        <span class="keyword">if</span> (manager.cjsModule &amp;&amp; <span class="string">"exports"</span> <span class="keyword">in</span> manager.cjsModule) {
+                    } <span class="hljs-keyword">else</span> {
+                        <span class="hljs-keyword">if</span> (manager.cjsModule &amp;&amp; <span class="hljs-string">"exports"</span> <span class="hljs-keyword">in</span> manager.cjsModule) {
                             ret = defined[fullName] = manager.cjsModule.exports;
-                        } <span class="keyword">else</span> {
-                            <span class="keyword">if</span> (fullName <span class="keyword">in</span> defined &amp;&amp; !manager.usingExports) {
-                                <span class="keyword">return</span> req.onError(<span class="keyword">new</span> Error(fullName + <span class="string">" has already been defined"</span>));
+                        } <span class="hljs-keyword">else</span> {
+                            <span class="hljs-keyword">if</span> (fullName <span class="hljs-keyword">in</span> defined &amp;&amp; !manager.usingExports) {
+                                <span class="hljs-keyword">return</span> req.onError(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(fullName + <span class="hljs-string">" has already been defined"</span>));
                             }
                             defined[fullName] = ret;
                         }
                     }
                 }
-            } <span class="keyword">else</span> <span class="keyword">if</span> (fullName) {</pre></div></div>
+            } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (fullName) {</pre></div></div>
             
         </li>
         
@@ -1177,7 +1197,7 @@ worry about defining if have a module name.</p>
             <div class="content"><div class='highlight'><pre>                ret = defined[fullName] = cb;
             }
 
-            <span class="keyword">if</span> (fullName) {</pre></div></div>
+            <span class="hljs-keyword">if</span> (fullName) {</pre></div></div>
             
         </li>
         
@@ -1194,11 +1214,11 @@ notify them now.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                waitingCallbacks = managerCallbacks[fullName];
-                <span class="keyword">if</span> (waitingCallbacks) {
-                    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; waitingCallbacks.length; i++) {
+                <span class="hljs-keyword">if</span> (waitingCallbacks) {
+                    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; waitingCallbacks.length; i++) {
                         waitingCallbacks[i].onDep(fullName, ret);
                     }
-                    <span class="keyword">delete</span> managerCallbacks[fullName];
+                    <span class="hljs-keyword">delete</span> managerCallbacks[fullName];
                 }
             }</pre></div></div>
             
@@ -1215,11 +1235,11 @@ notify them now.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (waiting[manager.waitId]) {
-                <span class="keyword">delete</span> waiting[manager.waitId];
-                manager.isDone = <span class="literal">true</span>;
-                context.waitCount -= <span class="number">1</span>;
-                <span class="keyword">if</span> (context.waitCount === <span class="number">0</span>) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (waiting[manager.waitId]) {
+                <span class="hljs-keyword">delete</span> waiting[manager.waitId];
+                manager.isDone = <span class="hljs-literal">true</span>;
+                context.waitCount -= <span class="hljs-number">1</span>;
+                <span class="hljs-keyword">if</span> (context.waitCount === <span class="hljs-number">0</span>) {</pre></div></div>
             
         </li>
         
@@ -1238,11 +1258,11 @@ notify them now.</p>
                 }
             }
 
-            <span class="keyword">return</span> <span class="literal">undefined</span>;
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
         }
 
-        <span class="function"><span class="keyword">function</span> <span class="title">main</span><span class="params">(inName, depArray, callback, relModuleMap)</span> {</span>
-            <span class="keyword">var</span> moduleMap = makeModuleMap(inName, relModuleMap),
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">main</span>(<span class="hljs-params">inName, depArray, callback, relModuleMap</span>) </span>{
+            <span class="hljs-keyword">var</span> moduleMap = makeModuleMap(inName, relModuleMap),
                 name = moduleMap.name,
                 fullName = moduleMap.fullName,
                 uniques = {},
@@ -1263,19 +1283,19 @@ async require calls.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                    waitId: name || reqWaitIdPrefix + (waitIdCounter++),
-                    depCount: <span class="number">0</span>,
-                    depMax: <span class="number">0</span>,
-                    prefix: moduleMap.prefix,
-                    name: name,
-                    fullName: fullName,
-                    deps: {},
-                    depArray: depArray,
-                    callback: callback,
-                    onDep: <span class="function"><span class="keyword">function</span> <span class="params">(depName, value)</span> {</span>
-                        <span class="keyword">if</span> (!(depName <span class="keyword">in</span> manager.deps)) {
+                    <span class="hljs-attr">depCount</span>: <span class="hljs-number">0</span>,
+                    <span class="hljs-attr">depMax</span>: <span class="hljs-number">0</span>,
+                    <span class="hljs-attr">prefix</span>: moduleMap.prefix,
+                    <span class="hljs-attr">name</span>: name,
+                    <span class="hljs-attr">fullName</span>: fullName,
+                    <span class="hljs-attr">deps</span>: {},
+                    <span class="hljs-attr">depArray</span>: depArray,
+                    <span class="hljs-attr">callback</span>: callback,
+                    <span class="hljs-attr">onDep</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">depName, value</span>) </span>{
+                        <span class="hljs-keyword">if</span> (!(depName <span class="hljs-keyword">in</span> manager.deps)) {
                             manager.deps[depName] = value;
-                            manager.depCount += <span class="number">1</span>;
-                            <span class="keyword">if</span> (manager.depCount === manager.depMax) {</pre></div></div>
+                            manager.depCount += <span class="hljs-number">1</span>;
+                            <span class="hljs-keyword">if</span> (manager.depCount === manager.depMax) {</pre></div></div>
             
         </li>
         
@@ -1297,7 +1317,7 @@ async require calls.</p>
                 },
                 i, depArg, depName, cjsMod;
 
-            <span class="keyword">if</span> (fullName) {</pre></div></div>
+            <span class="hljs-keyword">if</span> (fullName) {</pre></div></div>
             
         </li>
         
@@ -1313,8 +1333,8 @@ then leave.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (fullName <span class="keyword">in</span> defined || loaded[fullName] === <span class="literal">true</span>) {
-                    <span class="keyword">return</span>;
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (fullName <span class="hljs-keyword">in</span> defined || loaded[fullName] === <span class="hljs-literal">true</span>) {
+                    <span class="hljs-keyword">return</span>;
                 }</pre></div></div>
             
         </li>
@@ -1334,9 +1354,9 @@ Also check if auto-registry of jQuery needs to be skipped.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                specified[fullName] = <span class="literal">true</span>;
-                loaded[fullName] = <span class="literal">true</span>;
-                context.jQueryDef = (fullName === <span class="string">"jquery"</span>);
+            <div class="content"><div class='highlight'><pre>                specified[fullName] = <span class="hljs-literal">true</span>;
+                loaded[fullName] = <span class="hljs-literal">true</span>;
+                context.jQueryDef = (fullName === <span class="hljs-string">"jquery"</span>);
             }</pre></div></div>
             
         </li>
@@ -1353,7 +1373,7 @@ on the dependencies.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; depArray.length; i++) {
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; depArray.length; i++) {
                 depArg = depArray[i];</pre></div></div>
             
         </li>
@@ -1371,7 +1391,7 @@ value as a dependency.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (depArg) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (depArg) {</pre></div></div>
             
         </li>
         
@@ -1418,9 +1438,9 @@ that is how it will be called back later.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    <span class="keyword">if</span> (depName === <span class="string">"require"</span>) {
+            <div class="content"><div class='highlight'><pre>                    <span class="hljs-keyword">if</span> (depName === <span class="hljs-string">"require"</span>) {
                         manager.deps[depName] = makeRequire(moduleMap);
-                    } <span class="keyword">else</span> <span class="keyword">if</span> (depName === <span class="string">"exports"</span>) {</pre></div></div>
+                    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (depName === <span class="hljs-string">"exports"</span>) {</pre></div></div>
             
         </li>
         
@@ -1436,8 +1456,8 @@ that is how it will be called back later.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                        manager.deps[depName] = defined[fullName] = {};
-                        manager.usingExports = <span class="literal">true</span>;
-                    } <span class="keyword">else</span> <span class="keyword">if</span> (depName === <span class="string">"module"</span>) {</pre></div></div>
+                        manager.usingExports = <span class="hljs-literal">true</span>;
+                    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (depName === <span class="hljs-string">"module"</span>) {</pre></div></div>
             
         </li>
         
@@ -1453,11 +1473,11 @@ that is how it will be called back later.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                        manager.cjsModule = cjsMod = manager.deps[depName] = {
-                            id: name,
-                            uri: name ? context.nameToUrl(name, <span class="literal">null</span>, relModuleMap) : <span class="literal">undefined</span>
+                            <span class="hljs-attr">id</span>: name,
+                            <span class="hljs-attr">uri</span>: name ? context.nameToUrl(name, <span class="hljs-literal">null</span>, relModuleMap) : <span class="hljs-literal">undefined</span>
                         };
                         cjsMod.setExports = makeSetExports(cjsMod);
-                    } <span class="keyword">else</span> <span class="keyword">if</span> (depName <span class="keyword">in</span> defined &amp;&amp; !(depName <span class="keyword">in</span> waiting)) {</pre></div></div>
+                    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (depName <span class="hljs-keyword">in</span> defined &amp;&amp; !(depName <span class="hljs-keyword">in</span> waiting)) {</pre></div></div>
             
         </li>
         
@@ -1473,7 +1493,7 @@ that is how it will be called back later.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                        manager.deps[depName] = defined[depName];
-                    } <span class="keyword">else</span> <span class="keyword">if</span> (!uniques[depName]) {</pre></div></div>
+                    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!uniques[depName]) {</pre></div></div>
             
         </li>
         
@@ -1488,7 +1508,7 @@ that is how it will be called back later.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                        manager.depMax += <span class="number">1</span>;
+            <div class="content"><div class='highlight'><pre>                        manager.depMax += <span class="hljs-number">1</span>;
 
                         queueDependency(depArg);</pre></div></div>
             
@@ -1508,7 +1528,7 @@ that is how it will be called back later.</p>
             <div class="content"><div class='highlight'><pre>                        (managerCallbacks[depName] ||
                         (managerCallbacks[depName] = [])).push(manager);
 
-                        uniques[depName] = <span class="literal">true</span>;
+                        uniques[depName] = <span class="hljs-literal">true</span>;
                     }
                 }
             }</pre></div></div>
@@ -1526,7 +1546,7 @@ that is how it will be called back later.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (manager.depCount === manager.depMax) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (manager.depCount === manager.depMax) {</pre></div></div>
             
         </li>
         
@@ -1542,19 +1562,19 @@ that is how it will be called back later.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                execManager(manager);
-            } <span class="keyword">else</span> {
+            } <span class="hljs-keyword">else</span> {
                 waiting[manager.waitId] = manager;
                 waitAry.push(manager);
-                context.waitCount += <span class="number">1</span>;
+                context.waitCount += <span class="hljs-number">1</span>;
             }
         }
 
-        <span class="comment">/**
+        <span class="hljs-comment">/**
          * Convenience method to call main for a require.def call that was put on
          * hold in the defQueue.
          */</span>
-        <span class="function"><span class="keyword">function</span> <span class="title">callDefMain</span><span class="params">(args)</span> {</span>
-            main.apply(<span class="literal">null</span>, args);</pre></div></div>
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">callDefMain</span>(<span class="hljs-params">args</span>) </span>{
+            main.apply(<span class="hljs-literal">null</span>, args);</pre></div></div>
             
         </li>
         
@@ -1571,10 +1591,10 @@ not call require.def</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            loaded[args[<span class="number">0</span>]] = <span class="literal">true</span>;
+            <div class="content"><div class='highlight'><pre>            loaded[args[<span class="hljs-number">0</span>]] = <span class="hljs-literal">true</span>;
         }
 
-        <span class="comment">/**
+        <span class="hljs-comment">/**
          * As of jQuery 1.4.3, it supports a readyWait property that will hold off
          * calling jQuery ready callbacks until all scripts are loaded. Be sure
          * to track it if readyWait is available. Also, since jQuery 1.4.3 does
@@ -1583,10 +1603,10 @@ not call require.def</p>
          * name of the global. If a jQuery is tracked for this context, then go
          * ahead and register it as a module too, if not already in process.
          */</span>
-        <span class="function"><span class="keyword">function</span> <span class="title">jQueryCheck</span><span class="params">(jqCandidate)</span> {</span>
-            <span class="keyword">if</span> (!context.jQuery) {
-                <span class="keyword">var</span> $ = jqCandidate || (<span class="keyword">typeof</span> jQuery !== <span class="string">"undefined"</span> ? jQuery : <span class="literal">null</span>);
-                <span class="keyword">if</span> ($ &amp;&amp; <span class="string">"readyWait"</span> <span class="keyword">in</span> $) {
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">jQueryCheck</span>(<span class="hljs-params">jqCandidate</span>) </span>{
+            <span class="hljs-keyword">if</span> (!context.jQuery) {
+                <span class="hljs-keyword">var</span> $ = jqCandidate || (<span class="hljs-keyword">typeof</span> jQuery !== <span class="hljs-string">"undefined"</span> ? jQuery : <span class="hljs-literal">null</span>);
+                <span class="hljs-keyword">if</span> ($ &amp;&amp; <span class="hljs-string">"readyWait"</span> <span class="hljs-keyword">in</span> $) {
                     context.jQuery = $;</pre></div></div>
             
         </li>
@@ -1603,8 +1623,8 @@ or in process.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    callDefMain([<span class="string">"jquery"</span>, [], <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                        <span class="keyword">return</span> jQuery;
+            <div class="content"><div class='highlight'><pre>                    callDefMain([<span class="hljs-string">"jquery"</span>, [], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                        <span class="hljs-keyword">return</span> jQuery;
                     }]);</pre></div></div>
             
         </li>
@@ -1620,28 +1640,28 @@ or in process.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    <span class="keyword">if</span> (context.scriptCount) {
-                        $.readyWait += <span class="number">1</span>;
-                        context.jQueryIncremented = <span class="literal">true</span>;
+            <div class="content"><div class='highlight'><pre>                    <span class="hljs-keyword">if</span> (context.scriptCount) {
+                        $.readyWait += <span class="hljs-number">1</span>;
+                        context.jQueryIncremented = <span class="hljs-literal">true</span>;
                     }
                 }
             }
         }
 
-        <span class="function"><span class="keyword">function</span> <span class="title">forceExec</span><span class="params">(manager, traced)</span> {</span>
-            <span class="keyword">if</span> (manager.isDone) {
-                <span class="keyword">return</span> <span class="literal">undefined</span>;
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">forceExec</span>(<span class="hljs-params">manager, traced</span>) </span>{
+            <span class="hljs-keyword">if</span> (manager.isDone) {
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
             }
 
-            <span class="keyword">var</span> fullName = manager.fullName,
+            <span class="hljs-keyword">var</span> fullName = manager.fullName,
                 depArray = manager.depArray,
                 depName, i;
-            <span class="keyword">if</span> (fullName) {
-                <span class="keyword">if</span> (traced[fullName]) {
-                    <span class="keyword">return</span> defined[fullName];
+            <span class="hljs-keyword">if</span> (fullName) {
+                <span class="hljs-keyword">if</span> (traced[fullName]) {
+                    <span class="hljs-keyword">return</span> defined[fullName];
                 }
 
-                traced[fullName] = <span class="literal">true</span>;
+                traced[fullName] = <span class="hljs-literal">true</span>;
             }</pre></div></div>
             
         </li>
@@ -1657,7 +1677,7 @@ or in process.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; depArray.length; i++) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; depArray.length; i++) {</pre></div></div>
             
         </li>
         
@@ -1674,24 +1694,24 @@ IE, so do the explicit [i] access and check if it has a value.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                depName = depArray[i];
-                <span class="keyword">if</span> (depName) {
-                    <span class="keyword">if</span> (!manager.deps[depName] &amp;&amp; waiting[depName]) {
+                <span class="hljs-keyword">if</span> (depName) {
+                    <span class="hljs-keyword">if</span> (!manager.deps[depName] &amp;&amp; waiting[depName]) {
                         manager.onDep(depName, forceExec(waiting[depName], traced));
                     }
                 }
             }
 
-            <span class="keyword">return</span> fullName ? defined[fullName] : <span class="literal">undefined</span>;
+            <span class="hljs-keyword">return</span> fullName ? defined[fullName] : <span class="hljs-literal">undefined</span>;
         }
 
-        <span class="comment">/**
+        <span class="hljs-comment">/**
          * Checks if all modules for a context are loaded, and if so, evaluates the
          * new ones in right dependency order.
          *
-         * @private
+         * <span class="hljs-doctag">@private</span>
          */</span>
-        <span class="function"><span class="keyword">function</span> <span class="title">checkLoaded</span><span class="params">()</span> {</span>
-            <span class="keyword">var</span> waitInterval = config.waitSeconds * <span class="number">1000</span>,</pre></div></div>
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">checkLoaded</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> waitInterval = config.waitSeconds * <span class="hljs-number">1000</span>,</pre></div></div>
             
         </li>
         
@@ -1706,8 +1726,8 @@ IE, so do the explicit [i] access and check if it has a value.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                expired = waitInterval &amp;&amp; (context.startTime + waitInterval) &lt; <span class="keyword">new</span> Date().getTime(),
-                noLoads = <span class="string">""</span>, hasLoadedProp = <span class="literal">false</span>, stillLoading = <span class="literal">false</span>, prop,
+            <div class="content"><div class='highlight'><pre>                expired = waitInterval &amp;&amp; (context.startTime + waitInterval) &lt; <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>().getTime(),
+                noLoads = <span class="hljs-string">""</span>, hasLoadedProp = <span class="hljs-literal">false</span>, stillLoading = <span class="hljs-literal">false</span>, prop,
                 err, manager;</pre></div></div>
             
         </li>
@@ -1725,8 +1745,8 @@ item is processed right away but there may be more waiting.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (context.pausedCount &gt; <span class="number">0</span>) {
-                <span class="keyword">return</span> <span class="literal">undefined</span>;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (context.pausedCount &gt; <span class="hljs-number">0</span>) {
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
             }</pre></div></div>
             
         </li>
@@ -1743,8 +1763,8 @@ not, then do not check</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (config.priorityWait) {
-                <span class="keyword">if</span> (isPriorityDone()) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (config.priorityWait) {
+                <span class="hljs-keyword">if</span> (isPriorityDone()) {</pre></div></div>
             
         </li>
         
@@ -1761,8 +1781,8 @@ some waiting dependencies to trace.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                    resume();
-                } <span class="keyword">else</span> {
-                    <span class="keyword">return</span> <span class="literal">undefined</span>;
+                } <span class="hljs-keyword">else</span> {
+                    <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
                 }
             }</pre></div></div>
             
@@ -1779,15 +1799,15 @@ some waiting dependencies to trace.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">for</span> (prop <span class="keyword">in</span> loaded) {
-                <span class="keyword">if</span> (!(prop <span class="keyword">in</span> empty)) {
-                    hasLoadedProp = <span class="literal">true</span>;
-                    <span class="keyword">if</span> (!loaded[prop]) {
-                        <span class="keyword">if</span> (expired) {
-                            noLoads += prop + <span class="string">" "</span>;
-                        } <span class="keyword">else</span> {
-                            stillLoading = <span class="literal">true</span>;
-                            <span class="keyword">break</span>;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">for</span> (prop <span class="hljs-keyword">in</span> loaded) {
+                <span class="hljs-keyword">if</span> (!(prop <span class="hljs-keyword">in</span> empty)) {
+                    hasLoadedProp = <span class="hljs-literal">true</span>;
+                    <span class="hljs-keyword">if</span> (!loaded[prop]) {
+                        <span class="hljs-keyword">if</span> (expired) {
+                            noLoads += prop + <span class="hljs-string">" "</span>;
+                        } <span class="hljs-keyword">else</span> {
+                            stillLoading = <span class="hljs-literal">true</span>;
+                            <span class="hljs-keyword">break</span>;
                         }
                     }
                 }
@@ -1806,7 +1826,7 @@ some waiting dependencies to trace.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (!hasLoadedProp &amp;&amp; !context.waitCount) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (!hasLoadedProp &amp;&amp; !context.waitCount) {</pre></div></div>
             
         </li>
         
@@ -1822,9 +1842,9 @@ the work below does not need to be done.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">return</span> <span class="literal">undefined</span>;
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
             }
-            <span class="keyword">if</span> (expired &amp;&amp; noLoads) {</pre></div></div>
+            <span class="hljs-keyword">if</span> (expired &amp;&amp; noLoads) {</pre></div></div>
             
         </li>
         
@@ -1839,12 +1859,12 @@ the work below does not need to be done.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                err = <span class="keyword">new</span> Error(<span class="string">"require.js load timeout for modules: "</span> + noLoads);
-                err.requireType = <span class="string">"timeout"</span>;
+            <div class="content"><div class='highlight'><pre>                err = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">"require.js load timeout for modules: "</span> + noLoads);
+                err.requireType = <span class="hljs-string">"timeout"</span>;
                 err.requireModules = noLoads;
-                <span class="keyword">return</span> req.onError(err);
+                <span class="hljs-keyword">return</span> req.onError(err);
             }
-            <span class="keyword">if</span> (stillLoading || context.scriptCount) {</pre></div></div>
+            <span class="hljs-keyword">if</span> (stillLoading || context.scriptCount) {</pre></div></div>
             
         </li>
         
@@ -1859,10 +1879,10 @@ the work below does not need to be done.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (isBrowser || isWebWorker) {
-                    setTimeout(checkLoaded, <span class="number">50</span>);
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (isBrowser || isWebWorker) {
+                    setTimeout(checkLoaded, <span class="hljs-number">50</span>);
                 }
-                <span class="keyword">return</span> <span class="literal">undefined</span>;
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
             }</pre></div></div>
             
         </li>
@@ -1885,7 +1905,7 @@ again.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (context.waitCount) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (context.waitCount) {</pre></div></div>
             
         </li>
         
@@ -1900,12 +1920,12 @@ again.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">for</span> (i = <span class="number">0</span>; (manager = waitAry[i]); i++) {
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; (manager = waitAry[i]); i++) {
                     forceExec(manager, {});
                 }
 
                 checkLoaded();
-                <span class="keyword">return</span> <span class="literal">undefined</span>;
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
             }</pre></div></div>
             
         </li>
@@ -1923,11 +1943,11 @@ again.</p>
             
             <div class="content"><div class='highlight'><pre>            req.checkReadyState();
 
-            <span class="keyword">return</span> <span class="literal">undefined</span>;
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
         }
 
-        <span class="function"><span class="keyword">function</span> <span class="title">callPlugin</span><span class="params">(pluginName, dep)</span> {</span>
-            <span class="keyword">var</span> name = dep.name,
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">callPlugin</span>(<span class="hljs-params">pluginName, dep</span>) </span>{
+            <span class="hljs-keyword">var</span> name = dep.name,
                 fullName = dep.fullName,
                 load;</pre></div></div>
             
@@ -1944,11 +1964,11 @@ again.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (fullName <span class="keyword">in</span> defined || fullName <span class="keyword">in</span> loaded) {
-                <span class="keyword">return</span>;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (fullName <span class="hljs-keyword">in</span> defined || fullName <span class="hljs-keyword">in</span> loaded) {
+                <span class="hljs-keyword">return</span>;
             }
 
-            <span class="keyword">if</span> (!plugins[pluginName]) {
+            <span class="hljs-keyword">if</span> (!plugins[pluginName]) {
                 plugins[pluginName] = defined[pluginName];
             }</pre></div></div>
             
@@ -1965,11 +1985,11 @@ again.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (!loaded[fullName]) {
-                loaded[fullName] = <span class="literal">false</span>;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (!loaded[fullName]) {
+                loaded[fullName] = <span class="hljs-literal">false</span>;
             }
 
-            load = <span class="function"><span class="keyword">function</span> <span class="params">(ret)</span> {</span></pre></div></div>
+            load = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">ret</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -1984,19 +2004,19 @@ again.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (require.onPluginLoad) {
-                    require.onPluginLoad(context, pluginName, name, ret);
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (<span class="hljs-built_in">require</span>.onPluginLoad) {
+                    <span class="hljs-built_in">require</span>.onPluginLoad(context, pluginName, name, ret);
                 }
 
                 execManager({
-                    prefix: dep.prefix,
-                    name: dep.name,
-                    fullName: dep.fullName,
-                    callback: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                        <span class="keyword">return</span> ret;
+                    <span class="hljs-attr">prefix</span>: dep.prefix,
+                    <span class="hljs-attr">name</span>: dep.name,
+                    <span class="hljs-attr">fullName</span>: dep.fullName,
+                    <span class="hljs-attr">callback</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                        <span class="hljs-keyword">return</span> ret;
                     }
                 });
-                loaded[fullName] = <span class="literal">true</span>;
+                loaded[fullName] = <span class="hljs-literal">true</span>;
             };</pre></div></div>
             
         </li>
@@ -2013,9 +2033,9 @@ context or how to &quot;complete&quot; the load.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            load.fromText = <span class="function"><span class="keyword">function</span> <span class="params">(moduleName, text)</span> {</span>
-                <span class="comment">/*jslint evil: true */</span>
-                <span class="keyword">var</span> hasInteractive = useInteractive;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            load.fromText = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">moduleName, text</span>) </span>{
+                <span class="hljs-comment">/*jslint evil: true */</span>
+                <span class="hljs-keyword">var</span> hasInteractive = useInteractive;</pre></div></div>
             
         </li>
         
@@ -2030,8 +2050,8 @@ context or how to &quot;complete&quot; the load.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                context.loaded[moduleName] = <span class="literal">false</span>;
-                context.scriptCount += <span class="number">1</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                context.loaded[moduleName] = <span class="hljs-literal">false</span>;
+                context.scriptCount += <span class="hljs-number">1</span>;</pre></div></div>
             
         </li>
         
@@ -2047,12 +2067,12 @@ calls in the text, then turn it back on at the end.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (hasInteractive) {
-                    useInteractive = <span class="literal">false</span>;
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (hasInteractive) {
+                    useInteractive = <span class="hljs-literal">false</span>;
                 }
-                eval(text);
-                <span class="keyword">if</span> (hasInteractive) {
-                    useInteractive = <span class="literal">true</span>;
+                <span class="hljs-built_in">eval</span>(text);
+                <span class="hljs-keyword">if</span> (hasInteractive) {
+                    useInteractive = <span class="hljs-literal">true</span>;
                 }</pre></div></div>
             
         </li>
@@ -2086,10 +2106,10 @@ reference the parentName&#39;s path.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            plugins[pluginName].load(name, makeRequire(dep.parentMap, <span class="literal">true</span>), load, config);
+            <div class="content"><div class='highlight'><pre>            plugins[pluginName].load(name, makeRequire(dep.parentMap, <span class="hljs-literal">true</span>), load, config);
         }
 
-        <span class="function"><span class="keyword">function</span> <span class="title">loadPaused</span><span class="params">(dep)</span> {</span></pre></div></div>
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">loadPaused</span>(<span class="hljs-params">dep</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -2105,11 +2125,11 @@ to load, which as since loaded.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (dep.prefix &amp;&amp; dep.name.indexOf(<span class="string">'__$p'</span>) === <span class="number">0</span> &amp;&amp; defined[dep.prefix]) {
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (dep.prefix &amp;&amp; dep.name.indexOf(<span class="hljs-string">'__$p'</span>) === <span class="hljs-number">0</span> &amp;&amp; defined[dep.prefix]) {
                 dep = makeModuleMap(dep.originalName, dep.parentMap);
             }
 
-            <span class="keyword">var</span> pluginName = dep.prefix,
+            <span class="hljs-keyword">var</span> pluginName = dep.prefix,
                 fullName = dep.fullName;</pre></div></div>
             
         </li>
@@ -2125,13 +2145,13 @@ to load, which as since loaded.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (specified[fullName] || loaded[fullName]) {
-                <span class="keyword">return</span>;
-            } <span class="keyword">else</span> {
-                specified[fullName] = <span class="literal">true</span>;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (specified[fullName] || loaded[fullName]) {
+                <span class="hljs-keyword">return</span>;
+            } <span class="hljs-keyword">else</span> {
+                specified[fullName] = <span class="hljs-literal">true</span>;
             }
 
-            <span class="keyword">if</span> (pluginName) {</pre></div></div>
+            <span class="hljs-keyword">if</span> (pluginName) {</pre></div></div>
             
         </li>
         
@@ -2148,16 +2168,16 @@ managerCallback for that plugin.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (defined[pluginName]) {
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (defined[pluginName]) {
                     callPlugin(pluginName, dep);
-                } <span class="keyword">else</span> {
-                    <span class="keyword">if</span> (!pluginsQueue[pluginName]) {
+                } <span class="hljs-keyword">else</span> {
+                    <span class="hljs-keyword">if</span> (!pluginsQueue[pluginName]) {
                         pluginsQueue[pluginName] = [];
                         (managerCallbacks[pluginName] ||
                         (managerCallbacks[pluginName] = [])).push({
-                            onDep: <span class="function"><span class="keyword">function</span> <span class="params">(name, value)</span> {</span>
-                                <span class="keyword">if</span> (name === pluginName) {
-                                    <span class="keyword">var</span> i, oldModuleMap, ary = pluginsQueue[pluginName];</pre></div></div>
+                            <span class="hljs-attr">onDep</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name, value</span>) </span>{
+                                <span class="hljs-keyword">if</span> (name === pluginName) {
+                                    <span class="hljs-keyword">var</span> i, oldModuleMap, ary = pluginsQueue[pluginName];</pre></div></div>
             
         </li>
         
@@ -2172,7 +2192,7 @@ managerCallback for that plugin.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                                    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; ary.length; i++) {
+            <div class="content"><div class='highlight'><pre>                                    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; ary.length; i++) {
                                         oldModuleMap = ary[i];</pre></div></div>
             
         </li>
@@ -2193,27 +2213,27 @@ differently now.</p>
             <div class="content"><div class='highlight'><pre>                                        callPlugin(pluginName,
                                                    makeModuleMap(oldModuleMap.originalName, oldModuleMap.parentMap));
                                     }
-                                    <span class="keyword">delete</span> pluginsQueue[pluginName];
+                                    <span class="hljs-keyword">delete</span> pluginsQueue[pluginName];
                                 }
                             }
                         });
                     }
                     pluginsQueue[pluginName].push(dep);
                 }
-            } <span class="keyword">else</span> {
+            } <span class="hljs-keyword">else</span> {
                 req.load(context, fullName, dep.url);
             }
         }
 
-        <span class="comment">/**
+        <span class="hljs-comment">/**
          * Resumes tracing of dependencies and then checks if everything is loaded.
          */</span>
-        resume = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-            <span class="keyword">var</span> args, i, p;
+        resume = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> args, i, p;
 
-            resumeDepth += <span class="number">1</span>;
+            resumeDepth += <span class="hljs-number">1</span>;
 
-            <span class="keyword">if</span> (context.scriptCount &lt;= <span class="number">0</span>) {</pre></div></div>
+            <span class="hljs-keyword">if</span> (context.scriptCount &lt;= <span class="hljs-number">0</span>) {</pre></div></div>
             
         </li>
         
@@ -2231,7 +2251,7 @@ push the number negative too.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                context.scriptCount = <span class="number">0</span>;
+            <div class="content"><div class='highlight'><pre>                context.scriptCount = <span class="hljs-number">0</span>;
             }</pre></div></div>
             
         </li>
@@ -2247,11 +2267,11 @@ push the number negative too.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">while</span> (defQueue.length) {
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">while</span> (defQueue.length) {
                 args = defQueue.shift();
-                <span class="keyword">if</span> (args[<span class="number">0</span>] === <span class="literal">null</span>) {
-                    <span class="keyword">return</span> req.onError(<span class="keyword">new</span> Error(<span class="string">'Mismatched anonymous require.def modules'</span>));
-                } <span class="keyword">else</span> {
+                <span class="hljs-keyword">if</span> (args[<span class="hljs-number">0</span>] === <span class="hljs-literal">null</span>) {
+                    <span class="hljs-keyword">return</span> req.onError(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Mismatched anonymous require.def modules'</span>));
+                } <span class="hljs-keyword">else</span> {
                     callDefMain(args);
                 }
             }</pre></div></div>
@@ -2270,8 +2290,8 @@ if current context is in priority wait.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (!config.priorityWait || isPriorityDone()) {
-                <span class="keyword">while</span> (context.paused.length) {
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (!config.priorityWait || isPriorityDone()) {
+                <span class="hljs-keyword">while</span> (context.paused.length) {
                     p = context.paused;
                     context.pausedCount += p.length;</pre></div></div>
             
@@ -2290,7 +2310,7 @@ if current context is in priority wait.</p>
             
             <div class="content"><div class='highlight'><pre>                    context.paused = [];
 
-                    <span class="keyword">for</span> (i = <span class="number">0</span>; (args = p[i]); i++) {
+                    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; (args = p[i]); i++) {
                         loadPaused(args);
                     }</pre></div></div>
             
@@ -2307,7 +2327,7 @@ if current context is in priority wait.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    context.startTime = (<span class="keyword">new</span> Date()).getTime();
+            <div class="content"><div class='highlight'><pre>                    context.startTime = (<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>()).getTime();
                     context.pausedCount -= p.length;
                 }
             }</pre></div></div>
@@ -2329,13 +2349,13 @@ depth is back at the top level.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (resumeDepth === <span class="number">1</span>) {
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (resumeDepth === <span class="hljs-number">1</span>) {
                 checkLoaded();
             }
 
-            resumeDepth -= <span class="number">1</span>;
+            resumeDepth -= <span class="hljs-number">1</span>;
 
-            <span class="keyword">return</span> <span class="literal">undefined</span>;
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
         };</pre></div></div>
             
         </li>
@@ -2353,29 +2373,29 @@ just to make debugging easier.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>        context = {
-            contextName: contextName,
-            config: config,
-            defQueue: defQueue,
-            waiting: waiting,
-            waitCount: <span class="number">0</span>,
-            specified: specified,
-            loaded: loaded,
-            urlMap: urlMap,
-            scriptCount: <span class="number">0</span>,
-            urlFetched: {},
-            defined: defined,
-            paused: [],
-            pausedCount: <span class="number">0</span>,
-            plugins: plugins,
-            managerCallbacks: managerCallbacks,
-            makeModuleMap: makeModuleMap,
-            normalize: normalize,
-            <span class="comment">/**
+            <span class="hljs-attr">contextName</span>: contextName,
+            <span class="hljs-attr">config</span>: config,
+            <span class="hljs-attr">defQueue</span>: defQueue,
+            <span class="hljs-attr">waiting</span>: waiting,
+            <span class="hljs-attr">waitCount</span>: <span class="hljs-number">0</span>,
+            <span class="hljs-attr">specified</span>: specified,
+            <span class="hljs-attr">loaded</span>: loaded,
+            <span class="hljs-attr">urlMap</span>: urlMap,
+            <span class="hljs-attr">scriptCount</span>: <span class="hljs-number">0</span>,
+            <span class="hljs-attr">urlFetched</span>: {},
+            <span class="hljs-attr">defined</span>: defined,
+            <span class="hljs-attr">paused</span>: [],
+            <span class="hljs-attr">pausedCount</span>: <span class="hljs-number">0</span>,
+            <span class="hljs-attr">plugins</span>: plugins,
+            <span class="hljs-attr">managerCallbacks</span>: managerCallbacks,
+            <span class="hljs-attr">makeModuleMap</span>: makeModuleMap,
+            <span class="hljs-attr">normalize</span>: normalize,
+            <span class="hljs-comment">/**
              * Set a configuration for the context.
-             * @param {Object} cfg config object to integrate.
+             * <span class="hljs-doctag">@param <span class="hljs-type">{Object}</span> </span>cfg config object to integrate.
              */</span>
-            configure: <span class="function"><span class="keyword">function</span> <span class="params">(cfg)</span> {</span>
-                <span class="keyword">var</span> paths, prop, packages, pkgs, packagePaths, requireWait;</pre></div></div>
+            <span class="hljs-attr">configure</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">cfg</span>) </span>{
+                <span class="hljs-keyword">var</span> paths, prop, packages, pkgs, packagePaths, requireWait;</pre></div></div>
             
         </li>
         
@@ -2390,9 +2410,9 @@ just to make debugging easier.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (cfg.baseUrl) {
-                    <span class="keyword">if</span> (cfg.baseUrl.charAt(cfg.baseUrl.length - <span class="number">1</span>) !== <span class="string">"/"</span>) {
-                        cfg.baseUrl += <span class="string">"/"</span>;
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (cfg.baseUrl) {
+                    <span class="hljs-keyword">if</span> (cfg.baseUrl.charAt(cfg.baseUrl.length - <span class="hljs-number">1</span>) !== <span class="hljs-string">"/"</span>) {
+                        cfg.baseUrl += <span class="hljs-string">"/"</span>;
                     }
                 }</pre></div></div>
             
@@ -2428,7 +2448,7 @@ existing ones in context.config.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                mixin(config, cfg, <span class="literal">true</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                mixin(config, cfg, <span class="hljs-literal">true</span>);</pre></div></div>
             
         </li>
         
@@ -2443,9 +2463,9 @@ existing ones in context.config.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (cfg.paths) {
-                    <span class="keyword">for</span> (prop <span class="keyword">in</span> cfg.paths) {
-                        <span class="keyword">if</span> (!(prop <span class="keyword">in</span> empty)) {
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (cfg.paths) {
+                    <span class="hljs-keyword">for</span> (prop <span class="hljs-keyword">in</span> cfg.paths) {
+                        <span class="hljs-keyword">if</span> (!(prop <span class="hljs-keyword">in</span> empty)) {
                             paths[prop] = cfg.paths[prop];
                         }
                     }
@@ -2453,7 +2473,7 @@ existing ones in context.config.</p>
                 }
 
                 packagePaths = cfg.packagePaths;
-                <span class="keyword">if</span> (packagePaths || cfg.packages) {</pre></div></div>
+                <span class="hljs-keyword">if</span> (packagePaths || cfg.packages) {</pre></div></div>
             
         </li>
         
@@ -2468,9 +2488,9 @@ existing ones in context.config.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    <span class="keyword">if</span> (packagePaths) {
-                        <span class="keyword">for</span> (prop <span class="keyword">in</span> packagePaths) {
-                            <span class="keyword">if</span> (!(prop <span class="keyword">in</span> empty)) {
+            <div class="content"><div class='highlight'><pre>                    <span class="hljs-keyword">if</span> (packagePaths) {
+                        <span class="hljs-keyword">for</span> (prop <span class="hljs-keyword">in</span> packagePaths) {
+                            <span class="hljs-keyword">if</span> (!(prop <span class="hljs-keyword">in</span> empty)) {
                                 configurePackageDir(pkgs, packagePaths[prop], prop);
                             }
                         }
@@ -2489,7 +2509,7 @@ existing ones in context.config.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    <span class="keyword">if</span> (cfg.packages) {
+            <div class="content"><div class='highlight'><pre>                    <span class="hljs-keyword">if</span> (cfg.packages) {
                         configurePackageDir(pkgs, cfg.packages);
                     }</pre></div></div>
             
@@ -2522,7 +2542,7 @@ existing ones in context.config.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (cfg.priority) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (cfg.priority) {</pre></div></div>
             
         </li>
         
@@ -2553,7 +2573,7 @@ of the priority config.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    context.requireWait = <span class="literal">false</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                    context.requireWait = <span class="hljs-literal">false</span>;</pre></div></div>
             
         </li>
         
@@ -2626,7 +2646,7 @@ config object before require.js is loaded.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (cfg.deps || cfg.callback) {
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (cfg.deps || cfg.callback) {
                     context.require(cfg.deps || [], cfg.callback);
                 }</pre></div></div>
             
@@ -2644,18 +2664,18 @@ config object before require.js is loaded.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (cfg.ready) {
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (cfg.ready) {
                     req.ready(cfg.ready);
                 }
             },
 
-            isDefined: <span class="function"><span class="keyword">function</span> <span class="params">(moduleName, relModuleMap)</span> {</span>
-                <span class="keyword">return</span> makeModuleMap(moduleName, relModuleMap).fullName <span class="keyword">in</span> defined;
+            <span class="hljs-attr">isDefined</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">moduleName, relModuleMap</span>) </span>{
+                <span class="hljs-keyword">return</span> makeModuleMap(moduleName, relModuleMap).fullName <span class="hljs-keyword">in</span> defined;
             },
 
-            require: <span class="function"><span class="keyword">function</span> <span class="params">(deps, callback, relModuleMap)</span> {</span>
-                <span class="keyword">var</span> moduleName, ret, moduleMap;
-                <span class="keyword">if</span> (<span class="keyword">typeof</span> deps === <span class="string">"string"</span>) {</pre></div></div>
+            <span class="hljs-attr">require</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">deps, callback, relModuleMap</span>) </span>{
+                <span class="hljs-keyword">var</span> moduleName, ret, moduleMap;
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> deps === <span class="hljs-string">"string"</span>) {</pre></div></div>
             
         </li>
         
@@ -2673,8 +2693,8 @@ the relModuleMap</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    <span class="keyword">if</span> (req.get) {
-                        <span class="keyword">return</span> req.get(context, deps, callback);
+            <div class="content"><div class='highlight'><pre>                    <span class="hljs-keyword">if</span> (req.get) {
+                        <span class="hljs-keyword">return</span> req.get(context, deps, callback);
                     }</pre></div></div>
             
         </li>
@@ -2710,16 +2730,16 @@ second arg (if passed) is just the relModuleMap.</p>
             <div class="content"><div class='highlight'><pre>                    moduleMap = makeModuleMap(moduleName, relModuleMap);
 
                     ret = defined[moduleMap.fullName];
-                    <span class="keyword">if</span> (ret === <span class="literal">undefined</span>) {
-                        <span class="keyword">return</span> req.onError(<span class="keyword">new</span> Error(<span class="string">"require: module name '"</span> +
+                    <span class="hljs-keyword">if</span> (ret === <span class="hljs-literal">undefined</span>) {
+                        <span class="hljs-keyword">return</span> req.onError(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">"require: module name '"</span> +
                                     moduleMap.fullName +
-                                    <span class="string">"' has not been loaded yet for context: "</span> +
+                                    <span class="hljs-string">"' has not been loaded yet for context: "</span> +
                                     contextName));
                     }
-                    <span class="keyword">return</span> ret;
+                    <span class="hljs-keyword">return</span> ret;
                 }
 
-                main(<span class="literal">null</span>, deps, callback, relModuleMap);</pre></div></div>
+                main(<span class="hljs-literal">null</span>, deps, callback, relModuleMap);</pre></div></div>
             
         </li>
         
@@ -2735,19 +2755,19 @@ then resume the dependency processing.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (!context.requireWait) {
-                    <span class="keyword">while</span> (!context.scriptCount &amp;&amp; context.paused.length) {
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (!context.requireWait) {
+                    <span class="hljs-keyword">while</span> (!context.scriptCount &amp;&amp; context.paused.length) {
                         resume();
                     }
                 }
-                <span class="keyword">return</span> <span class="literal">undefined</span>;
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
             },
 
-            <span class="comment">/**
+            <span class="hljs-comment">/**
              * Internal method to transfer globalQueue items to this context's
              * defQueue.
              */</span>
-            takeGlobalQueue: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span></pre></div></div>
+            <span class="hljs-attr">takeGlobalQueue</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -2762,7 +2782,7 @@ then resume the dependency processing.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (globalDefQueue.length) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (globalDefQueue.length) {</pre></div></div>
             
         </li>
         
@@ -2780,29 +2800,29 @@ on context.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                    apsp.apply(context.defQueue,
-                               [context.defQueue.length - <span class="number">1</span>, <span class="number">0</span>].concat(globalDefQueue));
+                               [context.defQueue.length - <span class="hljs-number">1</span>, <span class="hljs-number">0</span>].concat(globalDefQueue));
                     globalDefQueue = [];
                 }
             },
 
-            <span class="comment">/**
+            <span class="hljs-comment">/**
              * Internal method used by environment adapters to complete a load event.
              * A load event could be a script load or just a load pass from a synchronous
              * load call.
-             * @param {String} moduleName the name of the module to potentially complete.
+             * <span class="hljs-doctag">@param <span class="hljs-type">{String}</span> </span>moduleName the name of the module to potentially complete.
              */</span>
-            completeLoad: <span class="function"><span class="keyword">function</span> <span class="params">(moduleName)</span> {</span>
-                <span class="keyword">var</span> args;
+            <span class="hljs-attr">completeLoad</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">moduleName</span>) </span>{
+                <span class="hljs-keyword">var</span> args;
 
                 context.takeGlobalQueue();
 
-                <span class="keyword">while</span> (defQueue.length) {
+                <span class="hljs-keyword">while</span> (defQueue.length) {
                     args = defQueue.shift();
 
-                    <span class="keyword">if</span> (args[<span class="number">0</span>] === <span class="literal">null</span>) {
-                        args[<span class="number">0</span>] = moduleName;
-                        <span class="keyword">break</span>;
-                    } <span class="keyword">else</span> <span class="keyword">if</span> (args[<span class="number">0</span>] === moduleName) {</pre></div></div>
+                    <span class="hljs-keyword">if</span> (args[<span class="hljs-number">0</span>] === <span class="hljs-literal">null</span>) {
+                        args[<span class="hljs-number">0</span>] = moduleName;
+                        <span class="hljs-keyword">break</span>;
+                    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (args[<span class="hljs-number">0</span>] === moduleName) {</pre></div></div>
             
         </li>
         
@@ -2817,8 +2837,8 @@ on context.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                        <span class="keyword">break</span>;
-                    } <span class="keyword">else</span> {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                        <span class="hljs-keyword">break</span>;
+                    } <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -2835,12 +2855,12 @@ of a build layer that included many require.def calls.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                        callDefMain(args);
-                        args = <span class="literal">null</span>;
+                        args = <span class="hljs-literal">null</span>;
                     }
                 }
-                <span class="keyword">if</span> (args) {
+                <span class="hljs-keyword">if</span> (args) {
                     callDefMain(args);
-                } <span class="keyword">else</span> {</pre></div></div>
+                } <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -2857,10 +2877,10 @@ the call for it. Special exception for jQuery dynamic load.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                    callDefMain([moduleName, [],
-                                moduleName === <span class="string">"jquery"</span> &amp;&amp; <span class="keyword">typeof</span> jQuery !== <span class="string">"undefined"</span> ?
-                                <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                                    <span class="keyword">return</span> jQuery;
-                                } : <span class="literal">null</span>]);
+                                moduleName === <span class="hljs-string">"jquery"</span> &amp;&amp; <span class="hljs-keyword">typeof</span> jQuery !== <span class="hljs-string">"undefined"</span> ?
+                                <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                                    <span class="hljs-keyword">return</span> jQuery;
+                                } : <span class="hljs-literal">null</span>]);
                 }</pre></div></div>
             
         </li>
@@ -2878,7 +2898,7 @@ for traditional browser scripts.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                loaded[moduleName] = <span class="literal">true</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                loaded[moduleName] = <span class="hljs-literal">true</span>;</pre></div></div>
             
         </li>
         
@@ -2915,41 +2935,41 @@ that cost, decrement beforehand.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (req.isAsync) {
-                    context.scriptCount -= <span class="number">1</span>;
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (req.isAsync) {
+                    context.scriptCount -= <span class="hljs-number">1</span>;
                 }
                 resume();
-                <span class="keyword">if</span> (!req.isAsync) {
-                    context.scriptCount -= <span class="number">1</span>;
+                <span class="hljs-keyword">if</span> (!req.isAsync) {
+                    context.scriptCount -= <span class="hljs-number">1</span>;
                 }
             },
 
-            <span class="comment">/**
+            <span class="hljs-comment">/**
              * Converts a module name + .extension into an URL path.
              * *Requires* the use of a module name. It does not support using
              * plain URLs like nameToUrl.
              */</span>
-            toUrl: <span class="function"><span class="keyword">function</span> <span class="params">(moduleNamePlusExt, relModuleMap)</span> {</span>
-                <span class="keyword">var</span> index = moduleNamePlusExt.lastIndexOf(<span class="string">"."</span>),
-                    ext = <span class="literal">null</span>;
+            <span class="hljs-attr">toUrl</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">moduleNamePlusExt, relModuleMap</span>) </span>{
+                <span class="hljs-keyword">var</span> index = moduleNamePlusExt.lastIndexOf(<span class="hljs-string">"."</span>),
+                    ext = <span class="hljs-literal">null</span>;
 
-                <span class="keyword">if</span> (index !== -<span class="number">1</span>) {
+                <span class="hljs-keyword">if</span> (index !== <span class="hljs-number">-1</span>) {
                     ext = moduleNamePlusExt.substring(index, moduleNamePlusExt.length);
-                    moduleNamePlusExt = moduleNamePlusExt.substring(<span class="number">0</span>, index);
+                    moduleNamePlusExt = moduleNamePlusExt.substring(<span class="hljs-number">0</span>, index);
                 }
 
-                <span class="keyword">return</span> context.nameToUrl(moduleNamePlusExt, ext, relModuleMap);
+                <span class="hljs-keyword">return</span> context.nameToUrl(moduleNamePlusExt, ext, relModuleMap);
             },
 
-            <span class="comment">/**
+            <span class="hljs-comment">/**
              * Converts a module name to a file path. Supports cases where
              * moduleName may actually be just an URL.
              */</span>
-            nameToUrl: <span class="function"><span class="keyword">function</span> <span class="params">(moduleName, ext, relModuleMap)</span> {</span>
-                <span class="keyword">var</span> paths, pkgs, pkg, pkgPath, syms, i, parentModule, url,
+            <span class="hljs-attr">nameToUrl</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">moduleName, ext, relModuleMap</span>) </span>{
+                <span class="hljs-keyword">var</span> paths, pkgs, pkg, pkgPath, syms, i, parentModule, url,
                     config = context.config;
 
-                <span class="keyword">if</span> (moduleName.indexOf(<span class="string">"./"</span>) === <span class="number">0</span> || moduleName.indexOf(<span class="string">"../"</span>) === <span class="number">0</span>) {</pre></div></div>
+                <span class="hljs-keyword">if</span> (moduleName.indexOf(<span class="hljs-string">"./"</span>) === <span class="hljs-number">0</span> || moduleName.indexOf(<span class="hljs-string">"../"</span>) === <span class="hljs-number">0</span>) {</pre></div></div>
             
         </li>
         
@@ -2964,7 +2984,7 @@ that cost, decrement beforehand.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    syms = relModuleMap &amp;&amp; relModuleMap.url ? relModuleMap.url.split(<span class="string">'/'</span>) : [];</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                    syms = relModuleMap &amp;&amp; relModuleMap.url ? relModuleMap.url.split(<span class="hljs-string">'/'</span>) : [];</pre></div></div>
             
         </li>
         
@@ -2979,15 +2999,15 @@ that cost, decrement beforehand.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    <span class="keyword">if</span> (syms.length) {
+            <div class="content"><div class='highlight'><pre>                    <span class="hljs-keyword">if</span> (syms.length) {
                         syms.pop();
                     }
-                    syms = syms.concat(moduleName.split(<span class="string">'/'</span>));
+                    syms = syms.concat(moduleName.split(<span class="hljs-string">'/'</span>));
                     trimDots(syms);
-                    url = syms.join(<span class="string">'/'</span>) +
+                    url = syms.join(<span class="hljs-string">'/'</span>) +
                           (ext ? ext :
-                          (req.jsExtRegExp.test(moduleName) ? <span class="string">""</span> : <span class="string">".js"</span>));
-                } <span class="keyword">else</span> {</pre></div></div>
+                          (req.jsExtRegExp.test(moduleName) ? <span class="hljs-string">""</span> : <span class="hljs-string">".js"</span>));
+                } <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -3019,7 +3039,7 @@ The slash is important for protocol-less URLs as well as full paths.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    <span class="keyword">if</span> (req.jsExtRegExp.test(moduleName)) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                    <span class="hljs-keyword">if</span> (req.jsExtRegExp.test(moduleName)) {</pre></div></div>
             
         </li>
         
@@ -3036,8 +3056,8 @@ an extension, this method probably needs to be reworked.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                        url = moduleName + (ext ? ext : <span class="string">""</span>);
-                    } <span class="keyword">else</span> {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                        url = moduleName + (ext ? ext : <span class="hljs-string">""</span>);
+                    } <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -3055,7 +3075,7 @@ an extension, this method probably needs to be reworked.</p>
             <div class="content"><div class='highlight'><pre>                        paths = config.paths;
                         pkgs = config.pkgs;
 
-                        syms = moduleName.split(<span class="string">"/"</span>);</pre></div></div>
+                        syms = moduleName.split(<span class="hljs-string">"/"</span>);</pre></div></div>
             
         </li>
         
@@ -3072,12 +3092,12 @@ and work up from it.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                        <span class="keyword">for</span> (i = syms.length; i &gt; <span class="number">0</span>; i--) {
-                            parentModule = syms.slice(<span class="number">0</span>, i).join(<span class="string">"/"</span>);
-                            <span class="keyword">if</span> (paths[parentModule]) {
-                                syms.splice(<span class="number">0</span>, i, paths[parentModule]);
-                                <span class="keyword">break</span>;
-                            } <span class="keyword">else</span> <span class="keyword">if</span> ((pkg = pkgs[parentModule])) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                        <span class="hljs-keyword">for</span> (i = syms.length; i &gt; <span class="hljs-number">0</span>; i--) {
+                            parentModule = syms.slice(<span class="hljs-number">0</span>, i).join(<span class="hljs-string">"/"</span>);
+                            <span class="hljs-keyword">if</span> (paths[parentModule]) {
+                                syms.splice(<span class="hljs-number">0</span>, i, paths[parentModule]);
+                                <span class="hljs-keyword">break</span>;
+                            } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ((pkg = pkgs[parentModule])) {</pre></div></div>
             
         </li>
         
@@ -3093,13 +3113,13 @@ for the main module.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                                <span class="keyword">if</span> (moduleName === pkg.name) {
-                                    pkgPath = pkg.location + <span class="string">'/'</span> + pkg.main;
-                                } <span class="keyword">else</span> {
-                                    pkgPath = pkg.location + <span class="string">'/'</span> + pkg.lib;
+            <div class="content"><div class='highlight'><pre>                                <span class="hljs-keyword">if</span> (moduleName === pkg.name) {
+                                    pkgPath = pkg.location + <span class="hljs-string">'/'</span> + pkg.main;
+                                } <span class="hljs-keyword">else</span> {
+                                    pkgPath = pkg.location + <span class="hljs-string">'/'</span> + pkg.lib;
                                 }
-                                syms.splice(<span class="number">0</span>, i, pkgPath);
-                                <span class="keyword">break</span>;
+                                syms.splice(<span class="hljs-number">0</span>, i, pkgPath);
+                                <span class="hljs-keyword">break</span>;
                             }
                         }</pre></div></div>
             
@@ -3116,13 +3136,13 @@ for the main module.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                        url = syms.join(<span class="string">"/"</span>) + (ext || <span class="string">".js"</span>);
-                        url = (url.charAt(<span class="number">0</span>) === <span class="string">'/'</span> || url.match(<span class="regexp">/^\w+:/</span>) ? <span class="string">""</span> : config.baseUrl) + url;
+            <div class="content"><div class='highlight'><pre>                        url = syms.join(<span class="hljs-string">"/"</span>) + (ext || <span class="hljs-string">".js"</span>);
+                        url = (url.charAt(<span class="hljs-number">0</span>) === <span class="hljs-string">'/'</span> || url.match(<span class="hljs-regexp">/^\w+:/</span>) ? <span class="hljs-string">""</span> : config.baseUrl) + url;
                     }
                 }
 
-                <span class="keyword">return</span> config.urlArgs ? url +
-                                        ((url.indexOf(<span class="string">'?'</span>) === -<span class="number">1</span> ? <span class="string">'?'</span> : <span class="string">'&amp;'</span>) +
+                <span class="hljs-keyword">return</span> config.urlArgs ? url +
+                                        ((url.indexOf(<span class="hljs-string">'?'</span>) === <span class="hljs-number">-1</span> ? <span class="hljs-string">'?'</span> : <span class="hljs-string">'&amp;'</span>) +
                                          config.urlArgs) : url;
             }
         };</pre></div></div>
@@ -3144,10 +3164,10 @@ end of the file to bootstrap</p>
             <div class="content"><div class='highlight'><pre>        context.jQueryCheck = jQueryCheck;
         context.resume = resume;
 
-        <span class="keyword">return</span> context;
+        <span class="hljs-keyword">return</span> context;
     }
 
-    <span class="comment">/**
+    <span class="hljs-comment">/**
      * Main entry point.
      *
      * If the only argument to require is a string, then the module that
@@ -3161,7 +3181,7 @@ end of the file to bootstrap</p>
      * on a require that are not standardized), and to give a short
      * name for minification/local scope use.
      */</span>
-    req = require = <span class="function"><span class="keyword">function</span> <span class="params">(deps, callback)</span> {</span></pre></div></div>
+    req = <span class="hljs-built_in">require</span> = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">deps, callback</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -3176,7 +3196,7 @@ end of the file to bootstrap</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> contextName = defContextName,
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> contextName = defContextName,
             context, config;</pre></div></div>
             
         </li>
@@ -3192,7 +3212,7 @@ end of the file to bootstrap</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (!isArray(deps) &amp;&amp; <span class="keyword">typeof</span> deps !== <span class="string">"string"</span>) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (!isArray(deps) &amp;&amp; <span class="hljs-keyword">typeof</span> deps !== <span class="hljs-string">"string"</span>) {</pre></div></div>
             
         </li>
         
@@ -3208,7 +3228,7 @@ end of the file to bootstrap</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>            config = deps;
-            <span class="keyword">if</span> (isArray(callback)) {</pre></div></div>
+            <span class="hljs-keyword">if</span> (isArray(callback)) {</pre></div></div>
             
         </li>
         
@@ -3224,24 +3244,24 @@ end of the file to bootstrap</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                deps = callback;
-                callback = arguments[<span class="number">2</span>];
-            } <span class="keyword">else</span> {
+                callback = <span class="hljs-built_in">arguments</span>[<span class="hljs-number">2</span>];
+            } <span class="hljs-keyword">else</span> {
                 deps = [];
             }
         }
 
-        <span class="keyword">if</span> (config &amp;&amp; config.context) {
+        <span class="hljs-keyword">if</span> (config &amp;&amp; config.context) {
             contextName = config.context;
         }
 
         context = contexts[contextName] ||
                   (contexts[contextName] = newContext(contextName));
 
-        <span class="keyword">if</span> (config) {
+        <span class="hljs-keyword">if</span> (config) {
             context.configure(config);
         }
 
-        <span class="keyword">return</span> context.require(deps, callback);
+        <span class="hljs-keyword">return</span> context.require(deps, callback);
     };
 
     req.version = version;
@@ -3262,9 +3282,9 @@ end of the file to bootstrap</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    req.jsExtRegExp = <span class="regexp">/^\/|:|\?|\.js$/</span>;
+            <div class="content"><div class='highlight'><pre>    req.jsExtRegExp = <span class="hljs-regexp">/^\/|:|\?|\.js$/</span>;
     s = req.s = {
-        contexts: contexts,</pre></div></div>
+        <span class="hljs-attr">contexts</span>: contexts,</pre></div></div>
             
         </li>
         
@@ -3280,13 +3300,13 @@ end of the file to bootstrap</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>        skipAsync: {},
-        isPageLoaded: !isBrowser,
-        readyCalls: []
+        <span class="hljs-attr">isPageLoaded</span>: !isBrowser,
+        <span class="hljs-attr">readyCalls</span>: []
     };
 
     req.isAsync = req.isBrowser = isBrowser;
-    <span class="keyword">if</span> (isBrowser) {
-        head = s.head = document.getElementsByTagName(<span class="string">"head"</span>)[<span class="number">0</span>];</pre></div></div>
+    <span class="hljs-keyword">if</span> (isBrowser) {
+        head = s.head = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">"head"</span>)[<span class="hljs-number">0</span>];</pre></div></div>
             
         </li>
         
@@ -3303,22 +3323,22 @@ When that browser dies, this can be removed. Details in this jQuery bug:
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        baseElement = document.getElementsByTagName(<span class="string">"base"</span>)[<span class="number">0</span>];
-        <span class="keyword">if</span> (baseElement) {
+            <div class="content"><div class='highlight'><pre>        baseElement = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">"base"</span>)[<span class="hljs-number">0</span>];
+        <span class="hljs-keyword">if</span> (baseElement) {
             head = s.head = baseElement.parentNode;
         }
     }
 
-    <span class="comment">/**
+    <span class="hljs-comment">/**
      * Any errors that require explicitly generates will be passed to this
      * function. Intercept/override it if you want custom error handling.
-     * @param {Error} err the error object.
+     * <span class="hljs-doctag">@param <span class="hljs-type">{Error}</span> </span>err the error object.
      */</span>
-    req.onError = <span class="function"><span class="keyword">function</span> <span class="params">(err)</span> {</span>
-        <span class="keyword">throw</span> err;
+    req.onError = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err</span>) </span>{
+        <span class="hljs-keyword">throw</span> err;
     };
 
-    <span class="comment">/**
+    <span class="hljs-comment">/**
      * Does the request to load a module for the browser case.
      * Make this a separate function to allow other environments
      * to override it.
@@ -3327,11 +3347,11 @@ When that browser dies, this can be removed. Details in this jQuery bug:
      * @param {String} moduleName the name of the module.
      * @param {Object} url the URL to the module.
      */</span>
-    req.load = <span class="function"><span class="keyword">function</span> <span class="params">(context, moduleName, url)</span> {</span>
-        <span class="keyword">var</span> contextName = context.contextName,
+    req.load = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">context, moduleName, url</span>) </span>{
+        <span class="hljs-keyword">var</span> contextName = context.contextName,
             urlFetched = context.urlFetched,
             loaded = context.loaded;
-        isDone = <span class="literal">false</span>;</pre></div></div>
+        isDone = <span class="hljs-literal">false</span>;</pre></div></div>
             
         </li>
         
@@ -3346,14 +3366,14 @@ When that browser dies, this can be removed. Details in this jQuery bug:
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (!loaded[moduleName]) {
-            loaded[moduleName] = <span class="literal">false</span>;
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (!loaded[moduleName]) {
+            loaded[moduleName] = <span class="hljs-literal">false</span>;
         }
 
-        <span class="keyword">if</span> (!urlFetched[url]) {
-            context.scriptCount += <span class="number">1</span>;
+        <span class="hljs-keyword">if</span> (!urlFetched[url]) {
+            context.scriptCount += <span class="hljs-number">1</span>;
             req.attach(url, contextName, moduleName);
-            urlFetched[url] = <span class="literal">true</span>;</pre></div></div>
+            urlFetched[url] = <span class="hljs-literal">true</span>;</pre></div></div>
             
         </li>
         
@@ -3370,38 +3390,38 @@ triggering too soon.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (context.jQuery &amp;&amp; !context.jQueryIncremented) {
-                context.jQuery.readyWait += <span class="number">1</span>;
-                context.jQueryIncremented = <span class="literal">true</span>;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (context.jQuery &amp;&amp; !context.jQueryIncremented) {
+                context.jQuery.readyWait += <span class="hljs-number">1</span>;
+                context.jQueryIncremented = <span class="hljs-literal">true</span>;
             }
         }
     };
 
-    <span class="function"><span class="keyword">function</span> <span class="title">getInteractiveScript</span><span class="params">()</span> {</span>
-        <span class="keyword">var</span> scripts, i, script;
-        <span class="keyword">if</span> (interactiveScript &amp;&amp; interactiveScript.readyState === <span class="string">'interactive'</span>) {
-            <span class="keyword">return</span> interactiveScript;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getInteractiveScript</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> scripts, i, script;
+        <span class="hljs-keyword">if</span> (interactiveScript &amp;&amp; interactiveScript.readyState === <span class="hljs-string">'interactive'</span>) {
+            <span class="hljs-keyword">return</span> interactiveScript;
         }
 
-        scripts = document.getElementsByTagName(<span class="string">'script'</span>);
-        <span class="keyword">for</span> (i = scripts.length - <span class="number">1</span>; i &gt; -<span class="number">1</span> &amp;&amp; (script = scripts[i]); i--) {
-            <span class="keyword">if</span> (script.readyState === <span class="string">'interactive'</span>) {
-                <span class="keyword">return</span> (interactiveScript = script);
+        scripts = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'script'</span>);
+        <span class="hljs-keyword">for</span> (i = scripts.length - <span class="hljs-number">1</span>; i &gt; <span class="hljs-number">-1</span> &amp;&amp; (script = scripts[i]); i--) {
+            <span class="hljs-keyword">if</span> (script.readyState === <span class="hljs-string">'interactive'</span>) {
+                <span class="hljs-keyword">return</span> (interactiveScript = script);
             }
         }
 
-        <span class="keyword">return</span> <span class="literal">null</span>;
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
     }
 
-    <span class="comment">/**
+    <span class="hljs-comment">/**
      * The function that handles definitions of modules. Differs from
      * require() in that a string for the module should be the first argument,
      * and the function to execute after dependencies are loaded should
      * return a value to define the module corresponding to the first argument's
      * name.
      */</span>
-    define = req.def = <span class="function"><span class="keyword">function</span> <span class="params">(name, deps, callback)</span> {</span>
-        <span class="keyword">var</span> node, context;</pre></div></div>
+    define = req.def = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name, deps, callback</span>) </span>{
+        <span class="hljs-keyword">var</span> node, context;</pre></div></div>
             
         </li>
         
@@ -3416,7 +3436,7 @@ triggering too soon.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (<span class="keyword">typeof</span> name !== <span class="string">'string'</span>) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> name !== <span class="hljs-string">'string'</span>) {</pre></div></div>
             
         </li>
         
@@ -3433,7 +3453,7 @@ triggering too soon.</p>
             
             <div class="content"><div class='highlight'><pre>            callback = deps;
             deps = name;
-            name = <span class="literal">null</span>;
+            name = <span class="hljs-literal">null</span>;
         }</pre></div></div>
             
         </li>
@@ -3449,7 +3469,7 @@ triggering too soon.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (!req.isArray(deps)) {
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (!req.isArray(deps)) {
             callback = deps;
             deps = [];
         }</pre></div></div>
@@ -3468,7 +3488,7 @@ CommonJS thing with dependencies.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (!name &amp;&amp; !deps.length &amp;&amp; req.isFunction(callback)) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (!name &amp;&amp; !deps.length &amp;&amp; req.isFunction(callback)) {</pre></div></div>
             
         </li>
         
@@ -3485,11 +3505,11 @@ but only if there are function args.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (callback.length) {
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (callback.length) {
                 callback
                     .toString()
-                    .replace(commentRegExp, <span class="string">""</span>)
-                    .replace(cjsRequireRegExp, <span class="function"><span class="keyword">function</span> <span class="params">(match, dep)</span> {</span>
+                    .replace(commentRegExp, <span class="hljs-string">""</span>)
+                    .replace(cjsRequireRegExp, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">match, dep</span>) </span>{
                         deps.push(dep);
                     });</pre></div></div>
             
@@ -3511,7 +3531,7 @@ order listed below.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                deps = [<span class="string">"require"</span>, <span class="string">"exports"</span>, <span class="string">"module"</span>].concat(deps);
+            <div class="content"><div class='highlight'><pre>                deps = [<span class="hljs-string">"require"</span>, <span class="hljs-string">"exports"</span>, <span class="hljs-string">"module"</span>].concat(deps);
             }
         }</pre></div></div>
             
@@ -3529,15 +3549,15 @@ work.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (useInteractive) {
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (useInteractive) {
             node = currentlyAddingScript || getInteractiveScript();
-            <span class="keyword">if</span> (!node) {
-                <span class="keyword">return</span> req.onError(<span class="keyword">new</span> Error(<span class="string">"ERROR: No matching script interactive for "</span> + callback));
+            <span class="hljs-keyword">if</span> (!node) {
+                <span class="hljs-keyword">return</span> req.onError(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">"ERROR: No matching script interactive for "</span> + callback));
             }
-            <span class="keyword">if</span> (!name) {
-                name = node.getAttribute(<span class="string">"data-requiremodule"</span>);
+            <span class="hljs-keyword">if</span> (!name) {
+                name = node.getAttribute(<span class="hljs-string">"data-requiremodule"</span>);
             }
-            context = contexts[node.getAttribute(<span class="string">"data-requirecontext"</span>)];
+            context = contexts[node.getAttribute(<span class="hljs-string">"data-requirecontext"</span>)];
         }</pre></div></div>
             
         </li>
@@ -3560,26 +3580,26 @@ in the onscript load callback.</p>
             
             <div class="content"><div class='highlight'><pre>        (context ? context.defQueue : globalDefQueue).push([name, deps, callback]);
 
-        <span class="keyword">return</span> <span class="literal">undefined</span>;
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
     };
 
     define.amd = {
-        multiversion: <span class="literal">true</span>,
-        plugins: <span class="literal">true</span>
+        <span class="hljs-attr">multiversion</span>: <span class="hljs-literal">true</span>,
+        <span class="hljs-attr">plugins</span>: <span class="hljs-literal">true</span>
     };
 
-    <span class="comment">/**
+    <span class="hljs-comment">/**
      * Executes a module callack function. Broken out as a separate function
      * solely to allow the build system to sequence the files in the built
      * layer in the right sequence.
      *
      * @private
      */</span>
-    req.execCb = <span class="function"><span class="keyword">function</span> <span class="params">(name, callback, args)</span> {</span>
-        <span class="keyword">return</span> callback.apply(<span class="literal">null</span>, args);
+    req.execCb = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name, callback, args</span>) </span>{
+        <span class="hljs-keyword">return</span> callback.apply(<span class="hljs-literal">null</span>, args);
     };
 
-    <span class="comment">/**
+    <span class="hljs-comment">/**
      * callback for script loads, used to check status of loading.
      *
      * @param {Event} evt the event from the browser for the script
@@ -3587,7 +3607,7 @@ in the onscript load callback.</p>
      *
      * @private
      */</span>
-    req.onScriptLoad = <span class="function"><span class="keyword">function</span> <span class="params">(evt)</span> {</span></pre></div></div>
+    req.onScriptLoad = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">evt</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -3604,10 +3624,10 @@ to support and still makes sense.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> node = evt.currentTarget || evt.srcElement, contextName, moduleName,
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> node = evt.currentTarget || evt.srcElement, contextName, moduleName,
             context;
 
-        <span class="keyword">if</span> (evt.type === <span class="string">"load"</span> || readyRegExp.test(node.readyState)) {</pre></div></div>
+        <span class="hljs-keyword">if</span> (evt.type === <span class="hljs-string">"load"</span> || readyRegExp.test(node.readyState)) {</pre></div></div>
             
         </li>
         
@@ -3623,7 +3643,7 @@ to long.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            interactiveScript = <span class="literal">null</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            interactiveScript = <span class="hljs-literal">null</span>;</pre></div></div>
             
         </li>
         
@@ -3638,8 +3658,8 @@ to long.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            contextName = node.getAttribute(<span class="string">"data-requirecontext"</span>);
-            moduleName = node.getAttribute(<span class="string">"data-requiremodule"</span>);
+            <div class="content"><div class='highlight'><pre>            contextName = node.getAttribute(<span class="hljs-string">"data-requirecontext"</span>);
+            moduleName = node.getAttribute(<span class="hljs-string">"data-requiremodule"</span>);
             context = contexts[contextName];
 
             contexts[contextName].completeLoad(moduleName);</pre></div></div>
@@ -3659,7 +3679,7 @@ in this file.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (node.detachEvent &amp;&amp; !isOpera) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (node.detachEvent &amp;&amp; !isOpera) {</pre></div></div>
             
         </li>
         
@@ -3675,14 +3695,14 @@ useful to know.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                node.detachEvent(<span class="string">"onreadystatechange"</span>, req.onScriptLoad);
-            } <span class="keyword">else</span> {
-                node.removeEventListener(<span class="string">"load"</span>, req.onScriptLoad, <span class="literal">false</span>);
+            <div class="content"><div class='highlight'><pre>                node.detachEvent(<span class="hljs-string">"onreadystatechange"</span>, req.onScriptLoad);
+            } <span class="hljs-keyword">else</span> {
+                node.removeEventListener(<span class="hljs-string">"load"</span>, req.onScriptLoad, <span class="hljs-literal">false</span>);
             }
         }
     };
 
-    <span class="comment">/**
+    <span class="hljs-comment">/**
      * Attaches the script represented by the URL to the current
      * environment. Right now only supports browser loading,
      * but can be redefined in other environments to do the right thing.
@@ -3692,9 +3712,9 @@ useful to know.</p>
      * @param {Function} [callback] optional callback, defaults to require.onScriptLoad
      * @param {String} [type] optional type, defaults to text/javascript
      */</span>
-    req.attach = <span class="function"><span class="keyword">function</span> <span class="params">(url, contextName, moduleName, callback, type)</span> {</span>
-        <span class="keyword">var</span> node, loaded, context;
-        <span class="keyword">if</span> (isBrowser) {</pre></div></div>
+    req.attach = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">url, contextName, moduleName, callback, type</span>) </span>{
+        <span class="hljs-keyword">var</span> node, loaded, context;
+        <span class="hljs-keyword">if</span> (isBrowser) {</pre></div></div>
             
         </li>
         
@@ -3710,9 +3730,9 @@ useful to know.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>            callback = callback || req.onScriptLoad;
-            node = document.createElement(<span class="string">"script"</span>);
-            node.type = type || <span class="string">"text/javascript"</span>;
-            node.charset = <span class="string">"utf-8"</span>;</pre></div></div>
+            node = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">"script"</span>);
+            node.type = type || <span class="hljs-string">"text/javascript"</span>;
+            node.charset = <span class="hljs-string">"utf-8"</span>;</pre></div></div>
             
         </li>
         
@@ -3738,8 +3758,8 @@ plugin</p>
             
             <div class="content"><div class='highlight'><pre>            node.async = !s.skipAsync[url];
 
-            node.setAttribute(<span class="string">"data-requirecontext"</span>, contextName);
-            node.setAttribute(<span class="string">"data-requiremodule"</span>, moduleName);</pre></div></div>
+            node.setAttribute(<span class="hljs-string">"data-requirecontext"</span>, contextName);
+            node.setAttribute(<span class="hljs-string">"data-requiremodule"</span>, moduleName);</pre></div></div>
             
         </li>
         
@@ -3761,7 +3781,7 @@ script execution mode.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (node.attachEvent &amp;&amp; !isOpera) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (node.attachEvent &amp;&amp; !isOpera) {</pre></div></div>
             
         </li>
         
@@ -3780,10 +3800,10 @@ readyState at the time of the require.def call.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                useInteractive = <span class="literal">true</span>;
-                node.attachEvent(<span class="string">"onreadystatechange"</span>, callback);
-            } <span class="keyword">else</span> {
-                node.addEventListener(<span class="string">"load"</span>, callback, <span class="literal">false</span>);
+            <div class="content"><div class='highlight'><pre>                useInteractive = <span class="hljs-literal">true</span>;
+                node.attachEvent(<span class="hljs-string">"onreadystatechange"</span>, callback);
+            } <span class="hljs-keyword">else</span> {
+                node.addEventListener(<span class="hljs-string">"load"</span>, callback, <span class="hljs-literal">false</span>);
             }
             node.src = url;</pre></div></div>
             
@@ -3804,14 +3824,14 @@ to a reference to this node, but clear after the DOM insertion.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>            currentlyAddingScript = node;
-            <span class="keyword">if</span> (baseElement) {
+            <span class="hljs-keyword">if</span> (baseElement) {
                 head.insertBefore(node, baseElement);
-            } <span class="keyword">else</span> {
+            } <span class="hljs-keyword">else</span> {
                 head.appendChild(node);
             }
-            currentlyAddingScript = <span class="literal">null</span>;
-            <span class="keyword">return</span> node;
-        } <span class="keyword">else</span> <span class="keyword">if</span> (isWebWorker) {</pre></div></div>
+            currentlyAddingScript = <span class="hljs-literal">null</span>;
+            <span class="hljs-keyword">return</span> node;
+        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (isWebWorker) {</pre></div></div>
             
         </li>
         
@@ -3833,7 +3853,7 @@ reevaluated if other use cases become common.</p>
             
             <div class="content"><div class='highlight'><pre>            context = contexts[contextName];
             loaded = context.loaded;
-            loaded[moduleName] = <span class="literal">false</span>;
+            loaded[moduleName] = <span class="hljs-literal">false</span>;
 
             importScripts(url);</pre></div></div>
             
@@ -3852,7 +3872,7 @@ reevaluated if other use cases become common.</p>
             
             <div class="content"><div class='highlight'><pre>            context.completeLoad(moduleName);
         }
-        <span class="keyword">return</span> <span class="literal">null</span>;
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
     };</pre></div></div>
             
         </li>
@@ -3868,7 +3888,7 @@ reevaluated if other use cases become common.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span> (isBrowser) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (isBrowser) {</pre></div></div>
             
         </li>
         
@@ -3883,9 +3903,9 @@ reevaluated if other use cases become common.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        scripts = document.getElementsByTagName(<span class="string">"script"</span>);
+            <div class="content"><div class='highlight'><pre>        scripts = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">"script"</span>);
 
-        <span class="keyword">for</span> (i = scripts.length - <span class="number">1</span>; i &gt; -<span class="number">1</span> &amp;&amp; (script = scripts[i]); i--) {</pre></div></div>
+        <span class="hljs-keyword">for</span> (i = scripts.length - <span class="hljs-number">1</span>; i &gt; <span class="hljs-number">-1</span> &amp;&amp; (script = scripts[i]); i--) {</pre></div></div>
             
         </li>
         
@@ -3901,7 +3921,7 @@ using the script&#39;s parent.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (!head) {
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (!head) {
                 head = script.parentNode;
             }</pre></div></div>
             
@@ -3920,8 +3940,8 @@ baseUrl, if it is not already set.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> ((dataMain = script.getAttribute(<span class="string">'data-main'</span>))) {
-                <span class="keyword">if</span> (!cfg.baseUrl) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> ((dataMain = script.getAttribute(<span class="hljs-string">'data-main'</span>))) {
+                <span class="hljs-keyword">if</span> (!cfg.baseUrl) {</pre></div></div>
             
         </li>
         
@@ -3937,9 +3957,9 @@ baseUrl.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    src = dataMain.split(<span class="string">'/'</span>);
+            <div class="content"><div class='highlight'><pre>                    src = dataMain.split(<span class="hljs-string">'/'</span>);
                     mainScript = src.pop();
-                    subPath = src.length ? src.join(<span class="string">'/'</span>)  + <span class="string">'/'</span> : <span class="string">'./'</span>;</pre></div></div>
+                    subPath = src.length ? src.join(<span class="hljs-string">'/'</span>)  + <span class="hljs-string">'/'</span> : <span class="hljs-string">'./'</span>;</pre></div></div>
             
         </li>
         
@@ -3970,7 +3990,7 @@ like a module name.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    dataMain = mainScript.replace(jsSuffixRegExp, <span class="string">''</span>);
+            <div class="content"><div class='highlight'><pre>                    dataMain = mainScript.replace(jsSuffixRegExp, <span class="hljs-string">''</span>);
                 }</pre></div></div>
             
         </li>
@@ -3988,7 +4008,7 @@ like a module name.</p>
             
             <div class="content"><div class='highlight'><pre>                cfg.deps = cfg.deps ? cfg.deps.concat(dataMain) : [dataMain];
 
-                <span class="keyword">break</span>;
+                <span class="hljs-keyword">break</span>;
             }
         }
     }</pre></div></div>
@@ -4017,17 +4037,17 @@ like a module name.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-168">&#182;</a>
               </div>
-              <p><strong>**</strong> START page load functionality <strong><strong><strong><em>**</em></strong></strong></strong></p>
+              <p><strong>**</strong> START page load functionality <strong><strong><strong>****</strong></strong></strong></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="comment">/**
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-comment">/**
      * Sets the page as loaded and triggers check for all modules loaded.
      */</span>
-    req.pageLoaded = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        <span class="keyword">if</span> (!s.isPageLoaded) {
-            s.isPageLoaded = <span class="literal">true</span>;
-            <span class="keyword">if</span> (scrollIntervalId) {
+    req.pageLoaded = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">if</span> (!s.isPageLoaded) {
+            s.isPageLoaded = <span class="hljs-literal">true</span>;
+            <span class="hljs-keyword">if</span> (scrollIntervalId) {
                 clearInterval(scrollIntervalId);
             }</pre></div></div>
             
@@ -4049,8 +4069,8 @@ see other setReadyState reference for the rest of the fix.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (setReadyState) {
-                document.readyState = <span class="string">"complete"</span>;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (setReadyState) {
+                <span class="hljs-built_in">document</span>.readyState = <span class="hljs-string">"complete"</span>;
             }
 
             req.callReady();
@@ -4071,31 +4091,31 @@ callReady.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    req.checkReadyState = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        <span class="keyword">var</span> contexts = s.contexts, prop;
-        <span class="keyword">for</span> (prop <span class="keyword">in</span> contexts) {
-            <span class="keyword">if</span> (!(prop <span class="keyword">in</span> empty)) {
-                <span class="keyword">if</span> (contexts[prop].waitCount) {
-                    <span class="keyword">return</span>;
+            <div class="content"><div class='highlight'><pre>    req.checkReadyState = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> contexts = s.contexts, prop;
+        <span class="hljs-keyword">for</span> (prop <span class="hljs-keyword">in</span> contexts) {
+            <span class="hljs-keyword">if</span> (!(prop <span class="hljs-keyword">in</span> empty)) {
+                <span class="hljs-keyword">if</span> (contexts[prop].waitCount) {
+                    <span class="hljs-keyword">return</span>;
                 }
             }
         }
-        s.isDone = <span class="literal">true</span>;
+        s.isDone = <span class="hljs-literal">true</span>;
         req.callReady();
     };
 
-    <span class="comment">/**
+    <span class="hljs-comment">/**
      * Internal function that calls back any ready functions. If you are
      * integrating RequireJS with another library without require.ready support,
      * you can define this method to call your page ready code instead.
      */</span>
-    req.callReady = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        <span class="keyword">var</span> callbacks = s.readyCalls, i, callback, contexts, context, prop;
+    req.callReady = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> callbacks = s.readyCalls, i, callback, contexts, context, prop;
 
-        <span class="keyword">if</span> (s.isPageLoaded &amp;&amp; s.isDone) {
-            <span class="keyword">if</span> (callbacks.length) {
+        <span class="hljs-keyword">if</span> (s.isPageLoaded &amp;&amp; s.isDone) {
+            <span class="hljs-keyword">if</span> (callbacks.length) {
                 s.readyCalls = [];
-                <span class="keyword">for</span> (i = <span class="number">0</span>; (callback = callbacks[i]); i++) {
+                <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; (callback = callbacks[i]); i++) {
                     callback();
                 }
             }</pre></div></div>
@@ -4115,32 +4135,32 @@ readyWait count.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>            contexts = s.contexts;
-            <span class="keyword">for</span> (prop <span class="keyword">in</span> contexts) {
-                <span class="keyword">if</span> (!(prop <span class="keyword">in</span> empty)) {
+            <span class="hljs-keyword">for</span> (prop <span class="hljs-keyword">in</span> contexts) {
+                <span class="hljs-keyword">if</span> (!(prop <span class="hljs-keyword">in</span> empty)) {
                     context = contexts[prop];
-                    <span class="keyword">if</span> (context.jQueryIncremented) {
-                        context.jQuery.ready(<span class="literal">true</span>);
-                        context.jQueryIncremented = <span class="literal">false</span>;
+                    <span class="hljs-keyword">if</span> (context.jQueryIncremented) {
+                        context.jQuery.ready(<span class="hljs-literal">true</span>);
+                        context.jQueryIncremented = <span class="hljs-literal">false</span>;
                     }
                 }
             }
         }
     };
 
-    <span class="comment">/**
+    <span class="hljs-comment">/**
      * Registers functions to call when the page is loaded
      */</span>
-    req.ready = <span class="function"><span class="keyword">function</span> <span class="params">(callback)</span> {</span>
-        <span class="keyword">if</span> (s.isPageLoaded &amp;&amp; s.isDone) {
+    req.ready = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">callback</span>) </span>{
+        <span class="hljs-keyword">if</span> (s.isPageLoaded &amp;&amp; s.isDone) {
             callback();
-        } <span class="keyword">else</span> {
+        } <span class="hljs-keyword">else</span> {
             s.readyCalls.push(callback);
         }
-        <span class="keyword">return</span> req;
+        <span class="hljs-keyword">return</span> req;
     };
 
-    <span class="keyword">if</span> (isBrowser) {
-        <span class="keyword">if</span> (document.addEventListener) {</pre></div></div>
+    <span class="hljs-keyword">if</span> (isBrowser) {
+        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">document</span>.addEventListener) {</pre></div></div>
             
         </li>
         
@@ -4156,8 +4176,8 @@ it knows about DOMContentLoaded.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            document.addEventListener(<span class="string">"DOMContentLoaded"</span>, req.pageLoaded, <span class="literal">false</span>);
-            window.addEventListener(<span class="string">"load"</span>, req.pageLoaded, <span class="literal">false</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-built_in">document</span>.addEventListener(<span class="hljs-string">"DOMContentLoaded"</span>, req.pageLoaded, <span class="hljs-literal">false</span>);
+            <span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">"load"</span>, req.pageLoaded, <span class="hljs-literal">false</span>);</pre></div></div>
             
         </li>
         
@@ -4172,12 +4192,12 @@ it knows about DOMContentLoaded.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (!document.readyState) {
-                setReadyState = <span class="literal">true</span>;
-                document.readyState = <span class="string">"loading"</span>;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">document</span>.readyState) {
+                setReadyState = <span class="hljs-literal">true</span>;
+                <span class="hljs-built_in">document</span>.readyState = <span class="hljs-string">"loading"</span>;
             }
-        } <span class="keyword">else</span> <span class="keyword">if</span> (window.attachEvent) {
-            window.attachEvent(<span class="string">"onload"</span>, req.pageLoaded);</pre></div></div>
+        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-built_in">window</span>.attachEvent) {
+            <span class="hljs-built_in">window</span>.attachEvent(<span class="hljs-string">"onload"</span>, req.pageLoaded);</pre></div></div>
             
         </li>
         
@@ -4193,9 +4213,9 @@ it knows about DOMContentLoaded.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (self === self.top) {
-                scrollIntervalId = setInterval(<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                    <span class="keyword">try</span> {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (self === self.top) {
+                scrollIntervalId = setInterval(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                    <span class="hljs-keyword">try</span> {</pre></div></div>
             
         </li>
         
@@ -4217,12 +4237,12 @@ before trying the doScroll trick.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                        <span class="keyword">if</span> (document.body) {
-                            document.documentElement.doScroll(<span class="string">"left"</span>);
+            <div class="content"><div class='highlight'><pre>                        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">document</span>.body) {
+                            <span class="hljs-built_in">document</span>.documentElement.doScroll(<span class="hljs-string">"left"</span>);
                             req.pageLoaded();
                         }
-                    } <span class="keyword">catch</span> (e) {}
-                }, <span class="number">30</span>);
+                    } <span class="hljs-keyword">catch</span> (e) {}
+                }, <span class="hljs-number">30</span>);
             }
         }</pre></div></div>
             
@@ -4241,7 +4261,7 @@ those browsers, manually call require.pageLoaded().</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (document.readyState === <span class="string">"complete"</span>) {
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">document</span>.readyState === <span class="hljs-string">"complete"</span>) {
             req.pageLoaded();
         }
     }</pre></div></div>
@@ -4255,7 +4275,7 @@ those browsers, manually call require.pageLoaded().</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-177">&#182;</a>
               </div>
-              <p><strong>**</strong> END page load functionality <strong><strong><strong><em>**</em></strong></strong></strong></p>
+              <p><strong>**</strong> END page load functionality <strong><strong><strong>****</strong></strong></strong></p>
 <p>Set up default context. If require was a configuration object, use that as base config.</p>
 
             </div>
@@ -4278,7 +4298,7 @@ which seems odd to do on the server.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span> (req.isAsync &amp;&amp; <span class="keyword">typeof</span> setTimeout !== <span class="string">"undefined"</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (req.isAsync &amp;&amp; <span class="hljs-keyword">typeof</span> setTimeout !== <span class="hljs-string">"undefined"</span>) {
         ctx = s.contexts[(cfg.context || defContextName)];</pre></div></div>
             
         </li>
@@ -4296,9 +4316,9 @@ file is parsed (approximated via the setTimeout call).</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        ctx.requireWait = <span class="literal">true</span>;
-        setTimeout(<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-            ctx.requireWait = <span class="literal">false</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        ctx.requireWait = <span class="hljs-literal">true</span>;
+        setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+            ctx.requireWait = <span class="hljs-literal">false</span>;</pre></div></div>
             
         </li>
         
@@ -4332,11 +4352,11 @@ make sure to hold onto it for readyWait triggering.</p>
             
             <div class="content"><div class='highlight'><pre>            ctx.jQueryCheck();
 
-            <span class="keyword">if</span> (!ctx.scriptCount) {
+            <span class="hljs-keyword">if</span> (!ctx.scriptCount) {
                 ctx.resume();
             }
             req.checkReadyState();
-        }, <span class="number">0</span>);
+        }, <span class="hljs-number">0</span>);
     }
 }());</pre></div></div>
             

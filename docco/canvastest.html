@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -211,10 +231,11 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">"./browsercanvas"</span>,<span class="string">"ts!gfx/gfx"</span>], <span class="keyword">function</span>(browsercanvas, gfx) {
-<span class="comment">/*
+            <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">"./browsercanvas"</span>,<span class="hljs-string">"ts!gfx/gfx"</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">browsercanvas, gfx</span>) </span>{
+<span class="hljs-comment">/*
 if (window.navigator.userAgent.indexOf('iPhone') != -1) {
-  if (!window.navigator.standalone == true) {</pre></div></div>
+  if (!window.navigator.standalone == true) {
+</span></pre></div></div>
             
         </li>
         
@@ -253,12 +274,12 @@ var setup = function(canvas, uiEvents) {
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> star = gfx.Polygon.newStar(<span class="number">5</span>, <span class="number">15</span>, <span class="number">30</span>).shapedView();
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> star = gfx.Polygon.newStar(<span class="hljs-number">5</span>, <span class="hljs-number">15</span>, <span class="hljs-number">30</span>).shapedView();
     star.strokeColor = gfx.Color.blue;
     star.fillColor = gfx.Color.red;
-    star.strokeWidth = <span class="number">4</span>;
+    star.strokeWidth = <span class="hljs-number">4</span>;
     star = star.transformView();
-    star.translateBy(gfx.Point.New(<span class="number">100</span>,<span class="number">100</span>));
+    star.translateBy(gfx.Point.New(<span class="hljs-number">100</span>,<span class="hljs-number">100</span>));
     world.addFirst(star);</pre></div></div>
             
         </li>
@@ -274,13 +295,13 @@ var setup = function(canvas, uiEvents) {
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> BB = {
-        __proto__: gfx.ComposableView,
-        bounds: <span class="keyword">function</span>() {
-            <span class="keyword">return</span> gfx.Rectangle.New(gfx.Point.zero,
-                                     gfx.Point.New(<span class="number">30</span>,<span class="number">30</span>));
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> BB = {
+        <span class="hljs-attr">__proto__</span>: gfx.ComposableView,
+        <span class="hljs-attr">bounds</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">return</span> gfx.Rectangle.New(gfx.Point.zero,
+                                     gfx.Point.New(<span class="hljs-number">30</span>,<span class="hljs-number">30</span>));
         },
-        drawOn: <span class="keyword">function</span>(canvas, clipRect) {</pre></div></div>
+        <span class="hljs-attr">drawOn</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">canvas, clipRect</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -297,14 +318,14 @@ var setup = function(canvas, uiEvents) {
             
             <div class="content"><div class='highlight'><pre>            canvas.setFill(gfx.Color.grey);
             canvas.beginPath();
-            canvas.rect(<span class="number">0</span>,<span class="number">0</span>,<span class="number">30</span>,<span class="number">30</span>);
+            canvas.rect(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">30</span>,<span class="hljs-number">30</span>);
             canvas.fill();
         }
     };
-    <span class="keyword">var</span> bb = BB.New();
+    <span class="hljs-keyword">var</span> bb = BB.New();
     bb = bb.transformView();
-    bb.translateBy(gfx.Point.New(<span class="number">50</span>,<span class="number">50</span>));
-    bb.touchStartEvent = <span class="keyword">function</span>(event) {
+    bb.translateBy(gfx.Point.New(<span class="hljs-number">50</span>,<span class="hljs-number">50</span>));
+    bb.touchStartEvent = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">event</span>) </span>{
         event.handler.beginDragging(bb, event);
     };</pre></div></div>
             
@@ -321,12 +342,12 @@ var setup = function(canvas, uiEvents) {
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> str = <span class="string">"_abcdefghijklmnopqrstuvwxyz0123456789,'ABCDEFGHIJKLMNOPQRSTUVWXYZ"</span>;
-    <span class="keyword">var</span> hello = gfx.TextView.New(world, str);
-    hello.fontHeight = <span class="number">20</span>;
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> str = <span class="hljs-string">"_abcdefghijklmnopqrstuvwxyz0123456789,'ABCDEFGHIJKLMNOPQRSTUVWXYZ"</span>;
+    <span class="hljs-keyword">var</span> hello = gfx.TextView.New(world, str);
+    hello.fontHeight = <span class="hljs-number">20</span>;
     hello.strokeColor = gfx.Color.black;
     hello = hello.transformView();
-    hello.translateBy(gfx.Point.New(<span class="number">100</span>,<span class="number">100</span>));
+    hello.translateBy(gfx.Point.New(<span class="hljs-number">100</span>,<span class="hljs-number">100</span>));
     world.addLast(hello);
     world.addLast(bb);</pre></div></div>
             
@@ -343,10 +364,10 @@ var setup = function(canvas, uiEvents) {
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> sizeWidget = gfx.TextView.New(world, <span class="string">"x"</span>);
-    sizeWidget.fillColor = <span class="literal">null</span>; <span class="comment">// transparent</span>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> sizeWidget = gfx.TextView.New(world, <span class="hljs-string">"x"</span>);
+    sizeWidget.fillColor = <span class="hljs-literal">null</span>; <span class="hljs-comment">// transparent</span>
     sizeWidget.strokeColor = gfx.Color.black;
-    world.addFirst(sizeWidget.transformView().translateBy(gfx.Point.New(<span class="number">5</span>,<span class="number">5</span>)));</pre></div></div>
+    world.addFirst(sizeWidget.transformView().translateBy(gfx.Point.New(<span class="hljs-number">5</span>,<span class="hljs-number">5</span>)));</pre></div></div>
             
         </li>
         
@@ -361,16 +382,16 @@ var setup = function(canvas, uiEvents) {
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    star.touchStartEvent = <span class="keyword">function</span>(event) {
+            <div class="content"><div class='highlight'><pre>    star.touchStartEvent = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">event</span>) </span>{
         event.handler.beginDragging(star, event);
     };
-    world.resizeEvent = <span class="keyword">function</span>(event) {
+    world.resizeEvent = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">event</span>) </span>{
         canvas.resize(event.width, event.height, event.devicePixelRatio);
-        sizeWidget.text = event.width+<span class="string">"x"</span>+event.height+<span class="string">" "</span>+event.orientation;
+        sizeWidget.text = event.width+<span class="hljs-string">"x"</span>+event.height+<span class="hljs-string">" "</span>+event.orientation;
         world.damaged();
     };
-    uiEvents.mapE(<span class="keyword">function</span>(e) {
-        console.assert(e.name, e);
+    uiEvents.mapE(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{
+        <span class="hljs-built_in">console</span>.assert(e.name, e);
         world.dispatchEvent(e);
     });</pre></div></div>
             
@@ -389,8 +410,8 @@ var setup = function(canvas, uiEvents) {
             
             <div class="content"><div class='highlight'><pre>};
 
-<span class="keyword">var</span> drawFrame = <span class="keyword">function</span>() {
-  <span class="keyword">if</span> (!world.damage) <span class="keyword">return</span>;
+<span class="hljs-keyword">var</span> drawFrame = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">if</span> (!world.damage) <span class="hljs-keyword">return</span>;
   world.forceDamageToScreen();
 };</pre></div></div>
             
@@ -407,7 +428,7 @@ var setup = function(canvas, uiEvents) {
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>browsercanvas.initEventLoop(<span class="string">'canvas'</span>, setup, drawFrame);
+            <div class="content"><div class='highlight'><pre>browsercanvas.initEventLoop(<span class="hljs-string">'canvas'</span>, setup, drawFrame);
 
 });</pre></div></div>
             

@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -211,8 +231,8 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">"ts!parse"</span>, <span class="string">"ccanvas"</span>, <span class="string">"ts!crender"</span>, <span class="string">"ts!crender-styles"</span>, <span class="string">"ts!tests"</span>, <span class="string">"ts!top-level"</span>], <span class="keyword">function</span>(parse, ccanvas, crender, crender_styles, tests, top_level) {
-<span class="keyword">var</span> SCALE = <span class="number">1</span>; <span class="comment">// change to (eg) 2 to enlarge the rendering</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">"ts!parse"</span>, <span class="hljs-string">"ccanvas"</span>, <span class="hljs-string">"ts!crender"</span>, <span class="hljs-string">"ts!crender-styles"</span>, <span class="hljs-string">"ts!tests"</span>, <span class="hljs-string">"ts!top-level"</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">parse, ccanvas, crender, crender_styles, tests, top_level</span>) </span>{
+<span class="hljs-keyword">var</span> SCALE = <span class="hljs-number">1</span>; <span class="hljs-comment">// change to (eg) 2 to enlarge the rendering</span></pre></div></div>
             
         </li>
         
@@ -227,9 +247,9 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> demos=[];
-<span class="function"><span class="keyword">function</span> <span class="title">add_demo</span><span class="params">(title, source)</span> {</span>
-  demos.push({title:title, source: source});
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> demos=[];
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">add_demo</span>(<span class="hljs-params">title, source</span>) </span>{
+  demos.push({<span class="hljs-attr">title</span>:title, <span class="hljs-attr">source</span>: source});
 }</pre></div></div>
             
         </li>
@@ -245,22 +265,22 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>add_demo(<span class="string">'Hello, world'</span>, <span class="string">'console.log("Hello, world!");'</span>);
-add_demo(<span class="string">'JS tokenizer'</span>, tests.lookup(<span class="string">'tokenize'</span>));
-add_demo(<span class="string">'JS parser'</span>, tests.lookup(<span class="string">'parse'</span>));
-add_demo(<span class="string">'JS compiler'</span>, tests.lookup(<span class="string">'jcompile'</span>));
-add_demo(<span class="string">'Tile renderer'</span>, tests.lookup(<span class="string">'crender'</span>));
-add_demo(<span class="string">'Bytecode table'</span>, tests.lookup(<span class="string">'bytecode-table'</span>));
-add_demo(<span class="string">'Bytecode compiler'</span>, tests.lookup(<span class="string">'bcompile'</span>));
-add_demo(<span class="string">'Bytecode interpreter'</span>, tests.lookup(<span class="string">'binterp'</span>));
-add_demo(<span class="string">'Standard library'</span>, tests.lookup(<span class="string">'stdlib'</span>));
-add_demo(<span class="string">'Event library'</span>, tests.lookup(<span class="string">'events'</span>));
-add_demo(<span class="string">'Test suite'</span>, tests.lookup(<span class="string">'tests'</span>));
+            <div class="content"><div class='highlight'><pre>add_demo(<span class="hljs-string">'Hello, world'</span>, <span class="hljs-string">'console.log("Hello, world!");'</span>);
+add_demo(<span class="hljs-string">'JS tokenizer'</span>, tests.lookup(<span class="hljs-string">'tokenize'</span>));
+add_demo(<span class="hljs-string">'JS parser'</span>, tests.lookup(<span class="hljs-string">'parse'</span>));
+add_demo(<span class="hljs-string">'JS compiler'</span>, tests.lookup(<span class="hljs-string">'jcompile'</span>));
+add_demo(<span class="hljs-string">'Tile renderer'</span>, tests.lookup(<span class="hljs-string">'crender'</span>));
+add_demo(<span class="hljs-string">'Bytecode table'</span>, tests.lookup(<span class="hljs-string">'bytecode-table'</span>));
+add_demo(<span class="hljs-string">'Bytecode compiler'</span>, tests.lookup(<span class="hljs-string">'bcompile'</span>));
+add_demo(<span class="hljs-string">'Bytecode interpreter'</span>, tests.lookup(<span class="hljs-string">'binterp'</span>));
+add_demo(<span class="hljs-string">'Standard library'</span>, tests.lookup(<span class="hljs-string">'stdlib'</span>));
+add_demo(<span class="hljs-string">'Event library'</span>, tests.lookup(<span class="hljs-string">'events'</span>));
+add_demo(<span class="hljs-string">'Test suite'</span>, tests.lookup(<span class="hljs-string">'tests'</span>));
 
-add_demo(<span class="string">'IDC2012'</span>, <span class="string">"function fact(n) { if (n&lt;=1) {return 1;} return n*fact(n-1); } console.log(\"5!=\", fact(5));"</span>);
+add_demo(<span class="hljs-string">'IDC2012'</span>, <span class="hljs-string">"function fact(n) { if (n&lt;=1) {return 1;} return n*fact(n-1); } console.log(\"5!=\", fact(5));"</span>);
 
-<span class="keyword">var</span> isource = <span class="string">""</span>;
-isource = tests[tests.length-<span class="number">2</span>];</pre></div></div>
+<span class="hljs-keyword">var</span> isource = <span class="hljs-string">""</span>;
+isource = tests[tests.length<span class="hljs-number">-2</span>];</pre></div></div>
             
         </li>
         
@@ -280,8 +300,8 @@ isource = &quot;console = 1 + 2 + 3 + 4 + 5;&quot;;
 isource += &quot;console = !3 + !function(x) { return function(){}; };&quot;;
 isource += &quot;console = 3 - 4 + 5 - function(x) { return function(){}; };&quot;;
 isource += &quot;console = (3 + function (x) { return x; }) + function(){};&quot;;
-isource += &quot;console = function(x) { /</em>return x;<em>/ };&quot;;
-isource += &quot;console = !1 + 2 </em> 3;&quot;;
+isource += &quot;console = function(x) { /*return x;</em>/ };&quot;;
+isource += &quot;console = !1 + 2 * 3;&quot;;
 isource += &quot;console = !function (x) { return x; } + function(){};&quot;;
 isource = &quot;while (function(x) { return x; }+(true)) { return false; }&quot;;
 isource += &quot;if (function(x) { return x; }+(true)) { return false; } else { return true; }&quot;;
@@ -298,7 +318,7 @@ add_demo(&#39;Extra demo&#39;, isource);</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">update_from_source</span><span class="params">(canvas, styles, isource)</span> {</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">update_from_source</span>(<span class="hljs-params">canvas, styles, isource</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -313,7 +333,7 @@ add_demo(&#39;Extra demo&#39;, isource);</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> tree = parse(isource, top_level);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> tree = parse(isource, top_level);</pre></div></div>
             
         </li>
         
@@ -328,7 +348,7 @@ add_demo(&#39;Extra demo&#39;, isource);</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> widget = crender(tree);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> widget = crender(tree);</pre></div></div>
             
         </li>
         
@@ -343,7 +363,7 @@ add_demo(&#39;Extra demo&#39;, isource);</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  widget.layout(canvas, styles, {margin: <span class="number">0</span>, lineHeight: <span class="number">0</span>});</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  widget.layout(canvas, styles, {<span class="hljs-attr">margin</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">lineHeight</span>: <span class="hljs-number">0</span>});</pre></div></div>
             
         </li>
         
@@ -359,8 +379,8 @@ add_demo(&#39;Extra demo&#39;, isource);</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  canvas.resize(Math.min(widget.bbox.width(), <span class="number">8000</span>)+<span class="number">10</span>,
-                Math.min(widget.bbox.height(), <span class="number">30000</span>)+<span class="number">10</span>, SCALE);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  canvas.resize(<span class="hljs-built_in">Math</span>.min(widget.bbox.width(), <span class="hljs-number">8000</span>)+<span class="hljs-number">10</span>,
+                <span class="hljs-built_in">Math</span>.min(widget.bbox.height(), <span class="hljs-number">30000</span>)+<span class="hljs-number">10</span>, SCALE);</pre></div></div>
             
         </li>
         
@@ -375,7 +395,7 @@ add_demo(&#39;Extra demo&#39;, isource);</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  canvas.withContext({}, <span class="keyword">function</span>() {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  canvas.withContext({}, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -391,7 +411,7 @@ offset coordinates by 0.5,0.5 to get the 1px lines to be sharp</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    canvas.translate(<span class="number">4.5</span>,<span class="number">4.5</span>);
+            <div class="content"><div class='highlight'><pre>    canvas.translate(<span class="hljs-number">4.5</span>,<span class="hljs-number">4.5</span>);
     widget.draw();
   });</pre></div></div>
             
@@ -410,26 +430,26 @@ offset coordinates by 0.5,0.5 to get the 1px lines to be sharp</p>
             
             <div class="content"><div class='highlight'><pre>}
 
-<span class="keyword">var</span> canvas;
+<span class="hljs-keyword">var</span> canvas;
 
-<span class="function"><span class="keyword">function</span> <span class="title">emit_demo_links</span><span class="params">()</span> {</span>
-  <span class="keyword">var</span> src = <span class="string">""</span>;
-  demos.forEach(<span class="keyword">function</span>(item, idx) {
-    <span class="keyword">if</span> (idx !== <span class="number">0</span>) src += <span class="string">' | '</span>;
-    src += <span class="string">'&lt;'</span>+<span class="string">'a href="#" id="demo'</span>+idx+<span class="string">'"&gt;'</span>+item.title+<span class="string">'&lt;'</span>+<span class="string">'/a&gt;'</span>;
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">emit_demo_links</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">var</span> src = <span class="hljs-string">""</span>;
+  demos.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">item, idx</span>) </span>{
+    <span class="hljs-keyword">if</span> (idx !== <span class="hljs-number">0</span>) src += <span class="hljs-string">' | '</span>;
+    src += <span class="hljs-string">'&lt;'</span>+<span class="hljs-string">'a href="#" id="demo'</span>+idx+<span class="hljs-string">'"&gt;'</span>+item.title+<span class="hljs-string">'&lt;'</span>+<span class="hljs-string">'/a&gt;'</span>;
   });
-  document.getElementById(<span class="string">'demos'</span>).innerHTML = src;
-  demos.forEach(<span class="keyword">function</span>(item, idx) {
-    <span class="keyword">var</span> elem = document.getElementById(<span class="string">'demo'</span>+idx);
-    elem.onclick = <span class="keyword">function</span>() {
+  <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'demos'</span>).innerHTML = src;
+  demos.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">item, idx</span>) </span>{
+    <span class="hljs-keyword">var</span> elem = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'demo'</span>+idx);
+    elem.onclick = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
        update_from_source(canvas, crender_styles, item.source);
     };
   });
 }
 
-canvas = ccanvas(<span class="string">'canvas'</span>);
+canvas = ccanvas(<span class="hljs-string">'canvas'</span>);
 emit_demo_links();
-update_from_source(canvas, crender_styles, demos[<span class="number">0</span>].source);
+update_from_source(canvas, crender_styles, demos[<span class="hljs-number">0</span>].source);
 
 });</pre></div></div>
             

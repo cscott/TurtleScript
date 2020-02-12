@@ -399,6 +399,18 @@ It is likely to get increasingly outdated over time.  I'll attempt to
 periodically overhaul it to match reality, but it may always contain
 historical fragments, false starts, and loose ends.</p>
 </div>
+<div class="section" id="state-of-the-world-2020-02-12">
+<h1>State of the world: 2020-02-12</h1>
+<p>I dusted off this project and wrote TurtleScript interpreters for
+PHP (<a class="reference external" href="http://github.com/cscott/php-turtle">http://github.com/cscott/php-turtle</a>) and
+Lua (<a class="reference external" href="http://github.com/cscott/lua-turtle">http://github.com/cscott/lua-turtle</a>).  I also added a new
+<tt class="docutils literal">push_local_frame</tt> bytecode operation to allow &quot;register allocation&quot;
+of local variables which do not escape their scope, and improved
+the standard library implementation.</p>
+<p>I expect to use these runtimes to explore two (interrelated) projects:
+<a class="reference external" href="https://phabricator.wikimedia.org/T230665">Multilingual JavaScript</a> and the use of JavaScript within
+the MediaWiki <a class="reference external" href="https://www.mediawiki.org/wiki/Extension:Scribunto">Scribunto</a> extension.</p>
+</div>
 <div class="section" id="state-of-the-world-2013-06-03">
 <h1>State of the world: 2013-06-03</h1>
 <p>I recently wrote a &quot;native&quot; interpreter for TurtleScript in Mozilla's
@@ -637,6 +649,11 @@ function($scope) {
 <p>allows us to manually manage the scope chain, including serializing and
 deserializing a function's closure <a class="footnote-reference" href="#id3" id="id2">[1]</a>.  The <tt class="docutils literal">$scope</tt> parameter can be
 stored as a <tt class="docutils literal">scope</tt> property of the <tt class="docutils literal">Function</tt> object.</p>
+<p>(CSA 2020-02-12: The &quot;frame&quot; object used by <tt class="docutils literal">bcompile.js</tt> is this
+<tt class="docutils literal">$scope</tt> object.  But the &quot;local frame&quot; introduced as an
+optimization hides local state again.  However, you can treat
+<tt class="docutils literal">push_local_frame</tt> as a synonym for <tt class="docutils literal">push_frame</tt> when compiling
+to obtain a serializable state, at the expense of performance.)</p>
 </li>
 <li><p class="first">Bind <tt class="docutils literal">this</tt> properly in inner functions.</p>
 <p>This is a <a class="reference external" href="http://www.crockford.com/javascript/recommend.html">proposal by Crockford</a>.  Function expressions should

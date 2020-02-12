@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -224,19 +244,19 @@ to expand the bounding box of the invalidation, the text will be clipped.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define(<span class="keyword">function</span>() {
-<span class="keyword">var</span> make = <span class="keyword">function</span>(canvas_id) {
-    <span class="keyword">var</span> canvasElem_ = canvas_id ?
-        document.getElementById(canvas_id) :
-        document.createElement(<span class="string">"canvas"</span>);
-    <span class="keyword">var</span> canvas_ = canvasElem_.getContext(<span class="string">'2d'</span>);
-    <span class="keyword">var</span> width_ = canvasElem_.width;
-    <span class="keyword">var</span> height_ = canvasElem_.height;
-    <span class="keyword">var</span> scale_ = <span class="number">1</span>;
-    <span class="keyword">return</span> {
-        fontHeight: <span class="number">10</span>, <span class="comment">// font is 10px when canvas is created.</span>
-        fontBold: <span class="literal">false</span>,
-        fontItalic: <span class="literal">false</span>,</pre></div></div>
+            <div class="content"><div class='highlight'><pre>define(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+<span class="hljs-keyword">var</span> make = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">canvas_id</span>) </span>{
+    <span class="hljs-keyword">var</span> canvasElem_ = canvas_id ?
+        <span class="hljs-built_in">document</span>.getElementById(canvas_id) :
+        <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">"canvas"</span>);
+    <span class="hljs-keyword">var</span> canvas_ = canvasElem_.getContext(<span class="hljs-string">'2d'</span>);
+    <span class="hljs-keyword">var</span> width_ = canvasElem_.width;
+    <span class="hljs-keyword">var</span> height_ = canvasElem_.height;
+    <span class="hljs-keyword">var</span> scale_ = <span class="hljs-number">1</span>;
+    <span class="hljs-keyword">return</span> {
+        <span class="hljs-attr">fontHeight</span>: <span class="hljs-number">10</span>, <span class="hljs-comment">// font is 10px when canvas is created.</span>
+        <span class="hljs-attr">fontBold</span>: <span class="hljs-literal">false</span>,
+        <span class="hljs-attr">fontItalic</span>: <span class="hljs-literal">false</span>,</pre></div></div>
             
         </li>
         
@@ -254,9 +274,9 @@ everything.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        resize: <span class="keyword">function</span>(width, height, scale) {
-            <span class="keyword">if</span> (width === width_ &amp;&amp; height === height_ &amp;&amp;
-                (scale||<span class="number">1</span>) === scale_) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        resize: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">width, height, scale</span>) </span>{
+            <span class="hljs-keyword">if</span> (width === width_ &amp;&amp; height === height_ &amp;&amp;
+                (scale||<span class="hljs-number">1</span>) === scale_) {</pre></div></div>
             
         </li>
         
@@ -273,14 +293,14 @@ one of the width/height fields is assigned)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">return</span>; <span class="comment">/* nothing to do */</span>
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">return</span>; <span class="hljs-comment">/* nothing to do */</span>
             }
             width_ = width;
             height_ = height;
-            scale_ = scale || <span class="number">1</span>;
+            scale_ = scale || <span class="hljs-number">1</span>;
             canvasElem_.width = width_ * scale_;
             canvasElem_.height = height_ * scale_;
-            canvas_.setTransform(scale_, <span class="number">0</span>, <span class="number">0</span>, scale_, <span class="number">0</span>, <span class="number">0</span>);</pre></div></div>
+            canvas_.setTransform(scale_, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, scale_, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>);</pre></div></div>
             
         </li>
         
@@ -297,8 +317,8 @@ waste cycles.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (<span class="literal">false</span>) { <span class="comment">/* disabled for performance */</span>
-                canvas_.clearRect(<span class="number">0</span>,<span class="number">0</span>,width_,height_);
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (<span class="hljs-literal">false</span>) { <span class="hljs-comment">/* disabled for performance */</span>
+                canvas_.clearRect(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,width_,height_);
             }
         },</pre></div></div>
             
@@ -315,8 +335,8 @@ waste cycles.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        size: <span class="keyword">function</span>() {
-            <span class="keyword">return</span> { width: width_, height: height_, scale: scale_ };
+            <div class="content"><div class='highlight'><pre>        size: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">return</span> { <span class="hljs-attr">width</span>: width_, <span class="hljs-attr">height</span>: height_, <span class="hljs-attr">scale</span>: scale_ };
         },</pre></div></div>
             
         </li>
@@ -333,19 +353,19 @@ around its invocation.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        withContext: <span class="keyword">function</span>(_this_, f) {
-            <span class="keyword">var</span> h, b, i;
-            h = <span class="keyword">this</span>.fontHeight;
-            b = <span class="keyword">this</span>.fontBold;
-            i = <span class="keyword">this</span>.fontItalic;
-            <span class="keyword">try</span> {
+            <div class="content"><div class='highlight'><pre>        withContext: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, f</span>) </span>{
+            <span class="hljs-keyword">var</span> h, b, i;
+            h = <span class="hljs-keyword">this</span>.fontHeight;
+            b = <span class="hljs-keyword">this</span>.fontBold;
+            i = <span class="hljs-keyword">this</span>.fontItalic;
+            <span class="hljs-keyword">try</span> {
                 canvas_.save();
-                <span class="keyword">return</span> f.apply(_this_ || <span class="keyword">this</span>);
-            } <span class="keyword">finally</span> {
+                <span class="hljs-keyword">return</span> f.apply(_this_ || <span class="hljs-keyword">this</span>);
+            } <span class="hljs-keyword">finally</span> {
                 canvas_.restore();
-                <span class="keyword">this</span>.fontHeight = h;
-                <span class="keyword">this</span>.fontBold = b;
-                <span class="keyword">this</span>.fontItalic = i;
+                <span class="hljs-keyword">this</span>.fontHeight = h;
+                <span class="hljs-keyword">this</span>.fontBold = b;
+                <span class="hljs-keyword">this</span>.fontItalic = i;
             }
         },</pre></div></div>
             
@@ -362,15 +382,15 @@ around its invocation.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        scale: <span class="keyword">function</span>(x, y) {
-            <span class="keyword">if</span> (<span class="keyword">typeof</span>(x)===<span class="string">"object"</span>) { y=x.y; x=x.x; }
+            <div class="content"><div class='highlight'><pre>        scale: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x, y</span>) </span>{
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(x)===<span class="hljs-string">"object"</span>) { y=x.y; x=x.x; }
             canvas_.scale(x, y);
         },
-        translate: <span class="keyword">function</span>(x, y) {
-            <span class="keyword">if</span> (<span class="keyword">typeof</span>(x)===<span class="string">"object"</span>) { y=x.y; x=x.x; }
+        <span class="hljs-attr">translate</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x, y</span>) </span>{
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(x)===<span class="hljs-string">"object"</span>) { y=x.y; x=x.x; }
             canvas_.translate(x, y);
         },
-        transform: <span class="keyword">function</span>(a, b, c, d, e, f) {
+        <span class="hljs-attr">transform</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">a, b, c, d, e, f</span>) </span>{
             canvas_.transform(a, b, c, d, e, f);
         },</pre></div></div>
             
@@ -387,7 +407,7 @@ around its invocation.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        clearRect: <span class="keyword">function</span>(x, y, w, h) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        clearRect: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x, y, w, h</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -404,24 +424,24 @@ around its invocation.</p>
             
             <div class="content"><div class='highlight'><pre>            canvas_.clearRect(x, y, w, h);
         },
-        beginPath: <span class="keyword">function</span>() {
+        <span class="hljs-attr">beginPath</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
             canvas_.beginPath();
         },
-        closePath: <span class="keyword">function</span>() {
+        <span class="hljs-attr">closePath</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
             canvas_.closePath();
         },
-        arc: <span class="keyword">function</span>(xc, yc, radius, angle1, angle2, negative) {
+        <span class="hljs-attr">arc</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">xc, yc, radius, angle1, angle2, negative</span>) </span>{
             canvas_.arc(xc, yc, radius, angle1, angle2, negative);
         },
-        moveTo: <span class="keyword">function</span>(x, y) {
-            <span class="keyword">if</span> (<span class="keyword">typeof</span>(x)===<span class="string">"object"</span>) { y=x.y; x=x.x; }
+        <span class="hljs-attr">moveTo</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x, y</span>) </span>{
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(x)===<span class="hljs-string">"object"</span>) { y=x.y; x=x.x; }
             canvas_.moveTo(x, y);
         },
-        lineTo: <span class="keyword">function</span>(x, y) {
-            <span class="keyword">if</span> (<span class="keyword">typeof</span>(x)===<span class="string">"object"</span>) { y=x.y; x=x.x; }
+        <span class="hljs-attr">lineTo</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x, y</span>) </span>{
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(x)===<span class="hljs-string">"object"</span>) { y=x.y; x=x.x; }
             canvas_.lineTo(x, y);
         },
-        rect: <span class="keyword">function</span>(x, y, w, h) {</pre></div></div>
+        <span class="hljs-attr">rect</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x, y, w, h</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -438,13 +458,13 @@ primitives.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.moveTo(x,y);
-            <span class="keyword">this</span>.lineTo(x+w, y);
-            <span class="keyword">this</span>.lineTo(x+w, y+h);
-            <span class="keyword">this</span>.lineTo(x, y+h);
-            <span class="keyword">this</span>.closePath();
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>.moveTo(x,y);
+            <span class="hljs-keyword">this</span>.lineTo(x+w, y);
+            <span class="hljs-keyword">this</span>.lineTo(x+w, y+h);
+            <span class="hljs-keyword">this</span>.lineTo(x, y+h);
+            <span class="hljs-keyword">this</span>.closePath();
         },
-        stroke: <span class="keyword">function</span>() {</pre></div></div>
+        <span class="hljs-attr">stroke</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -460,27 +480,27 @@ boxes.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            canvas_.miterLimit = <span class="number">1</span>;
-            canvas_.lineCap = <span class="string">"round"</span>;
-            canvas_.lineJoin = <span class="string">"round"</span>;
+            <div class="content"><div class='highlight'><pre>            canvas_.miterLimit = <span class="hljs-number">1</span>;
+            canvas_.lineCap = <span class="hljs-string">"round"</span>;
+            canvas_.lineJoin = <span class="hljs-string">"round"</span>;
             canvas_.stroke();
         },
-        fill: <span class="keyword">function</span>() {
+        <span class="hljs-attr">fill</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
             canvas_.fill();
         },
-        clip: <span class="keyword">function</span>() {
+        <span class="hljs-attr">clip</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
             canvas_.clip();
         },
-        setStroke: <span class="keyword">function</span>(color) {
+        <span class="hljs-attr">setStroke</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">color</span>) </span>{
             canvas_.strokeStyle = color.toCSS();
         },
-        setFill: <span class="keyword">function</span>(color) {
+        <span class="hljs-attr">setFill</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">color</span>) </span>{
             canvas_.fillStyle = color.toCSS();
         },
-        setStrokeWidth: <span class="keyword">function</span>(width) {
+        <span class="hljs-attr">setStrokeWidth</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">width</span>) </span>{
             canvas_.lineWidth = width;
         },
-        setFontHeight: <span class="keyword">function</span>(height) {</pre></div></div>
+        <span class="hljs-attr">setFontHeight</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">height</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -495,24 +515,24 @@ boxes.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">this</span>.fontHeight = height;
-            <span class="keyword">this</span>._updateFont();
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>.fontHeight = height;
+            <span class="hljs-keyword">this</span>._updateFont();
         },
-        setFontItalic: <span class="keyword">function</span>(isItalic) {
-            <span class="keyword">this</span>.fontItalic = isItalic;
-            <span class="keyword">this</span>._updateFont();
+        <span class="hljs-attr">setFontItalic</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">isItalic</span>) </span>{
+            <span class="hljs-keyword">this</span>.fontItalic = isItalic;
+            <span class="hljs-keyword">this</span>._updateFont();
         },
-        setFontBold: <span class="keyword">function</span>(isBold) {
-            <span class="keyword">this</span>.fontBold = isBold;
-            <span class="keyword">this</span>._updateFont();
+        <span class="hljs-attr">setFontBold</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">isBold</span>) </span>{
+            <span class="hljs-keyword">this</span>.fontBold = isBold;
+            <span class="hljs-keyword">this</span>._updateFont();
         },
-        _updateFont: <span class="keyword">function</span>() {
-            <span class="keyword">var</span> fs = <span class="keyword">this</span>.fontHeight+<span class="string">"px sans-serif"</span>;
-            <span class="keyword">if</span> (<span class="keyword">this</span>.fontItalic) fs = <span class="string">"italic "</span>+fs;
-            <span class="keyword">if</span> (<span class="keyword">this</span>.fontBold) fs = <span class="string">"bold "</span>+fs;
+        <span class="hljs-attr">_updateFont</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> fs = <span class="hljs-keyword">this</span>.fontHeight+<span class="hljs-string">"px sans-serif"</span>;
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.fontItalic) fs = <span class="hljs-string">"italic "</span>+fs;
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.fontBold) fs = <span class="hljs-string">"bold "</span>+fs;
             canvas_.font = fs;
         },
-        drawText: <span class="keyword">function</span>(text, x, y) {</pre></div></div>
+        <span class="hljs-attr">drawText</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">text, x, y</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -527,11 +547,11 @@ boxes.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (<span class="keyword">typeof</span>(x)===<span class="string">"object"</span>) { y=x.y; x=x.x; }
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(x)===<span class="hljs-string">"object"</span>) { y=x.y; x=x.x; }
             canvas_.fillText(text, x, y);
         },
-        measureText: <span class="keyword">function</span>(text) {
-            <span class="keyword">var</span> metrics = canvas_.measureText(text);</pre></div></div>
+        <span class="hljs-attr">measureText</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">text</span>) </span>{
+            <span class="hljs-keyword">var</span> metrics = canvas_.measureText(text);</pre></div></div>
             
         </li>
         
@@ -546,14 +566,14 @@ boxes.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">return</span> { width: metrics.width,
-                     height: <span class="keyword">this</span>.fontHeight,
-                     baseline: <span class="keyword">this</span>.fontHeight * <span class="number">0.8</span>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">return</span> { <span class="hljs-attr">width</span>: metrics.width,
+                     <span class="hljs-attr">height</span>: <span class="hljs-keyword">this</span>.fontHeight,
+                     <span class="hljs-attr">baseline</span>: <span class="hljs-keyword">this</span>.fontHeight * <span class="hljs-number">0.8</span>
                    };
         },
     };
 };
-    <span class="keyword">return</span> make;
+    <span class="hljs-keyword">return</span> make;
 });</pre></div></div>
             
         </li>

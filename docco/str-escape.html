@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -212,8 +232,8 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define(<span class="keyword">function</span>() { <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">str_escape</span><span class="params">(s)</span> {</span>
-        <span class="keyword">if</span> (s.toSource) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>define(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">str_escape</span>(<span class="hljs-params">s</span>) </span>{
+        <span class="hljs-keyword">if</span> (s.toSource) {</pre></div></div>
             
         </li>
         
@@ -229,7 +249,7 @@ value.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">return</span> s.toSource().slice(<span class="number">12</span>,-<span class="number">2</span>);
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">return</span> s.toSource().slice(<span class="hljs-number">12</span>,<span class="hljs-number">-2</span>);
         }</pre></div></div>
             
         </li>
@@ -245,26 +265,26 @@ value.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> quotes = <span class="string">'"'</span>;
-        <span class="keyword">if</span> (s.indexOf(<span class="string">'"'</span>) !== -<span class="number">1</span> &amp;&amp; s.indexOf(<span class="string">"'"</span>) === -<span class="number">1</span>) {
-            quotes = <span class="string">"'"</span>;
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> quotes = <span class="hljs-string">'"'</span>;
+        <span class="hljs-keyword">if</span> (s.indexOf(<span class="hljs-string">'"'</span>) !== <span class="hljs-number">-1</span> &amp;&amp; s.indexOf(<span class="hljs-string">"'"</span>) === <span class="hljs-number">-1</span>) {
+            quotes = <span class="hljs-string">"'"</span>;
         }
 
-        <span class="keyword">var</span> table = {};
-        table[<span class="string">"\n"</span>] = <span class="string">"n"</span>;
-        table[<span class="string">"\r"</span>] = <span class="string">"r"</span>;
-        table[<span class="string">"\f"</span>] = <span class="string">"f"</span>;
-        table[<span class="string">"\b"</span>] = <span class="string">"b"</span>;
-        table[<span class="string">"\t"</span>] = <span class="string">"t"</span>;
-        table[<span class="string">"\\"</span>] = <span class="string">"\\"</span>;
+        <span class="hljs-keyword">var</span> table = {};
+        table[<span class="hljs-string">"\n"</span>] = <span class="hljs-string">"n"</span>;
+        table[<span class="hljs-string">"\r"</span>] = <span class="hljs-string">"r"</span>;
+        table[<span class="hljs-string">"\f"</span>] = <span class="hljs-string">"f"</span>;
+        table[<span class="hljs-string">"\b"</span>] = <span class="hljs-string">"b"</span>;
+        table[<span class="hljs-string">"\t"</span>] = <span class="hljs-string">"t"</span>;
+        table[<span class="hljs-string">"\\"</span>] = <span class="hljs-string">"\\"</span>;
         table[quotes] = quotes;
 
-        <span class="keyword">var</span> result = <span class="string">""</span>, i=<span class="number">0</span>;
-        <span class="keyword">while</span> (i &lt; s.length) {
-            <span class="keyword">var</span> c = s.charAt(i);
-            <span class="keyword">if</span> (table.hasOwnProperty(c)) {
-                result += <span class="string">"\\"</span> + table[c];
-            } <span class="keyword">else</span> <span class="keyword">if</span> (c &lt; <span class="string">' '</span> || c &gt; <span class="string">'~'</span>) {</pre></div></div>
+        <span class="hljs-keyword">var</span> result = <span class="hljs-string">""</span>, i=<span class="hljs-number">0</span>;
+        <span class="hljs-keyword">while</span> (i &lt; s.length) {
+            <span class="hljs-keyword">var</span> c = s.charAt(i);
+            <span class="hljs-keyword">if</span> (table.hasOwnProperty(c)) {
+                result += <span class="hljs-string">"\\"</span> + table[c];
+            } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (c &lt; <span class="hljs-string">' '</span> || c &gt; <span class="hljs-string">'~'</span>) {</pre></div></div>
             
         </li>
         
@@ -279,17 +299,17 @@ value.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> cc = c.charCodeAt(<span class="number">0</span>).toString(<span class="number">16</span>);
-                <span class="keyword">while</span> (cc.length &lt; <span class="number">4</span>) {
-                    cc = <span class="string">"0"</span> + cc;
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">var</span> cc = c.charCodeAt(<span class="hljs-number">0</span>).toString(<span class="hljs-number">16</span>);
+                <span class="hljs-keyword">while</span> (cc.length &lt; <span class="hljs-number">4</span>) {
+                    cc = <span class="hljs-string">"0"</span> + cc;
                 }
-                result += <span class="string">"\\u"</span> + cc;
-            } <span class="keyword">else</span> {
+                result += <span class="hljs-string">"\\u"</span> + cc;
+            } <span class="hljs-keyword">else</span> {
                 result += c;
             }
-            i += <span class="number">1</span>;
+            i += <span class="hljs-number">1</span>;
         }
-        <span class="keyword">return</span> quotes + result + quotes;
+        <span class="hljs-keyword">return</span> quotes + result + quotes;
     };
 });</pre></div></div>
             

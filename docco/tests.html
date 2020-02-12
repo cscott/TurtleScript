@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -212,17 +232,17 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">"text!tests.js"</span>, <span class="string">"str-escape"</span>,
-        <span class="comment">/* These modules are just imported to make test cases out of them. */</span>
-        <span class="string">"tokenize"</span>, <span class="string">"parse"</span>, <span class="string">"jcompile"</span>, <span class="string">"crender"</span>, <span class="string">"bytecode-table"</span>,
-        <span class="string">"bcompile"</span>, <span class="string">"binterp"</span>, <span class="string">"stdlib"</span>, <span class="string">"events"</span>, <span class="string">"asm-llvm"</span>],
-       <span class="function"><span class="keyword">function</span> <span class="title">make_tests</span><span class="params">(tests_source, str_escape,
+            <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">"text!tests.js"</span>, <span class="hljs-string">"str-escape"</span>,
+        <span class="hljs-comment">/* These modules are just imported to make test cases out of them. */</span>
+        <span class="hljs-string">"tokenize"</span>, <span class="hljs-string">"parse"</span>, <span class="hljs-string">"jcompile"</span>, <span class="hljs-string">"crender"</span>, <span class="hljs-string">"bytecode-table"</span>,
+        <span class="hljs-string">"bcompile"</span>, <span class="hljs-string">"binterp"</span>, <span class="hljs-string">"stdlib"</span>, <span class="hljs-string">"events"</span>, <span class="hljs-string">"asm-llvm"</span>],
+       <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_tests</span>(<span class="hljs-params">tests_source, str_escape,
                            tokenize, parse, jcompile, crender, bytecode_table,
-                           bcompile, binterp, stdlib, events, asm_llvm)</span> {</span>
-    <span class="keyword">var</span> deps = [<span class="string">"tests_source"</span>, <span class="string">"str-escape"</span>,
-                <span class="string">"tokenize"</span>, <span class="string">"parse"</span>, <span class="string">"jcompile"</span>, <span class="string">"crender"</span>, <span class="string">"bytecode-table"</span>,
-                <span class="string">"bcompile"</span>, <span class="string">"binterp"</span>, <span class="string">"stdlib"</span>, <span class="string">"events"</span>, <span class="string">"asm-llvm"</span>];
-    <span class="keyword">var</span> test=[], i=<span class="number">2</span><span class="comment">/* skip tests_source and str_escape */</span>;</pre></div></div>
+                           bcompile, binterp, stdlib, events, asm_llvm</span>) </span>{
+    <span class="hljs-keyword">var</span> deps = [<span class="hljs-string">"tests_source"</span>, <span class="hljs-string">"str-escape"</span>,
+                <span class="hljs-string">"tokenize"</span>, <span class="hljs-string">"parse"</span>, <span class="hljs-string">"jcompile"</span>, <span class="hljs-string">"crender"</span>, <span class="hljs-string">"bytecode-table"</span>,
+                <span class="hljs-string">"bcompile"</span>, <span class="hljs-string">"binterp"</span>, <span class="hljs-string">"stdlib"</span>, <span class="hljs-string">"events"</span>, <span class="hljs-string">"asm-llvm"</span>];
+    <span class="hljs-keyword">var</span> test=[], i=<span class="hljs-number">2</span><span class="hljs-comment">/* skip tests_source and str_escape */</span>;</pre></div></div>
             
         </li>
         
@@ -237,12 +257,12 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">while</span> (i &lt; arguments.length) {
-        test[i-<span class="number">2</span>] = arguments[i];
-        test[i-<span class="number">2</span>].__module_name__ = deps[i]; <span class="comment">// hack</span>
-        i += <span class="number">1</span>;
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">while</span> (i &lt; <span class="hljs-built_in">arguments</span>.length) {
+        test[i<span class="hljs-number">-2</span>] = <span class="hljs-built_in">arguments</span>[i];
+        test[i<span class="hljs-number">-2</span>].__module_name__ = deps[i]; <span class="hljs-comment">// hack</span>
+        i += <span class="hljs-number">1</span>;
     }
-    i -= <span class="number">3</span>;</pre></div></div>
+    i -= <span class="hljs-number">3</span>;</pre></div></div>
             
         </li>
         
@@ -257,12 +277,12 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span> (make_tests) {
-        make_tests.__module_name__ = <span class="string">"tests"</span>;
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (make_tests) {
+        make_tests.__module_name__ = <span class="hljs-string">"tests"</span>;
         make_tests.__module_deps__ = deps;
         make_tests.__module_init__ = make_tests;
         make_tests.__module_source__ = tests_source;
-        test[i+=<span class="number">1</span>] = make_tests;
+        test[i+=<span class="hljs-number">1</span>] = make_tests;
     }</pre></div></div>
             
         </li>
@@ -280,18 +300,18 @@ on a successful evaluation.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> autotest = <span class="keyword">function</span>(f) { f.autotest=<span class="literal">true</span>; <span class="keyword">return</span> f; };
-    <span class="keyword">var</span> strtest = <span class="keyword">function</span>(s) {
-        <span class="keyword">var</span> f = eval(<span class="string">'('</span>+s+<span class="string">')'</span>);
-        f.__module_source__ = <span class="string">'define([],function() { return '</span>+s+<span class="string">'; });'</span>;
-        <span class="keyword">return</span> f;
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> autotest = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">f</span>) </span>{ f.autotest=<span class="hljs-literal">true</span>; <span class="hljs-keyword">return</span> f; };
+    <span class="hljs-keyword">var</span> strtest = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">s</span>) </span>{
+        <span class="hljs-keyword">var</span> f = <span class="hljs-built_in">eval</span>(<span class="hljs-string">'('</span>+s+<span class="hljs-string">')'</span>);
+        f.__module_source__ = <span class="hljs-string">'define([],function() { return '</span>+s+<span class="hljs-string">'; });'</span>;
+        <span class="hljs-keyword">return</span> f;
     };
-    test[i+=<span class="number">1</span>] = autotest(strtest(
-            <span class="string">"function() {\n"</span> +
-            <span class="string">"    var x = 1;\n"</span>+
-            <span class="string">"    return (x + x) === 2;\n"</span>+
-            <span class="string">"}"</span>));
-    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {</pre></div></div>
+    test[i+=<span class="hljs-number">1</span>] = autotest(strtest(
+            <span class="hljs-string">"function() {\n"</span> +
+            <span class="hljs-string">"    var x = 1;\n"</span>+
+            <span class="hljs-string">"    return (x + x) === 2;\n"</span>+
+            <span class="hljs-string">"}"</span>));
+    test[i+=<span class="hljs-number">1</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -311,34 +331,34 @@ contain itself! (as in the following example)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> assignment = <span class="keyword">function</span>() {
-            <span class="keyword">return</span> <span class="keyword">function</span>() {
-                <span class="keyword">return</span>;
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> assignment = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+                <span class="hljs-keyword">return</span>;
             };
         };
-        <span class="keyword">return</span> assignment;
+        <span class="hljs-keyword">return</span> assignment;
     };
-    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {
-        <span class="comment">/* comment test */</span>
-        <span class="keyword">var</span> x = <span class="number">1</span>; x = x + <span class="number">1</span>;
-        <span class="keyword">return</span> x;
+    test[i+=<span class="hljs-number">1</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-comment">/* comment test */</span>
+        <span class="hljs-keyword">var</span> x = <span class="hljs-number">1</span>; x = x + <span class="hljs-number">1</span>;
+        <span class="hljs-keyword">return</span> x;
     };
-    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> x = { a: <span class="number">1</span>, b: <span class="string">'two'</span>, c: x+<span class="number">2</span> }; <span class="keyword">var</span> y = [ <span class="number">1</span>, <span class="string">'two'</span>, <span class="number">3</span>, x ];
-        <span class="keyword">return</span> y.length;
+    test[i+=<span class="hljs-number">1</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> x = { <span class="hljs-attr">a</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">b</span>: <span class="hljs-string">'two'</span>, <span class="hljs-attr">c</span>: x+<span class="hljs-number">2</span> }; <span class="hljs-keyword">var</span> y = [ <span class="hljs-number">1</span>, <span class="hljs-string">'two'</span>, <span class="hljs-number">3</span>, x ];
+        <span class="hljs-keyword">return</span> y.length;
     };
-    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> a = <span class="literal">true</span>, b=<span class="literal">false</span>, c=<span class="literal">null</span>, d=<span class="literal">NaN</span>, e=Object, f=Array, g=<span class="keyword">this</span>;
-        <span class="keyword">return</span> d.toString();
+    test[i+=<span class="hljs-number">1</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> a = <span class="hljs-literal">true</span>, b=<span class="hljs-literal">false</span>, c=<span class="hljs-literal">null</span>, d=<span class="hljs-literal">NaN</span>, e=<span class="hljs-built_in">Object</span>, f=<span class="hljs-built_in">Array</span>, g=<span class="hljs-keyword">this</span>;
+        <span class="hljs-keyword">return</span> d.toString();
     };
-    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> x = <span class="number">1</span>+<span class="number">2</span>*<span class="number">3</span>, y = (<span class="number">1</span>+<span class="number">2</span>)*<span class="number">3</span>, z=<span class="literal">null</span>; z(x, y); z[x] = y;
+    test[i+=<span class="hljs-number">1</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> x = <span class="hljs-number">1</span>+<span class="hljs-number">2</span>*<span class="hljs-number">3</span>, y = (<span class="hljs-number">1</span>+<span class="hljs-number">2</span>)*<span class="hljs-number">3</span>, z=<span class="hljs-literal">null</span>; z(x, y); z[x] = y;
     };
-    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {
-        <span class="keyword">var</span> a = <span class="number">1</span>+<span class="number">2</span>*<span class="number">3</span>, b = (<span class="number">1</span>+<span class="number">2</span>)*<span class="number">3</span>, c=<span class="number">1</span>+<span class="number">2</span>+<span class="number">3</span>-<span class="number">4</span>-<span class="number">5</span>, d=<span class="number">1</span>+<span class="number">2</span>+<span class="number">3</span>-(<span class="number">4</span>-<span class="number">5</span>);
-        <span class="keyword">return</span> (a===<span class="number">7</span>) &amp;&amp; (b===<span class="number">9</span>) &amp;&amp; (c===-<span class="number">3</span>) &amp;&amp; (d===<span class="number">7</span>);
+    test[i+=<span class="hljs-number">1</span>] = autotest(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> a = <span class="hljs-number">1</span>+<span class="hljs-number">2</span>*<span class="hljs-number">3</span>, b = (<span class="hljs-number">1</span>+<span class="hljs-number">2</span>)*<span class="hljs-number">3</span>, c=<span class="hljs-number">1</span>+<span class="hljs-number">2</span>+<span class="hljs-number">3</span><span class="hljs-number">-4</span><span class="hljs-number">-5</span>, d=<span class="hljs-number">1</span>+<span class="hljs-number">2</span>+<span class="hljs-number">3</span>-(<span class="hljs-number">4</span><span class="hljs-number">-5</span>);
+        <span class="hljs-keyword">return</span> (a===<span class="hljs-number">7</span>) &amp;&amp; (b===<span class="hljs-number">9</span>) &amp;&amp; (c===<span class="hljs-number">-3</span>) &amp;&amp; (d===<span class="hljs-number">7</span>);
     });
-    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>(i, j, k, l, m, n, o) {</pre></div></div>
+    test[i+=<span class="hljs-number">1</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">i, j, k, l, m, n, o</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -353,26 +373,26 @@ contain itself! (as in the following example)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>       <span class="keyword">var</span> a = i + j ? k + l : m + n;
-       <span class="keyword">var</span> b = i + (j ? k + l : m) + n;
-       <span class="keyword">var</span> c = i ? (j ? k : l) : (m ? n : o);
-       <span class="keyword">var</span> d = i + j * k, e = (i + j) * k, f=i+j+k-l-m, g=i+j+k-(l-m);
-       <span class="keyword">var</span> h = i - -j;
+            <div class="content"><div class='highlight'><pre>       <span class="hljs-keyword">var</span> a = i + j ? k + l : m + n;
+       <span class="hljs-keyword">var</span> b = i + (j ? k + l : m) + n;
+       <span class="hljs-keyword">var</span> c = i ? (j ? k : l) : (m ? n : o);
+       <span class="hljs-keyword">var</span> d = i + j * k, e = (i + j) * k, f=i+j+k-l-m, g=i+j+k-(l-m);
+       <span class="hljs-keyword">var</span> h = i - -j;
        a = -(j.foo);
        b = (-k).foo;
        c = -j + a;
        d = -(j + a);
        e = a.bar.foo.bat;
        f = a[b+c];
-       <span class="keyword">return</span> a+b+c+d+e+f+g+h;
+       <span class="hljs-keyword">return</span> a+b+c+d+e+f+g+h;
     };
-    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>(x) {
-        <span class="keyword">if</span> (x) { x += <span class="number">1</span>; } <span class="keyword">else</span> { x += <span class="number">2</span>; }
-        <span class="keyword">return</span> x;
+    test[i+=<span class="hljs-number">1</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x</span>) </span>{
+        <span class="hljs-keyword">if</span> (x) { x += <span class="hljs-number">1</span>; } <span class="hljs-keyword">else</span> { x += <span class="hljs-number">2</span>; }
+        <span class="hljs-keyword">return</span> x;
     };
-    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>(x) {
-        <span class="keyword">if</span> (x) { x += <span class="number">1</span>; } <span class="keyword">else</span> <span class="keyword">if</span> (!x) { x += <span class="number">2</span>; } <span class="keyword">else</span> { x+= <span class="number">3</span>; }
-        <span class="keyword">return</span> x;
+    test[i+=<span class="hljs-number">1</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x</span>) </span>{
+        <span class="hljs-keyword">if</span> (x) { x += <span class="hljs-number">1</span>; } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!x) { x += <span class="hljs-number">2</span>; } <span class="hljs-keyword">else</span> { x+= <span class="hljs-number">3</span>; }
+        <span class="hljs-keyword">return</span> x;
     };</pre></div></div>
             
         </li>
@@ -381,67 +401,67 @@ contain itself! (as in the following example)</p>
         <li id="section-7">
             <div class="annotation">
               
-              <div class="pilwrap for-h2">
+              <div class="pilwrap ">
                 <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
-              <h2>Interpreter tests</h2>
+              <h2 id="interpreter-tests">Interpreter tests</h2>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> a = [];
-        <span class="keyword">var</span> b = a.push(<span class="string">'a'</span>, [<span class="number">1</span>, <span class="number">2</span>]);
-        console.log(a, b);
-        <span class="keyword">var</span> c = a.concat(b+<span class="number">1</span>, [<span class="number">4</span>, <span class="number">5</span>], <span class="number">6</span>, [[<span class="number">7</span>,<span class="number">8</span>]]);
-        console.log(c);
-        <span class="keyword">return</span> c;
+            <div class="content"><div class='highlight'><pre>    test[i+=<span class="hljs-number">1</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> a = [];
+        <span class="hljs-keyword">var</span> b = a.push(<span class="hljs-string">'a'</span>, [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>]);
+        <span class="hljs-built_in">console</span>.log(a, b);
+        <span class="hljs-keyword">var</span> c = a.concat(b+<span class="hljs-number">1</span>, [<span class="hljs-number">4</span>, <span class="hljs-number">5</span>], <span class="hljs-number">6</span>, [[<span class="hljs-number">7</span>,<span class="hljs-number">8</span>]]);
+        <span class="hljs-built_in">console</span>.log(c);
+        <span class="hljs-keyword">return</span> c;
     };
-    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {
-       <span class="keyword">var</span> x = { g: <span class="number">1</span> };
-       <span class="keyword">var</span> y = Object.create(x);
-       console.log(x.g, y.g);
-       console.log(x.hasOwnProperty(<span class="string">'g'</span>), y.hasOwnProperty(<span class="string">'g'</span>));
-       x.g = <span class="number">2</span>;
-       console.log(x.g, y.g);
-       y.g = <span class="number">3</span>;
-       console.log(x.g, y.g);
-       <span class="keyword">return</span> (x.g===<span class="number">2</span> &amp;&amp; y.g===<span class="number">3</span>);
+    test[i+=<span class="hljs-number">1</span>] = autotest(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+       <span class="hljs-keyword">var</span> x = { <span class="hljs-attr">g</span>: <span class="hljs-number">1</span> };
+       <span class="hljs-keyword">var</span> y = <span class="hljs-built_in">Object</span>.create(x);
+       <span class="hljs-built_in">console</span>.log(x.g, y.g);
+       <span class="hljs-built_in">console</span>.log(x.hasOwnProperty(<span class="hljs-string">'g'</span>), y.hasOwnProperty(<span class="hljs-string">'g'</span>));
+       x.g = <span class="hljs-number">2</span>;
+       <span class="hljs-built_in">console</span>.log(x.g, y.g);
+       y.g = <span class="hljs-number">3</span>;
+       <span class="hljs-built_in">console</span>.log(x.g, y.g);
+       <span class="hljs-keyword">return</span> (x.g===<span class="hljs-number">2</span> &amp;&amp; y.g===<span class="hljs-number">3</span>);
     });
-    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>(x) {
-        <span class="comment">/* parsing 'expression statements' */</span>
-        (<span class="keyword">function</span>() {})();
+    test[i+=<span class="hljs-number">1</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x</span>) </span>{
+        <span class="hljs-comment">/* parsing 'expression statements' */</span>
+        (<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{})();
     };
-    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {
-        <span class="comment">/* scoping */</span>
-        <span class="keyword">var</span> a = <span class="number">1</span>;
-        (<span class="keyword">function</span>() {
-            console.log(a);
-            a = <span class="number">2</span>;
-            console.log(a);
-            (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                console.log(a);
-                <span class="keyword">var</span> a = <span class="number">3</span>;
-                console.log(a);
+    test[i+=<span class="hljs-number">1</span>] = autotest(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-comment">/* scoping */</span>
+        <span class="hljs-keyword">var</span> a = <span class="hljs-number">1</span>;
+        (<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-built_in">console</span>.log(a);
+            a = <span class="hljs-number">2</span>;
+            <span class="hljs-built_in">console</span>.log(a);
+            (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                <span class="hljs-built_in">console</span>.log(a);
+                <span class="hljs-keyword">var</span> a = <span class="hljs-number">3</span>;
+                <span class="hljs-built_in">console</span>.log(a);
             })();
-            console.log(a);
+            <span class="hljs-built_in">console</span>.log(a);
         })();
-        console.log(a);
-        <span class="keyword">return</span> (a===<span class="number">2</span>);
+        <span class="hljs-built_in">console</span>.log(a);
+        <span class="hljs-keyword">return</span> (a===<span class="hljs-number">2</span>);
     });
-    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {
-        <span class="comment">/* Doing w/o branches */</span>
-        <span class="literal">true</span>[<span class="string">"while"</span>] = <span class="keyword">function</span>(_this_, cond, body) {
+    test[i+=<span class="hljs-number">1</span>] = autotest(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-comment">/* Doing w/o branches */</span>
+        <span class="hljs-literal">true</span>[<span class="hljs-string">"while"</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, cond, body</span>) </span>{
             body.call(_this_);
-            cond.call(_this_)[<span class="string">"while"</span>](_this_, cond, body);
+            cond.call(_this_)[<span class="hljs-string">"while"</span>](_this_, cond, body);
         };
-        <span class="literal">false</span>[<span class="string">"while"</span>] = <span class="keyword">function</span>(_this_, cond, body) {
-            <span class="comment">/* no op */</span>
+        <span class="hljs-literal">false</span>[<span class="hljs-string">"while"</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, cond, body</span>) </span>{
+            <span class="hljs-comment">/* no op */</span>
         };
-        <span class="literal">true</span>[<span class="string">"ifElse"</span>] = <span class="keyword">function</span>(_this_, ifTrue, ifFalse) {
-            <span class="keyword">return</span> ifTrue.call(_this_);
+        <span class="hljs-literal">true</span>[<span class="hljs-string">"ifElse"</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, ifTrue, ifFalse</span>) </span>{
+            <span class="hljs-keyword">return</span> ifTrue.call(_this_);
         };
-        <span class="literal">false</span>[<span class="string">"ifElse"</span>] = <span class="keyword">function</span>(_this_, ifTrue, ifFalse) {
-            <span class="keyword">return</span> ifFalse.call(_this_);
+        <span class="hljs-literal">false</span>[<span class="hljs-string">"ifElse"</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, ifTrue, ifFalse</span>) </span>{
+            <span class="hljs-keyword">return</span> ifFalse.call(_this_);
         };</pre></div></div>
             
         </li>
@@ -459,8 +479,81 @@ contain itself! (as in the following example)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        Boolean.prototype[<span class="string">"while"</span>] = <span class="keyword">function</span>(_this_, cond, body) {
-            console.log(<span class="string">"Boolean.while fallback"</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-built_in">Boolean</span>.prototype[<span class="hljs-string">"while"</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, cond, body</span>) </span>{
+            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"Boolean.while fallback"</span>);
+            <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.valueOf()) { <span class="hljs-keyword">return</span>; }
+            body.call(_this_);
+            <span class="hljs-keyword">var</span> cc = cond.call(_this_);
+            cc[<span class="hljs-string">"while"</span>](_this_, cond, body);
+        };
+        <span class="hljs-built_in">Boolean</span>.prototype[<span class="hljs-string">"ifElse"</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, ifTrue, ifFalse</span>) </span>{
+            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"Boolean.ifElse fallback"</span>);
+            <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.valueOf()) {
+                <span class="hljs-keyword">return</span> ifFalse.call(_this_);
+            } <span class="hljs-keyword">else</span> {
+                <span class="hljs-keyword">return</span> ifTrue.call(_this_);
+            }
+        };
+        <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">var</span> c = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> (i &lt; <span class="hljs-number">3</span>); };
+        <span class="hljs-keyword">var</span> b = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-built_in">console</span>.log(i); i += <span class="hljs-number">1</span>; };
+
+        <span class="hljs-keyword">var</span> a1 = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"a1"</span>); };
+        <span class="hljs-keyword">var</span> a2 = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"a2"</span>); };
+
+        <span class="hljs-comment">/*
+        console.log("true.while", true.while, "false.while", false.while,
+                    "true.ifElse", true.ifElse, "false.ifElse", false.ifElse);
+        console.log("this", this, "a1", a1, "a2", a2);
+        */</span>
+        c().ifElse(<span class="hljs-keyword">this</span>, a1, a2);
+        c()[<span class="hljs-string">"while"</span>](<span class="hljs-keyword">this</span>, c, b);
+        c().ifElse(<span class="hljs-keyword">this</span>, a1, a2);
+        <span class="hljs-keyword">return</span> (i === <span class="hljs-number">3</span>);
+    });
+    test[i+=<span class="hljs-number">1</span>] = autotest(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-comment">/* Functions should have a 'length' field. */</span>
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params">a, b, c</span>) </span>{ <span class="hljs-keyword">return</span> a+b+c; }
+        <span class="hljs-keyword">return</span> foo.length === <span class="hljs-number">3</span>;
+    });
+    test[i+=<span class="hljs-number">1</span>] = autotest(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-comment">/* Test Function.bind */</span>
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-built_in">Array</span>.prototype.concat.apply([ <span class="hljs-keyword">this</span> ], <span class="hljs-built_in">arguments</span>);
+        }
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">check</span>(<span class="hljs-params">_this_, r</span>) </span>{
+            <span class="hljs-built_in">console</span>.log(r);
+            <span class="hljs-keyword">return</span> ((r.length === <span class="hljs-number">4</span>) &amp;&amp; (r[<span class="hljs-number">0</span>] === _this_) &amp;&amp;
+                    (r[<span class="hljs-number">1</span>] === <span class="hljs-number">0</span>) &amp;&amp; (r[<span class="hljs-number">2</span>] === <span class="hljs-number">1</span>) &amp;&amp; (r[<span class="hljs-number">3</span>] === <span class="hljs-number">2</span>));
+        }
+        <span class="hljs-keyword">if</span> (!check(<span class="hljs-keyword">this</span>, f.bind()(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>))) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">var</span> nthis = { <span class="hljs-attr">_this_</span>: <span class="hljs-literal">true</span> };
+        <span class="hljs-keyword">if</span> (!check(nthis, f.bind(nthis)(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>))) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">if</span> (!check(nthis, f.bind(nthis, <span class="hljs-number">0</span>)(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>))) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">if</span> (!check(nthis, f.bind(nthis, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>)(<span class="hljs-number">2</span>))) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">if</span> (!check(nthis, f.bind(nthis, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>)())) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    });
+    test[i+=<span class="hljs-number">1</span>] = autotest(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">if</span> (<span class="hljs-string">"  xy z  "</span>.trim() !== <span class="hljs-string">"xy z"</span>) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">if</span> (<span class="hljs-string">""</span>.trim().length !== <span class="hljs-number">0</span>) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">if</span> (<span class="hljs-string">"    \t "</span>.trim().length !== <span class="hljs-number">0</span>) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    });
+    test[i+=<span class="hljs-number">1</span>] = autotest(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> a = [ <span class="hljs-number">1</span>, <span class="hljs-number">2</span> ];
+        a.push(<span class="hljs-number">3</span>, <span class="hljs-number">4</span>);
+        a.pop();
+        <span class="hljs-built_in">console</span>.log(a);
+        <span class="hljs-keyword">if</span> (!(a.length === <span class="hljs-number">3</span> &amp;&amp; !a[<span class="hljs-number">3</span>])) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">if</span> (a.join() !== <span class="hljs-string">"1,2,3"</span>) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">if</span> (a.join(<span class="hljs-string">' '</span>) !== <span class="hljs-string">"1 2 3"</span>) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        a.pop(); a.pop(); a.pop(); a.pop();
+        <span class="hljs-keyword">if</span> (!(a.length === <span class="hljs-number">0</span> &amp;&amp; !a[<span class="hljs-number">0</span>])) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">if</span> (a.join() !== <span class="hljs-string">""</span>) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    });
+    test[i+=<span class="hljs-number">1</span>] = autotest(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -471,85 +564,17 @@ contain itself! (as in the following example)</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
-              <p>Strange: === gives the wrong value. == works, because (I think)
-it coerces to string, like the below.  ! also does the wrong
-thing.  Hm!</p>
+              <p>More array method tests.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (<span class="keyword">this</span>.toString() === <span class="string">"false"</span>) { <span class="keyword">return</span>; }
-            body.call(_this_);
-            <span class="keyword">var</span> cc = cond.call(_this_);
-            cc[<span class="string">"while"</span>](_this_, cond, body);
-        };
-        Boolean.prototype[<span class="string">"ifElse"</span>] = <span class="keyword">function</span>(_this_, ifTrue, ifFalse) {
-            console.log(<span class="string">"Boolean.ifElse fallback"</span>);
-            <span class="keyword">if</span> (<span class="keyword">this</span>.toString() === <span class="string">"false"</span>) {
-                <span class="keyword">return</span> ifFalse.call(_this_);
-            } <span class="keyword">else</span> {
-                <span class="keyword">return</span> ifTrue.call(_this_);
-            }
-        };
-        <span class="keyword">var</span> i = <span class="number">0</span>;
-        <span class="keyword">var</span> c = <span class="keyword">function</span>() { <span class="keyword">return</span> (i &lt; <span class="number">3</span>); };
-        <span class="keyword">var</span> b = <span class="keyword">function</span>() { console.log(i); i += <span class="number">1</span>; };
-
-        <span class="keyword">var</span> a1 = <span class="keyword">function</span>() { console.log(<span class="string">"a1"</span>); };
-        <span class="keyword">var</span> a2 = <span class="keyword">function</span>() { console.log(<span class="string">"a2"</span>); };
-
-        <span class="comment">/*
-        console.log("true.while", true.while, "false.while", false.while,
-                    "true.ifElse", true.ifElse, "false.ifElse", false.ifElse);
-        console.log("this", this, "a1", a1, "a2", a2);
-        */</span>
-        c().ifElse(<span class="keyword">this</span>, a1, a2);
-        c()[<span class="string">"while"</span>](<span class="keyword">this</span>, c, b);
-        c().ifElse(<span class="keyword">this</span>, a1, a2);
-        <span class="keyword">return</span> (i === <span class="number">3</span>);
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> s = <span class="hljs-string">""</span>;
+        [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>].map(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x</span>) </span>{ <span class="hljs-keyword">return</span> x*<span class="hljs-number">2</span>; }).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e, i</span>)</span>{
+            s += [i, e].join(<span class="hljs-string">','</span>) + <span class="hljs-string">" "</span>;
+        });
+        <span class="hljs-keyword">return</span> s === <span class="hljs-string">'0,2 1,4 2,6 3,8 '</span>;
     });
-    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {
-        <span class="comment">/* Functions should have a 'length' field. */</span>
-        <span class="function"><span class="keyword">function</span> <span class="title">foo</span><span class="params">(a, b, c)</span> {</span> <span class="keyword">return</span> a+b+c; }
-        <span class="keyword">return</span> foo.length === <span class="number">3</span>;
-    });
-    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {
-        <span class="comment">/* Test Function.bind */</span>
-        <span class="function"><span class="keyword">function</span> <span class="title">f</span><span class="params">()</span> {</span>
-            <span class="keyword">return</span> Array.prototype.concat.apply([ <span class="keyword">this</span> ], arguments);
-        }
-        <span class="function"><span class="keyword">function</span> <span class="title">check</span><span class="params">(_this_, r)</span> {</span>
-            console.log(r);
-            <span class="keyword">return</span> ((r.length === <span class="number">4</span>) &amp;&amp; (r[<span class="number">0</span>] === _this_) &amp;&amp;
-                    (r[<span class="number">1</span>] === <span class="number">0</span>) &amp;&amp; (r[<span class="number">2</span>] === <span class="number">1</span>) &amp;&amp; (r[<span class="number">3</span>] === <span class="number">2</span>));
-        }
-        <span class="keyword">if</span> (!check(<span class="keyword">this</span>, f.bind()(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>))) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">var</span> nthis = { _this_: <span class="literal">true</span> };
-        <span class="keyword">if</span> (!check(nthis, f.bind(nthis)(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>))) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">if</span> (!check(nthis, f.bind(nthis, <span class="number">0</span>)(<span class="number">1</span>, <span class="number">2</span>))) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">if</span> (!check(nthis, f.bind(nthis, <span class="number">0</span>, <span class="number">1</span>)(<span class="number">2</span>))) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">if</span> (!check(nthis, f.bind(nthis, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>)())) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">return</span> <span class="literal">true</span>;
-    });
-    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {
-        <span class="keyword">if</span> (<span class="string">"  xy z  "</span>.trim() !== <span class="string">"xy z"</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">if</span> (<span class="string">""</span>.trim().length !== <span class="number">0</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">if</span> (<span class="string">"    \t "</span>.trim().length !== <span class="number">0</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">return</span> <span class="literal">true</span>;
-    });
-    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {
-        <span class="keyword">var</span> a = [ <span class="number">1</span>, <span class="number">2</span> ];
-        a.push(<span class="number">3</span>, <span class="number">4</span>);
-        a.pop();
-        console.log(a);
-        <span class="keyword">if</span> (!(a.length === <span class="number">3</span> &amp;&amp; !a[<span class="number">3</span>])) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">if</span> (a.join() !== <span class="string">"1,2,3"</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">if</span> (a.join(<span class="string">' '</span>) !== <span class="string">"1 2 3"</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        a.pop(); a.pop(); a.pop(); a.pop();
-        <span class="keyword">if</span> (!(a.length === <span class="number">0</span> &amp;&amp; !a[<span class="number">0</span>])) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">if</span> (a.join() !== <span class="string">""</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">return</span> <span class="literal">true</span>;
-    });
-    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {</pre></div></div>
+    test[i+=<span class="hljs-number">1</span>] = autotest(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -560,17 +585,11 @@ thing.  Hm!</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
-              <p>More array method tests.</p>
+              <p>Three-operand call.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> s = <span class="string">""</span>;
-        [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>].map(<span class="keyword">function</span>(x) { <span class="keyword">return</span> x*<span class="number">2</span>; }).forEach(<span class="keyword">function</span>(e, i){
-            s += [i, e].join(<span class="string">','</span>) + <span class="string">" "</span>;
-        });
-        <span class="keyword">return</span> s === <span class="string">'0,2 1,4 2,6 3,8 '</span>;
-    });
-    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> foo = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.bar(<span class="hljs-string">'baz'</span>); };</pre></div></div>
             
         </li>
         
@@ -581,11 +600,12 @@ thing.  Hm!</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
-              <p>Three-operand call.</p>
+              <p>More unusual forms of three-operand call; &#39;this&#39; is still set.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> foo = <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.bar(<span class="string">'baz'</span>); };</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> bar1 = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bat</span>) </span>{ <span class="hljs-keyword">return</span> bat[<span class="hljs-number">0</span>](<span class="hljs-number">42</span>); };
+        <span class="hljs-keyword">var</span> bar2 = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">bat, i</span>) </span>{ <span class="hljs-keyword">return</span> bat[i](<span class="hljs-number">42</span>); };</pre></div></div>
             
         </li>
         
@@ -596,12 +616,19 @@ thing.  Hm!</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
-              <p>More unusual forms of three-operand call; &#39;this&#39; is still set.</p>
+              <p>Make proper parsing auto-testable by invoking the defined functions.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> bar1 = <span class="keyword">function</span>(bat) { <span class="keyword">return</span> bat[<span class="number">0</span>](<span class="number">42</span>); };
-        <span class="keyword">var</span> bar2 = <span class="keyword">function</span>(bat, i) { <span class="keyword">return</span> bat[i](<span class="number">42</span>); };</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> r1 = foo.call({<span class="hljs-attr">bar</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x</span>) </span>{ <span class="hljs-keyword">return</span> x; }});
+        <span class="hljs-keyword">if</span> (r1 !== <span class="hljs-string">'baz'</span>) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">var</span> r2 = bar1([<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x</span>) </span>{ <span class="hljs-keyword">return</span> x; }]);
+        <span class="hljs-keyword">if</span> (r2 !== <span class="hljs-number">42</span>) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">var</span> r3 = bar2([<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x</span>) </span>{ <span class="hljs-keyword">return</span> x; }], <span class="hljs-number">0</span>);
+        <span class="hljs-keyword">if</span> (r3 !== <span class="hljs-number">42</span>) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    });
+    test[i+=<span class="hljs-number">1</span>] = autotest(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -612,19 +639,19 @@ thing.  Hm!</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
-              <p>Make proper parsing auto-testable by invoking the defined functions.</p>
+              <p>Check that <code>this</code> is set correctly for various three-operand
+call types.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> r1 = foo.call({bar: <span class="keyword">function</span>(x) { <span class="keyword">return</span> x; }});
-        <span class="keyword">if</span> (r1 !== <span class="string">'baz'</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">var</span> r2 = bar1([<span class="keyword">function</span>(x) { <span class="keyword">return</span> x; }]);
-        <span class="keyword">if</span> (r2 !== <span class="number">42</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">var</span> r3 = bar2([<span class="keyword">function</span>(x) { <span class="keyword">return</span> x; }], <span class="number">0</span>);
-        <span class="keyword">if</span> (r3 !== <span class="number">42</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">return</span> <span class="literal">true</span>;
-    });
-    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> foo = {
+            <span class="hljs-attr">answer</span>: <span class="hljs-number">42</span>,
+            <span class="hljs-attr">bar</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.answer; }
+        };
+        <span class="hljs-keyword">if</span> (foo.bar() !== <span class="hljs-number">42</span>) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">if</span> (foo[<span class="hljs-string">'bar'</span>]() !== <span class="hljs-number">42</span>) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">var</span> barr = <span class="hljs-string">'bar'</span>;
+        <span class="hljs-keyword">if</span> (foo[barr]() !== <span class="hljs-number">42</span>) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }</pre></div></div>
             
         </li>
         
@@ -635,19 +662,18 @@ thing.  Hm!</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
-              <p>Check that <code>this</code> is set correctly for various three-operand
-call types.</p>
+              <p>arrays, too.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> foo = {
-            answer: <span class="number">42</span>,
-            bar: <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.answer; }
-        };
-        <span class="keyword">if</span> (foo.bar() !== <span class="number">42</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">if</span> (foo[<span class="string">'bar'</span>]() !== <span class="number">42</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">var</span> barr = <span class="string">'bar'</span>;
-        <span class="keyword">if</span> (foo[barr]() !== <span class="number">42</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> bar = [ foo.bar ];
+        bar.answer = <span class="hljs-number">0x42</span>;
+        <span class="hljs-keyword">if</span> (bar[<span class="hljs-number">0</span>]() !== <span class="hljs-number">0x42</span>) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">if</span> (bar[i]() !== <span class="hljs-number">0x42</span>) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    });
+    test[i+=<span class="hljs-number">1</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -658,18 +684,18 @@ call types.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
-              <p>arrays, too.</p>
+              <p>Test <code>new</code> and <code>instanceof</code></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> bar = [ foo.bar ];
-        bar.answer = <span class="number">0x42</span>;
-        <span class="keyword">if</span> (bar[<span class="number">0</span>]() !== <span class="number">0x42</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">var</span> i = <span class="number">0</span>;
-        <span class="keyword">if</span> (bar[i]() !== <span class="number">0x42</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
-        <span class="keyword">return</span> <span class="literal">true</span>;
-    });
-    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">arg</span>) </span>{ <span class="hljs-keyword">this</span>.foo = arg; }
+        Foo.prototype = {};
+        <span class="hljs-keyword">var</span> f = Foo.New(<span class="hljs-string">'foo'</span>);
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Bar</span>(<span class="hljs-params">x, y</span>) </span>{ <span class="hljs-keyword">this</span>.bar = x+y; }
+        Bar.prototype = f;
+        <span class="hljs-keyword">var</span> b = Bar.New(<span class="hljs-number">3</span>, <span class="hljs-number">4</span>);
+        <span class="hljs-keyword">var</span> s = <span class="hljs-string">"Hey! "</span>+b.foo+<span class="hljs-string">" "</span>+b.bar;
+        s += <span class="hljs-string">" "</span>+Bar.hasInstance(b)+<span class="hljs-string">" "</span>+Foo.hasInstance(b);</pre></div></div>
             
         </li>
         
@@ -680,18 +706,17 @@ call types.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
-              <p>Test <code>new</code> and <code>instanceof</code></p>
+              <p>hasInstance should still work on bound functions
+XXX: chrome v8 appears to implement this incorrectly.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="function"><span class="keyword">function</span> <span class="title">Foo</span><span class="params">(arg)</span> {</span> <span class="keyword">this</span>.foo = arg; }
-        Foo.prototype = {};
-        <span class="keyword">var</span> f = Foo.New(<span class="string">'foo'</span>);
-        <span class="function"><span class="keyword">function</span> <span class="title">Bar</span><span class="params">(x, y)</span> {</span> <span class="keyword">this</span>.bar = x+y; }
-        Bar.prototype = f;
-        <span class="keyword">var</span> b = Bar.New(<span class="number">3</span>, <span class="number">4</span>);
-        <span class="keyword">var</span> s = <span class="string">"Hey! "</span>+b.foo+<span class="string">" "</span>+b.bar;
-        s += <span class="string">" "</span>+Bar.hasInstance(b)+<span class="string">" "</span>+Foo.hasInstance(b);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> Foo2 = Foo.bind();
+        <span class="hljs-keyword">var</span> Bar2 = Bar.bind(f, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>);
+        s += <span class="hljs-string">" "</span>+Bar2.hasInstance(b)+<span class="hljs-string">" "</span>+Foo2.hasInstance(b);
+        <span class="hljs-keyword">return</span> s;
+    };
+    test[i+=<span class="hljs-number">1</span>] = autotest(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -702,17 +727,18 @@ call types.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
-              <p>hasInstance should still work on bound functions
-XXX: chrome v8 appears to implement this incorrectly.</p>
+              <p>Very basic <code>Uint8Array</code> support.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> Foo2 = Foo.bind();
-        <span class="keyword">var</span> Bar2 = Bar.bind(f, <span class="number">1</span>, <span class="number">2</span>);
-        s += <span class="string">" "</span>+Bar2.hasInstance(b)+<span class="string">" "</span>+Foo2.hasInstance(b);
-        <span class="keyword">return</span> s;
-    };
-    test[i+=<span class="number">1</span>] = autotest(<span class="keyword">function</span>() {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> uarr = <span class="hljs-built_in">Object</span>.newUint8Array(<span class="hljs-number">256</span>);
+        uarr[<span class="hljs-number">0</span>] = <span class="hljs-number">255</span>;
+        uarr[<span class="hljs-number">0</span>] += <span class="hljs-number">1</span>;
+        <span class="hljs-keyword">return</span> (uarr.length===<span class="hljs-number">256</span>) &amp;&amp; (uarr[<span class="hljs-number">0</span>] === <span class="hljs-number">0</span>);
+    });
+    <span class="hljs-comment">/* NOT YET IMPLEMENTED.
+    test[i+=1] = function() {
+</span></pre></div></div>
             
         </li>
         
@@ -723,17 +749,22 @@ XXX: chrome v8 appears to implement this incorrectly.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
-              <p>Very basic <code>Uint8Array</code> support.</p>
+              <p>Typed Array support.
+see <a href="http://www.khronos.org/registry/typedarray/specs/latest/">http://www.khronos.org/registry/typedarray/specs/latest/</a></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> uarr = Object.newUint8Array(<span class="number">256</span>);
-        uarr[<span class="number">0</span>] = <span class="number">255</span>;
-        uarr[<span class="number">0</span>] += <span class="number">1</span>;
-        <span class="keyword">return</span> (uarr.length===<span class="number">256</span>) &amp;&amp; (uarr[<span class="number">0</span>] === <span class="number">0</span>);
-    });
-    <span class="comment">/* NOT YET IMPLEMENTED.
-    test[i+=1] = function() {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> f32s = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Float32Array</span>(<span class="hljs-number">128</span>);
+        <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">while</span> (i &lt; <span class="hljs-number">128</span>) {
+            <span class="hljs-keyword">var</span> sub_f32s = f32s.subarray(i, i+<span class="hljs-number">8</span>);
+            <span class="hljs-keyword">var</span> j = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">while</span> (j &lt; <span class="hljs-number">8</span>) {
+                sub_f32s[j] = j;
+                j += <span class="hljs-number">1</span>;
+            }
+            i += <span class="hljs-number">8</span>;
+        }</pre></div></div>
             
         </li>
         
@@ -743,32 +774,6 @@ XXX: chrome v8 appears to implement this incorrectly.</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-19">&#182;</a>
-              </div>
-              <p>Typed Array support.
-see <a href="http://www.khronos.org/registry/typedarray/specs/latest/">http://www.khronos.org/registry/typedarray/specs/latest/</a></p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> f32s = <span class="keyword">new</span> Float32Array(<span class="number">128</span>);
-        <span class="keyword">var</span> i = <span class="number">0</span>;
-        <span class="keyword">while</span> (i &lt; <span class="number">128</span>) {
-            <span class="keyword">var</span> sub_f32s = f32s.subarray(i, i+<span class="number">8</span>);
-            <span class="keyword">var</span> j = <span class="number">0</span>;
-            <span class="keyword">while</span> (j &lt; <span class="number">8</span>) {
-                sub_f32s[j] = j;
-                j += <span class="number">1</span>;
-            }
-            i += <span class="number">8</span>;
-        }</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-20">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-20">&#182;</a>
               </div>
               <p>Now look at the backing storage as a Uint8Array</p>
 
@@ -782,45 +787,45 @@ see <a href="http://www.khronos.org/registry/typedarray/specs/latest/">http://ww
         </li>
         
         
-        <li id="section-21">
+        <li id="section-20">
             <div class="annotation">
               
-              <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-21">&#182;</a>
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
               </div>
-              <h2>Tile-generation tests</h2>
+              <h2 id="tile-generation-tests">Tile-generation tests</h2>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> c = <span class="number">1</span>+<span class="number">2</span>;
-        <span class="keyword">return</span> c;
+            <div class="content"><div class='highlight'><pre>    test[i+=<span class="hljs-number">1</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> c = <span class="hljs-number">1</span>+<span class="hljs-number">2</span>;
+        <span class="hljs-keyword">return</span> c;
     };
-    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {
-        <span class="function"><span class="keyword">function</span> <span class="title">foo</span><span class="params">(a, b)</span> {</span>
-            <span class="keyword">var</span> c, d = { key: <span class="string">"va\"'lue"</span> };
+    test[i+=<span class="hljs-number">1</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params">a, b</span>) </span>{
+            <span class="hljs-keyword">var</span> c, d = { <span class="hljs-attr">key</span>: <span class="hljs-string">"va\"'lue"</span> };
             c = b;
-            <span class="keyword">while</span> (<span class="number">1</span>) {
-                <span class="keyword">break</span>;
+            <span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>) {
+                <span class="hljs-keyword">break</span>;
             }
             {
-                c+=<span class="number">1</span>;
+                c+=<span class="hljs-number">1</span>;
             }
-            <span class="keyword">return</span> a+b;
+            <span class="hljs-keyword">return</span> a+b;
         };
-        <span class="keyword">return</span> foo(<span class="number">1</span>,<span class="number">2</span>);
+        <span class="hljs-keyword">return</span> foo(<span class="hljs-number">1</span>,<span class="hljs-number">2</span>);
     };
-    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> a = <span class="number">1</span>, b = <span class="number">2</span>;</pre></div></div>
+    test[i+=<span class="hljs-number">1</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> a = <span class="hljs-number">1</span>, b = <span class="hljs-number">2</span>;</pre></div></div>
             
         </li>
         
         
-        <li id="section-22">
+        <li id="section-21">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-22">&#182;</a>
+                <a class="pilcrow" href="#section-21">&#182;</a>
               </div>
               <p>test all of the assignment shortcut operators.</p>
 
@@ -831,8 +836,27 @@ see <a href="http://www.khronos.org/registry/typedarray/specs/latest/">http://ww
         a *= b;
         a /= b;
         b = a;
-        <span class="keyword">return</span> b;
+        <span class="hljs-keyword">return</span> b;
     };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <h2 id="block-scoping-tests-dont-currently-work">Block scoping tests (don&#39;t currently work)</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-comment">/*
+    test[i+=1] = function() {
+        var x = 3, z;
+        {
+</span></pre></div></div>
             
         </li>
         
@@ -840,17 +864,23 @@ see <a href="http://www.khronos.org/registry/typedarray/specs/latest/">http://ww
         <li id="section-23">
             <div class="annotation">
               
-              <div class="pilwrap for-h2">
+              <div class="pilwrap ">
                 <a class="pilcrow" href="#section-23">&#182;</a>
               </div>
-              <h2>Block scoping tests (don&#39;t currently work)</h2>
+              <p>XXX: test of block scoping.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="comment">/*
-    test[i+=1] = function() {
-        var x = 3, z;
-        {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> x = <span class="hljs-number">4</span> + z;
+            x+=<span class="hljs-number">1</span>;
+        }
+        <span class="hljs-keyword">while</span> (x) {
+            x+=<span class="hljs-number">1</span>;
+            <span class="hljs-keyword">break</span>;
+        }
+    };
+    test[i+=<span class="hljs-number">1</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> x = <span class="hljs-number">1</span>, z = <span class="hljs-number">2</span>; x += <span class="hljs-number">1</span>; <span class="hljs-keyword">var</span> y, p=<span class="hljs-number">4</span>;</pre></div></div>
             
         </li>
         
@@ -860,30 +890,6 @@ see <a href="http://www.khronos.org/registry/typedarray/specs/latest/">http://ww
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-24">&#182;</a>
-              </div>
-              <p>XXX: test of block scoping.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> x = <span class="number">4</span> + z;
-            x+=<span class="number">1</span>;
-        }
-        <span class="keyword">while</span> (x) {
-            x+=<span class="number">1</span>;
-            <span class="keyword">break</span>;
-        }
-    };
-    test[i+=<span class="number">1</span>] = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> x = <span class="number">1</span>, z = <span class="number">2</span>; x += <span class="number">1</span>; <span class="keyword">var</span> y, p=<span class="number">4</span>;</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-25">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
               <p>XXX: test of block scoping.</p>
 
@@ -931,18 +937,35 @@ see <a href="http://www.khronos.org/registry/typedarray/specs/latest/">http://ww
         </li>
         
         
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>Add an accessor method to the <code>test_source</code> array.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    test_source.lookup = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">name</span>) </span>{
+        <span class="hljs-keyword">return</span> test_map[name];
+    };</pre></div></div>
+            
+        </li>
+        
+        
         <li id="section-26">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
-              <p>Add an accessor method to the <code>test_source</code> array.</p>
+              <p>Add an accessor method to the <code>test_names</code> array.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    test_source.lookup = <span class="keyword">function</span>(name) {
-        <span class="keyword">return</span> test_map[name];
+            <div class="content"><div class='highlight'><pre>    test_source.getName = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">idx</span>) </span>{
+        <span class="hljs-keyword">return</span> test_names[idx];
     };</pre></div></div>
             
         </li>
@@ -954,13 +977,11 @@ see <a href="http://www.khronos.org/registry/typedarray/specs/latest/">http://ww
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
-              <p>Add an accessor method to the <code>test_names</code> array.</p>
+              <p>Get at the list of executable test cases.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    test_source.getName = <span class="keyword">function</span>(idx) {
-        <span class="keyword">return</span> test_names[idx];
-    };</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    test_source.isExecutable = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">idx</span>) </span>{ <span class="hljs-keyword">return</span> !!autotests[idx]; };</pre></div></div>
             
         </li>
         
@@ -971,27 +992,12 @@ see <a href="http://www.khronos.org/registry/typedarray/specs/latest/">http://ww
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-28">&#182;</a>
               </div>
-              <p>Get at the list of executable test cases.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>    test_source.isExecutable = <span class="keyword">function</span>(idx) { <span class="keyword">return</span> !!autotests[idx]; };</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-29">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
-              </div>
               <p>Did we have to use toSource()/toString() to get the source of this test?</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    test_source.isReflected = <span class="keyword">function</span>(idx) { <span class="keyword">return</span> !!reflected[idx]; };
-    <span class="keyword">return</span> test_source;
+            <div class="content"><div class='highlight'><pre>    test_source.isReflected = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">idx</span>) </span>{ <span class="hljs-keyword">return</span> !!reflected[idx]; };
+    <span class="hljs-keyword">return</span> test_source;
 });</pre></div></div>
             
         </li>

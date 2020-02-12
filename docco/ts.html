@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -199,10 +219,10 @@
         <li id="section-1">
             <div class="annotation">
               
-              <div class="pilwrap for-h1">
+              <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1>ts.js</h1>
+              <h1 id="tsjs">ts.js</h1>
 <p><a href="http://requirejs.org/">requirejs</a>
 <a href="http://requirejs.org/docs/plugins.html">plugin</a>
 for loading TurtleScript code which has been run through
@@ -212,28 +232,28 @@ really is valid TurtleScript.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="comment">/**
- * @license ts 0.0.0 Copyright (c) 2011 C. Scott Ananian, portions Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
+            <div class="content"><div class='highlight'><pre><span class="hljs-comment">/**
+ * <span class="hljs-doctag">@license </span>ts 0.0.0 Copyright (c) 2011 C. Scott Ananian, portions Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  */</span>
 
-<span class="comment">/* Yes, deliciously evil. */</span>
-<span class="comment">/*jslint evil: true, strict: false, plusplus: false, regexp: false */</span>
-<span class="comment">/*global require: false, XMLHttpRequest: false, ActiveXObject: false,
+<span class="hljs-comment">/* Yes, deliciously evil. */</span>
+<span class="hljs-comment">/*jslint evil: true, strict: false, plusplus: false, regexp: false */</span>
+<span class="hljs-comment">/*global require: false, XMLHttpRequest: false, ActiveXObject: false,
   define: false, process: false, window: false */</span>
 
-(<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
 
-    <span class="keyword">var</span> fs, getXhr,
-        progIds = [<span class="string">'Msxml2.XMLHTTP'</span>, <span class="string">'Microsoft.XMLHTTP'</span>, <span class="string">'Msxml2.XMLHTTP.4.0'</span>],
-        fetchText = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-            <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Environment unsupported.'</span>);
+    <span class="hljs-keyword">var</span> fs, getXhr,
+        progIds = [<span class="hljs-string">'Msxml2.XMLHTTP'</span>, <span class="hljs-string">'Microsoft.XMLHTTP'</span>, <span class="hljs-string">'Msxml2.XMLHTTP.4.0'</span>],
+        fetchText = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Environment unsupported.'</span>);
         },
         buildMap = [];
 
 
 
-    <span class="keyword">if</span> (<span class="keyword">typeof</span> window !== <span class="string">"undefined"</span> &amp;&amp; window.navigator &amp;&amp; window.document) {</pre></div></div>
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> <span class="hljs-built_in">window</span> !== <span class="hljs-string">"undefined"</span> &amp;&amp; <span class="hljs-built_in">window</span>.navigator &amp;&amp; <span class="hljs-built_in">window</span>.document) {</pre></div></div>
             
         </li>
         
@@ -248,7 +268,7 @@ really is valid TurtleScript.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        getXhr = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>        getXhr = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -263,33 +283,33 @@ really is valid TurtleScript.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> xhr, i, progId;
-            <span class="keyword">if</span> (<span class="keyword">typeof</span> XMLHttpRequest !== <span class="string">"undefined"</span>) {
-                <span class="keyword">return</span> <span class="keyword">new</span> XMLHttpRequest();
-            } <span class="keyword">else</span> {
-                <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++) {
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> xhr, i, progId;
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> XMLHttpRequest !== <span class="hljs-string">"undefined"</span>) {
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> XMLHttpRequest();
+            } <span class="hljs-keyword">else</span> {
+                <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">3</span>; i++) {
                     progId = progIds[i];
-                    <span class="keyword">try</span> {
-                        xhr = <span class="keyword">new</span> ActiveXObject(progId);
-                    } <span class="keyword">catch</span> (e) {}
+                    <span class="hljs-keyword">try</span> {
+                        xhr = <span class="hljs-keyword">new</span> ActiveXObject(progId);
+                    } <span class="hljs-keyword">catch</span> (e) {}
 
-                    <span class="keyword">if</span> (xhr) {
-                        progIds = [progId];  <span class="comment">// so faster next time</span>
-                        <span class="keyword">break</span>;
+                    <span class="hljs-keyword">if</span> (xhr) {
+                        progIds = [progId];  <span class="hljs-comment">// so faster next time</span>
+                        <span class="hljs-keyword">break</span>;
                     }
                 }
             }
 
-            <span class="keyword">if</span> (!xhr) {
-                <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"getXhr(): XMLHttpRequest not available"</span>);
+            <span class="hljs-keyword">if</span> (!xhr) {
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">"getXhr(): XMLHttpRequest not available"</span>);
             }
 
-            <span class="keyword">return</span> xhr;
+            <span class="hljs-keyword">return</span> xhr;
         };
 
-        fetchText = <span class="function"><span class="keyword">function</span> <span class="params">(url, callback)</span> {</span>
-            <span class="keyword">var</span> xhr = getXhr();
-            xhr.open(<span class="string">'GET'</span>, url, <span class="literal">true</span>);</pre></div></div>
+        fetchText = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">url, callback</span>) </span>{
+            <span class="hljs-keyword">var</span> xhr = getXhr();
+            xhr.open(<span class="hljs-string">'GET'</span>, url, <span class="hljs-literal">true</span>);</pre></div></div>
             
         </li>
         
@@ -304,8 +324,8 @@ really is valid TurtleScript.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            xhr.setRequestHeader(<span class="string">'Cache-Control'</span>, <span class="string">'no-cache'</span>);
-            xhr.setRequestHeader(<span class="string">'Pragma'</span>, <span class="string">'no-cache'</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            xhr.setRequestHeader(<span class="hljs-string">'Cache-Control'</span>, <span class="hljs-string">'no-cache'</span>);
+            xhr.setRequestHeader(<span class="hljs-string">'Pragma'</span>, <span class="hljs-string">'no-cache'</span>);</pre></div></div>
             
         </li>
         
@@ -320,7 +340,7 @@ really is valid TurtleScript.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            xhr.onreadystatechange = <span class="function"><span class="keyword">function</span> <span class="params">(evt)</span> {</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>            xhr.onreadystatechange = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">evt</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -336,11 +356,11 @@ visible via console output in the browser.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (xhr.readyState === <span class="number">4</span>) {
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (xhr.readyState === <span class="hljs-number">4</span>) {
                     callback(xhr.responseText);
                 }
             };
-            xhr.send(<span class="literal">null</span>);
+            xhr.send(<span class="hljs-literal">null</span>);
         };</pre></div></div>
             
         </li>
@@ -356,7 +376,7 @@ visible via console output in the browser.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span> process !== <span class="string">"undefined"</span> &amp;&amp;
+            <div class="content"><div class='highlight'><pre>    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> process !== <span class="hljs-string">"undefined"</span> &amp;&amp;
                process.versions &amp;&amp;
                !!process.versions.node) {</pre></div></div>
             
@@ -373,17 +393,17 @@ visible via console output in the browser.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        fs = require.nodeRequire(<span class="string">'fs'</span>);
-        fetchText = <span class="function"><span class="keyword">function</span> <span class="params">(path, callback)</span> {</span>
-            callback(fs.readFileSync(path, <span class="string">'utf8'</span>));
+            <div class="content"><div class='highlight'><pre>        fs = <span class="hljs-built_in">require</span>.nodeRequire(<span class="hljs-string">'fs'</span>);
+        fetchText = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">path, callback</span>) </span>{
+            callback(fs.readFileSync(path, <span class="hljs-string">'utf8'</span>));
         };
     }
 
-    define([<span class="string">'parse'</span>,<span class="string">'jcompile'</span>,<span class="string">'top-level'</span>], <span class="keyword">function</span>(parse, jcompile, top_level) {
-        <span class="keyword">if</span> (!Object.Throw) {
-            Object.Throw = <span class="keyword">function</span>(obj) { <span class="keyword">throw</span> obj; };
+    define([<span class="hljs-string">'parse'</span>,<span class="hljs-string">'jcompile'</span>,<span class="hljs-string">'top-level'</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">parse, jcompile, top_level</span>) </span>{
+        <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">Object</span>.Throw) {
+            <span class="hljs-built_in">Object</span>.Throw = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">obj</span>) </span>{ <span class="hljs-keyword">throw</span> obj; };
         }
-        <span class="function"><span class="keyword">function</span> <span class="title">TurtleScript</span><span class="params">(text, config)</span> {</span>
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">TurtleScript</span>(<span class="hljs-params">text, config</span>) </span>{
             tree = parse(text, top_level);</pre></div></div>
             
         </li>
@@ -400,33 +420,33 @@ to also use the ts! loader.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            tree.forEach(<span class="keyword">function</span>(stmt) {
-                <span class="keyword">if</span> (stmt.arity===<span class="string">"binary"</span> &amp;&amp; stmt.value === <span class="string">'('</span> &amp;&amp;
-                    stmt.first.arity===<span class="string">"name"</span> &amp;&amp; stmt.first.value===<span class="string">"define"</span>) {
-                    <span class="keyword">var</span> i, deps;
-                    <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;stmt.second.length; i++) {
-                        <span class="keyword">if</span> (stmt.second[i].arity===<span class="string">"unary"</span> &amp;&amp;
-                            stmt.second[i].value===<span class="string">"["</span>) {
+            <div class="content"><div class='highlight'><pre>            tree.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">stmt</span>) </span>{
+                <span class="hljs-keyword">if</span> (stmt.arity===<span class="hljs-string">"binary"</span> &amp;&amp; stmt.value === <span class="hljs-string">'('</span> &amp;&amp;
+                    stmt.first.arity===<span class="hljs-string">"name"</span> &amp;&amp; stmt.first.value===<span class="hljs-string">"define"</span>) {
+                    <span class="hljs-keyword">var</span> i, deps;
+                    <span class="hljs-keyword">for</span> (i=<span class="hljs-number">0</span>; i&lt;stmt.second.length; i++) {
+                        <span class="hljs-keyword">if</span> (stmt.second[i].arity===<span class="hljs-string">"unary"</span> &amp;&amp;
+                            stmt.second[i].value===<span class="hljs-string">"["</span>) {
                             deps = stmt.second[i];
-                            <span class="keyword">break</span>;
+                            <span class="hljs-keyword">break</span>;
                         }
                     }
-                    <span class="keyword">if</span> (!deps) { <span class="keyword">return</span>; }
-                    deps.first.forEach(<span class="keyword">function</span>(dname) {
-                        <span class="keyword">if</span> (dname.arity !== <span class="string">'literal'</span>) { <span class="keyword">return</span>; }
-                        <span class="keyword">if</span> (dname.value.indexOf(<span class="string">'!'</span>) !== -<span class="number">1</span>) { <span class="keyword">return</span>; }
-                        dname.value = <span class="string">"ts!"</span> + dname.value;
+                    <span class="hljs-keyword">if</span> (!deps) { <span class="hljs-keyword">return</span>; }
+                    deps.first.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">dname</span>) </span>{
+                        <span class="hljs-keyword">if</span> (dname.arity !== <span class="hljs-string">'literal'</span>) { <span class="hljs-keyword">return</span>; }
+                        <span class="hljs-keyword">if</span> (dname.value.indexOf(<span class="hljs-string">'!'</span>) !== <span class="hljs-number">-1</span>) { <span class="hljs-keyword">return</span>; }
+                        dname.value = <span class="hljs-string">"ts!"</span> + dname.value;
                     });
                 }
             });
-            <span class="keyword">return</span> jcompile(tree);
+            <span class="hljs-keyword">return</span> jcompile(tree);
         };
-        <span class="keyword">return</span> {
-        version: <span class="string">'0.1.0'</span>,
+        <span class="hljs-keyword">return</span> {
+        <span class="hljs-attr">version</span>: <span class="hljs-string">'0.1.0'</span>,
 
-        load: <span class="function"><span class="keyword">function</span> <span class="params">(name, parentRequire, load, config)</span> {</span>
-            <span class="keyword">var</span> path = parentRequire.toUrl(name + <span class="string">'.js'</span>);<span class="comment">// XXX could be .ts?</span>
-            fetchText(path, <span class="function"><span class="keyword">function</span> <span class="params">(text)</span> {</span></pre></div></div>
+        <span class="hljs-attr">load</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name, parentRequire, load, config</span>) </span>{
+            <span class="hljs-keyword">var</span> path = parentRequire.toUrl(name + <span class="hljs-string">'.js'</span>);<span class="hljs-comment">// XXX could be .ts?</span>
+            fetchText(path, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">text</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -441,11 +461,11 @@ to also use the ts! loader.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> origText = text;
-                <span class="keyword">try</span> {
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">var</span> origText = text;
+                <span class="hljs-keyword">try</span> {
                   text = TurtleScript(origText, config.TurtleScript);
-                } <span class="keyword">catch</span> (e) {
-                    <span class="keyword">if</span> (e.from &amp;&amp; e.to) {</pre></div></div>
+                } <span class="hljs-keyword">catch</span> (e) {
+                    <span class="hljs-keyword">if</span> (e.from &amp;&amp; e.to) {</pre></div></div>
             
         </li>
         
@@ -460,15 +480,15 @@ to also use the ts! loader.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                        <span class="keyword">var</span> fromNL = origText.lastIndexOf(<span class="string">'\n'</span>, e.from);
-                        <span class="keyword">var</span> toNL = origText.indexOf(<span class="string">'\n'</span>, e.to);
-                        <span class="keyword">if</span> (fromNL === -<span class="number">1</span>) fromNL = <span class="number">0</span>; <span class="keyword">else</span> fromNL++;
-                        <span class="keyword">if</span> (toNL === -<span class="number">1</span>) toNL = e.to;
-                        <span class="keyword">var</span> line = origText.substring(fromNL, toNL);
-                        console.log(<span class="string">"Syntax Error: "</span>+JSON.stringify(e));
-                        console.log(line);
+            <div class="content"><div class='highlight'><pre>                        <span class="hljs-keyword">var</span> fromNL = origText.lastIndexOf(<span class="hljs-string">'\n'</span>, e.from);
+                        <span class="hljs-keyword">var</span> toNL = origText.indexOf(<span class="hljs-string">'\n'</span>, e.to);
+                        <span class="hljs-keyword">if</span> (fromNL === <span class="hljs-number">-1</span>) fromNL = <span class="hljs-number">0</span>; <span class="hljs-keyword">else</span> fromNL++;
+                        <span class="hljs-keyword">if</span> (toNL === <span class="hljs-number">-1</span>) toNL = e.to;
+                        <span class="hljs-keyword">var</span> line = origText.substring(fromNL, toNL);
+                        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"Syntax Error: "</span>+<span class="hljs-built_in">JSON</span>.stringify(e));
+                        <span class="hljs-built_in">console</span>.log(line);
                     }
-                    <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Could not compile: "</span>+path);
+                    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">"Could not compile: "</span>+path);
                 }</pre></div></div>
             
         </li>
@@ -484,7 +504,7 @@ to also use the ts! loader.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (config.isBuild) {
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (config.isBuild) {
                     buildMap[name] = text;
                 }</pre></div></div>
             
@@ -502,11 +522,11 @@ sourceURL trick, so skip it if enabled.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="comment">/*@if (@_jscript) @else @*/</span>
-                <span class="keyword">if</span> (!config.isBuild) {
-                    text += <span class="string">"\r\n//@ sourceURL="</span> + path;
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-comment">/*@if (@_jscript) @else @*/</span>
+                <span class="hljs-keyword">if</span> (!config.isBuild) {
+                    text += <span class="hljs-string">"\r\n//@ sourceURL="</span> + path;
                 }
-                <span class="comment">/*@end@*/</span>
+                <span class="hljs-comment">/*@end@*/</span>
 
                 load.fromText(name, text);</pre></div></div>
             
@@ -525,17 +545,17 @@ execution.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                parentRequire([name], <span class="function"><span class="keyword">function</span> <span class="params">(value)</span> {</span>
+            <div class="content"><div class='highlight'><pre>                parentRequire([name], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">value</span>) </span>{
                     load(value);
                 });
             });
 
         },
 
-        write: <span class="function"><span class="keyword">function</span> <span class="params">(pluginName, name, write)</span> {</span>
-            <span class="keyword">if</span> (name <span class="keyword">in</span> buildMap) {
-                <span class="keyword">var</span> text = buildMap[name];
-                write.asModule(pluginName + <span class="string">"!"</span> + name, text);
+        <span class="hljs-attr">write</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">pluginName, name, write</span>) </span>{
+            <span class="hljs-keyword">if</span> (name <span class="hljs-keyword">in</span> buildMap) {
+                <span class="hljs-keyword">var</span> text = buildMap[name];
+                write.asModule(pluginName + <span class="hljs-string">"!"</span> + name, text);
             }
         }
         };

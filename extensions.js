@@ -55,9 +55,10 @@ Object['Throw'] = function(obj) {
 //      subroutine inside a bodyBlock)
 Object['Try'] = function(_this_, bodyBlock, catchBlock, finallyBlock) {
     try {
-        bodyBlock.call(_this_);
+        return bodyBlock.call(_this_);
     } catch(e) {
         if (catchBlock) catchBlock.call(_this_, e);
+        else throw e;
     } finally {
         if (finallyBlock) finallyBlock.call(_this_);
     }

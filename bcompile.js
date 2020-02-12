@@ -31,8 +31,15 @@
 //  ```
 //  where `$frame` is the activation record for the function.
 //
+//  As an optimization, a separate $localFrame object is kept.  Variables
+//  which don't escape their scope (not used inside a child function)
+//  are allocated in the $localFrame, which is not passed along to child
+//  functions created in the scope.  Downstream code-generation can use
+//  this as a hint to register allocate these variables, although a simple
+//  implementation may safely set $localFrame = $frame.
+//
 // C. Scott Ananian
-// 2011-05-10
+// 2011-05-10 / 2020-02-12
 define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_source, bytecode_table) {
     // helper function for debugging
     var assert = function(b, obj) {
@@ -44,14 +51,15 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
 
     var dispatch = {};
     // compilation state
-    var mkstate = function() {
+    var mkstate = function(dont_desugar_frame_get) {
         // The result of a compilation: a function list and a literal list.
         // We also need to count lexical scope nesting depth during compilation
         var state = {
             functions: [],
             literals: [],
             // internal
-            scope: 0
+            scope: 0,
+            desugar_frame_get: !dont_desugar_frame_get
         };
         // literal symbol table.  Does string intern'ing too.  Very simple.
         state.literal = function(val) {
@@ -238,14 +246,19 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
 
     dispatch.name = function(state) {
         var i = 0, depth = state.scope - this.scope.level;
+        var escapes = this.scope.escape[this.value];
         // lookup the name in the frame table
-        state.emit("push_frame");
+        state.emit(escapes ? "push_frame" : "push_local_frame");
+        assert(escapes || depth === 0);
         // This loop is actually optional; the parent chain will do
         // the lookup correctly even if you don't take care to look
         // in the exact right frame (like we do here)
-        while ( i < depth ) {
-            state.emit("get_slot_direct", state.literal("__proto__"));
-            i += 1;
+        // (might be faster to let the object model do this traversal)
+        if ( state.desugar_frame_get ) {
+            while ( i < depth ) {
+                state.emit("get_slot_direct", state.literal("__proto__"));
+                i += 1;
+            }
         }
         state.emit("get_slot_direct", state.literal(this.value));
     };
@@ -259,6 +272,7 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
             return;
         }
         if (typeof(this.value)==='object') {
+            assert(false, "This isn't actually emitted by the parser anymore");
             var which = "Object";
             if (this.value.length === 0) { which = "Array"; }
             state.emit("push_frame");
@@ -349,7 +363,12 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
             // lhs should either be a name or a dot expression
             if (this.first.arity === "name") {
                 var i = 0, depth = state.scope - this.first.scope.level;
-                state.emit("push_frame");
+                var escapes = this.first.scope.escape[this.first.value];
+                state.emit(escapes ? "push_frame" : "push_local_frame");
+                assert(escapes || depth === 0);
+                // Unlike the lookup in dispatch.name, if we left off the
+                // parent chain traversal here we wouldn't be able to affect
+                // variables in the outer scope.  So this isn't optional.
                 while ( i < depth ) {
                     state.emit("get_slot_direct", state.literal("__proto__"));
                     i += 1;
@@ -626,7 +645,7 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
 
     // Odd cases
     dispatch['this'] = function(state) {
-        state.emit("push_frame");
+        state.emit("push_local_frame");
         state.emit("get_slot_direct", state.literal("this"));
     };
     dispatch['function'] = function(state) {
@@ -662,12 +681,13 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
         // at start, we have an empty stack and a (properly-linked) frame w/ 2
         // field, "arguments" and "this".  Name the arguments in the local
         // context.
-        state.emit("push_frame");
+        state.emit("push_local_frame");
         state.emit("get_slot_direct", state.literal("arguments"));
         this.first.forEach(function(e, i) {
+            var escapes = e.scope.escape[e.value];
             state.emit("dup");
             state.emit("get_slot_direct", state.literal(i));
-            state.emit("push_frame");
+            state.emit(escapes ? "push_frame" : "push_local_frame");
             state.emit("swap");
             state.emit("set_slot_direct", state.literal(e.value));
         });
@@ -686,8 +706,8 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
         return;
     };
 
-    var bcompile = function (parse_tree) {
-        var state = mkstate();
+    var bcompile = function (parse_tree, dont_desugar_frame_get) {
+        var state = mkstate(dont_desugar_frame_get);
         state.current_func = state.new_function(0);
         state.bcompile_stmts(parse_tree);
         if (state.current_func.can_fall_off) {

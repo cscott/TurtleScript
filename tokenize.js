@@ -288,13 +288,14 @@ define(['text!tokenize.js'], function make_tokenize(tokenize_source) { function 
         } else if (prefix.indexOf(c) >= 0) {
             str = c;
             i += 1;
+            c = _this_.charAt(i);
             while (i < length) {
-                c = _this_.charAt(i);
                 if (suffix.indexOf(c) < 0) {
                     break;
                 }
                 str += c;
                 i += 1;
+                c = _this_.charAt(i);
             }
             result.push(make('operator', str));
 

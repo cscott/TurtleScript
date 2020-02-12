@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -211,10 +231,10 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">"ccanvas"</span>, <span class="string">"ts!events"</span>, <span class="string">"ts!gfx/gfx"</span>], <span class="keyword">function</span>(ccanvas, flapjax, gfx) {
+            <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">"ccanvas"</span>, <span class="hljs-string">"ts!events"</span>, <span class="hljs-string">"ts!gfx/gfx"</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">ccanvas, flapjax, gfx</span>) </span>{
 
-<span class="keyword">var</span> USE_FRAME_TIMER = <span class="literal">false</span>;
-<span class="keyword">var</span> USE_FAST_MATRICES = <span class="literal">false</span>; <span class="comment">// off for testing, on for speed!</span></pre></div></div>
+<span class="hljs-keyword">var</span> USE_FRAME_TIMER = <span class="hljs-literal">false</span>;
+<span class="hljs-keyword">var</span> USE_FAST_MATRICES = <span class="hljs-literal">false</span>; <span class="hljs-comment">// off for testing, on for speed!</span></pre></div></div>
             
         </li>
         
@@ -229,7 +249,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">if</span> (<span class="string">'WebKitCSSMatrix'</span> <span class="keyword">in</span> window &amp;&amp; <span class="string">'m11'</span> <span class="keyword">in</span> <span class="keyword">new</span> WebKitCSSMatrix() &amp;&amp;
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">if</span> (<span class="hljs-string">'WebKitCSSMatrix'</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">window</span> &amp;&amp; <span class="hljs-string">'m11'</span> <span class="hljs-keyword">in</span> <span class="hljs-keyword">new</span> WebKitCSSMatrix() &amp;&amp;
     USE_FAST_MATRICES) {</pre></div></div>
             
         </li>
@@ -245,12 +265,12 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    gfx.Transform.registerImpl(<span class="keyword">new</span> WebKitCSSMatrix());
+            <div class="content"><div class='highlight'><pre>    gfx.Transform.registerImpl(<span class="hljs-keyword">new</span> WebKitCSSMatrix());
 }
 
-<span class="keyword">var</span> initEventLoop = <span class="keyword">function</span>(canvasId, setup, drawFrame) {
-  <span class="keyword">var</span> canvas = ccanvas(canvasId);
-  <span class="keyword">var</span> canvasElem = document.getElementById(canvasId);</pre></div></div>
+<span class="hljs-keyword">var</span> initEventLoop = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">canvasId, setup, drawFrame</span>) </span>{
+  <span class="hljs-keyword">var</span> canvas = ccanvas(canvasId);
+  <span class="hljs-keyword">var</span> canvasElem = <span class="hljs-built_in">document</span>.getElementById(canvasId);</pre></div></div>
             
         </li>
         
@@ -265,7 +285,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  uiEvents = flapjax.receiverE(); <span class="comment">// new empty event stream</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>  uiEvents = flapjax.receiverE(); <span class="hljs-comment">// new empty event stream</span></pre></div></div>
             
         </li>
         
@@ -295,13 +315,13 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">if</span> (USE_FRAME_TIMER) {
-    <span class="keyword">var</span> tick = <span class="number">0</span>;
-    window.setInterval(<span class="keyword">function</span>() {
-      <span class="keyword">var</span> ev = gfx.FrameEvent.New();
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">if</span> (USE_FRAME_TIMER) {
+    <span class="hljs-keyword">var</span> tick = <span class="hljs-number">0</span>;
+    <span class="hljs-built_in">window</span>.setInterval(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+      <span class="hljs-keyword">var</span> ev = gfx.FrameEvent.New();
       ev.tick = (tick++);
       uiEvents.sendEvent(ev);
-    }, <span class="number">30</span>);
+    }, <span class="hljs-number">30</span>);
   }</pre></div></div>
             
         </li>
@@ -317,22 +337,22 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> sender = <span class="keyword">function</span>(evname) {
-      <span class="keyword">return</span> <span class="keyword">function</span>(e) {
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> sender = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">evname</span>) </span>{
+      <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{
           e.preventDefault();
 
-          <span class="keyword">var</span> ev = evname.New();
+          <span class="hljs-keyword">var</span> ev = evname.New();
           ev.globalPositions =
-              Array.prototype.map.call(e.targetTouches, <span class="keyword">function</span>(pt) {
-                  <span class="keyword">return</span> gfx.Point.New(pt.clientX, pt.clientY);
+              <span class="hljs-built_in">Array</span>.prototype.map.call(e.targetTouches, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pt</span>) </span>{
+                  <span class="hljs-keyword">return</span> gfx.Point.New(pt.clientX, pt.clientY);
               });
           uiEvents.sendEvent(ev);
       };
   };
-  canvasElem.addEventListener(<span class="string">'touchstart'</span>, sender(gfx.TouchStartEvent), <span class="literal">false</span>);
-  canvasElem.addEventListener(<span class="string">'touchmove'</span>, sender(gfx.TouchMoveEvent), <span class="literal">false</span>);
-  canvasElem.addEventListener(<span class="string">'touchend'</span>, sender(gfx.TouchEndEvent), <span class="literal">false</span>);
-  canvasElem.addEventListener(<span class="string">'touchcancel'</span>, sender(gfx.TouchCancelEvent), <span class="literal">false</span>);</pre></div></div>
+  canvasElem.addEventListener(<span class="hljs-string">'touchstart'</span>, sender(gfx.TouchStartEvent), <span class="hljs-literal">false</span>);
+  canvasElem.addEventListener(<span class="hljs-string">'touchmove'</span>, sender(gfx.TouchMoveEvent), <span class="hljs-literal">false</span>);
+  canvasElem.addEventListener(<span class="hljs-string">'touchend'</span>, sender(gfx.TouchEndEvent), <span class="hljs-literal">false</span>);
+  canvasElem.addEventListener(<span class="hljs-string">'touchcancel'</span>, sender(gfx.TouchCancelEvent), <span class="hljs-literal">false</span>);</pre></div></div>
             
         </li>
         
@@ -347,29 +367,29 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> onMouseMove = <span class="keyword">function</span>(e) {
-    <span class="keyword">var</span> ev = gfx.TouchMoveEvent.New();
-    ev.emulated = <span class="literal">true</span>;
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> onMouseMove = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{
+    <span class="hljs-keyword">var</span> ev = gfx.TouchMoveEvent.New();
+    ev.emulated = <span class="hljs-literal">true</span>;
     ev.globalPositions = [ gfx.Point.New(e.clientX, e.clientY) ];
     uiEvents.sendEvent(ev);
   };
-  <span class="keyword">var</span> onMouseUp = <span class="keyword">function</span>(e) {
-    <span class="keyword">var</span> ev = gfx.TouchEndEvent.New();
-    ev.emulated = <span class="literal">true</span>;
+  <span class="hljs-keyword">var</span> onMouseUp = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{
+    <span class="hljs-keyword">var</span> ev = gfx.TouchEndEvent.New();
+    ev.emulated = <span class="hljs-literal">true</span>;
     ev.globalPositions = [ ];
     uiEvents.sendEvent(ev);
-    canvasElem.removeEventListener(<span class="string">'mousemove'</span>, onMouseMove, <span class="literal">false</span>);
-    canvasElem.removeEventListener(<span class="string">'mouseup'</span>, onMouseUp, <span class="literal">false</span>);
+    canvasElem.removeEventListener(<span class="hljs-string">'mousemove'</span>, onMouseMove, <span class="hljs-literal">false</span>);
+    canvasElem.removeEventListener(<span class="hljs-string">'mouseup'</span>, onMouseUp, <span class="hljs-literal">false</span>);
   };
-  <span class="keyword">var</span> onMouseDown = <span class="keyword">function</span>(e) {
-    <span class="keyword">var</span> ev = gfx.TouchStartEvent.New();
-    ev.emulated = <span class="literal">true</span>;
+  <span class="hljs-keyword">var</span> onMouseDown = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{
+    <span class="hljs-keyword">var</span> ev = gfx.TouchStartEvent.New();
+    ev.emulated = <span class="hljs-literal">true</span>;
     ev.globalPositions = [ gfx.Point.New(e.clientX, e.clientY) ];
     uiEvents.sendEvent(ev);
-    canvasElem.addEventListener(<span class="string">'mousemove'</span>, onMouseMove, <span class="literal">false</span>);
-    canvasElem.addEventListener(<span class="string">'mouseup'</span>, onMouseUp, <span class="literal">false</span>);
+    canvasElem.addEventListener(<span class="hljs-string">'mousemove'</span>, onMouseMove, <span class="hljs-literal">false</span>);
+    canvasElem.addEventListener(<span class="hljs-string">'mouseup'</span>, onMouseUp, <span class="hljs-literal">false</span>);
   };
-  canvasElem.addEventListener(<span class="string">'mousedown'</span>, onMouseDown, <span class="literal">false</span>);</pre></div></div>
+  canvasElem.addEventListener(<span class="hljs-string">'mousedown'</span>, onMouseDown, <span class="hljs-literal">false</span>);</pre></div></div>
             
         </li>
         
@@ -384,10 +404,10 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  window.onresize = <span class="keyword">function</span>() {
-      uiEvents.sendEvent(gfx.ResizeEvent.New(window.innerWidth,
-                                             window.innerHeight,
-                                             window.devicePixelRatio || <span class="number">1</span>));
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-built_in">window</span>.onresize = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+      uiEvents.sendEvent(gfx.ResizeEvent.New(<span class="hljs-built_in">window</span>.innerWidth,
+                                             <span class="hljs-built_in">window</span>.innerHeight,
+                                             <span class="hljs-built_in">window</span>.devicePixelRatio || <span class="hljs-number">1</span>));
   };</pre></div></div>
             
         </li>
@@ -403,8 +423,8 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> filterByType = <span class="keyword">function</span>(evt, type) {
-    <span class="keyword">return</span> evt.filterE(<span class="keyword">function</span>(e) { <span class="keyword">return</span> e.name===type; });
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> filterByType = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">evt, type</span>) </span>{
+    <span class="hljs-keyword">return</span> evt.filterE(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{ <span class="hljs-keyword">return</span> e.name===type; });
   };</pre></div></div>
             
         </li>
@@ -420,22 +440,22 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="keyword">var</span> tickB = filterByType(uiEvents, <span class="string">"frameEvent"</span>).
-              mapE(<span class="keyword">function</span>(e) { <span class="keyword">return</span> e.tick }).startsWith(<span class="number">0</span>);
-  <span class="keyword">var</span> touchE = uiEvents.filterE(<span class="keyword">function</span>(e) {
-    <span class="keyword">var</span> ty = e.name;
-    <span class="keyword">if</span> (ty===<span class="string">"touchStartEvent"</span>) { <span class="keyword">return</span> e.globalPositions.length===<span class="number">1</span>; }
-    <span class="keyword">if</span> (ty===<span class="string">"touchMoveEvent"</span> || ty===<span class="string">"touchCancelEvent"</span>) { <span class="keyword">return</span> <span class="literal">true</span>; }
-    <span class="keyword">if</span> (ty===<span class="string">"touchEndEvent"</span>) { <span class="keyword">return</span> e.globalPositions.length === <span class="number">0</span>; }
-    <span class="keyword">return</span> <span class="literal">false</span>;
-  }).mapE(<span class="keyword">function</span>(e) { <span class="keyword">return</span> e.globalPositions; });
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> tickB = filterByType(uiEvents, <span class="hljs-string">"frameEvent"</span>).
+              mapE(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{ <span class="hljs-keyword">return</span> e.tick }).startsWith(<span class="hljs-number">0</span>);
+  <span class="hljs-keyword">var</span> touchE = uiEvents.filterE(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{
+    <span class="hljs-keyword">var</span> ty = e.name;
+    <span class="hljs-keyword">if</span> (ty===<span class="hljs-string">"touchStartEvent"</span>) { <span class="hljs-keyword">return</span> e.globalPositions.length===<span class="hljs-number">1</span>; }
+    <span class="hljs-keyword">if</span> (ty===<span class="hljs-string">"touchMoveEvent"</span> || ty===<span class="hljs-string">"touchCancelEvent"</span>) { <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>; }
+    <span class="hljs-keyword">if</span> (ty===<span class="hljs-string">"touchEndEvent"</span>) { <span class="hljs-keyword">return</span> e.globalPositions.length === <span class="hljs-number">0</span>; }
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+  }).mapE(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{ <span class="hljs-keyword">return</span> e.globalPositions; });
 
-  <span class="keyword">var</span> touchB = touchE.startsWith([]);
+  <span class="hljs-keyword">var</span> touchB = touchE.startsWith([]);
 
-  <span class="keyword">var</span> resizeE = filterByType(uiEvents, <span class="string">"resizeEvent"</span>);
+  <span class="hljs-keyword">var</span> resizeE = filterByType(uiEvents, <span class="hljs-string">"resizeEvent"</span>);
 
-  <span class="keyword">var</span> drawFrameE = resizeE;
-  <span class="keyword">if</span> (USE_FRAME_TIMER) {</pre></div></div>
+  <span class="hljs-keyword">var</span> drawFrameE = resizeE;
+  <span class="hljs-keyword">if</span> (USE_FRAME_TIMER) {</pre></div></div>
             
         </li>
         
@@ -451,7 +471,7 @@
             </div>
             
             <div class="content"><div class='highlight'><pre>    drawFrameE = drawFrameE.mergeE(tickB.changes());
-  } <span class="keyword">else</span> {</pre></div></div>
+  } <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -482,7 +502,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  drawFrameE = drawFrameE.calmE(<span class="number">35</span><span class="comment">/*ms*/</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  drawFrameE = drawFrameE.calmE(<span class="hljs-number">35</span><span class="hljs-comment">/*ms*/</span>);</pre></div></div>
             
         </li>
         
@@ -497,7 +517,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  drawFrameE.mapE(<span class="keyword">function</span>(_) { drawFrame(); });</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  drawFrameE.mapE(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_</span>) </span>{ drawFrame(); });</pre></div></div>
             
         </li>
         
@@ -512,10 +532,10 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  window.onresize();
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-built_in">window</span>.onresize();
 };
 
-    <span class="keyword">return</span> { initEventLoop: initEventLoop };
+    <span class="hljs-keyword">return</span> { <span class="hljs-attr">initEventLoop</span>: initEventLoop };
 });</pre></div></div>
             
         </li>

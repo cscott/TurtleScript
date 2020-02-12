@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -199,37 +219,26 @@
         <li id="section-1">
             <div class="annotation">
               
-              <div class="pilwrap for-h1">
+              <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1>stdlib.js</h1>
+              <h1 id="stdlibjs">stdlib.js</h1>
 <p>TurtleScript standard library, written in TurtleScript.</p>
 <p>Used for bytecode interpreters (both TurtleScript and native).</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">'text!stdlib.js'</span>], <span class="function"><span class="keyword">function</span> <span class="title">make_stdlib</span><span class="params">(stdlib_source)</span> {</span>
-    <span class="keyword">var</span> init = <span class="comment">/*CUT HERE*/</span><span class="keyword">function</span>() {
-        String.prototype.indexOf = <span class="keyword">function</span>(searchValue, from) {
-            <span class="keyword">var</span> i = from || <span class="number">0</span>;
-            <span class="keyword">var</span> j = <span class="number">0</span>;
-            <span class="keyword">if</span> (i &gt; <span class="keyword">this</span>.length) {
-                i = <span class="keyword">this</span>.length;
-            }
-            <span class="keyword">while</span> ( i &lt; <span class="keyword">this</span>.length ) {
-                j = <span class="number">0</span>;
-                <span class="keyword">while</span> (j &lt; searchValue.length &amp;&amp;
-                       <span class="keyword">this</span>.charAt(i+j) === searchValue.charAt(j)) {
-                    j += <span class="number">1</span>;
-                }
-                <span class="keyword">if</span> (j === searchValue.length) {
-                    <span class="keyword">break</span>;
-                }
-                i += <span class="number">1</span>;
-            }
-            <span class="keyword">return</span> (j === searchValue.length) ? i : -<span class="number">1</span>;
+            <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">'text!stdlib.js'</span>], <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_stdlib</span>(<span class="hljs-params">stdlib_source</span>) </span>{
+    <span class="hljs-keyword">var</span> init = <span class="hljs-comment">/*CUT HERE*/</span><span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> BooleanPrototypeValueOf = <span class="hljs-built_in">Boolean</span>.prototype.valueOf;
+        <span class="hljs-keyword">var</span> NumberPrototypeValueOf = <span class="hljs-built_in">Number</span>.prototype.valueOf;
+        <span class="hljs-keyword">var</span> ObjectPrototypeToString = <span class="hljs-built_in">Object</span>.prototype.toString;
+        <span class="hljs-keyword">var</span> ObjectDefineProperty = <span class="hljs-built_in">Object</span>.defineProperty || <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{};
+        <span class="hljs-keyword">var</span> Throw = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">name</span>) </span>{
+            <span class="hljs-keyword">var</span> ex = globalThis[name] ? globalThis[name].New() : name;
+            <span class="hljs-built_in">Object</span>.Throw(ex);
         };
-        String.prototype.trim = <span class="keyword">function</span>() {</pre></div></div>
+        <span class="hljs-keyword">var</span> ToInteger = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">n</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -240,51 +249,30 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Non-regex version of <code>String.prototype.trim()</code> based on
-<a href="http://blog.stevenlevithan.com/archives/faster-trim-javascript">http://blog.stevenlevithan.com/archives/faster-trim-javascript</a></p>
+              <p>ToNumber</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> str = <span class="keyword">this</span>;
-            <span class="keyword">if</span> (str.length === <span class="number">0</span>) { <span class="keyword">return</span> str; }
-            <span class="keyword">var</span> whitespace = <span class="string">' \n\r\t\f\u000b\u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000'</span>;
-            <span class="keyword">var</span> i = <span class="number">0</span>;
-            <span class="keyword">while</span> (i &lt; str.length) {
-                <span class="keyword">if</span> (whitespace.indexOf(str.charAt(i)) === -<span class="number">1</span>) {
-                    str = str.substring(i);
-                    <span class="keyword">break</span>;
-                }
-                i += <span class="number">1</span>;
-            }
-            i = str.length - <span class="number">1</span>;
-            <span class="keyword">while</span> ( i &gt;= <span class="number">0</span> ) {
-                <span class="keyword">if</span> (whitespace.indexOf(str.charAt(i)) === -<span class="number">1</span>) {
-                    str = str.substring(<span class="number">0</span>, i + <span class="number">1</span>);
-                    <span class="keyword">break</span>;
-                }
-                i -= <span class="number">1</span>;
-            }
-            <span class="keyword">return</span> whitespace.indexOf(str.charAt(<span class="number">0</span>)) === -<span class="number">1</span> ? str : <span class="string">''</span>;
+            <div class="content"><div class='highlight'><pre>            n = <span class="hljs-keyword">typeof</span> <span class="hljs-built_in">Number</span> === <span class="hljs-string">'function'</span> ? <span class="hljs-built_in">Number</span>(n) : n;
+            <span class="hljs-keyword">if</span> (n !== n) { <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; <span class="hljs-comment">/* NaN */</span> }
+            <span class="hljs-keyword">if</span> (n === <span class="hljs-number">0</span> || n === <span class="hljs-literal">Infinity</span> || n === -<span class="hljs-literal">Infinity</span>) { <span class="hljs-keyword">return</span> n; }
+            <span class="hljs-keyword">var</span> negate = n &lt; <span class="hljs-number">0</span>;
+            n = <span class="hljs-built_in">Math</span>.floor(negate ? (-n) : n);
+            <span class="hljs-keyword">return</span> negate ? (-n) : n;
         };
-        Array.prototype.push = <span class="keyword">function</span>() {
-            <span class="keyword">var</span> i = <span class="number">0</span>, j = (<span class="number">1</span>*<span class="keyword">this</span>.length) || <span class="number">0</span>;
-            <span class="keyword">while</span> (i &lt; arguments.length) {
-                <span class="keyword">this</span>[j] = arguments[i];
-                i += <span class="number">1</span>;
-                j += <span class="number">1</span>;
+        <span class="hljs-keyword">var</span> makeNonEnumerable = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">obj, name</span>) </span>{
+            ObjectDefineProperty(obj, name, { <span class="hljs-attr">enumerable</span>: <span class="hljs-literal">false</span> });
+        };
+        <span class="hljs-keyword">var</span> makeFrozen = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">obj, name</span>) </span>{
+            ObjectDefineProperty(obj, name, {
+                <span class="hljs-attr">writable</span>: <span class="hljs-literal">false</span>, <span class="hljs-attr">enumerable</span>: <span class="hljs-literal">false</span>, <span class="hljs-attr">configurable</span>: <span class="hljs-literal">false</span>
+            });
+        };
+        <span class="hljs-built_in">String</span>.prototype.codePointAt = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">position</span>) </span>{
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span> === <span class="hljs-literal">null</span> || <span class="hljs-keyword">this</span> === <span class="hljs-literal">undefined</span>) {
+                Throw(<span class="hljs-string">'TypeError'</span>);
             }
-            <span class="keyword">this</span>.length = j;
-            <span class="keyword">return</span> j;
-        };
-        Array.prototype.pop = <span class="keyword">function</span>() {
-            <span class="keyword">if</span> (<span class="keyword">this</span>.length === <span class="number">0</span>) { <span class="keyword">return</span>; }
-            <span class="keyword">var</span> last = <span class="keyword">this</span>[<span class="keyword">this</span>.length-<span class="number">1</span>];
-            <span class="keyword">this</span>.length -= <span class="number">1</span>;
-            <span class="keyword">return</span> last;
-        };
-        Array.prototype.join = <span class="keyword">function</span>(sep) {
-            <span class="comment">/* XXX call internal `[[toObject]]` on `this` */</span>
-            <span class="keyword">var</span> len = <span class="keyword">this</span>.length;</pre></div></div>
+            <span class="hljs-keyword">var</span> string = <span class="hljs-built_in">String</span>(<span class="hljs-keyword">this</span>);</pre></div></div>
             
         </li>
         
@@ -295,24 +283,11 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>We call internal <code>[[toString]]</code> on <code>sep</code> (by adding &#39;&#39;).</p>
+              <p>Get the first code unit (also piggy-back on the coercions)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (sep === <span class="literal">undefined</span>) { sep = <span class="string">','</span>; } <span class="keyword">else</span> { sep = <span class="string">''</span> + sep; }
-            <span class="keyword">var</span> k = <span class="number">0</span>;
-            <span class="keyword">var</span> result = <span class="string">''</span>;
-            <span class="keyword">while</span> (k &lt; len) {
-                <span class="keyword">var</span> elem = <span class="keyword">this</span>[k];
-                <span class="keyword">if</span> (elem!==<span class="literal">undefined</span> &amp;&amp; elem!==<span class="literal">null</span>) {
-                    result += elem;
-                }
-                k += <span class="number">1</span>;
-            }
-            <span class="keyword">return</span> result;
-        };
-        Array.prototype.concat = <span class="keyword">function</span>() {
-            <span class="keyword">var</span> result = [], i, j;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> first = string.charCodeAt(position);</pre></div></div>
             
         </li>
         
@@ -323,15 +298,18 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <p>Start by cloning <code>this</code>.</p>
+              <p>piggy-back on the bounds check in charCodeAt</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            i = <span class="number">0</span>;
-            <span class="keyword">while</span> (i &lt; <span class="keyword">this</span>.length) {
-                result[i] = <span class="keyword">this</span>[i];
-                i += <span class="number">1</span>;
-            }</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (first !== first) { <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>; }
+            <span class="hljs-keyword">var</span> second;
+            <span class="hljs-keyword">if</span> ( <span class="hljs-comment">// check if it’s the start of a surrogate pair</span>
+                first &gt;= <span class="hljs-number">0xD800</span> &amp;&amp; first &lt;= <span class="hljs-number">0xDBFF</span> <span class="hljs-comment">// high surrogate</span>
+            ) {
+                second = string.charCodeAt(position + <span class="hljs-number">1</span>);
+                <span class="hljs-keyword">if</span> (second === second &amp;&amp; <span class="hljs-comment">// NaN indicates size &lt;= position + 1</span>
+                    second &gt;= <span class="hljs-number">0xDC00</span> &amp;&amp; second &lt;= <span class="hljs-number">0xDFFF</span>) { <span class="hljs-comment">// low surrogate</span></pre></div></div>
             
         </li>
         
@@ -342,13 +320,57 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
-              <p>Now add elements from arguments.</p>
+              <p><a href="https://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae">https://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae</a></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            i = <span class="number">0</span>;
-            <span class="keyword">while</span> (i &lt; arguments.length) {
-                <span class="keyword">var</span> e = arguments[i];</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                    <span class="hljs-keyword">return</span> (first - <span class="hljs-number">0xD800</span>) * <span class="hljs-number">0x400</span> + second - <span class="hljs-number">0xDC00</span> + <span class="hljs-number">0x10000</span>;
+                }
+            }
+            <span class="hljs-keyword">return</span> first;
+        };
+        makeNonEnumerable(<span class="hljs-built_in">String</span>.prototype, <span class="hljs-string">'codePointAt'</span>);
+        <span class="hljs-built_in">String</span>.prototype.indexOf = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">searchValue, from</span>) </span>{
+            <span class="hljs-keyword">var</span> i = <span class="hljs-keyword">from</span> || <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">var</span> j = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">if</span> (i &gt; <span class="hljs-keyword">this</span>.length) {
+                i = <span class="hljs-keyword">this</span>.length;
+            }
+            <span class="hljs-keyword">while</span> ( i &lt; <span class="hljs-keyword">this</span>.length ) {
+                j = <span class="hljs-number">0</span>;
+                <span class="hljs-keyword">while</span> (j &lt; searchValue.length &amp;&amp;
+                       <span class="hljs-keyword">this</span>.charAt(i+j) === searchValue.charAt(j)) {
+                    j += <span class="hljs-number">1</span>;
+                }
+                <span class="hljs-keyword">if</span> (j === searchValue.length) {
+                    <span class="hljs-keyword">break</span>;
+                }
+                i += <span class="hljs-number">1</span>;
+            }
+            <span class="hljs-keyword">return</span> (j === searchValue.length) ? i : <span class="hljs-number">-1</span>;
+        };
+        makeNonEnumerable(<span class="hljs-built_in">String</span>.prototype, <span class="hljs-string">'indexOf'</span>);
+        <span class="hljs-built_in">String</span>.prototype.slice = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">beginIndex, endIndex</span>) </span>{
+            <span class="hljs-keyword">var</span> len = <span class="hljs-keyword">this</span>.length;
+            <span class="hljs-keyword">if</span> (endIndex === <span class="hljs-literal">undefined</span>) {
+                endIndex = len;
+            }
+            <span class="hljs-keyword">if</span> (beginIndex &lt; <span class="hljs-number">0</span>) {
+                beginIndex += len;
+            }
+            <span class="hljs-keyword">if</span> (endIndex &lt; <span class="hljs-number">0</span>) {
+                endIndex += len;
+            }
+            <span class="hljs-keyword">if</span> (beginIndex &gt; len) {
+                beginIndex = len;
+            }
+            <span class="hljs-keyword">if</span> (endIndex &gt; len) {
+                endIndex = len;
+            }
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.substring(beginIndex, endIndex);
+        };
+        makeNonEnumerable(<span class="hljs-built_in">String</span>.prototype, <span class="hljs-string">'slice'</span>);
+        <span class="hljs-built_in">String</span>.prototype.trim = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -359,66 +381,54 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
-              <p>Awkward test for &quot;is e an array?&quot;</p>
+              <p>Non-regex version of <code>String.prototype.trim()</code> based on
+<a href="http://blog.stevenlevithan.com/archives/faster-trim-javascript">http://blog.stevenlevithan.com/archives/faster-trim-javascript</a></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">if</span> (<span class="keyword">typeof</span>(e)===<span class="string">"object"</span> &amp;&amp; e !== <span class="literal">null</span> &amp;&amp;
-                    e.hasOwnProperty(<span class="string">'length'</span>)) {
-                    j = <span class="number">0</span>;
-                    <span class="keyword">while</span> (j &lt; e.length) {
-                        result[result.length] = e[j];
-                        j += <span class="number">1</span>;
-                    }
-                } <span class="keyword">else</span> {
-                    result[result.length] = e;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> str = <span class="hljs-keyword">this</span>;
+            <span class="hljs-keyword">if</span> (str.length === <span class="hljs-number">0</span>) { <span class="hljs-keyword">return</span> str; }
+            <span class="hljs-keyword">var</span> whitespace = <span class="hljs-string">' \n\r\t\f\u000b\u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000'</span>;
+            <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">while</span> (i &lt; str.length) {
+                <span class="hljs-keyword">if</span> (whitespace.indexOf(str.charAt(i)) === <span class="hljs-number">-1</span>) {
+                    str = str.substring(i);
+                    <span class="hljs-keyword">break</span>;
                 }
-                i += <span class="number">1</span>;
+                i += <span class="hljs-number">1</span>;
             }
-            <span class="keyword">return</span> result;
-        };
-        Array.prototype.forEach =  <span class="keyword">function</span>(block, thisObject) {
-            <span class="keyword">var</span> len = (<span class="number">1</span>*<span class="keyword">this</span>.length) || <span class="number">0</span>;
-            <span class="keyword">var</span> i = <span class="number">0</span>;
-            <span class="keyword">while</span> (i &lt; len) {
-                <span class="keyword">if</span> (<span class="keyword">this</span>.hasOwnProperty(i)) {
-                    block.call(thisObject, <span class="keyword">this</span>[i], i, <span class="keyword">this</span>);
+            i = str.length - <span class="hljs-number">1</span>;
+            <span class="hljs-keyword">while</span> ( i &gt;= <span class="hljs-number">0</span> ) {
+                <span class="hljs-keyword">if</span> (whitespace.indexOf(str.charAt(i)) === <span class="hljs-number">-1</span>) {
+                    str = str.substring(<span class="hljs-number">0</span>, i + <span class="hljs-number">1</span>);
+                    <span class="hljs-keyword">break</span>;
                 }
-                i += <span class="number">1</span>;
+                i -= <span class="hljs-number">1</span>;
             }
+            <span class="hljs-keyword">return</span> whitespace.indexOf(str.charAt(<span class="hljs-number">0</span>)) === <span class="hljs-number">-1</span> ? str : <span class="hljs-string">''</span>;
         };
-        Array.prototype.map = <span class="keyword">function</span>(fun <span class="comment">/*, thisp*/</span>) {
-            <span class="keyword">var</span> len = (<span class="number">1</span>*<span class="keyword">this</span>.length) || <span class="number">0</span>;
-            <span class="comment">/*
-              if (typeof fun != "function")
-              throw new TypeError();
-            */</span>
-
-            <span class="keyword">var</span> res = [], i = <span class="number">0</span>;
-            <span class="keyword">var</span> thisp = arguments[<span class="number">1</span>];
-            <span class="keyword">while</span> (i &lt; len) {
-                <span class="keyword">if</span> (<span class="keyword">this</span>.hasOwnProperty(i)) {
-                    res[i] = fun.call(thisp, <span class="keyword">this</span>[i], i, <span class="keyword">this</span>);
-                }
-                i += <span class="number">1</span>;
+        makeNonEnumerable(<span class="hljs-built_in">String</span>.prototype, <span class="hljs-string">'trim'</span>);
+        <span class="hljs-built_in">Array</span>.prototype.push = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>, j = (<span class="hljs-number">1</span>*<span class="hljs-keyword">this</span>.length) || <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">while</span> (i &lt; <span class="hljs-built_in">arguments</span>.length) {
+                <span class="hljs-keyword">this</span>[j] = <span class="hljs-built_in">arguments</span>[i];
+                i += <span class="hljs-number">1</span>;
+                j += <span class="hljs-number">1</span>;
             }
-            res.length = len;
-            <span class="keyword">return</span> res;
+            <span class="hljs-keyword">this</span>.length = j;
+            <span class="hljs-keyword">return</span> j;
         };
-        Array.prototype.join = <span class="keyword">function</span>(sep) {
-            <span class="keyword">var</span> result = <span class="string">""</span>, i = <span class="number">0</span>;
-            sep = sep || <span class="string">','</span>;
-            <span class="keyword">while</span> (i &lt; <span class="keyword">this</span>.length) {
-                result += <span class="keyword">this</span>[i];
-                i += <span class="number">1</span>;
-                <span class="keyword">if</span> (i &lt; <span class="keyword">this</span>.length) {
-                    result += sep;
-                }
-            }
-            <span class="keyword">return</span> result;
+        makeNonEnumerable(<span class="hljs-built_in">Array</span>.prototype, <span class="hljs-string">'push'</span>);
+        <span class="hljs-built_in">Array</span>.prototype.pop = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.length === <span class="hljs-number">0</span>) { <span class="hljs-keyword">return</span>; }
+            <span class="hljs-keyword">var</span> last = <span class="hljs-keyword">this</span>[<span class="hljs-keyword">this</span>.length<span class="hljs-number">-1</span>];
+            <span class="hljs-keyword">this</span>.length -= <span class="hljs-number">1</span>;
+            <span class="hljs-keyword">return</span> last;
         };
-        Function.prototype.bind = <span class="keyword">function</span>() {
-            <span class="keyword">var</span> method = <span class="keyword">this</span>;</pre></div></div>
+        makeNonEnumerable(<span class="hljs-built_in">Array</span>.prototype, <span class="hljs-string">'pop'</span>);
+        <span class="hljs-built_in">Array</span>.prototype.join = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">sep</span>) </span>{
+            <span class="hljs-keyword">var</span> O = (<span class="hljs-keyword">typeof</span> <span class="hljs-built_in">Object</span> === <span class="hljs-string">'function'</span>) ? <span class="hljs-built_in">Object</span>(<span class="hljs-keyword">this</span>) : <span class="hljs-keyword">this</span>;
+            <span class="hljs-keyword">var</span> len = O.length;</pre></div></div>
             
         </li>
         
@@ -429,14 +439,31 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
-              <p>Avoid making a function wrapper if we don&#39;t have to.</p>
+              <p>We call internal <code>[[ToString]]</code> on <code>sep</code> by adding &#39;&#39;</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (arguments.length === <span class="number">0</span>) {
-                <span class="keyword">return</span> method;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (sep === <span class="hljs-literal">undefined</span>) { sep = <span class="hljs-string">','</span>; } <span class="hljs-keyword">else</span> { sep = <span class="hljs-string">''</span> + sep; }
+            <span class="hljs-keyword">var</span> k = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">var</span> result = <span class="hljs-string">''</span>;
+            <span class="hljs-keyword">while</span> (k &lt; len) {
+                <span class="hljs-keyword">if</span> (k &gt; <span class="hljs-number">0</span>) { result += sep; }
+                <span class="hljs-keyword">var</span> elem = O[k];
+                <span class="hljs-keyword">if</span> (elem!==<span class="hljs-literal">undefined</span> &amp;&amp; elem!==<span class="hljs-literal">null</span>) {
+                    result += elem;
+                }
+                k += <span class="hljs-number">1</span>;
             }
-            <span class="keyword">var</span> addHasInstance = <span class="keyword">function</span>(f) {</pre></div></div>
+            <span class="hljs-keyword">return</span> result;
+        };
+        makeNonEnumerable(<span class="hljs-built_in">Array</span>.prototype, <span class="hljs-string">'join'</span>);
+        <span class="hljs-built_in">Array</span>.prototype.slice = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">begin, end</span>) </span>{
+            <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">var</span> upTo;
+            <span class="hljs-keyword">var</span> size;
+            <span class="hljs-keyword">var</span> cloned = [];
+            <span class="hljs-keyword">var</span> start;
+            <span class="hljs-keyword">var</span> len = <span class="hljs-keyword">this</span>.length;</pre></div></div>
             
         </li>
         
@@ -447,15 +474,15 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
-              <p>This is from the definition of internal <code>[[HasInstance]]</code>
-method in the ECMA JavaScript spec.</p>
+              <p>Handle negative value for &quot;begin&quot;</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                f.hasInstance = <span class="keyword">function</span>(v) { <span class="keyword">return</span> method.hasInstance(v); };
-                <span class="keyword">return</span> f;
-            };
-            <span class="keyword">var</span> nthis = arguments[<span class="number">0</span>];</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            start = begin || <span class="hljs-number">0</span>;
+            start = (start &gt;= <span class="hljs-number">0</span>) ? start : len + start;
+            <span class="hljs-keyword">if</span> (start &lt; <span class="hljs-number">0</span>) {
+                start = <span class="hljs-number">0</span>;
+            }</pre></div></div>
             
         </li>
         
@@ -466,14 +493,17 @@ method in the ECMA JavaScript spec.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
-              <p>Avoid copying the arguments array if we don&#39;t have to.</p>
+              <p>Handle negative value for &quot;end&quot;</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (arguments.length === <span class="number">1</span>) {
-                <span class="keyword">return</span> addHasInstance(<span class="function"><span class="keyword">function</span> <span class="title">bind0</span> <span class="params">()</span> {</span>
-                    <span class="keyword">return</span> method.apply(nthis, arguments);
-                });
+            <div class="content"><div class='highlight'><pre>            end = (<span class="hljs-keyword">typeof</span> end !== <span class="hljs-string">'undefined'</span>) ? end : len;
+            upTo = (<span class="hljs-keyword">typeof</span>(end) === <span class="hljs-string">'number'</span>) ? end : len;
+            <span class="hljs-keyword">if</span> (upTo &gt; len) {
+                upTo = len;
+            }
+            <span class="hljs-keyword">if</span> (upTo &lt; <span class="hljs-number">0</span>) {
+                upTo = len + upTo;
             }</pre></div></div>
             
         </li>
@@ -485,17 +515,31 @@ method in the ECMA JavaScript spec.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
-              <p>Ok, we need to copy the bound arguments.</p>
+              <p>Actual expected size of the slice</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> nargs = [];
-            <span class="keyword">var</span> i = <span class="number">1</span>;
-            <span class="keyword">while</span> (i &lt; arguments.length) {
-                nargs.push(arguments[i]);
-                i += <span class="number">1</span>;
+            <div class="content"><div class='highlight'><pre>            size = upTo - start;
+
+            <span class="hljs-keyword">if</span> (size &gt; <span class="hljs-number">0</span>) {
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.charAt) {
+                    <span class="hljs-keyword">while</span> (i &lt; size) {
+                        cloned[i] = <span class="hljs-keyword">this</span>.charAt(start + i);
+                        i+=<span class="hljs-number">1</span>;
+                    }
+                } <span class="hljs-keyword">else</span> {
+                    <span class="hljs-keyword">while</span> (i &lt; size) {
+                        cloned[i] = <span class="hljs-keyword">this</span>[start + i];
+                        i+=<span class="hljs-number">1</span>;
+                    }
+                }
             }
-            <span class="keyword">return</span> addHasInstance(<span class="function"><span class="keyword">function</span> <span class="title">bindN</span> <span class="params">()</span> {</span></pre></div></div>
+
+            <span class="hljs-keyword">return</span> cloned;
+        };
+        makeNonEnumerable(<span class="hljs-built_in">Array</span>.prototype, <span class="hljs-string">'slice'</span>);
+        <span class="hljs-built_in">Array</span>.prototype.concat = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> result = [], i, j;</pre></div></div>
             
         </li>
         
@@ -506,45 +550,15 @@ method in the ECMA JavaScript spec.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
-              <p>Use <code>concat.apply</code> here to finesse the fact that <code>arguments</code>
-isn&#39;t necessarily a &#39;real&#39; array.</p>
+              <p>Start by cloning <code>this</code>.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">return</span> method.apply(nthis, Array.prototype.concat.apply(
-                    nargs, arguments));
-            });
-        };
-        Function.prototype.hasInstance = <span class="keyword">function</span>(v) {
-            <span class="keyword">var</span> o;
-            <span class="keyword">if</span> (<span class="keyword">typeof</span>(v) !== <span class="string">'object'</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
-            o = <span class="keyword">this</span>.prototype;
-            <span class="keyword">if</span> (<span class="keyword">typeof</span>(o) !== <span class="string">'object'</span>) { Object.Throw(<span class="string">'TypeError'</span>); <span class="comment">/*XXX*/</span> }
-            <span class="keyword">while</span> (<span class="literal">true</span>) {
-                v = v.__proto__;
-                <span class="keyword">if</span> (v === <span class="literal">null</span>) { <span class="keyword">return</span> <span class="literal">false</span>; }
-                <span class="keyword">if</span> (o === v) { <span class="keyword">return</span> <span class="literal">true</span>; }
-            }
-        };
-        Function.prototype[<span class="string">'New'</span>] = <span class="keyword">function</span>() {
-            <span class="keyword">var</span> object, result;
-            <span class="keyword">if</span> (<span class="keyword">typeof</span>(<span class="keyword">this</span>.prototype)===<span class="string">"object"</span>) {
-                object = Object.create(<span class="keyword">this</span>.prototype);
-            } <span class="keyword">else</span> {
-                object = {};
-            }
-            result = <span class="keyword">this</span>.apply(object, arguments);
-            <span class="keyword">if</span> (<span class="keyword">typeof</span>(result)===<span class="string">"object"</span>) {
-                <span class="keyword">return</span> result;
-            }
-            <span class="keyword">return</span> object;
-        };
-        Function.prototype.toString = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-            <span class="keyword">var</span> result = <span class="string">"function "</span>;
-            <span class="keyword">if</span> (<span class="keyword">this</span>.name) { result += <span class="keyword">this</span>.name; }
-            result += <span class="string">"() { [native code] }"</span>;
-            <span class="keyword">return</span> result;
-        };</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            i = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">while</span> (i &lt; <span class="hljs-keyword">this</span>.length) {
+                result[i] = <span class="hljs-keyword">this</span>[i];
+                i += <span class="hljs-number">1</span>;
+            }</pre></div></div>
             
         </li>
         
@@ -555,15 +569,13 @@ isn&#39;t necessarily a &#39;real&#39; array.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
-              <p>Define <code>toString()</code> in terms of <code>valueOf()</code> for some types.</p>
+              <p>Now add elements from arguments.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        Boolean.prototype.toString = <span class="keyword">function</span>() {
-            <span class="keyword">return</span> Boolean.prototype.valueOf.call(<span class="keyword">this</span>) ? <span class="string">"true"</span> : <span class="string">"false"</span>;
-        };
-        String.prototype.toString = String.prototype.valueOf;
-        Number.prototype.toLocaleString = Number.prototype.toString;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            i = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">while</span> (i &lt; <span class="hljs-built_in">arguments</span>.length) {
+                <span class="hljs-keyword">var</span> e = <span class="hljs-built_in">arguments</span>[i];</pre></div></div>
             
         </li>
         
@@ -574,24 +586,56 @@ isn&#39;t necessarily a &#39;real&#39; array.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
-              <p>Support for branchless bytecode (see Chambers et al, OOPSLA &#39;89).</p>
+              <p>Awkward test for &quot;is e an array?&quot;</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="literal">true</span>[<span class="string">"while"</span>] = <span class="keyword">function</span>(_this_, cond, body) {
-            body.call(_this_);
-            cond.call(_this_)[<span class="string">"while"</span>](_this_, cond, body);
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(e)===<span class="hljs-string">"object"</span> &amp;&amp; e !== <span class="hljs-literal">null</span> &amp;&amp;
+                    e.hasOwnProperty(<span class="hljs-string">'length'</span>)) {
+                    j = <span class="hljs-number">0</span>;
+                    <span class="hljs-keyword">while</span> (j &lt; e.length) {
+                        result[result.length] = e[j];
+                        j += <span class="hljs-number">1</span>;
+                    }
+                } <span class="hljs-keyword">else</span> {
+                    result[result.length] = e;
+                }
+                i += <span class="hljs-number">1</span>;
+            }
+            <span class="hljs-keyword">return</span> result;
         };
-        <span class="literal">false</span>[<span class="string">"while"</span>] = <span class="keyword">function</span>(_this_, cond, body) {
-            <span class="comment">/* no op */</span>
+        makeNonEnumerable(<span class="hljs-built_in">Array</span>.prototype, <span class="hljs-string">'concat'</span>);
+        <span class="hljs-built_in">Array</span>.prototype.forEach =  <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">block, thisObject</span>) </span>{
+            <span class="hljs-keyword">var</span> len = (<span class="hljs-number">1</span>*<span class="hljs-keyword">this</span>.length) || <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">while</span> (i &lt; len) {
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.hasOwnProperty(i)) {
+                    block.call(thisObject, <span class="hljs-keyword">this</span>[i], i, <span class="hljs-keyword">this</span>);
+                }
+                i += <span class="hljs-number">1</span>;
+            }
         };
-        <span class="literal">true</span>[<span class="string">"ifElse"</span>] = <span class="keyword">function</span>(_this_, ifTrue, ifFalse) {
-            <span class="keyword">return</span> ifTrue.call(_this_);
+        makeNonEnumerable(<span class="hljs-built_in">Array</span>.prototype, <span class="hljs-string">'forEach'</span>);
+        <span class="hljs-built_in">Array</span>.prototype.map = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">fun <span class="hljs-regexp">/*, thisp*/</span></span>) </span>{
+            <span class="hljs-keyword">var</span> len = (<span class="hljs-number">1</span>*<span class="hljs-keyword">this</span>.length) || <span class="hljs-number">0</span>;
+            <span class="hljs-comment">/*
+              if (typeof fun != "function")
+              throw new TypeError();
+            */</span>
+
+            <span class="hljs-keyword">var</span> res = [], i = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">var</span> thisp = <span class="hljs-built_in">arguments</span>[<span class="hljs-number">1</span>];
+            <span class="hljs-keyword">while</span> (i &lt; len) {
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.hasOwnProperty(i)) {
+                    res[i] = fun.call(thisp, <span class="hljs-keyword">this</span>[i], i, <span class="hljs-keyword">this</span>);
+                }
+                i += <span class="hljs-number">1</span>;
+            }
+            res.length = len;
+            <span class="hljs-keyword">return</span> res;
         };
-        <span class="literal">false</span>[<span class="string">"ifElse"</span>] = <span class="keyword">function</span>(_this_, ifTrue, ifFalse) {
-            <span class="keyword">return</span> ifFalse.call(_this_);
-        };
-    }<span class="comment">/*CUT HERE*/</span>;</pre></div></div>
+        makeNonEnumerable(<span class="hljs-built_in">Array</span>.prototype, <span class="hljs-string">'map'</span>);
+        <span class="hljs-built_in">Array</span>.prototype.toString = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -602,29 +646,333 @@ isn&#39;t necessarily a &#39;real&#39; array.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
+              <p>Compatibility w/ bootstrapping w/o callable Object</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> array = (<span class="hljs-keyword">typeof</span> <span class="hljs-built_in">Object</span>===<span class="hljs-string">'function'</span>) ? <span class="hljs-built_in">Object</span>(<span class="hljs-keyword">this</span>) : <span class="hljs-keyword">this</span>;
+            <span class="hljs-keyword">var</span> func = array.join;
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(func)!==<span class="hljs-string">'function'</span>) {
+                func = ObjectPrototypeToString;
+            }
+            <span class="hljs-keyword">return</span> func.call(array);
+        };
+        makeNonEnumerable(<span class="hljs-built_in">Array</span>.prototype, <span class="hljs-string">'toString'</span>);
+        <span class="hljs-built_in">Function</span>.prototype.bind = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> method = <span class="hljs-keyword">this</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>Avoid making a function wrapper if we don&#39;t have to.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (<span class="hljs-built_in">arguments</span>.length === <span class="hljs-number">0</span>) {
+                <span class="hljs-keyword">return</span> method;
+            }
+            <span class="hljs-keyword">var</span> addHasInstance = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">f</span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>This is from the definition of internal <code>[[HasInstance]]</code>
+method in the ECMA JavaScript spec.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                f.hasInstance = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">v</span>) </span>{ <span class="hljs-keyword">return</span> method.hasInstance(v); };
+                <span class="hljs-keyword">return</span> f;
+            };
+            <span class="hljs-keyword">var</span> nthis = <span class="hljs-built_in">arguments</span>[<span class="hljs-number">0</span>];</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>Avoid copying the arguments array if we don&#39;t have to.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (<span class="hljs-built_in">arguments</span>.length === <span class="hljs-number">1</span>) {
+                <span class="hljs-keyword">return</span> addHasInstance(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">bind0</span> (<span class="hljs-params"></span>) </span>{
+                    <span class="hljs-keyword">return</span> method.apply(nthis, <span class="hljs-built_in">arguments</span>);
+                });
+            }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>Ok, we need to copy the bound arguments.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> nargs = [];
+            <span class="hljs-keyword">var</span> i = <span class="hljs-number">1</span>;
+            <span class="hljs-keyword">while</span> (i &lt; <span class="hljs-built_in">arguments</span>.length) {
+                nargs.push(<span class="hljs-built_in">arguments</span>[i]);
+                i += <span class="hljs-number">1</span>;
+            }
+            <span class="hljs-keyword">return</span> addHasInstance(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">bindN</span> (<span class="hljs-params"></span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>Use <code>concat.apply</code> here to finesse the fact that <code>arguments</code>
+isn&#39;t necessarily a &#39;real&#39; array.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">return</span> method.apply(nthis, <span class="hljs-built_in">Array</span>.prototype.concat.apply(
+                    nargs, <span class="hljs-built_in">arguments</span>));
+            });
+        };
+        makeNonEnumerable(<span class="hljs-built_in">Function</span>.prototype, <span class="hljs-string">'bind'</span>);
+        <span class="hljs-built_in">Function</span>.prototype.hasInstance = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">v</span>) </span>{
+            <span class="hljs-keyword">var</span> o;
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(v) !== <span class="hljs-string">'object'</span>) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+            o = <span class="hljs-keyword">this</span>.prototype;
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(o) !== <span class="hljs-string">'object'</span>) { Throw(<span class="hljs-string">'TypeError'</span>); }
+            <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {
+                v = v.__proto__;
+                <span class="hljs-keyword">if</span> (v === <span class="hljs-literal">null</span>) { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; }
+                <span class="hljs-keyword">if</span> (o === v) { <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>; }
+            }
+        };
+        makeNonEnumerable(<span class="hljs-built_in">Function</span>.prototype, <span class="hljs-string">'hasInstance'</span>);
+        <span class="hljs-built_in">Function</span>.prototype[<span class="hljs-string">'New'</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> object, result;
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(<span class="hljs-keyword">this</span>.prototype)===<span class="hljs-string">"object"</span>) {
+                object = <span class="hljs-built_in">Object</span>.create(<span class="hljs-keyword">this</span>.prototype);
+            } <span class="hljs-keyword">else</span> {
+                object = {};
+            }
+            result = <span class="hljs-keyword">this</span>.apply(object, <span class="hljs-built_in">arguments</span>);
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(result)===<span class="hljs-string">"object"</span>) {
+                <span class="hljs-keyword">return</span> result;
+            }
+            <span class="hljs-keyword">return</span> object;
+        };
+        makeNonEnumerable(<span class="hljs-built_in">Function</span>.prototype, <span class="hljs-string">'New'</span>);
+        <span class="hljs-built_in">Function</span>.prototype.toString = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> result = <span class="hljs-string">"function "</span>;
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.name) { result += <span class="hljs-keyword">this</span>.name; }
+            result += <span class="hljs-string">"() { [native code] }"</span>;
+            <span class="hljs-keyword">return</span> result;
+        };
+        makeNonEnumerable(<span class="hljs-built_in">Function</span>.prototype, <span class="hljs-string">'toString'</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>Define <code>toString()</code> in terms of <code>valueOf()</code> for some types.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-built_in">Boolean</span>.prototype.toString = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">return</span> BooleanPrototypeValueOf.call(<span class="hljs-keyword">this</span>) ? <span class="hljs-string">"true"</span> : <span class="hljs-string">"false"</span>;
+        };
+        makeNonEnumerable(<span class="hljs-built_in">Boolean</span>.prototype, <span class="hljs-string">'toString'</span>);
+
+        <span class="hljs-built_in">Number</span>.isFinite = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">number</span>) </span>{
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> number !== <span class="hljs-string">'number'</span> ||
+                number !== number ||
+                number === <span class="hljs-literal">Infinity</span> ||
+                number === -<span class="hljs-literal">Infinity</span>) {
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+            }
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+        };
+        makeNonEnumerable(<span class="hljs-built_in">Number</span>, <span class="hljs-string">'isFinite'</span>);
+
+        <span class="hljs-built_in">Number</span>.isNaN = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">number</span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> number === <span class="hljs-string">'number'</span> &amp;&amp; (number !== number);
+        };
+        makeNonEnumerable(<span class="hljs-built_in">Number</span>, <span class="hljs-string">'isNaN'</span>);
+
+        <span class="hljs-built_in">Number</span>.parseInt = <span class="hljs-built_in">parseInt</span>;
+        makeNonEnumerable(<span class="hljs-built_in">Number</span>, <span class="hljs-string">'parseInt'</span>);
+
+        <span class="hljs-built_in">Number</span>.prototype.toString = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">radix</span>) </span>{
+            <span class="hljs-keyword">var</span> x = NumberPrototypeValueOf.call(<span class="hljs-keyword">this</span>);
+            <span class="hljs-keyword">var</span> radixNumber = (radix === <span class="hljs-literal">undefined</span>) ? <span class="hljs-number">10</span> : ToInteger(radix);
+            <span class="hljs-keyword">if</span> (radixNumber &lt; <span class="hljs-number">2</span> || radixNumber &gt; <span class="hljs-number">36</span>) {
+                Throw(<span class="hljs-string">'RangeError'</span>);
+            }
+            <span class="hljs-keyword">if</span> (radixNumber === <span class="hljs-number">10</span>) { <span class="hljs-keyword">return</span> <span class="hljs-string">''</span> + x; }
+            <span class="hljs-keyword">if</span> (x !== x) { <span class="hljs-keyword">return</span> <span class="hljs-string">'NaN'</span>; }
+            <span class="hljs-keyword">if</span> (x === <span class="hljs-number">0</span>) { <span class="hljs-keyword">return</span> <span class="hljs-string">'0'</span>; }
+            <span class="hljs-keyword">var</span> minus = <span class="hljs-literal">false</span>;
+            <span class="hljs-keyword">if</span> (x &lt; <span class="hljs-number">0</span>) { minus = <span class="hljs-literal">true</span>; x = -x; }
+            <span class="hljs-keyword">if</span> (x === <span class="hljs-literal">Infinity</span>) { <span class="hljs-keyword">return</span> (minus?<span class="hljs-string">'-'</span>:<span class="hljs-string">''</span>) + <span class="hljs-string">'Infinity'</span>; }
+            <span class="hljs-keyword">var</span> intPart = <span class="hljs-built_in">Math</span>.floor(x);
+            <span class="hljs-keyword">var</span> floatPart = x - intPart;
+            <span class="hljs-keyword">var</span> r = <span class="hljs-string">''</span>;
+            <span class="hljs-keyword">while</span>(intPart !== <span class="hljs-number">0</span>) {
+                <span class="hljs-keyword">var</span> nextIntPart = <span class="hljs-built_in">Math</span>.floor(intPart / radix);
+                <span class="hljs-keyword">var</span> digit = intPart - (nextIntPart * radix);
+                <span class="hljs-keyword">if</span> (digit &lt; <span class="hljs-number">10</span>) {
+                    r = <span class="hljs-built_in">String</span>.fromCharCode(<span class="hljs-number">0x30</span> + digit) + r;
+                } <span class="hljs-keyword">else</span> {
+                    r = <span class="hljs-built_in">String</span>.fromCharCode(<span class="hljs-number">0x61</span> + digit - <span class="hljs-number">10</span>) + r;
+                }
+                intPart = nextIntPart;
+            }
+            <span class="hljs-keyword">if</span> (r === <span class="hljs-string">''</span>) { r = <span class="hljs-string">'0'</span>; }
+            <span class="hljs-keyword">if</span> (minus) { r = <span class="hljs-string">'-'</span> + r; }
+            <span class="hljs-keyword">var</span> ACCURACY = <span class="hljs-number">0.00001</span>;
+            <span class="hljs-keyword">if</span> (floatPart &gt; ACCURACY) {
+                r += <span class="hljs-string">'.'</span>;
+                <span class="hljs-keyword">while</span> (floatPart &gt; ACCURACY) {
+                    digit = <span class="hljs-built_in">Math</span>.floor(floatPart * radix);
+                    <span class="hljs-keyword">if</span> (digit &lt; <span class="hljs-number">10</span>) {
+                        r += <span class="hljs-built_in">String</span>.fromCharCode(<span class="hljs-number">0x30</span> + digit);
+                    } <span class="hljs-keyword">else</span> {
+                        r += <span class="hljs-built_in">String</span>.fromCharCode(<span class="hljs-number">0x61</span> + digit - <span class="hljs-number">10</span>);
+                    }
+                    floatPart *= radix;
+                    ACCURACY *= radix;
+                    floatPart -= digit;
+                }
+            }
+            <span class="hljs-keyword">return</span> r;
+        };
+        makeNonEnumerable(<span class="hljs-built_in">Number</span>.prototype, <span class="hljs-string">'toString'</span>);
+        <span class="hljs-built_in">String</span>.prototype.toString = <span class="hljs-built_in">String</span>.prototype.valueOf;
+        makeNonEnumerable(<span class="hljs-built_in">String</span>.prototype, <span class="hljs-string">'toString'</span>);
+        <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">Number</span>.prototype.toLocaleString) {
+            <span class="hljs-built_in">Number</span>.prototype.toLocaleString = <span class="hljs-built_in">Number</span>.prototype.toString;
+            makeNonEnumerable(<span class="hljs-built_in">Number</span>.prototype, <span class="hljs-string">'toLocaleString'</span>);
+        }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>Mathematical constants</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        [
+            [ <span class="hljs-built_in">Math</span>, <span class="hljs-string">'E'</span>, <span class="hljs-number">2.7182818284590452354</span> ],
+            [ <span class="hljs-built_in">Math</span>, <span class="hljs-string">'LN10'</span>, <span class="hljs-number">2.302585092994046</span> ],
+            [ <span class="hljs-built_in">Math</span>, <span class="hljs-string">'LN2'</span>, <span class="hljs-number">0.6931471805599453</span> ],
+            [ <span class="hljs-built_in">Math</span>, <span class="hljs-string">'LOG10E'</span>, <span class="hljs-number">0.4342944819032518</span> ],
+            [ <span class="hljs-built_in">Math</span>, <span class="hljs-string">'LOG2E'</span>, <span class="hljs-number">1.4426950408889634</span> ],
+            [ <span class="hljs-built_in">Math</span>, <span class="hljs-string">'PI'</span>, <span class="hljs-number">3.1415926535897932</span> ],
+            [ <span class="hljs-built_in">Math</span>, <span class="hljs-string">'SQRT1_2'</span>, <span class="hljs-number">0.7071067811865476</span> ],
+            [ <span class="hljs-built_in">Math</span>, <span class="hljs-string">'SQRT2'</span>, <span class="hljs-number">1.4142135623730951</span> ],
+            [ <span class="hljs-built_in">Number</span>, <span class="hljs-string">'MAX_SAFE_INTEGER'</span>, <span class="hljs-number">9007199254740991</span> ],
+            [ <span class="hljs-built_in">Number</span>, <span class="hljs-string">'MIN_SAFE_INTEGER'</span>, <span class="hljs-number">-9007199254740991</span> ],
+            [ <span class="hljs-built_in">Number</span>, <span class="hljs-string">'NaN'</span>, <span class="hljs-literal">NaN</span> ],
+            [ <span class="hljs-built_in">Number</span>, <span class="hljs-string">'NEGATIVE_INFINITY'</span>, -<span class="hljs-literal">Infinity</span> ],
+            [ <span class="hljs-built_in">Number</span>, <span class="hljs-string">'POSITIVE_INFINITY'</span>,  <span class="hljs-literal">Infinity</span> ]
+        ].forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cnst</span>) </span>{
+            <span class="hljs-keyword">var</span> base = cnst[<span class="hljs-number">0</span>], name = cnst[<span class="hljs-number">1</span>], val = cnst[<span class="hljs-number">2</span>];
+            base[name] = val;
+            makeFrozen(base, name);
+        });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>Support for branchless bytecode (see Chambers et al, OOPSLA &#39;89).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-literal">true</span>[<span class="hljs-string">"while"</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, cond, body</span>) </span>{
+            body.call(_this_);
+            cond.call(_this_)[<span class="hljs-string">"while"</span>](_this_, cond, body);
+        };
+        <span class="hljs-literal">false</span>[<span class="hljs-string">"while"</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, cond, body</span>) </span>{
+            <span class="hljs-comment">/* no op */</span>
+        };
+        <span class="hljs-literal">true</span>[<span class="hljs-string">"ifElse"</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, ifTrue, ifFalse</span>) </span>{
+            <span class="hljs-keyword">return</span> ifTrue.call(_this_);
+        };
+        <span class="hljs-literal">false</span>[<span class="hljs-string">"ifElse"</span>] = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">_this_, ifTrue, ifFalse</span>) </span>{
+            <span class="hljs-keyword">return</span> ifFalse.call(_this_);
+        };
+    }<span class="hljs-comment">/*CUT HERE*/</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
               <p>Define a helper function to turn the <code>stdlib.init</code> function into the
 source text of an evaluatable statement expression.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> source = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> s;
-        <span class="keyword">if</span> (stdlib_source) {
-            s = stdlib_source.split(<span class="string">'/*CUT HERE*/'</span>)[<span class="number">1</span>];
-        } <span class="keyword">else</span> {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> source = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> s;
+        <span class="hljs-keyword">if</span> (stdlib_source) {
+            s = stdlib_source.split(<span class="hljs-string">'/*CUT HERE*/'</span>)[<span class="hljs-number">1</span>];
+        } <span class="hljs-keyword">else</span> {
             s = init.toSource ? init.toSource() : init.toString();
         }
-        s = <span class="string">'('</span> + s + <span class="string">')();'</span>;
-        <span class="keyword">return</span> s;
+        s = <span class="hljs-string">'('</span> + s + <span class="hljs-string">')();'</span>;
+        <span class="hljs-keyword">return</span> s;
     };
 
-    <span class="keyword">return</span> {
-        __module_name__: <span class="string">'stdlib'</span>,
-        __module_init__: make_stdlib,
-        __module_deps__: [],
-        __module_source__: stdlib_source,
-        init: init,
-        source: source
+    <span class="hljs-keyword">return</span> {
+        <span class="hljs-attr">__module_name__</span>: <span class="hljs-string">'stdlib'</span>,
+        <span class="hljs-attr">__module_init__</span>: make_stdlib,
+        <span class="hljs-attr">__module_deps__</span>: [],
+        <span class="hljs-attr">__module_source__</span>: stdlib_source,
+        <span class="hljs-attr">init</span>: init,
+        <span class="hljs-attr">source</span>: source
     };
 });</pre></div></div>
             

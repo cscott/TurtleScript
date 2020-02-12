@@ -13,6 +13,7 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
             // Main interpreter state.
             parent: parent, // calling context (another state)
             frame: frame,
+            local_frame: Object.create(null),
             stack: [],
             pc: 0,
             // from bytecode file
@@ -23,6 +24,7 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
             literals: module.literals
         };
     };
+    var invoke; // forward declaration
 
     var dispatch = {};
     var SLOT_PREFIX = "!bi!"; // prevent leaking slots from metacontext
@@ -92,6 +94,10 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
     // Implementations of bytecode instructions.
     dispatch.push_frame = function() {
         this.stack.push(this.frame);
+    };
+    dispatch.push_local_frame = function() {
+        // These variables don't escape into child functions
+        this.stack.push(this.local_frame);
     };
     dispatch.push_literal = function(idx) {
         this.stack.push(this.literals[idx]);
@@ -258,10 +264,10 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
         // create new frame
         var nframe = Object.create(func.parent_frame);
         nframe[SLOT_PREFIX+"__proto__"] = func.parent_frame;
-        nframe[SLOT_PREFIX+"arguments"] = my_arguments;
-        nframe[SLOT_PREFIX+"this"] = my_this;
         // construct new child state.
         var ns = mkstate(this, nframe, func.module, func.func_id);
+        ns.local_frame[SLOT_PREFIX+"arguments"] = my_arguments;
+        ns.local_frame[SLOT_PREFIX+"this"] = my_this;
         //document.write(html_escape("--- "+stack_trace(this)+" --calling-> "+fname(ns)+" ---\n"));
 
         // ok, continue executing in child state!
@@ -348,6 +354,14 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
                 // weird javascript misfeature
                 t = "object";
             }
+            if (t === 'function') {
+                // If non-callable we'll say this is an object
+                if (arg.parent_frame || arg.native_code) {
+                    /* A callable function! */
+                } else {
+                    t = 'object'; // not callable
+                }
+            }
         }
         return t;
     });
@@ -374,16 +388,8 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
         var fset = function(name, value) {
             oset(frame, name, value);
         };
-        // set up 'this' and 'arguments'
-        fset("this", this);
-        var my_arguments = Object.create(MyArray);
-        oset(my_arguments, "length", arguments.length);
-        var i = 0;
-        while ( i < arguments.length ) {
-            oset(my_arguments, i, arguments[i]);
-            i += 1;
-        }
-        fset("arguments", my_arguments);
+        // this frame is the `globalThis`
+        fset("globalThis", frame);
 
         // Constants
         var my_ObjectCons = Object.create(MyFunction);
@@ -444,6 +450,21 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
         native_func(my_ObjectCons, "Delete", function(_this_, obj, propname) {
             Object.Delete(obj, SLOT_PREFIX+propname);
         });
+        native_func(my_ObjectCons, "Try", function(_this_, context, bodyBlock, catchBlock, finallyBlock) {
+            return Object.Try(null, function() {
+                return invoke(bodyBlock, context, []);
+            }, catchBlock ? function(e) {
+                invoke(catchBlock, context, [e]);
+            } : undefined, finallyBlock ? function() {
+                invoke(finallyBlock, context, []);
+            } : undefined);
+        });
+        native_func(my_ObjectCons, "Throw", function(_this_, e) {
+            // XXX We could wrap this to easily distinguish interpreted
+            // exceptions from real exceptions; if we did so we'd need to
+            // unwrap above in the implementation of Object.Throw's catchBlock
+            Object.Throw(e);
+        });
         native_func(frame, "isNaN", function(_this_, number) {
             return isNaN(number);
         });
@@ -470,8 +491,8 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
         native_func(my_StringCons, "fromCharCode", function(_this_, arg) {
             return String.fromCharCode(arg);
         });
-        native_func(MyNumber, "toString", function(_this_) {
-            return _this_.toString();
+        native_func(MyNumber, "valueOf", function(_this_) {
+            return _this_.valueOf();
         });
         native_func(MyMath, "floor", function(_this_, val) {
             return Math.floor(val);
@@ -484,16 +505,13 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
             return my_typedarray;
         });
 
-        // XXX: We're not quite handling the "this" argument correctly.
-        // According to:
+        // In non-strict mode, if thisArg is null or undefined it is
+        // replaced with the global object; otherwise it is equal to
+        // ToObject(thisArg).
         // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function/call
-        // "If thisArg is null or undefined, this will be the global
-        // object. Otherwise, this will be equal to Object(thisArg)
-        // (which is thisArg if thisArg is already an object, or a
-        // String, Boolean, or Number if thisArg is a primitive value
-        // of the corresponding type)."
-        // this is disallowed in ES-5 strict mode; throws an exception instead
-        //  http://ejohn.org/blog/ecmascript-5-strict-mode-json-and-more/
+        // We're implementing strict mode semantics, where no massaging
+        // of the this argument is done; it is provided to the callee
+        // as-is.
         native_func(MyFunction, "call", function() {
             // push arguments on stack and use 'invoke' bytecode op.
             // arg #0 is the function itself.
@@ -549,17 +567,34 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
         return frame;
     };
 
-    var binterp = function(module, func_id, frame) {
+    var binterp = function(module, func_id, frame, this_value, my_arguments, local_frame) {
+        if (frame===undefined) {
+            frame = make_top_level_frame();
+        }
+        if (this_value===undefined && my_arguments === undefined) {
+            this_value = undefined; // "Strict mode" semantics
+            my_arguments = Object.create(MyArray);
+            my_arguments[SLOT_PREFIX+"length"] = 0;
+        }
         var TOP = { stack: [] };
-        var FRAME = frame ? frame : make_top_level_frame.call({/*this*/});
+        var FRAME = frame;
 
         var state = mkstate(TOP, FRAME, module, func_id);
+        if (local_frame===undefined) {
+            state.local_frame[SLOT_PREFIX+"this"] = this_value;
+            state.local_frame[SLOT_PREFIX+"arguments"] = my_arguments;
+        } else {
+            // passing local_frame into this function should only be done
+            // by REPL loops which deliberately want to keep a consistent
+            // local variable state across invocations.
+            state.local_frame = local_frame;
+        }
         while (state !== TOP) {
             state = interpret(state);
         }
         return TOP.stack.pop();
     };
-    var invoke = function(func, this_value, args) {
+    invoke = function(func, this_value, args) {
         var my_arguments = Object.create(MyArray);
         args.forEach(function(v, i) {
             my_arguments[SLOT_PREFIX+i] = v;
@@ -567,10 +602,8 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
         my_arguments[SLOT_PREFIX+"length"] = args.length;
         var nframe = Object.create(func.parent_frame);
         nframe[SLOT_PREFIX+"__proto__"] = func.parent_frame;
-        nframe[SLOT_PREFIX+"arguments"] = my_arguments;
-        nframe[SLOT_PREFIX+"this"] = this_value;
         // go for it!
-        return binterp(func.module, func.func_id, nframe);
+        return binterp(func.module, func.func_id, nframe, this_value, my_arguments);
     };
     return {
         __module_name__: "binterp",

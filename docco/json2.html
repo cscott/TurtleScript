@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -211,7 +231,7 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="comment">/*
+            <div class="content"><div class='highlight'><pre><span class="hljs-comment">/*
     http://www.JSON.org/json2.js
     2009-09-21
 
@@ -251,7 +271,8 @@
             For example, this would serialize Dates as ISO strings.
 
                 Date.prototype.toJSON = function (key) {
-                    function f(n) {</pre></div></div>
+                    function f(n) {
+</span></pre></div></div>
             
         </li>
         
@@ -266,45 +287,46 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                        return n &lt; 10 ? '0' + n : n;
+            <div class="content"><div class='highlight'><pre>                        <span class="hljs-keyword">return</span> n &lt; <span class="hljs-number">10</span> ? <span class="hljs-string">'0'</span> + n : n;
                     }
 
-                    return this.getUTCFullYear()   + '-' +
-                         f(this.getUTCMonth() + 1) + '-' +
-                         f(this.getUTCDate())      + 'T' +
-                         f(this.getUTCHours())     + ':' +
-                         f(this.getUTCMinutes())   + ':' +
-                         f(this.getUTCSeconds())   + 'Z';
+                    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.getUTCFullYear()   + <span class="hljs-string">'-'</span> +
+                         f(<span class="hljs-keyword">this</span>.getUTCMonth() + <span class="hljs-number">1</span>) + <span class="hljs-string">'-'</span> +
+                         f(<span class="hljs-keyword">this</span>.getUTCDate())      + <span class="hljs-string">'T'</span> +
+                         f(<span class="hljs-keyword">this</span>.getUTCHours())     + <span class="hljs-string">':'</span> +
+                         f(<span class="hljs-keyword">this</span>.getUTCMinutes())   + <span class="hljs-string">':'</span> +
+                         f(<span class="hljs-keyword">this</span>.getUTCSeconds())   + <span class="hljs-string">'Z'</span>;
                 };
 
             You can provide an optional replacer method. It will be passed the
-            key and value of each member, with this bound to the containing
-            object. The value that is returned from your method will be
-            serialized. If your method returns undefined, then the member will
-            be excluded from the serialization.
+            key and value <span class="hljs-keyword">of</span> each member, <span class="hljs-keyword">with</span> <span class="hljs-keyword">this</span> bound to the containing
+            object. The value that is returned <span class="hljs-keyword">from</span> your method will be
+            serialized. If your method returns <span class="hljs-literal">undefined</span>, then the member will
+            be excluded <span class="hljs-keyword">from</span> the serialization.
 
-            If the replacer parameter is an array of strings, then it will be
+            If the replacer parameter is an array <span class="hljs-keyword">of</span> strings, then it will be
             used to select the members to be serialized. It filters the results
-            such that only members with keys listed in the replacer array are
+            such that only members <span class="hljs-keyword">with</span> keys listed <span class="hljs-keyword">in</span> the replacer array are
             stringified.
 
-            Values that do not have JSON representations, such as undefined or
-            functions, will not be serialized. Such values in objects will be
-            dropped; in arrays they will be replaced with null. You can use
-            a replacer function to replace those with JSON values.
-            JSON.stringify(undefined) returns undefined.
+            Values that <span class="hljs-keyword">do</span> not have <span class="hljs-built_in">JSON</span> representations, such <span class="hljs-keyword">as</span> <span class="hljs-literal">undefined</span> or
+            functions, will not be serialized. Such values <span class="hljs-keyword">in</span> objects will be
+            dropped; <span class="hljs-keyword">in</span> arrays they will be replaced <span class="hljs-keyword">with</span> <span class="hljs-literal">null</span>. You can use
+            a replacer <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">to</span> <span class="hljs-title">replace</span> <span class="hljs-title">those</span> <span class="hljs-title">with</span> <span class="hljs-title">JSON</span> <span class="hljs-title">values</span>.
+            <span class="hljs-title">JSON</span>.<span class="hljs-title">stringify</span>(<span class="hljs-params">undefined</span>) <span class="hljs-title">returns</span> <span class="hljs-title">undefined</span>.
 
-            The optional space parameter produces a stringification of the
-            value that is filled with line breaks and indentation to make it
-            easier to read.
+            <span class="hljs-title">The</span> <span class="hljs-title">optional</span> <span class="hljs-title">space</span> <span class="hljs-title">parameter</span> <span class="hljs-title">produces</span> <span class="hljs-title">a</span> <span class="hljs-title">stringification</span> <span class="hljs-title">of</span> <span class="hljs-title">the</span>
+            <span class="hljs-title">value</span> <span class="hljs-title">that</span> <span class="hljs-title">is</span> <span class="hljs-title">filled</span> <span class="hljs-title">with</span> <span class="hljs-title">line</span> <span class="hljs-title">breaks</span> <span class="hljs-title">and</span> <span class="hljs-title">indentation</span> <span class="hljs-title">to</span> <span class="hljs-title">make</span> <span class="hljs-title">it</span>
+            <span class="hljs-title">easier</span> <span class="hljs-title">to</span> <span class="hljs-title">read</span>.
 
-            If the space parameter is a non-empty string, then that string will
-            be used for indentation. If the space parameter is a number, then
-            the indentation will be that many spaces.
+            <span class="hljs-title">If</span> <span class="hljs-title">the</span> <span class="hljs-title">space</span> <span class="hljs-title">parameter</span> <span class="hljs-title">is</span> <span class="hljs-title">a</span> <span class="hljs-title">non</span>-<span class="hljs-title">empty</span> <span class="hljs-title">string</span>, <span class="hljs-title">then</span> <span class="hljs-title">that</span> <span class="hljs-title">string</span> <span class="hljs-title">will</span>
+            <span class="hljs-title">be</span> <span class="hljs-title">used</span> <span class="hljs-title">for</span> <span class="hljs-title">indentation</span>. <span class="hljs-title">If</span> <span class="hljs-title">the</span> <span class="hljs-title">space</span> <span class="hljs-title">parameter</span> <span class="hljs-title">is</span> <span class="hljs-title">a</span> <span class="hljs-title">number</span>, <span class="hljs-title">then</span>
+            <span class="hljs-title">the</span> <span class="hljs-title">indentation</span> <span class="hljs-title">will</span> <span class="hljs-title">be</span> <span class="hljs-title">that</span> <span class="hljs-title">many</span> <span class="hljs-title">spaces</span>.
 
-            Example:
+            <span class="hljs-title">Example</span>:
 
-            text = JSON.stringify(['e', {pluribus: 'unum'}]);</pre></div></div>
+            <span class="hljs-title">text</span> = <span class="hljs-title">JSON</span>.<span class="hljs-title">stringify</span>(<span class="hljs-params">[<span class="hljs-string">'e'</span>, {pluribus: <span class="hljs-string">'unum'</span>}]</span>);
+</span></pre></div></div>
             
         </li>
         
@@ -319,7 +341,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            text = JSON.stringify([<span class="string">'e'</span>, {pluribus: <span class="string">'unum'</span>}], <span class="literal">null</span>, <span class="string">'\t'</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            text = <span class="hljs-built_in">JSON</span>.stringify([<span class="hljs-string">'e'</span>, {<span class="hljs-attr">pluribus</span>: <span class="hljs-string">'unum'</span>}], <span class="hljs-literal">null</span>, <span class="hljs-string">'\t'</span>);</pre></div></div>
             
         </li>
         
@@ -334,9 +356,9 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            text = JSON.stringify([<span class="keyword">new</span> Date()], <span class="function"><span class="keyword">function</span> <span class="params">(key, value)</span> {</span>
-                <span class="keyword">return</span> <span class="keyword">this</span>[key] <span class="keyword">instanceof</span> Date ?
-                    <span class="string">'Date('</span> + <span class="keyword">this</span>[key] + <span class="string">')'</span> : value;
+            <div class="content"><div class='highlight'><pre>            text = <span class="hljs-built_in">JSON</span>.stringify([<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>()], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">key, value</span>) </span>{
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>[key] <span class="hljs-keyword">instanceof</span> <span class="hljs-built_in">Date</span> ?
+                    <span class="hljs-string">'Date('</span> + <span class="hljs-keyword">this</span>[key] + <span class="hljs-string">')'</span> : value;
             });</pre></div></div>
             
         </li>
@@ -352,17 +374,19 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        JSON.parse(text, reviver)
-            This method parses a JSON text to produce an object or array.
-            It can <span class="keyword">throw</span> a SyntaxError exception.
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-built_in">JSON</span>.parse(text, reviver)
+            This method parses a <span class="hljs-built_in">JSON</span> text to produce an object or array.
+            It can <span class="hljs-keyword">throw</span> a <span class="hljs-built_in">SyntaxError</span> exception.
 
-            The optional reviver parameter is a <span class="function"><span class="keyword">function</span> <span class="title">that</span> <span class="title">can</span> <span class="title">filter</span> <span class="title">and</span>
-            <span class="title">transform</span> <span class="title">the</span> <span class="title">results</span>. <span class="title">It</span> <span class="title">receives</span> <span class="title">each</span> <span class="title">of</span> <span class="title">the</span> <span class="title">keys</span> <span class="title">and</span> <span class="title">values</span>,
-            <span class="title">and</span> <span class="title">its</span> <span class="title">return</span> <span class="title">value</span> <span class="title">is</span> <span class="title">used</span> <span class="title">instead</span> <span class="title">of</span> <span class="title">the</span> <span class="title">original</span> <span class="title">value</span>.
-            <span class="title">If</span> <span class="title">it</span> <span class="title">returns</span> <span class="title">what</span> <span class="title">it</span> <span class="title">received</span>, <span class="title">then</span> <span class="title">the</span> <span class="title">structure</span> <span class="title">is</span> <span class="title">not</span> <span class="title">modified</span>.
-            <span class="title">If</span> <span class="title">it</span> <span class="title">returns</span> <span class="title">undefined</span> <span class="title">then</span> <span class="title">the</span> <span class="title">member</span> <span class="title">is</span> <span class="title">deleted</span>.
+            The optional reviver parameter is a <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">that</span> <span class="hljs-title">can</span> <span class="hljs-title">filter</span> <span class="hljs-title">and</span>
+            <span class="hljs-title">transform</span> <span class="hljs-title">the</span> <span class="hljs-title">results</span>. <span class="hljs-title">It</span> <span class="hljs-title">receives</span> <span class="hljs-title">each</span> <span class="hljs-title">of</span> <span class="hljs-title">the</span> <span class="hljs-title">keys</span> <span class="hljs-title">and</span> <span class="hljs-title">values</span>,
+            <span class="hljs-title">and</span> <span class="hljs-title">its</span> <span class="hljs-title">return</span> <span class="hljs-title">value</span> <span class="hljs-title">is</span> <span class="hljs-title">used</span> <span class="hljs-title">instead</span> <span class="hljs-title">of</span> <span class="hljs-title">the</span> <span class="hljs-title">original</span> <span class="hljs-title">value</span>.
+            <span class="hljs-title">If</span> <span class="hljs-title">it</span> <span class="hljs-title">returns</span> <span class="hljs-title">what</span> <span class="hljs-title">it</span> <span class="hljs-title">received</span>, <span class="hljs-title">then</span> <span class="hljs-title">the</span> <span class="hljs-title">structure</span> <span class="hljs-title">is</span> <span class="hljs-title">not</span> <span class="hljs-title">modified</span>.
+            <span class="hljs-title">If</span> <span class="hljs-title">it</span> <span class="hljs-title">returns</span> <span class="hljs-title">undefined</span> <span class="hljs-title">then</span> <span class="hljs-title">the</span> <span class="hljs-title">member</span> <span class="hljs-title">is</span> <span class="hljs-title">deleted</span>.
 
-            <span class="title">Example</span>:</pre></div></div>
+            <span class="hljs-title">Example</span>:
+
+</span></pre></div></div>
             
         </li>
         
@@ -438,10 +462,10 @@ methods in a closure to avoid creating global variables.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define(<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-    <span class="keyword">var</span> JSON = {};
+            <div class="content"><div class='highlight'><pre>define(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> <span class="hljs-built_in">JSON</span> = {};
 
-    <span class="function"><span class="keyword">function</span> <span class="title">f</span><span class="params">(n)</span> {</span></pre></div></div>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params">n</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -456,46 +480,46 @@ methods in a closure to avoid creating global variables.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">return</span> n &lt; <span class="number">10</span> ? <span class="string">'0'</span> + n : n;
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">return</span> n &lt; <span class="hljs-number">10</span> ? <span class="hljs-string">'0'</span> + n : n;
     }
 
-    <span class="keyword">if</span> (<span class="keyword">typeof</span> Date.prototype.toJSON !== <span class="string">'function'</span>) {
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> <span class="hljs-built_in">Date</span>.prototype.toJSON !== <span class="hljs-string">'function'</span>) {
 
-        Date.prototype.toJSON = <span class="function"><span class="keyword">function</span> <span class="params">(key)</span> {</span>
+        <span class="hljs-built_in">Date</span>.prototype.toJSON = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">key</span>) </span>{
 
-            <span class="keyword">return</span> isFinite(<span class="keyword">this</span>.valueOf()) ?
-                   <span class="keyword">this</span>.getUTCFullYear()   + <span class="string">'-'</span> +
-                 f(<span class="keyword">this</span>.getUTCMonth() + <span class="number">1</span>) + <span class="string">'-'</span> +
-                 f(<span class="keyword">this</span>.getUTCDate())      + <span class="string">'T'</span> +
-                 f(<span class="keyword">this</span>.getUTCHours())     + <span class="string">':'</span> +
-                 f(<span class="keyword">this</span>.getUTCMinutes())   + <span class="string">':'</span> +
-                 f(<span class="keyword">this</span>.getUTCSeconds())   + <span class="string">'Z'</span> : <span class="literal">null</span>;
+            <span class="hljs-keyword">return</span> <span class="hljs-built_in">isFinite</span>(<span class="hljs-keyword">this</span>.valueOf()) ?
+                   <span class="hljs-keyword">this</span>.getUTCFullYear()   + <span class="hljs-string">'-'</span> +
+                 f(<span class="hljs-keyword">this</span>.getUTCMonth() + <span class="hljs-number">1</span>) + <span class="hljs-string">'-'</span> +
+                 f(<span class="hljs-keyword">this</span>.getUTCDate())      + <span class="hljs-string">'T'</span> +
+                 f(<span class="hljs-keyword">this</span>.getUTCHours())     + <span class="hljs-string">':'</span> +
+                 f(<span class="hljs-keyword">this</span>.getUTCMinutes())   + <span class="hljs-string">':'</span> +
+                 f(<span class="hljs-keyword">this</span>.getUTCSeconds())   + <span class="hljs-string">'Z'</span> : <span class="hljs-literal">null</span>;
         };
 
-        String.prototype.toJSON =
-        Number.prototype.toJSON =
-        Boolean.prototype.toJSON = <span class="function"><span class="keyword">function</span> <span class="params">(key)</span> {</span>
-            <span class="keyword">return</span> <span class="keyword">this</span>.valueOf();
+        <span class="hljs-built_in">String</span>.prototype.toJSON =
+        <span class="hljs-built_in">Number</span>.prototype.toJSON =
+        <span class="hljs-built_in">Boolean</span>.prototype.toJSON = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">key</span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.valueOf();
         };
     }
 
-    <span class="keyword">var</span> cx = <span class="regexp">/[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g</span>,
-        escapable = <span class="regexp">/[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g</span>,
+    <span class="hljs-keyword">var</span> cx = <span class="hljs-regexp">/[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g</span>,
+        escapable = <span class="hljs-regexp">/[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g</span>,
         gap,
         indent,
-        meta = {    <span class="comment">// table of character substitutions</span>
-            <span class="string">'\b'</span>: <span class="string">'\\b'</span>,
-            <span class="string">'\t'</span>: <span class="string">'\\t'</span>,
-            <span class="string">'\n'</span>: <span class="string">'\\n'</span>,
-            <span class="string">'\f'</span>: <span class="string">'\\f'</span>,
-            <span class="string">'\r'</span>: <span class="string">'\\r'</span>,
-            <span class="string">'"'</span> : <span class="string">'\\"'</span>,
-            <span class="string">'\\'</span>: <span class="string">'\\\\'</span>
+        meta = {    <span class="hljs-comment">// table of character substitutions</span>
+            <span class="hljs-string">'\b'</span>: <span class="hljs-string">'\\b'</span>,
+            <span class="hljs-string">'\t'</span>: <span class="hljs-string">'\\t'</span>,
+            <span class="hljs-string">'\n'</span>: <span class="hljs-string">'\\n'</span>,
+            <span class="hljs-string">'\f'</span>: <span class="hljs-string">'\\f'</span>,
+            <span class="hljs-string">'\r'</span>: <span class="hljs-string">'\\r'</span>,
+            <span class="hljs-string">'"'</span> : <span class="hljs-string">'\\"'</span>,
+            <span class="hljs-string">'\\'</span>: <span class="hljs-string">'\\\\'</span>
         },
         rep;
 
 
-    <span class="function"><span class="keyword">function</span> <span class="title">quote</span><span class="params">(string)</span> {</span></pre></div></div>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">quote</span>(<span class="hljs-params">string</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -513,18 +537,18 @@ sequences.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        escapable.lastIndex = <span class="number">0</span>;
-        <span class="keyword">return</span> escapable.test(string) ?
-            <span class="string">'"'</span> + string.replace(escapable, <span class="function"><span class="keyword">function</span> <span class="params">(a)</span> {</span>
-                <span class="keyword">var</span> c = meta[a];
-                <span class="keyword">return</span> <span class="keyword">typeof</span> c === <span class="string">'string'</span> ? c :
-                    <span class="string">'\\u'</span> + (<span class="string">'0000'</span> + a.charCodeAt(<span class="number">0</span>).toString(<span class="number">16</span>)).slice(-<span class="number">4</span>);
-            }) + <span class="string">'"'</span> :
-            <span class="string">'"'</span> + string + <span class="string">'"'</span>;
+            <div class="content"><div class='highlight'><pre>        escapable.lastIndex = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">return</span> escapable.test(string) ?
+            <span class="hljs-string">'"'</span> + string.replace(escapable, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">a</span>) </span>{
+                <span class="hljs-keyword">var</span> c = meta[a];
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> c === <span class="hljs-string">'string'</span> ? c :
+                    <span class="hljs-string">'\\u'</span> + (<span class="hljs-string">'0000'</span> + a.charCodeAt(<span class="hljs-number">0</span>).toString(<span class="hljs-number">16</span>)).slice(<span class="hljs-number">-4</span>);
+            }) + <span class="hljs-string">'"'</span> :
+            <span class="hljs-string">'"'</span> + string + <span class="hljs-string">'"'</span>;
     }
 
 
-    <span class="function"><span class="keyword">function</span> <span class="title">str</span><span class="params">(key, holder)</span> {</span></pre></div></div>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">str</span>(<span class="hljs-params">key, holder</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -539,9 +563,9 @@ sequences.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> i,          <span class="comment">// The loop counter.</span>
-            k,          <span class="comment">// The member key.</span>
-            v,          <span class="comment">// The member value.</span>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> i,          <span class="hljs-comment">// The loop counter.</span>
+            k,          <span class="hljs-comment">// The member key.</span>
+            v,          <span class="hljs-comment">// The member value.</span>
             length,
             mind = gap,
             partial,
@@ -560,8 +584,8 @@ sequences.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (value &amp;&amp; <span class="keyword">typeof</span> value === <span class="string">'object'</span> &amp;&amp;
-                <span class="keyword">typeof</span> value.toJSON === <span class="string">'function'</span>) {
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (value &amp;&amp; <span class="hljs-keyword">typeof</span> value === <span class="hljs-string">'object'</span> &amp;&amp;
+                <span class="hljs-keyword">typeof</span> value.toJSON === <span class="hljs-string">'function'</span>) {
             value = value.toJSON(key);
         }</pre></div></div>
             
@@ -579,7 +603,7 @@ obtain a replacement value.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> (<span class="keyword">typeof</span> rep === <span class="string">'function'</span>) {
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> rep === <span class="hljs-string">'function'</span>) {
             value = rep.call(holder, key, value);
         }</pre></div></div>
             
@@ -596,11 +620,11 @@ obtain a replacement value.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">switch</span> (<span class="keyword">typeof</span> value) {
-        <span class="keyword">case</span> <span class="string">'string'</span>:
-            <span class="keyword">return</span> quote(value);
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">switch</span> (<span class="hljs-keyword">typeof</span> value) {
+        <span class="hljs-keyword">case</span> <span class="hljs-string">'string'</span>:
+            <span class="hljs-keyword">return</span> quote(value);
 
-        <span class="keyword">case</span> <span class="string">'number'</span>:</pre></div></div>
+        <span class="hljs-keyword">case</span> <span class="hljs-string">'number'</span>:</pre></div></div>
             
         </li>
         
@@ -615,10 +639,10 @@ obtain a replacement value.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">return</span> isFinite(value) ? String(value) : <span class="string">'null'</span>;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">return</span> <span class="hljs-built_in">isFinite</span>(value) ? <span class="hljs-built_in">String</span>(value) : <span class="hljs-string">'null'</span>;
 
-        <span class="keyword">case</span> <span class="string">'boolean'</span>:
-        <span class="keyword">case</span> <span class="string">'null'</span>:</pre></div></div>
+        <span class="hljs-keyword">case</span> <span class="hljs-string">'boolean'</span>:
+        <span class="hljs-keyword">case</span> <span class="hljs-string">'null'</span>:</pre></div></div>
             
         </li>
         
@@ -635,7 +659,7 @@ the remote chance that this gets fixed someday.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">return</span> String(value);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">return</span> <span class="hljs-built_in">String</span>(value);</pre></div></div>
             
         </li>
         
@@ -651,7 +675,7 @@ null.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">case</span> <span class="string">'object'</span>:</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">case</span> <span class="hljs-string">'object'</span>:</pre></div></div>
             
         </li>
         
@@ -667,8 +691,8 @@ so watch out for that case.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (!value) {
-                <span class="keyword">return</span> <span class="string">'null'</span>;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (!value) {
+                <span class="hljs-keyword">return</span> <span class="hljs-string">'null'</span>;
             }</pre></div></div>
             
         </li>
@@ -700,7 +724,7 @@ so watch out for that case.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (Object.prototype.toString.apply(value) === <span class="string">'[object Array]'</span>) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (<span class="hljs-built_in">Object</span>.prototype.toString.apply(value) === <span class="hljs-string">'[object Array]'</span>) {</pre></div></div>
             
         </li>
         
@@ -717,8 +741,8 @@ for non-JSON values.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                length = value.length;
-                <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; length; i += <span class="number">1</span>) {
-                    partial[i] = str(i, value) || <span class="string">'null'</span>;
+                <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; length; i += <span class="hljs-number">1</span>) {
+                    partial[i] = str(i, value) || <span class="hljs-string">'null'</span>;
                 }</pre></div></div>
             
         </li>
@@ -735,13 +759,13 @@ brackets.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                v = partial.length === <span class="number">0</span> ? <span class="string">'[]'</span> :
-                    gap ? <span class="string">'[\n'</span> + gap +
-                            partial.join(<span class="string">',\n'</span> + gap) + <span class="string">'\n'</span> +
-                                mind + <span class="string">']'</span> :
-                          <span class="string">'['</span> + partial.join(<span class="string">','</span>) + <span class="string">']'</span>;
+            <div class="content"><div class='highlight'><pre>                v = partial.length === <span class="hljs-number">0</span> ? <span class="hljs-string">'[]'</span> :
+                    gap ? <span class="hljs-string">'[\n'</span> + gap +
+                            partial.join(<span class="hljs-string">',\n'</span> + gap) + <span class="hljs-string">'\n'</span> +
+                                mind + <span class="hljs-string">']'</span> :
+                          <span class="hljs-string">'['</span> + partial.join(<span class="hljs-string">','</span>) + <span class="hljs-string">']'</span>;
                 gap = mind;
-                <span class="keyword">return</span> v;
+                <span class="hljs-keyword">return</span> v;
             }</pre></div></div>
             
         </li>
@@ -757,18 +781,18 @@ brackets.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (rep &amp;&amp; <span class="keyword">typeof</span> rep === <span class="string">'object'</span>) {
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (rep &amp;&amp; <span class="hljs-keyword">typeof</span> rep === <span class="hljs-string">'object'</span>) {
                 length = rep.length;
-                <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; length; i += <span class="number">1</span>) {
+                <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; length; i += <span class="hljs-number">1</span>) {
                     k = rep[i];
-                    <span class="keyword">if</span> (<span class="keyword">typeof</span> k === <span class="string">'string'</span>) {
+                    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> k === <span class="hljs-string">'string'</span>) {
                         v = str(k, value);
-                        <span class="keyword">if</span> (v) {
-                            partial.push(quote(k) + (gap ? <span class="string">': '</span> : <span class="string">':'</span>) + v);
+                        <span class="hljs-keyword">if</span> (v) {
+                            partial.push(quote(k) + (gap ? <span class="hljs-string">': '</span> : <span class="hljs-string">':'</span>) + v);
                         }
                     }
                 }
-            } <span class="keyword">else</span> {</pre></div></div>
+            } <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -783,11 +807,11 @@ brackets.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">for</span> (k <span class="keyword">in</span> value) {
-                    <span class="keyword">if</span> (Object.hasOwnProperty.call(value, k)) {
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">for</span> (k <span class="hljs-keyword">in</span> value) {
+                    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">Object</span>.hasOwnProperty.call(value, k)) {
                         v = str(k, value);
-                        <span class="keyword">if</span> (v) {
-                            partial.push(quote(k) + (gap ? <span class="string">': '</span> : <span class="string">':'</span>) + v);
+                        <span class="hljs-keyword">if</span> (v) {
+                            partial.push(quote(k) + (gap ? <span class="hljs-string">': '</span> : <span class="hljs-string">':'</span>) + v);
                         }
                     }
                 }
@@ -807,11 +831,11 @@ and wrap them in braces.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            v = partial.length === <span class="number">0</span> ? <span class="string">'{}'</span> :
-                gap ? <span class="string">'{\n'</span> + gap + partial.join(<span class="string">',\n'</span> + gap) + <span class="string">'\n'</span> +
-                        mind + <span class="string">'}'</span> : <span class="string">'{'</span> + partial.join(<span class="string">','</span>) + <span class="string">'}'</span>;
+            <div class="content"><div class='highlight'><pre>            v = partial.length === <span class="hljs-number">0</span> ? <span class="hljs-string">'{}'</span> :
+                gap ? <span class="hljs-string">'{\n'</span> + gap + partial.join(<span class="hljs-string">',\n'</span> + gap) + <span class="hljs-string">'\n'</span> +
+                        mind + <span class="hljs-string">'}'</span> : <span class="hljs-string">'{'</span> + partial.join(<span class="hljs-string">','</span>) + <span class="hljs-string">'}'</span>;
             gap = mind;
-            <span class="keyword">return</span> v;
+            <span class="hljs-keyword">return</span> v;
         }
     }</pre></div></div>
             
@@ -828,8 +852,8 @@ and wrap them in braces.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span> (<span class="keyword">typeof</span> JSON.stringify !== <span class="string">'function'</span>) {
-        JSON.stringify = <span class="function"><span class="keyword">function</span> <span class="params">(value, replacer, space)</span> {</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> <span class="hljs-built_in">JSON</span>.stringify !== <span class="hljs-string">'function'</span>) {
+        <span class="hljs-built_in">JSON</span>.stringify = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">value, replacer, space</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -848,9 +872,9 @@ produce text that is more easily readable.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> i;
-            gap = <span class="string">''</span>;
-            indent = <span class="string">''</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> i;
+            gap = <span class="hljs-string">''</span>;
+            indent = <span class="hljs-string">''</span>;</pre></div></div>
             
         </li>
         
@@ -866,9 +890,9 @@ many spaces.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (<span class="keyword">typeof</span> space === <span class="string">'number'</span>) {
-                <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; space; i += <span class="number">1</span>) {
-                    indent += <span class="string">' '</span>;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> space === <span class="hljs-string">'number'</span>) {
+                <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; space; i += <span class="hljs-number">1</span>) {
+                    indent += <span class="hljs-string">' '</span>;
                 }</pre></div></div>
             
         </li>
@@ -884,7 +908,7 @@ many spaces.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span> space === <span class="string">'string'</span>) {
+            <div class="content"><div class='highlight'><pre>            } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> space === <span class="hljs-string">'string'</span>) {
                 indent = space;
             }</pre></div></div>
             
@@ -903,10 +927,10 @@ Otherwise, throw an error.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>            rep = replacer;
-            <span class="keyword">if</span> (replacer &amp;&amp; <span class="keyword">typeof</span> replacer !== <span class="string">'function'</span> &amp;&amp;
-                    (<span class="keyword">typeof</span> replacer !== <span class="string">'object'</span> ||
-                     <span class="keyword">typeof</span> replacer.length !== <span class="string">'number'</span>)) {
-                <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'JSON.stringify'</span>);
+            <span class="hljs-keyword">if</span> (replacer &amp;&amp; <span class="hljs-keyword">typeof</span> replacer !== <span class="hljs-string">'function'</span> &amp;&amp;
+                    (<span class="hljs-keyword">typeof</span> replacer !== <span class="hljs-string">'object'</span> ||
+                     <span class="hljs-keyword">typeof</span> replacer.length !== <span class="hljs-string">'number'</span>)) {
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'JSON.stringify'</span>);
             }</pre></div></div>
             
         </li>
@@ -923,7 +947,7 @@ Return the result of stringifying the value.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">return</span> str(<span class="string">''</span>, {<span class="string">''</span>: value});
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">return</span> str(<span class="hljs-string">''</span>, {<span class="hljs-string">''</span>: value});
         };
     }</pre></div></div>
             
@@ -940,8 +964,8 @@ Return the result of stringifying the value.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span> (<span class="keyword">typeof</span> JSON.parse !== <span class="string">'function'</span>) {
-        JSON.parse = <span class="function"><span class="keyword">function</span> <span class="params">(text, reviver)</span> {</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> <span class="hljs-built_in">JSON</span>.parse !== <span class="hljs-string">'function'</span>) {
+        <span class="hljs-built_in">JSON</span>.parse = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">text, reviver</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -957,9 +981,9 @@ a JavaScript value if the text is a valid JSON text.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> j;
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> j;
 
-            <span class="function"><span class="keyword">function</span> <span class="title">walk</span><span class="params">(holder, key)</span> {</span></pre></div></div>
+            <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">walk</span>(<span class="hljs-params">holder, key</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -975,20 +999,20 @@ that modifications can be made.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> k, v, value = holder[key];
-                <span class="keyword">if</span> (value &amp;&amp; <span class="keyword">typeof</span> value === <span class="string">'object'</span>) {
-                    <span class="keyword">for</span> (k <span class="keyword">in</span> value) {
-                        <span class="keyword">if</span> (Object.hasOwnProperty.call(value, k)) {
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">var</span> k, v, value = holder[key];
+                <span class="hljs-keyword">if</span> (value &amp;&amp; <span class="hljs-keyword">typeof</span> value === <span class="hljs-string">'object'</span>) {
+                    <span class="hljs-keyword">for</span> (k <span class="hljs-keyword">in</span> value) {
+                        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">Object</span>.hasOwnProperty.call(value, k)) {
                             v = walk(value, k);
-                            <span class="keyword">if</span> (v !== <span class="literal">undefined</span>) {
+                            <span class="hljs-keyword">if</span> (v !== <span class="hljs-literal">undefined</span>) {
                                 value[k] = v;
-                            } <span class="keyword">else</span> {
-                                <span class="keyword">delete</span> value[k];
+                            } <span class="hljs-keyword">else</span> {
+                                <span class="hljs-keyword">delete</span> value[k];
                             }
                         }
                     }
                 }
-                <span class="keyword">return</span> reviver.call(holder, key, value);
+                <span class="hljs-keyword">return</span> reviver.call(holder, key, value);
             }</pre></div></div>
             
         </li>
@@ -1006,11 +1030,11 @@ incorrectly, either silently deleting them, or treating them as line endings.</p
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            cx.lastIndex = <span class="number">0</span>;
-            <span class="keyword">if</span> (cx.test(text)) {
-                text = text.replace(cx, <span class="function"><span class="keyword">function</span> <span class="params">(a)</span> {</span>
-                    <span class="keyword">return</span> <span class="string">'\\u'</span> +
-                        (<span class="string">'0000'</span> + a.charCodeAt(<span class="number">0</span>).toString(<span class="number">16</span>)).slice(-<span class="number">4</span>);
+            <div class="content"><div class='highlight'><pre>            cx.lastIndex = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">if</span> (cx.test(text)) {
+                text = text.replace(cx, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">a</span>) </span>{
+                    <span class="hljs-keyword">return</span> <span class="hljs-string">'\\u'</span> +
+                        (<span class="hljs-string">'0000'</span> + a.charCodeAt(<span class="hljs-number">0</span>).toString(<span class="hljs-number">16</span>)).slice(<span class="hljs-number">-4</span>);
                 });
             }</pre></div></div>
             
@@ -1037,10 +1061,10 @@ we look to see that the remaining characters are only whitespace or &#39;]&#39; 
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">if</span> (<span class="regexp">/^[\],:{}\s]*$/</span>.
-test(text.replace(<span class="regexp">/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g</span>, <span class="string">'@'</span>).
-replace(<span class="regexp">/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g</span>, <span class="string">']'</span>).
-replace(<span class="regexp">/(?:^|:|,)(?:\s*\[)+/g</span>, <span class="string">''</span>))) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (<span class="hljs-regexp">/^[\],:{}\s]*$/</span>.
+test(text.replace(<span class="hljs-regexp">/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g</span>, <span class="hljs-string">'@'</span>).
+replace(<span class="hljs-regexp">/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g</span>, <span class="hljs-string">']'</span>).
+replace(<span class="hljs-regexp">/(?:^|:|,)(?:\s*\[)+/g</span>, <span class="hljs-string">''</span>))) {</pre></div></div>
             
         </li>
         
@@ -1058,7 +1082,7 @@ in parens to eliminate the ambiguity.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                j = eval(<span class="string">'('</span> + text + <span class="string">')'</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>                j = <span class="hljs-built_in">eval</span>(<span class="hljs-string">'('</span> + text + <span class="hljs-string">')'</span>);</pre></div></div>
             
         </li>
         
@@ -1074,8 +1098,8 @@ each name/value pair to a reviver function for possible transformation.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="keyword">return</span> <span class="keyword">typeof</span> reviver === <span class="string">'function'</span> ?
-                    walk({<span class="string">''</span>: j}, <span class="string">''</span>) : j;
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> reviver === <span class="hljs-string">'function'</span> ?
+                    walk({<span class="hljs-string">''</span>: j}, <span class="hljs-string">''</span>) : j;
             }</pre></div></div>
             
         </li>
@@ -1091,10 +1115,10 @@ each name/value pair to a reviver function for possible transformation.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">throw</span> <span class="keyword">new</span> SyntaxError(<span class="string">'JSON.parse'</span>);
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">SyntaxError</span>(<span class="hljs-string">'JSON.parse'</span>);
         };
     }
-    <span class="keyword">return</span> JSON;
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">JSON</span>;
 });</pre></div></div>
             
         </li>

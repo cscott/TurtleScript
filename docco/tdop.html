@@ -179,6 +179,26 @@
               </a>
             
               
+              <a class="source" href="write-lua-bytecode.html">
+                write-lua-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-lua-ops.html">
+                write-lua-ops.js
+              </a>
+            
+              
+              <a class="source" href="write-php-bytecode.html">
+                write-php-bytecode.js
+              </a>
+            
+              
+              <a class="source" href="write-php-ops.html">
+                write-php-ops.js
+              </a>
+            
+              
               <a class="source" href="write-rust-bytecode.html">
                 write-rust-bytecode.js
               </a>
@@ -212,30 +232,30 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="string">"html-escape"</span>, <span class="string">"json2"</span>, <span class="string">"ts!parse"</span>, <span class="string">"ts!bcompile"</span>, <span class="string">"ts!binterp"</span>, <span class="string">"ts!stdlib"</span>, <span class="string">"ts!top-level"</span>, <span class="string">"ts!tests"</span>], <span class="keyword">function</span>(html_escape, JSON, parse, bcompile, binterp, stdlib, top_level, tests) {
+            <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">"html-escape"</span>, <span class="hljs-string">"json2"</span>, <span class="hljs-string">"ts!parse"</span>, <span class="hljs-string">"ts!bcompile"</span>, <span class="hljs-string">"ts!binterp"</span>, <span class="hljs-string">"ts!stdlib"</span>, <span class="hljs-string">"ts!top-level"</span>, <span class="hljs-string">"ts!tests"</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">html_escape, JSON, parse, bcompile, binterp, stdlib, top_level, tests</span>) </span>{
 
-<span class="comment">/*jslint evil: true */</span>
+<span class="hljs-comment">/*jslint evil: true */</span>
 
-<span class="comment">/*members create, error, message, name, prototype, stringify, toSource,
+<span class="hljs-comment">/*members create, error, message, name, prototype, stringify, toSource,
     toString, write
 */</span>
 
-<span class="comment">/*global JSON, make_parse, parse, source, tree */</span>
+<span class="hljs-comment">/*global JSON, make_parse, parse, source, tree */</span>
 
-<span class="keyword">var</span> CATCH_ERRORS = <span class="literal">false</span>;
-<span class="keyword">var</span> SHOW_SOURCE = <span class="literal">true</span>;
-<span class="keyword">var</span> PRINT_TREE = <span class="literal">false</span>;
-<span class="keyword">var</span> PRINT_JCOMPILE = <span class="literal">false</span>;
-<span class="keyword">var</span> PRINT_RAW_BYTECODE = <span class="literal">false</span>;
-<span class="keyword">var</span> PRINT_ENCODED_BYTECODE = <span class="literal">true</span>;
+<span class="hljs-keyword">var</span> CATCH_ERRORS = <span class="hljs-literal">false</span>;
+<span class="hljs-keyword">var</span> SHOW_SOURCE = <span class="hljs-literal">true</span>;
+<span class="hljs-keyword">var</span> PRINT_TREE = <span class="hljs-literal">false</span>;
+<span class="hljs-keyword">var</span> PRINT_JCOMPILE = <span class="hljs-literal">false</span>;
+<span class="hljs-keyword">var</span> PRINT_RAW_BYTECODE = <span class="hljs-literal">false</span>;
+<span class="hljs-keyword">var</span> PRINT_ENCODED_BYTECODE = <span class="hljs-literal">true</span>;
 
-<span class="function"><span class="keyword">function</span> <span class="title">fill</span><span class="params">(elem_id, h1, contents, no_escape)</span> {</span>
-  <span class="keyword">if</span> (!no_escape) contents = html_escape(contents);
-  elem = document.getElementById(elem_id);
-  elem.innerHTML = <span class="string">"&lt;h1&gt;"</span> + h1 + <span class="string">"&lt;/h1&gt;\n"</span> + contents;
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fill</span>(<span class="hljs-params">elem_id, h1, contents, no_escape</span>) </span>{
+  <span class="hljs-keyword">if</span> (!no_escape) contents = html_escape(contents);
+  elem = <span class="hljs-built_in">document</span>.getElementById(elem_id);
+  elem.innerHTML = <span class="hljs-string">"&lt;h1&gt;"</span> + h1 + <span class="hljs-string">"&lt;/h1&gt;\n"</span> + contents;
 }
 
-<span class="function"><span class="keyword">function</span> <span class="title">do_it</span><span class="params">()</span> {</span></pre></div></div>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">do_it</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
@@ -250,10 +270,10 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> make_self_test = <span class="keyword">function</span>(parse, bcompile, top_level) {
-       <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="params">(source)</span> {</span>
-           <span class="keyword">var</span> result;
-           source = source || <span class="string">'{ return 1+2; }'</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> make_self_test = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">parse, bcompile, top_level</span>) </span>{
+       <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">source</span>) </span>{
+           <span class="hljs-keyword">var</span> result;
+           source = source || <span class="hljs-string">'{ return 1+2; }'</span>;</pre></div></div>
             
         </li>
         
@@ -268,7 +288,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>           <span class="keyword">var</span> tree = parse(source, top_level);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>           <span class="hljs-keyword">var</span> tree = parse(source, top_level);</pre></div></div>
             
         </li>
         
@@ -283,8 +303,8 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>           <span class="keyword">var</span> bc = bcompile(tree);
-           result = bc.decompile(<span class="number">0</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>           <span class="hljs-keyword">var</span> bc = bcompile(tree);
+           result = bc.decompile(<span class="hljs-number">0</span>);</pre></div></div>
             
         </li>
         
@@ -300,14 +320,14 @@ console.log(result);</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>           <span class="keyword">return</span> result;
+            <div class="content"><div class='highlight'><pre>           <span class="hljs-keyword">return</span> result;
        };
     };
-    define(<span class="string">"self_test"</span>, [<span class="string">"parse"</span>, <span class="string">"bcompile"</span>, <span class="string">"top-level"</span>], make_self_test);
-    <span class="keyword">var</span> self_test_source = make_self_test.toSource ?
+    define(<span class="hljs-string">"self_test"</span>, [<span class="hljs-string">"parse"</span>, <span class="hljs-string">"bcompile"</span>, <span class="hljs-string">"top-level"</span>], make_self_test);
+    <span class="hljs-keyword">var</span> self_test_source = make_self_test.toSource ?
         make_self_test.toSource() : make_self_test.toString();
-    self_test_source = <span class="string">'define("self_test", ["parse","bcompile","top-level"], '</span>+
-        self_test_source + <span class="string">');\n'</span>;</pre></div></div>
+    self_test_source = <span class="hljs-string">'define("self_test", ["parse","bcompile","top-level"], '</span>+
+        self_test_source + <span class="hljs-string">');\n'</span>;</pre></div></div>
             
         </li>
         
@@ -322,7 +342,7 @@ console.log(result);</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> isource = <span class="string">'{ return 2+3; }'</span>; <span class="comment">// input to interpreted version of compiler</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> isource = <span class="hljs-string">'{ return 2+3; }'</span>; <span class="hljs-comment">// input to interpreted version of compiler</span></pre></div></div>
             
         </li>
         
@@ -338,27 +358,27 @@ isource = sources[7].replace(/module/, &#39;library_init&#39;);</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> fake_require =
-        <span class="string">"var __modules__ = {};\n"</span>+
-        <span class="string">"define = function(name, deps, init_func) {\n"</span>+
-        <span class="string">"  var d = deps.map(function(m) { return __modules__[m]; });\n"</span>+
-        <span class="string">"  __modules__[name] = init_func.apply(this, d);\n"</span>+
-        <span class="string">"};"</span>;
-    <span class="keyword">var</span> top_level_source = <span class="string">'define("top-level", [], '</span>+
-        <span class="string">'function() { return '</span>+JSON.stringify(top_level)+<span class="string">'; });'</span>;
-    <span class="keyword">var</span> source = <span class="string">'{\n'</span>+
-        stdlib.source()+<span class="string">'\n'</span>+
-        fake_require+<span class="string">'\n'</span>+
-        tests.lookup(<span class="string">"tokenize"</span>)+<span class="string">"\n"</span>+
-        tests.lookup(<span class="string">"parse"</span>)+<span class="string">"\n"</span>+
-        tests.lookup(<span class="string">"bytecode-table"</span>)+<span class="string">"\n"</span>+
-        tests.lookup(<span class="string">"bcompile"</span>)+<span class="string">"\n"</span>+
-        tests.lookup(<span class="string">"binterp"</span>)+<span class="string">"\n"</span>+
-        top_level_source+<span class="string">"\n"</span>+
-        self_test_source+<span class="string">"\n"</span>+
-        <span class="string">"return __modules__['self_test'](arguments[0]); }\n"</span>;
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> fake_require =
+        <span class="hljs-string">"var __modules__ = {};\n"</span>+
+        <span class="hljs-string">"define = function(name, deps, init_func) {\n"</span>+
+        <span class="hljs-string">"  var d = deps.map(function(m) { return __modules__[m]; });\n"</span>+
+        <span class="hljs-string">"  __modules__[name] = init_func.apply(this, d);\n"</span>+
+        <span class="hljs-string">"};"</span>;
+    <span class="hljs-keyword">var</span> top_level_source = <span class="hljs-string">'define("top-level", [], '</span>+
+        <span class="hljs-string">'function() { return '</span>+<span class="hljs-built_in">JSON</span>.stringify(top_level)+<span class="hljs-string">'; });'</span>;
+    <span class="hljs-keyword">var</span> source = <span class="hljs-string">'{\n'</span>+
+        stdlib.source()+<span class="hljs-string">'\n'</span>+
+        fake_require+<span class="hljs-string">'\n'</span>+
+        tests.lookup(<span class="hljs-string">"tokenize"</span>)+<span class="hljs-string">"\n"</span>+
+        tests.lookup(<span class="hljs-string">"parse"</span>)+<span class="hljs-string">"\n"</span>+
+        tests.lookup(<span class="hljs-string">"bytecode-table"</span>)+<span class="hljs-string">"\n"</span>+
+        tests.lookup(<span class="hljs-string">"bcompile"</span>)+<span class="hljs-string">"\n"</span>+
+        tests.lookup(<span class="hljs-string">"binterp"</span>)+<span class="hljs-string">"\n"</span>+
+        top_level_source+<span class="hljs-string">"\n"</span>+
+        self_test_source+<span class="hljs-string">"\n"</span>+
+        <span class="hljs-string">"return __modules__['self_test'](arguments[0]); }\n"</span>;
 
-    <span class="keyword">if</span> (<span class="number">0</span>) {</pre></div></div>
+    <span class="hljs-keyword">if</span> (<span class="hljs-number">0</span>) {</pre></div></div>
             
         </li>
         
@@ -373,11 +393,11 @@ isource = sources[7].replace(/module/, &#39;library_init&#39;);</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    test_case = tests[<span class="number">29</span>].replace(<span class="regexp">/^define\([^,]+,/</span>, <span class="string">"define('self_test',"</span>);
-    source = <span class="string">'{\n'</span> + stdlib.source() + <span class="string">'\n'</span> + fake_require + <span class="string">'\n'</span> +
-            test_case + <span class="string">"\n"</span>+
-            <span class="string">"return __modules__['self_test'](arguments[0]); }\n"</span>;
-        console.log(source);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    test_case = tests[<span class="hljs-number">29</span>].replace(<span class="hljs-regexp">/^define\([^,]+,/</span>, <span class="hljs-string">"define('self_test',"</span>);
+    source = <span class="hljs-string">'{\n'</span> + stdlib.source() + <span class="hljs-string">'\n'</span> + fake_require + <span class="hljs-string">'\n'</span> +
+            test_case + <span class="hljs-string">"\n"</span>+
+            <span class="hljs-string">"return __modules__['self_test'](arguments[0]); }\n"</span>;
+        <span class="hljs-built_in">console</span>.log(source);</pre></div></div>
             
         </li>
         
@@ -394,7 +414,7 @@ isource = sources[7].replace(/module/, &#39;library_init&#39;);</p>
             
             <div class="content"><div class='highlight'><pre>    }
 
-    <span class="keyword">if</span> (<span class="number">1</span>) {</pre></div></div>
+    <span class="hljs-keyword">if</span> (<span class="hljs-number">1</span>) {</pre></div></div>
             
         </li>
         
@@ -410,90 +430,90 @@ output of the javascript code run directly.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>       eval(<span class="string">"function self_test() {"</span>+source+<span class="string">"}"</span>);
+            <div class="content"><div class='highlight'><pre>       <span class="hljs-built_in">eval</span>(<span class="hljs-string">"function self_test() {"</span>+source+<span class="hljs-string">"}"</span>);
        eresult = self_test(isource);
-       <span class="keyword">if</span> (<span class="keyword">typeof</span>(eresult) != <span class="string">"string"</span>) eresult = <span class="string">""</span>+JSON.stringify(eresult);
-       fill(<span class="string">'expected-result'</span>, <span class="string">'Expected result'</span>, eresult);
+       <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(eresult) != <span class="hljs-string">"string"</span>) eresult = <span class="hljs-string">""</span>+<span class="hljs-built_in">JSON</span>.stringify(eresult);
+       fill(<span class="hljs-string">'expected-result'</span>, <span class="hljs-string">'Expected result'</span>, eresult);
     }
 
-    <span class="keyword">if</span> (SHOW_SOURCE) {
-       sl = source.split(<span class="regexp">/\n/</span>);
-       ci = <span class="number">0</span>;
-       o = <span class="string">"&lt;pre&gt;"</span>;
-       <span class="keyword">for</span> (j=<span class="number">0</span>; j &lt; sl.length; j++) {
-          o += ci+<span class="string">": "</span>+html_escape(sl[j])+<span class="string">"\n"</span>;
-          ci += sl[j].length + <span class="number">1</span>;
+    <span class="hljs-keyword">if</span> (SHOW_SOURCE) {
+       sl = source.split(<span class="hljs-regexp">/\n/</span>);
+       ci = <span class="hljs-number">0</span>;
+       o = <span class="hljs-string">"&lt;pre&gt;"</span>;
+       <span class="hljs-keyword">for</span> (j=<span class="hljs-number">0</span>; j &lt; sl.length; j++) {
+          o += ci+<span class="hljs-string">": "</span>+html_escape(sl[j])+<span class="hljs-string">"\n"</span>;
+          ci += sl[j].length + <span class="hljs-number">1</span>;
        }
-       o += <span class="string">"&lt;/pre&gt;"</span>;
-       fill(<span class="string">'source'</span>, <span class="string">'Interpreted source'</span>, o, <span class="number">1</span><span class="comment">/*no escape*/</span>);
+       o += <span class="hljs-string">"&lt;/pre&gt;"</span>;
+       fill(<span class="hljs-string">'source'</span>, <span class="hljs-string">'Interpreted source'</span>, o, <span class="hljs-number">1</span><span class="hljs-comment">/*no escape*/</span>);
    }
 
     tree = parse(source, top_level);
-    <span class="keyword">if</span> (tree) {
-        <span class="comment">/* Raw compiled tree */</span>
-        <span class="keyword">if</span> (PRINT_TREE) {
-           fill(<span class="string">'parse-tree'</span>, <span class="string">'Parse tree'</span>,
-            JSON.stringify(tree, [<span class="string">'key'</span>, <span class="string">'name'</span>, <span class="string">'message'</span>,
-            <span class="string">'value'</span>, <span class="string">'arity'</span>, <span class="string">'first'</span>, <span class="string">'second'</span>, <span class="string">'third'</span>, <span class="string">'fourth'</span>], <span class="number">4</span>));
+    <span class="hljs-keyword">if</span> (tree) {
+        <span class="hljs-comment">/* Raw compiled tree */</span>
+        <span class="hljs-keyword">if</span> (PRINT_TREE) {
+           fill(<span class="hljs-string">'parse-tree'</span>, <span class="hljs-string">'Parse tree'</span>,
+            <span class="hljs-built_in">JSON</span>.stringify(tree, [<span class="hljs-string">'key'</span>, <span class="hljs-string">'name'</span>, <span class="hljs-string">'message'</span>,
+            <span class="hljs-string">'value'</span>, <span class="hljs-string">'arity'</span>, <span class="hljs-string">'first'</span>, <span class="hljs-string">'second'</span>, <span class="hljs-string">'third'</span>, <span class="hljs-string">'fourth'</span>], <span class="hljs-number">4</span>));
         }
 
-        <span class="comment">/* Pretty-printed to eval'able javascript */</span>
-        <span class="keyword">if</span> (PRINT_JCOMPILE) {
-           fill(<span class="string">'jcompile'</span>, <span class="string">'Recompiled to JavaScript'</span>, jcompile(tree));
+        <span class="hljs-comment">/* Pretty-printed to eval'able javascript */</span>
+        <span class="hljs-keyword">if</span> (PRINT_JCOMPILE) {
+           fill(<span class="hljs-string">'jcompile'</span>, <span class="hljs-string">'Recompiled to JavaScript'</span>, jcompile(tree));
         }
 
-        <span class="comment">/* Bytecode compiled (raw) */</span>
+        <span class="hljs-comment">/* Bytecode compiled (raw) */</span>
         bc = bcompile(tree);
-        <span class="keyword">if</span> (PRINT_RAW_BYTECODE) {
-            fill(<span class="string">'raw-bytecode'</span>, <span class="string">'Raw Bytecode File Contents'</span>,
-                 JSON.stringify(bc, [<span class="string">'functions'</span>, <span class="string">'literals'</span>, <span class="string">'id'</span>, <span class="string">'nargs'</span>,
-                                     <span class="string">'bytecode'</span>, <span class="string">'label'</span>], <span class="number">4</span>));
+        <span class="hljs-keyword">if</span> (PRINT_RAW_BYTECODE) {
+            fill(<span class="hljs-string">'raw-bytecode'</span>, <span class="hljs-string">'Raw Bytecode File Contents'</span>,
+                 <span class="hljs-built_in">JSON</span>.stringify(bc, [<span class="hljs-string">'functions'</span>, <span class="hljs-string">'literals'</span>, <span class="hljs-string">'id'</span>, <span class="hljs-string">'nargs'</span>,
+                                     <span class="hljs-string">'bytecode'</span>, <span class="hljs-string">'label'</span>], <span class="hljs-number">4</span>));
         }
-        <span class="keyword">if</span> (PRINT_ENCODED_BYTECODE) {
-            <span class="keyword">var</span> out_file = bc.encode();
-            fill(<span class="string">'encoded-bytecode'</span>, <span class="string">'Encoded Bytecode'</span>, out_file.length+<span class="string">" "</span>+
-             JSON.stringify(out_file));
+        <span class="hljs-keyword">if</span> (PRINT_ENCODED_BYTECODE) {
+            <span class="hljs-keyword">var</span> out_file = bc.encode();
+            fill(<span class="hljs-string">'encoded-bytecode'</span>, <span class="hljs-string">'Encoded Bytecode'</span>, out_file.length+<span class="hljs-string">" "</span>+
+             <span class="hljs-built_in">JSON</span>.stringify(out_file));
         }
 
-        <span class="comment">/* Pretty-printed bytecode */</span>
-        b = <span class="string">"&lt;p&gt;Index: "</span>;
-        <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;bc.functions.length; i++) {
-          <span class="keyword">var</span> f = bc.functions[i];
-          b+= <span class="string">"&lt;a href='#bc-"</span>+i+<span class="string">"'&gt;"</span>;
-          b+= html_escape((f.name) ? f.name : (<span class="string">"&lt;#"</span>+i+<span class="string">"&gt;"</span>));
-          b+= <span class="string">"&lt;/a&gt; "</span>;
+        <span class="hljs-comment">/* Pretty-printed bytecode */</span>
+        b = <span class="hljs-string">"&lt;p&gt;Index: "</span>;
+        <span class="hljs-keyword">for</span> (i=<span class="hljs-number">0</span>; i&lt;bc.functions.length; i++) {
+          <span class="hljs-keyword">var</span> f = bc.functions[i];
+          b+= <span class="hljs-string">"&lt;a href='#bc-"</span>+i+<span class="hljs-string">"'&gt;"</span>;
+          b+= html_escape((f.name) ? f.name : (<span class="hljs-string">"&lt;#"</span>+i+<span class="hljs-string">"&gt;"</span>));
+          b+= <span class="hljs-string">"&lt;/a&gt; "</span>;
         }
-        b += <span class="string">"&lt;/p&gt;"</span>;
-        <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;bc.functions.length; i++) {
-          <span class="keyword">var</span> f = bc.functions[i];
-          b += <span class="string">"&lt;h2&gt;&lt;a id='bc-"</span>+i+<span class="string">"'&gt;Function #"</span>+f.id;
-          <span class="keyword">if</span> (f.name) b += <span class="string">" "</span>+html_escape(f.name);
-          b += <span class="string">"&lt;/a&gt;"</span>;
-          b += <span class="string">" ("</span>+f.nargs+<span class="string">" args; max stack depth="</span>+f.max_stack+<span class="string">")&lt;/h2&gt;\n"</span>;
-          b += <span class="string">"&lt;pre&gt;"</span>+html_escape(bc.decompile(f.id))+<span class="string">"&lt;/pre&gt;"</span>;
+        b += <span class="hljs-string">"&lt;/p&gt;"</span>;
+        <span class="hljs-keyword">for</span> (i=<span class="hljs-number">0</span>; i&lt;bc.functions.length; i++) {
+          <span class="hljs-keyword">var</span> f = bc.functions[i];
+          b += <span class="hljs-string">"&lt;h2&gt;&lt;a id='bc-"</span>+i+<span class="hljs-string">"'&gt;Function #"</span>+f.id;
+          <span class="hljs-keyword">if</span> (f.name) b += <span class="hljs-string">" "</span>+html_escape(f.name);
+          b += <span class="hljs-string">"&lt;/a&gt;"</span>;
+          b += <span class="hljs-string">" ("</span>+f.nargs+<span class="hljs-string">" args; max stack depth="</span>+f.max_stack+<span class="hljs-string">")&lt;/h2&gt;\n"</span>;
+          b += <span class="hljs-string">"&lt;pre&gt;"</span>+html_escape(bc.decompile(f.id))+<span class="hljs-string">"&lt;/pre&gt;"</span>;
         }
-        fill(<span class="string">'bytecode'</span>, <span class="string">'Compiled Bytecode'</span>, b, <span class="number">1</span><span class="comment">/*no escape*/</span>);
+        fill(<span class="hljs-string">'bytecode'</span>, <span class="hljs-string">'Compiled Bytecode'</span>, b, <span class="hljs-number">1</span><span class="hljs-comment">/*no escape*/</span>);
 
-        <span class="comment">/* Interpreter test! */</span>
-        frame = binterp.make_top_level_frame.call(<span class="comment">/*this: */</span>{<span class="comment">/*this*/</span>} ,
-                                                  <span class="comment">/* args:*/</span> isource);
-        result = binterp.binterp(bc, <span class="number">0</span>, frame);
-        fill(<span class="string">'isource'</span>, <span class="string">'Input to interpreted compiler'</span>, isource);
-        <span class="keyword">if</span> (<span class="keyword">typeof</span>(result) != <span class="string">"string"</span>) result = <span class="string">""</span>+JSON.stringify(result);
-        fill(<span class="string">'result'</span>, <span class="string">'Result from interpreter'</span>, result);
+        <span class="hljs-comment">/* Interpreter test! */</span>
+        frame = binterp.make_top_level_frame.call(<span class="hljs-comment">/*this: */</span>{<span class="hljs-comment">/*this*/</span>} ,
+                                                  <span class="hljs-comment">/* args:*/</span> isource);
+        result = binterp.binterp(bc, <span class="hljs-number">0</span>, frame);
+        fill(<span class="hljs-string">'isource'</span>, <span class="hljs-string">'Input to interpreted compiler'</span>, isource);
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span>(result) != <span class="hljs-string">"string"</span>) result = <span class="hljs-string">""</span>+<span class="hljs-built_in">JSON</span>.stringify(result);
+        fill(<span class="hljs-string">'result'</span>, <span class="hljs-string">'Result from interpreter'</span>, result);
    }
 }
 
-<span class="keyword">if</span> (!CATCH_ERRORS) {
+<span class="hljs-keyword">if</span> (!CATCH_ERRORS) {
     do_it();
-} <span class="keyword">else</span> {
-    <span class="keyword">try</span> {
+} <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">try</span> {
         do_it();
-    } <span class="keyword">catch</span> (e) {
-        fill(<span class="string">'errors'</span>, <span class="string">'Error!'</span>,
-             JSON.stringify(e, [<span class="string">'name'</span>, <span class="string">'message'</span>, <span class="string">'from'</span>, <span class="string">'to'</span>,
-                                          <span class="string">'key'</span>, <span class="string">'value'</span>, <span class="string">'arity'</span>, <span class="string">'first'</span>,
-                                          <span class="string">'second'</span>, <span class="string">'third'</span>, <span class="string">'fourth'</span>], <span class="number">4</span>));
+    } <span class="hljs-keyword">catch</span> (e) {
+        fill(<span class="hljs-string">'errors'</span>, <span class="hljs-string">'Error!'</span>,
+             <span class="hljs-built_in">JSON</span>.stringify(e, [<span class="hljs-string">'name'</span>, <span class="hljs-string">'message'</span>, <span class="hljs-string">'from'</span>, <span class="hljs-string">'to'</span>,
+                                          <span class="hljs-string">'key'</span>, <span class="hljs-string">'value'</span>, <span class="hljs-string">'arity'</span>, <span class="hljs-string">'first'</span>,
+                                          <span class="hljs-string">'second'</span>, <span class="hljs-string">'third'</span>, <span class="hljs-string">'fourth'</span>], <span class="hljs-number">4</span>));
     }
 }
 
