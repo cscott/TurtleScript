@@ -61,35 +61,33 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
             scope: 0,
             desugar_frame_get: !dont_desugar_frame_get
         };
-        // literal symbol table.  Does string intern'ing too.  Very simple.
-        state.literal = function(val) {
-            var i = 0, l;
-            if (Object.is) {
-                while (i < this.literals.length) {
-                    l = this.literals[i];
-                    if (Object.is(l, val)) { return i; }
-                    i += 1;
-                }
-            } else if (!(val===val)) { // Look for NaN
-                while (i < this.literals.length) {
-                    l = this.literals[i];
-                    if (!(l===l)) { return i; }
-                    i += 1;
-                }
-            } else if (val===0) { // Handle +/-0
-                while (i < this.literals.length) {
-                    l = this.literals[i];
-                    if (l===0 && (1/l)===(1/val)) { return i; }
-                    i += 1;
-                }
-            } else { // Everything else
-                while (i < this.literals.length) {
-                    l = this.literals[i];
-                    if (l===val) { return i; }
-                    i += 1;
-                }
+        // literal symbol table.  Does string intern'ing too.
+        var ObjectIs = Object.is || function(a, b) {
+            if (typeof(a)==='number' && typeof(b)==='number') {
+                if (a!==a) { return (b!==b); } // NaN
+                if (a===0) { return (b===0) && (1/a === 1/b); } // +/- 0
             }
+            return (a===b);
+        };
+        var literalMap = Object.create(null);
+        state.literal = function(val) {
+            var i, pair, key, entries;
+            key = typeof(val) + ':' + val; // very basic hash key
+            entries = literalMap[key];
+            if (entries!==undefined) {
+                i = 0;
+                while (i < entries.length) {
+                    pair = entries[i];
+                    if (ObjectIs(pair[0], val)) { return pair[1]; }
+                    i += 1;
+                }
+            } else {
+                entries = [];
+                literalMap[key] = entries;
+            }
+            i = this.literals.length;
             this.literals[i] = val;
+            entries.push([val, i]);
             return i;
         };
         // create a function representation
