@@ -22,7 +22,7 @@ module.exports = Object.create(null);
 // Things to export.
 ['parse', 'jcompile',
  // Bytecode compiler-interpreter.
- 'bytecode-table', 'bcompile', 'binterp', 'stdlib',
+ 'bytecode-table', 'literal-map', 'bcompile', 'binterp', 'stdlib',
  // `asm.js` project.
  'asm-llvm',
  // FRS-style event system.

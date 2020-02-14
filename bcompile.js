@@ -40,7 +40,7 @@
 //
 // C. Scott Ananian
 // 2011-05-10 / 2020-02-12
-define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_source, bytecode_table) {
+define(["text!bcompile.js", "bytecode-table", "literal-map"], function make_bcompile(bcompile_source, bytecode_table, LiteralMap) {
     // helper function for debugging
     var assert = function(b, obj) {
         if (!b) {
@@ -56,40 +56,15 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
         // We also need to count lexical scope nesting depth during compilation
         var state = {
             functions: [],
-            literals: [],
+            literals: null,
             // internal
             scope: 0,
             desugar_frame_get: !dont_desugar_frame_get
         };
         // literal symbol table.  Does string intern'ing too.
-        var ObjectIs = Object.is || function(a, b) {
-            if (typeof(a)==='number' && typeof(b)==='number') {
-                if (a!==a) { return (b!==b); } // NaN
-                if (a===0) { return (b===0) && (1/a === 1/b); } // +/- 0
-            }
-            return (a===b);
-        };
-        var literalMap = Object.create(null);
-        state.literal = function(val) {
-            var i, pair, key, entries;
-            key = typeof(val) + ':' + val; // very basic hash key
-            entries = literalMap[key];
-            if (entries!==undefined) {
-                i = 0;
-                while (i < entries.length) {
-                    pair = entries[i];
-                    if (ObjectIs(pair[0], val)) { return pair[1]; }
-                    i += 1;
-                }
-            } else {
-                entries = [];
-                literalMap[key] = entries;
-            }
-            i = this.literals.length;
-            this.literals[i] = val;
-            entries.push([val, i]);
-            return i;
-        };
+        var lm = LiteralMap.New();
+        state.literals = lm.list;
+        state.literal = function(val) { return lm.get(val); };
         // create a function representation
         state.new_function = function(nargs) {
             var newf = {
@@ -755,7 +730,7 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
     };
     bcompile.__module_name__ = "bcompile";
     bcompile.__module_init__ = make_bcompile;
-    bcompile.__module_deps__ = ["bytecode-table"];
+    bcompile.__module_deps__ = ["bytecode-table", "literal-map"];
     bcompile.__module_source__ = bcompile_source;
     return bcompile;
 });

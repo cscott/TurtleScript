@@ -15,6 +15,7 @@ add_demo('JS parser', tests.lookup('parse'));
 add_demo('JS compiler', tests.lookup('jcompile'));
 add_demo('Tile renderer', tests.lookup('crender'));
 add_demo('Bytecode table', tests.lookup('bytecode-table'));
+add_demo('Literals map', tests.lookup('literal-map'));
 add_demo('Bytecode compiler', tests.lookup('bcompile'));
 add_demo('Bytecode interpreter', tests.lookup('binterp'));
 add_demo('Standard library', tests.lookup('stdlib'));

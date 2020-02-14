@@ -63,6 +63,7 @@ function do_it() {
         tests.lookup("tokenize")+"\n"+
         tests.lookup("parse")+"\n"+
         tests.lookup("bytecode-table")+"\n"+
+        tests.lookup("literal-map")+"\n"+
         tests.lookup("bcompile")+"\n"+
         tests.lookup("binterp")+"\n"+
         top_level_source+"\n"+

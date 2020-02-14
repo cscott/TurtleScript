@@ -111,13 +111,20 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
         this.stack.push(na);
     };
     dispatch.new_function = function(idx) {
+        // See 14.1.20 InstantiateFunctionObject
+        // OrdinaryFunctionCreate
         var f = Object.create(MyFunction);
         // hidden fields of function object
         f.parent_frame = this.frame;
         f.module = this.module;
         f.func_id = idx;
-        f[SLOT_PREFIX+"name"] = this.module.functions[idx].name;
         f[SLOT_PREFIX+"length"] = this.module.functions[idx].nargs;
+        // MakeConstructor(f)
+        var prototype = Object.create(MyObject);
+        prototype[SLOT_PREFIX+"constructor"] = f;
+        f[SLOT_PREFIX+"prototype"] = prototype;
+        // SetFunctionName
+        f[SLOT_PREFIX+"name"] = this.module.functions[idx].name;
         this.stack.push(f);
     };
     var get_slot = function(obj, name) {

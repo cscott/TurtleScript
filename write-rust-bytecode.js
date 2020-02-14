@@ -40,6 +40,7 @@ define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escap
         tests.lookup("tokenize")+"\n"+
         tests.lookup("parse")+"\n"+
         tests.lookup("bytecode-table")+"\n"+
+        tests.lookup("literal-map")+"\n"+
         tests.lookup("bcompile")+"\n"+
         top_level_source+"\n"+
         cfs_source + '\n' +
