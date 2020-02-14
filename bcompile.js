@@ -688,6 +688,7 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
                                       arity: "function",
                                       first: this.first,
                                       second: this.second,
+                                      arguments_escapes: this.arguments_escapes,
                                       // keep name around to associate later.
                                       extra_name: this.name
                                   }
@@ -701,23 +702,37 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
             new_func.name = this.extra_name;
         }
         state.current_func = new_func;
+        state.current_func.can_fall_off = true;
         state.scope += 1;
         // compile the new function.
-        // at start, we have an empty stack and a (properly-linked) frame w/ 2
-        // field, "arguments" and "this".  Name the arguments in the local
-        // context.
-        state.emit("push_local_frame");
-        state.emit("get_slot_direct", state.literal("arguments"));
-        this.first.forEach(function(e, i) {
-            var escapes = e.scope.escape[e.value];
-            state.emit("dup");
-            state.emit("get_slot_direct", state.literal(i));
-            state.emit(escapes ? "push_frame" : "push_local_frame");
-            state.emit("swap");
-            state.emit("set_slot_direct", state.literal(e.value));
-        });
-        // done using the arguments array
-        state.emit("pop");
+        // at start, we have an empty stack and a (properly-linked) localframe w/ 2
+        // fields, "arguments" and "this".  If 'arguments' is marked as
+        // 'escaped' it means it needs to be boxed into a true JavaScript
+        // object.  Emit an assignment to the "real" frame, which will serve
+        // as a hint to the runtime.
+        // (Of course, if you always box `arguments` then you can just
+        // execute this directly as an assignment and it just works.)
+        if (this.arguments_escapes) {
+            state.emit("push_frame");
+            state.emit("push_local_frame");
+            state.emit("get_slot_direct", state.literal("arguments"));
+            state.emit("set_slot_direct", state.literal("arguments"));
+        }
+        // Name the arguments in the local context
+        if (this.first.length > 0) {
+            state.emit("push_local_frame");
+            state.emit("get_slot_direct", state.literal("arguments"));
+            this.first.forEach(function(e, i) {
+                var escapes = e.scope.escape[e.value];
+                state.emit("dup");
+                state.emit("get_slot_direct", state.literal(i));
+                state.emit(escapes ? "push_frame" : "push_local_frame");
+                state.emit("swap");
+                state.emit("set_slot_direct", state.literal(e.value));
+            });
+            // done using the arguments array
+            state.emit("pop");
+        }
         // handle the body
         state.bcompile_stmts(this.second);
         // finish w/ no-arg return

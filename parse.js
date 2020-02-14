@@ -46,7 +46,10 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
         },
         find: function (n) {
             var e = this, o;
-            var escape = false;
+            // "arguments" is always marked as escaping iff it is used, as
+            // a bit of a hack to indicate whether it needs to be converted
+            // into a "real" javascript object or not.
+            var escape = (n === 'arguments');
             while (true) {
                 o = e.def.hasOwnProperty(n) ? e.def[n] : null;
                 if (o) {
@@ -459,6 +462,9 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
             advance(); advance(";");
         }
         this.second = statements();
+        if (scope.escape['arguments']) {
+            this.arguments_escapes = true;
+        }
         scope.pop();
         advance("}");
         this.arity = "function";
