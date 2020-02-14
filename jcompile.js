@@ -60,7 +60,7 @@ define(["text!jcompile.js","str-escape"], function make_jcompile(jcompile_source
 
     var dispatch = {};
     dispatch.name = function() {
-        return this.value+"/*"+this.scope.level+"*/";
+        return this.value+"/*"+this.scope.level+(this.scope.escape[this.value]?"e":"")+"*/";
     };
     dispatch.literal = function() {
         if (this.value === undefined) { return "undefined"; }
