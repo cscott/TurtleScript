@@ -63,14 +63,31 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
         };
         // literal symbol table.  Does string intern'ing too.  Very simple.
         state.literal = function(val) {
-            var i = 0;
-            var nn = !(val === val); // true iff val is NaN
-            while (i < this.literals.length) {
-                var l = this.literals[i];
-                if (nn ? !(l === l) : (l === val)) {
-                    return i;
+            var i = 0, l;
+            if (Object.is) {
+                while (i < this.literals.length) {
+                    l = this.literals[i];
+                    if (Object.is(l, val)) { return i; }
+                    i += 1;
                 }
-                i += 1;
+            } else if (!(val===val)) { // Look for NaN
+                while (i < this.literals.length) {
+                    l = this.literals[i];
+                    if (!(l===l)) { return i; }
+                    i += 1;
+                }
+            } else if (val===0) { // Handle +/-0
+                while (i < this.literals.length) {
+                    l = this.literals[i];
+                    if (l===0 && (1/l)===(1/val)) { return i; }
+                    i += 1;
+                }
+            } else { // Everything else
+                while (i < this.literals.length) {
+                    l = this.literals[i];
+                    if (l===val) { return i; }
+                    i += 1;
+                }
             }
             this.literals[i] = val;
             return i;
