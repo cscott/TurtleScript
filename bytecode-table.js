@@ -47,11 +47,18 @@ define(['text!bytecode-table.js'],function make_bytecode_table(bytecode_table_so
         return " "+idx+" /* "+state.literals[idx]+" */";
     };
     var print_label = function(state, bytecode, pc) {
-        var lbl = bytecode[pc+1];
-        if (typeof(lbl) !== "number") {
-            lbl = lbl.label;
+        var result = "";
+        var i = 0;
+        while (i < this.args) {
+            result += " ";
+            var lbl = bytecode[pc+1];
+            if (typeof(lbl) !== "number") {
+                lbl = lbl.label;
+            }
+            result += lbl;
+            i += 1;
         }
-        return " "+lbl;
+        return result;
     };
     // define the bytecodes for the js virtual machine
     // name, args, stackpop, stackpush
@@ -111,17 +118,25 @@ define(['text!bytecode-table.js'],function make_bytecode_table(bytecode_table_so
     // unconditional branch
     // argument #0 is the jump target
     bc("jmp", 1, 0, 0, print_label);
+    // Identical to `jmp`, but hints that we're jumping into a loop body
+    // argument #0 is the jump target, a phi marking the top of the loop
+    // argument #1 hints the label of the phi marking the loop exit
+    bc("jmp_into_loop", 2, 0, 0, print_label);
     // conditional branch
-    // argument #0 is the label to jump if the top of the stack is true
-    bc("jmp_unless", 1, 1, 0, print_label);
+    // argument #0 is the label to jump to if the top of the stack is true
+    // argument #1 hints the label of the phi marking the eventual merge point
+    // (hint allows you to compile to balanced control flow structures)
+    bc("jmp_unless", 2, 1, 0, print_label);
+    // This is a no-op, but it marks a control-flow merge after a branch/loop
+    bc("phi", 0, 0, 0);
 
-    // stack manipulation
-    bc("pop", 0, 1, 0);  // ab -> b
-    bc("dup", 0, 1, 2);  // a -> aa
-    bc("2dup", 0, 2, 4); // ab -> abab
-    bc("over", 0, 2, 3); // ab -> aba
-    bc("over2", 0, 3, 4); // abc -> abca
-    bc("swap", 0, 2, 2);  // ab -> ba
+    // stack manipulation  TOP <-stack grows <- BOTTOM
+    bc("pop", 0, 1, 0);  // ab.. -> b..
+    bc("dup", 0, 1, 2);  // a.. -> aa..
+    bc("2dup", 0, 2, 4); // ab.. -> abab..
+    bc("over", 0, 2, 3); // ab.. -> aba..
+    bc("over2", 0, 3, 4); // abc.. -> abca..
+    bc("swap", 0, 2, 2);  // ab.. -> ba..
 
     // Unary operators.
     bc("un_not", 0, 1, 1);

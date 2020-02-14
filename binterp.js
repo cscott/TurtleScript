@@ -296,10 +296,14 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
     dispatch.jmp = branch(function(new_pc) {
         return new_pc;
     });
+    dispatch.jmp_into_loop = dispatch.jmp;
     dispatch.jmp_unless = branch(function(new_pc) {
         var condition = this.stack.pop();
         return condition ? this.pc : new_pc;
     });
+    dispatch.phi = function() {
+        /* no op */
+    };
 
     // stack manipulation
     dispatch.pop = function() {

@@ -470,11 +470,12 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
         state.bcompile_expr(this.first);
         state.emit("dup");
         state.emit("un_not");
-        state.emit("jmp_unless", mergeLabel);
+        state.emit("jmp_unless", mergeLabel, mergeLabel);
         sd_before = state.current_func.stack_depth;
         state.emit("pop");
         state.bcompile_expr(this.second);
         state.set_label(mergeLabel);
+        state.emit("phi");
         sd_after = state.current_func.stack_depth;
         assert(sd_before === sd_after, this);
     });
@@ -486,11 +487,12 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
         // short circuit operator
         state.bcompile_expr(this.first);
         state.emit("dup");
-        state.emit("jmp_unless", mergeLabel);
+        state.emit("jmp_unless", mergeLabel, mergeLabel);
         sd_before = state.current_func.stack_depth;
         state.emit("pop");
         state.bcompile_expr(this.second);
         state.set_label(mergeLabel);
+        state.emit("phi");
         sd_after = state.current_func.stack_depth;
         assert(sd_before === sd_after, this);
     });
@@ -551,7 +553,7 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
         var falseLabel = state.new_label();
         var mergeLabel = state.new_label();
         state.bcompile_expr(this.first);
-        state.emit("jmp_unless", falseLabel);
+        state.emit("jmp_unless", falseLabel, mergeLabel);
 
         // "true" case
         sd_before = state.current_func.stack_depth;
@@ -564,6 +566,7 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
         state.set_label(falseLabel);
         state.bcompile_expr(this.third);
         state.set_label(mergeLabel);
+        state.emit("phi");
         assert(state.current_func.stack_depth === sd_after, this);
     });
     ternary("(", function(state) {
@@ -616,19 +619,18 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
         });
     });
     stmt("if", function(state) {
-        var falseLabel = state.new_label();
+        var mergeLabel = state.new_label();
+        var falseLabel = this.third ? state.new_label() : mergeLabel;
         state.bcompile_expr(this.first);
-        state.emit("jmp_unless", falseLabel);
+        state.emit("jmp_unless", falseLabel, mergeLabel);
         state.bcompile_stmt(this.second);
         if (this.third) {
-            var mergeLabel = state.new_label();
             state.emit("jmp", mergeLabel);
             state.set_label(falseLabel);
             state.bcompile_stmt(this.third);
-            state.set_label(mergeLabel);
-        } else {
-            state.set_label(falseLabel);
         }
+        state.set_label(mergeLabel);
+        state.emit("phi");
     });
     stmt("return", function(state) {
         if (this.first) {
@@ -648,14 +650,20 @@ define(["text!bcompile.js", "bytecode-table"], function make_bcompile(bcompile_s
         var endLabel = state.new_label();
         state.push_loop_label(endLabel);
 
-        state.emit("jmp", testLabel);
+        // Communicate loop boundaries to latter stages of the compiler
+        state.emit("jmp_into_loop", testLabel, endLabel);
         state.set_label(startLabel);
         state.bcompile_stmt(this.second);
         state.set_label(testLabel);
+        state.emit("phi");
         state.bcompile_expr(this.first);
         state.emit("un_not");
-        state.emit("jmp_unless", startLabel);
+        // 2nd arg to jmp_unless indicates that this is the loop condition
+        // by referencing the active endLabel for the loop.  Otherwise
+        // jmp_unless would be compiled as a balanced if/then/else
+        state.emit("jmp_unless", startLabel, endLabel);
         state.set_label(endLabel);
+        state.emit("phi");
 
         state.pop_loop_label();
     });
