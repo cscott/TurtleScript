@@ -201,6 +201,19 @@ define(["text!bcompile.js", "bytecode-table", "literal-map"], function make_bcom
         state.push_loop_label = function(label) {
             return this.current_func.loop_label_stack.push(label);
         };
+        state.flatten_labels = function() {
+            this.functions.forEach(function(f) {
+                var bytecode = f.bytecode;
+                var i = 0;
+                while (i < bytecode.length) {
+                    var v = bytecode[i];
+                    if (typeof(v)!=='number') {
+                        bytecode[i] = v.label;
+                    }
+                    i += 1;
+                }
+            });
+        };
         // compilation hooks.
         state.bcompile_stmts = function(tree_lst) {
             this.bcompile_stmt({ value: "block",
@@ -726,6 +739,7 @@ define(["text!bcompile.js", "bytecode-table", "literal-map"], function make_bcom
         if (state.current_func.can_fall_off) {
             state.bcompile_stmt({ value: "return", arity: "statement" });
         }
+        state.flatten_labels();
         return state;
     };
     bcompile.__module_name__ = "bcompile";

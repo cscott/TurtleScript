@@ -51,7 +51,7 @@ define(['text!bytecode-table.js'],function make_bytecode_table(bytecode_table_so
         var i = 0;
         while (i < this.args) {
             result += " ";
-            var lbl = bytecode[pc+1];
+            var lbl = bytecode[pc+1+i];
             if (typeof(lbl) !== "number") {
                 lbl = lbl.label;
             }
