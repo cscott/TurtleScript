@@ -77,6 +77,11 @@ define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escap
         }) + '"';
     };
 
+    var phpName = function(bc) {
+        var name = bc.name.toUpperCase();
+        if (name==='2DUP') { return 'DUP2'; }
+        return name;
+    };
     var pad = function(s, width) {
         if (width===undefined) { width = 10; }
         while (s.length < width) { s += ' '; }
@@ -115,14 +120,15 @@ define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escap
             var pc = j;
             var bc = bytecode_table.for_num(f.bytecode[j]);
             var a = f.bytecode.slice(j, j+=bc.args+1);
-            a = a.map(function(b) {
+            a = a.map(function(b, i) {
+                if (i===0) { return 'Op::' + phpName(bc); }
                 if (typeof(b) !== 'number') { b = b.label; }
                 return ''+b;
             });
             var b = a.slice(1);
             a = a.join(', ') + ((j < f.bytecode.length) ? ',' : '');
             b = bc.name + ( b.length ? ( '(' + b.join(',') + ')' ) : '' );
-            console.log('\t\t\t\t' + pad(a) + '// ' + pc + ': ' + b);
+            console.log('\t\t\t\t' + pad(a, 25) + '// ' + pc + ': ' + b);
         }
         console.log('\t\t\t] );');
     });
