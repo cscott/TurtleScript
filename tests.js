@@ -2,15 +2,16 @@
 define(["text!tests.js", "str-escape",
         /* These modules are just imported to make test cases out of them. */
         "tokenize", "parse", "jcompile", "crender", "bytecode-table",
-        "literal-map", "bcompile", "binterp", "stdlib", "events", "asm-llvm"],
+        "literal-map", "bcompile", "binterp", "stdlib", "events",
+        "banalyze", "asm-llvm"],
        function make_tests(tests_source, str_escape,
                            tokenize, parse, jcompile, crender, bytecode_table,
                            LiteralMap, bcompile, binterp, stdlib, events,
-                           asm_llvm) {
+                           banalyze, asm_llvm) {
     var deps = ["tests_source", "str-escape",
                 "tokenize", "parse", "jcompile", "crender", "bytecode-table",
                 "literal-map", "bcompile", "binterp", "stdlib", "events",
-                "asm-llvm"];
+                "banalyze", "asm-llvm"];
     var test=[], i=2/* skip tests_source and str_escape */;
     // The first tests are our own source code, from the module arguments.
     while (i < arguments.length) {
