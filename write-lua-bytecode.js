@@ -2,18 +2,22 @@
 // startup code and standard library, as a Lua file.
 //
 // Run it under `node` with the CLI in `bin/write-lua-bytecode.js`
-define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escape', './tests', './stdlib', './extensions'], function(parse, bcompile, bytecode_table, top_level, str_escape, tests, stdlib) {
+define(['./parse', './bcompile', './banalyze', './bytecode-table', './top-level', './str-escape', './literal-map', './tests', './stdlib', './extensions'], function(parse, bcompile, banalyze, bytecode_table, top_level, str_escape, LiteralMap, tests, stdlib) {
     var fake_require =
         "var __modules__ = {};\n"+
         "define = function _define(name, deps, init_func) {\n"+
         "  var d = deps.map(function(m) { return __modules__[m]; });\n"+
         "  __modules__[name] = init_func.apply(this, d);\n"+
         "};\n";
-    var make_compile_from_source = function(parse, bcompile, TOP_LEVEL) {
+    var make_compile_from_source = function(parse, bcompile, banalyze, LiteralMap, TOP_LEVEL) {
        var compile_from_source = function (source, as_object) {
            source = source || '{ return 1+2; }';
            var tree = parse(source, TOP_LEVEL);
            var bc = bcompile(tree, true/*don't desugar frame get*/);
+           var literalMap = LiteralMap.New(bc.literals);
+           bc.functions.forEach(function(f, i) {
+               banalyze(bc, f.id, literalMap);
+           });
            var result = as_object ? bc : bc.encode();
            return result;
        };
@@ -30,7 +34,7 @@ define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escap
     var cfs_source = make_compile_from_source.toSource ?
         make_compile_from_source.toSource() :
         make_compile_from_source.toString();
-    cfs_source = 'define("compile_from_source", ["parse","bcompile","top-level"], '+
+    cfs_source = 'define("compile_from_source", ["parse","bcompile","banalyze","literal-map", "top-level"], '+
         cfs_source + ');';
     var top_level_source = 'define("top-level", [], function() { return ' +
         str_escape(top_level) + '; });';
@@ -42,6 +46,7 @@ define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escap
         tests.lookup("bytecode-table")+"\n"+
         tests.lookup("literal-map")+"\n"+
         tests.lookup("bcompile")+"\n"+
+        tests.lookup("banalyze")+"\n"+
         top_level_source+"\n"+
         cfs_source + '\n' +
         /*
@@ -67,7 +72,7 @@ define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escap
     */
     console.log(source);
 
-    var compile_from_source = make_compile_from_source(parse, bcompile, top_level);
+    var compile_from_source = make_compile_from_source(parse, bcompile, banalyze, LiteralMap, top_level);
     var bc = compile_from_source(source, true/*as object*/);
 
     var lua_esc = function(str) {
