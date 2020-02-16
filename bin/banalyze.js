@@ -36,6 +36,7 @@ var literalMap = turtlescript.literal_map.New(bc.literals);
 console.log('---Functions---');
 
 bc.functions.forEach(function(f, i) {
+    //if (i!==1) { return; } // XXX hack
     console.log('Function #' + f.id + ':', f.name || '<noname>');
     console.log('  Number of arguments:', f.nargs);
     turtlescript.banalyze(bc, f.id, literalMap);

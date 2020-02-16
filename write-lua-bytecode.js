@@ -53,10 +53,19 @@ define(['./parse', './bcompile', './bytecode-table', './top-level', './str-escap
 
     /* XXX Hacks for initial tests:
     source = "{ console.log('Hello,', 'world!'); }";
-    source = "{ var fib=function(n){return (n<2)?1:fib(n-1)+fib(n-2);}; return fib(10); }";
     source = '{ return 1+2; }';
     source = "{ return 0+'x'; }";
     */
+    /*
+    source = "{ var fib=function(n) {\n" +
+        "var one, two = 0, three = 1, i;\n" +
+        "while (i<n) {\n" +
+        "  one = two; two = three; three = one + two;\n" +
+        "  i += 1;\n" +
+        "}\n" +
+        "return two; }; return fib(10); }";
+    */
+    console.log(source);
 
     var compile_from_source = make_compile_from_source(parse, bcompile, top_level);
     var bc = compile_from_source(source, true/*as object*/);

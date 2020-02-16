@@ -323,6 +323,7 @@ define(["text!banalyze.js", "bytecode-table", "literal-map"], function make_bana
         if (valNum < 0) {
             assert(false);
         }
+        console.log('WRITE TYPE OF', this.vnToString(valNum), '=', type);
         this.pcType[valNum] = type;
     };
 
@@ -338,12 +339,17 @@ define(["text!banalyze.js", "bytecode-table", "literal-map"], function make_bana
     State.prototype.assign = function(variable, valNum) {
         valNum = this.typeHelper(valNum);
         this.assignNoPc(variable, valNum);
-        if (valNum!==this.vnPC()) { this.remapTable[this.vnPC()] = valNum; }
+        if (valNum!==this.vnPC()) {
+            this.remapTable[this.vnPC()] = valNum;
+            console.log('MAPPING', this.vnToString(this.vnPC()), 'to', this.vnToString(valNum));
+        }
     };
     // Don't associate this vnPC() with this assignment (usually because
     // there is more than one value associated with this PC)
     State.prototype.assignNoPc = function(variable, valNum) {
-        this.writeVariable(variable, this.block, this.typeHelper(valNum));
+        valNum = this.typeHelper(valNum);
+        console.log('VARIABLE', this.lvToString(variable), 'IS', this.vnToString(valNum));
+        this.writeVariable(variable, this.block, valNum);
     };
     State.prototype.assignDep = function(destVar, srcVars, func) {
         var block = this.block, vnPC = this.vnPC();
@@ -382,6 +388,7 @@ define(["text!banalyze.js", "bytecode-table", "literal-map"], function make_bana
         to = this.mapVn(to); // chase down further remappings
         assert(from !== to);
         assert(this.remapTable[from]===undefined);
+        console.log('REMAPPING',from,'to',to);
         if (this.vnIsPhi(from)) {
             /* can map to anything */
         } else if (this.vnIsPcOrPhi(from) /* actually just pc */) {
@@ -443,6 +450,7 @@ define(["text!banalyze.js", "bytecode-table", "literal-map"], function make_bana
             this.opHash[key] = vn = this.vnPC();
             this.isOpHash[vn] = true;
             this.writeType(vn, type);
+            console.log('HASHOP TYPE', vn, 'is', type, 'key', key);
         }
         assert(this.readType(vn)===type);
         return vn;
@@ -600,6 +608,7 @@ define(["text!banalyze.js", "bytecode-table", "literal-map"], function make_bana
         this.pcBefore = this.pcAfter;
         var op = bytecode_table.for_num(this.bytecode[this.pcAfter]);
         this.pcAfter += 1;
+        console.log(this.pcBefore, op.name, op.printargs(this, this.bytecode, this.pcBefore));
         var args = [];
         var i = 0;
         while (i < op.args) {
@@ -637,6 +646,7 @@ define(["text!banalyze.js", "bytecode-table", "literal-map"], function make_bana
             if (this.literals[arg]==="arguments") {
                 this.assign(this.lvStackAfter(0), this.vnARGUMENTS);
             } else {
+                console.log('FETCH variable', this.lvToString(this.lvLocalVar(arg)));
                 this.move(this.lvStackAfter(0), this.lvLocalVar(arg));
                 return;
             }
@@ -659,6 +669,7 @@ define(["text!banalyze.js", "bytecode-table", "literal-map"], function make_bana
     dispatch.set_slot_direct = function(arg) {
         var vnObj = this.readVariable(this.lvStackBefore(1), this.block);
         if (vnObj === this.vnLOCALFRAME) {
+            console.log('SET VARIABLE', this.lvToString(this.lvLocalVar(arg)), 'to variable', this.lvToString(this.lvStackBefore(0)));
             this.move(this.lvLocalVar(arg), this.lvStackBefore(0));
         } else {
             // just record a read
@@ -988,8 +999,10 @@ define(["text!banalyze.js", "bytecode-table", "literal-map"], function make_bana
         var state = State.New(bcFunc.max_stack, bcFunc.bytecode, literalMap);
         while (state.mapQueue.length !== 0) {
             var f = state.mapQueue.pop();
+            console.log('Running queue for ', state.vnToString(f.vnPC));
             if (f.isPhi && state.phiForVn(f.destVn) === null) {
                 /* skip this, this phi has already been removed */
+                console.log('skipping');
             } else {
                 state.rerunDep(f);
             }
