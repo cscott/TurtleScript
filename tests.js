@@ -1,15 +1,18 @@
 // A collection of interesting test cases.
 define(["text!tests.js", "str-escape",
         /* These modules are just imported to make test cases out of them. */
-        "tokenize", "parse", "jcompile", "crender", "bytecode-table",
+        "tokenize", "parse", "parse_json", "jcompile", "crender",
+        "bytecode-table",
         "literal-map", "bcompile", "binterp", "stdlib", "events",
         "banalyze", "asm-llvm"],
        function make_tests(tests_source, str_escape,
-                           tokenize, parse, jcompile, crender, bytecode_table,
+                           tokenize, parse, parse_json, jcompile, crender,
+                           bytecode_table,
                            LiteralMap, bcompile, binterp, stdlib, events,
                            banalyze, asm_llvm) {
     var deps = ["tests_source", "str-escape",
-                "tokenize", "parse", "jcompile", "crender", "bytecode-table",
+                "tokenize", "parse", "parse_json", "jcompile", "crender",
+                "bytecode-table",
                 "literal-map", "bcompile", "binterp", "stdlib", "events",
                 "banalyze", "asm-llvm"];
     var test=[], i=2/* skip tests_source and str_escape */;

@@ -2,19 +2,16 @@
 // startup code and standard library, as a Lua file.
 //
 // Run it under `node` with the CLI in `bin/write-lua-bytecode.js`
-define(['./parse', './bcompile', './banalyze', './bytecode-table', './top-level', './str-escape', './literal-map', './tests', './stdlib', './json', './extensions'], function(parse, bcompile, banalyze, bytecode_table, top_level, str_escape, LiteralMap, tests, stdlib, json) {
+define(['./parse', './parse_json', './bcompile', './banalyze', './bytecode-table', './top-level', './str-escape', './literal-map', './tests', './stdlib', './json', './extensions'], function(parse, parse_json, bcompile, banalyze, bytecode_table, top_level, str_escape, LiteralMap, tests, stdlib, json) {
     banalyze = null; // Disable banalyze for now.
-    // json = null; // Uncomment to disable JSON support
     var fake_require =
         "var __modules__ = {};\n"+
         "define = function _define(name, deps, init_func) {\n"+
         "  var d = deps.map(function(m) { return __modules__[m]; });\n"+
         "  __modules__[name] = init_func.apply(this, d);\n"+
         "};\n";
-    var make_compile_from_source = function(parse, bcompile, banalyze, LiteralMap, TOP_LEVEL) {
-       var compile_from_source = function (source, as_object) {
-           source = source || '{ return 1+2; }';
-           var tree = parse(source, TOP_LEVEL);
+    var make_compile_from_source = function(parse, parse_json, bcompile, banalyze, LiteralMap, TOP_LEVEL) {
+       var compile_analyze_and_encode = function(tree, as_object) {
            var bc = bcompile(tree, true/*don't desugar frame get*/);
            if (banalyze) {
                var literalMap = LiteralMap.New(bc.literals);
@@ -25,6 +22,11 @@ define(['./parse', './bcompile', './banalyze', './bytecode-table', './top-level'
            var result = as_object ? bc : bc.encode();
            return result;
        };
+       var compile_from_source = function (source, as_object) {
+           source = source || '{ return 1+2; }';
+           var tree = parse(source, TOP_LEVEL);
+           return compile_analyze_and_encode(tree, as_object);
+       };
        compile_from_source.make_repl = function() {
            var state = null;
            return function(source) {
@@ -33,21 +35,27 @@ define(['./parse', './bcompile', './banalyze', './bytecode-table', './top-level'
                return bcompile(rv.tree).encode();
            };
        };
+        compile_from_source.parse_json = function(source, as_object) {
+            source = "" + source;
+            var tree = parse_json(source);
+            return compile_analyze_and_encode(tree, as_object);
+        };
        return compile_from_source;
     };
     var cfs_source = make_compile_from_source.toSource ?
         make_compile_from_source.toSource() :
         make_compile_from_source.toString();
-    cfs_source = 'define("compile_from_source", ["parse","bcompile","banalyze","literal-map", "top-level"], '+
+    cfs_source = 'define("compile_from_source", ["parse","parse_json","bcompile","banalyze","literal-map","top-level"], '+
         cfs_source + ');';
     var top_level_source = 'define("top-level", [], function() { return ' +
         str_escape(top_level) + '; });';
     var source = '{\n'+
         stdlib.source()+'\n'+
-        (json ? (json.source()+'\n') : "") +
+        json.source()+'\n' +
         fake_require +
         tests.lookup("tokenize")+"\n"+
         tests.lookup("parse")+"\n"+
+        tests.lookup("parse_json")+"\n"+
         tests.lookup("bytecode-table")+"\n"+
         tests.lookup("literal-map")+"\n"+
         tests.lookup("bcompile")+"\n"+
@@ -77,7 +85,7 @@ define(['./parse', './bcompile', './banalyze', './bytecode-table', './top-level'
     */
     // console.log(source);
 
-    var compile_from_source = make_compile_from_source(parse, bcompile, banalyze, LiteralMap, top_level);
+    var compile_from_source = make_compile_from_source(parse, parse_json, bcompile, banalyze, LiteralMap, top_level);
     var bc = compile_from_source(source, true/*as object*/);
 
     var lua_esc = function(str) {
