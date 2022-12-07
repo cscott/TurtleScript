@@ -992,7 +992,9 @@ define(["text!banalyze.js", "bytecode-table", "literal-map"], function make_bana
             });
     };
 
-
+    var optimize = {
+        // compute liveness?
+    };
 
     var banalyze = function(bc, func_id, literalMap) {
         var bcFunc = bc.functions[func_id];
@@ -1023,6 +1025,17 @@ define(["text!banalyze.js", "bytecode-table", "literal-map"], function make_bana
         // and we don't actually need the get_slot_direct/get_slot distinction
         // because it is implicit in the valueNum used
         state.prettyPrint();
+
+        // XXX what's needed now is to emit this computed type information
+        // in a manner which is easily usable for code generation; including
+        // allowing common subexpressions and dead assignments to be recognized
+        // (and thus not generated).  For code gen we're basically going to
+        // reexecute the byte code but push expression fragments on the stack,
+        // so that `biadd` (for example) pops expression `a` and expression `b`
+        // off the stack and pushes `mt(a).add(a, b)` onto the stack, or
+        // something like that.  We have to dump entries onto the stack
+        // into temp variables when the stack is re-ordered or we need
+        // side-effects to occur in a certain order.
     };
     banalyze.__module_name__ = "banalyze";
     banalyze.__module_init__ = make_banalyze;

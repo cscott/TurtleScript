@@ -3,6 +3,7 @@
 //
 // Run it under `node` with the CLI in `bin/write-lua-bytecode.js`
 define(['./parse', './bcompile', './banalyze', './bytecode-table', './top-level', './str-escape', './literal-map', './tests', './stdlib', './extensions'], function(parse, bcompile, banalyze, bytecode_table, top_level, str_escape, LiteralMap, tests, stdlib) {
+    banalyze = null; // Disable banalyze for now.
     var fake_require =
         "var __modules__ = {};\n"+
         "define = function _define(name, deps, init_func) {\n"+
@@ -14,10 +15,12 @@ define(['./parse', './bcompile', './banalyze', './bytecode-table', './top-level'
            source = source || '{ return 1+2; }';
            var tree = parse(source, TOP_LEVEL);
            var bc = bcompile(tree, true/*don't desugar frame get*/);
-           var literalMap = LiteralMap.New(bc.literals);
-           bc.functions.forEach(function(f, i) {
-               banalyze(bc, f.id, literalMap);
-           });
+           if (banalyze) {
+               var literalMap = LiteralMap.New(bc.literals);
+               bc.functions.forEach(function(f, i) {
+                   banalyze(bc, f.id, literalMap);
+               });
+           }
            var result = as_object ? bc : bc.encode();
            return result;
        };
@@ -46,7 +49,7 @@ define(['./parse', './bcompile', './banalyze', './bytecode-table', './top-level'
         tests.lookup("bytecode-table")+"\n"+
         tests.lookup("literal-map")+"\n"+
         tests.lookup("bcompile")+"\n"+
-        tests.lookup("banalyze")+"\n"+
+        (banalyze ? (tests.lookup("banalyze")+"\n") : "") +
         top_level_source+"\n"+
         cfs_source + '\n' +
         /*
@@ -70,7 +73,7 @@ define(['./parse', './bcompile', './banalyze', './bytecode-table', './top-level'
         "}\n" +
         "return two; }; return fib(10); }";
     */
-    console.log(source);
+    // console.log(source);
 
     var compile_from_source = make_compile_from_source(parse, bcompile, banalyze, LiteralMap, top_level);
     var bc = compile_from_source(source, true/*as object*/);
