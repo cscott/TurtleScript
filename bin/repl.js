@@ -12,11 +12,11 @@ requirejs.config({
 // set up some global context
 requirejs.define('timeouts', { setTimeout: setTimeout, clearTimeout: clearTimeout });
 
-requirejs(['./extensions', './parse', './bcompile', './binterp', './top-level', './stdlib','./tests'], function(_, parse, bcompile, binterp, top_level, stdlib, tests) {
+requirejs(['./extensions', './parse', './bcompile', './binterp', './top-level', './stdlib','./json','./tests'], function(_, parse, bcompile, binterp, top_level, stdlib, json, tests) {
     // create top-level frame and evaluate turtlescript standard library
     var frame = binterp.make_top_level_frame();
     (function() {
-        var tree = parse(stdlib.source(), top_level);
+        var tree = parse(stdlib.source() + json.source(), top_level);
         var bc = bcompile(tree);
         binterp.binterp(bc, 0, frame);
     })();

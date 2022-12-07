@@ -3,7 +3,7 @@
 //
 // Used for bytecode interpreters (both TurtleScript and native).
 define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
-    var init = /*CUT HERE*/function() {
+    var init = /*CUT HERE*/function _make_stdlib() {
         var BooleanPrototypeValueOf = Boolean.prototype.valueOf;
         var NumberPrototypeValueOf = Number.prototype.valueOf;
         var ObjectPrototypeToString = Object.prototype.toString;
@@ -43,7 +43,7 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
                 first >= 0xD800 && first <= 0xDBFF // high surrogate
             ) {
                 second = string.charCodeAt(position + 1);
-                if (second === second && // NaN indicates size <= position + 1
+                if (second === second && // NaN indicates size >= position + 1
                     second >= 0xDC00 && second <= 0xDFFF) { // low surrogate
                     // https://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
                     return (first - 0xD800) * 0x400 + second - 0xDC00 + 0x10000;
@@ -266,6 +266,9 @@ define(['text!stdlib.js'], function make_stdlib(stdlib_source) {
             return func.call(array);
         };
         makeNonEnumerable(Array.prototype, 'toString');
+        Array.isArray = function(arg) {
+            return ObjectPrototypeToString.call(arg) === '[object Array]';
+        };
         Function.prototype.bind = function() {
             var method = this;
             // Avoid making a function wrapper if we don't have to.

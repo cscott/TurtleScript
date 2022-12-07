@@ -429,6 +429,10 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
 
         fset("Math", MyMath);
 
+        // support for JSON object
+        var my_JSON = Object.create(MyObject);
+        fset("JSON", my_JSON);
+
         // support for console.log
         var my_console = Object.create(MyObject);
         fset("console", my_console);
@@ -452,10 +456,29 @@ define(["text!binterp.js", "bytecode-table"/*, "!html-escape"*/], function make_
         native_func(MyObject, "hasOwnProperty", function(_this_, propname) {
             return _this_.hasOwnProperty(SLOT_PREFIX+propname);
         });
+        native_func(MyObject, "toString", function(_this_) {
+            if (_this_ && _this_.type === 'array') {
+                return "[object Array]";
+            }
+            return Object.prototype.toString.call(_this_);
+        });
         native_func(my_ObjectCons, "create", function(_this_, prototype) {
             // Object.create defined in global.js; uses 'new'
             var result = Object.create(prototype);
             oset(result, "__proto__", prototype);
+            return result;
+        });
+        native_func(my_ObjectCons, "keys", function(_this_, obj ) {
+            var result = Object.create(MyArray);
+            var i = 0;
+            Object.keys(obj).forEach(function(k) {
+                var l = SLOT_PREFIX.length;
+                if (k.slice(0, l) === SLOT_PREFIX) {
+                    result[SLOT_PREFIX+(i)] = k.slice(l);
+                    i += 1;
+                }
+            });
+            result[SLOT_PREFIX+"length"] = i;
             return result;
         });
         native_func(my_ObjectCons, "Delete", function(_this_, obj, propname) {

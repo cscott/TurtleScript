@@ -2,8 +2,9 @@
 // startup code and standard library, as a Lua file.
 //
 // Run it under `node` with the CLI in `bin/write-lua-bytecode.js`
-define(['./parse', './bcompile', './banalyze', './bytecode-table', './top-level', './str-escape', './literal-map', './tests', './stdlib', './extensions'], function(parse, bcompile, banalyze, bytecode_table, top_level, str_escape, LiteralMap, tests, stdlib) {
+define(['./parse', './bcompile', './banalyze', './bytecode-table', './top-level', './str-escape', './literal-map', './tests', './stdlib', './json', './extensions'], function(parse, bcompile, banalyze, bytecode_table, top_level, str_escape, LiteralMap, tests, stdlib, json) {
     banalyze = null; // Disable banalyze for now.
+    // json = null; // Uncomment to disable JSON support
     var fake_require =
         "var __modules__ = {};\n"+
         "define = function _define(name, deps, init_func) {\n"+
@@ -43,6 +44,7 @@ define(['./parse', './bcompile', './banalyze', './bytecode-table', './top-level'
         str_escape(top_level) + '; });';
     var source = '{\n'+
         stdlib.source()+'\n'+
+        (json ? (json.source()+'\n') : "") +
         fake_require +
         tests.lookup("tokenize")+"\n"+
         tests.lookup("parse")+"\n"+
