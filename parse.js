@@ -29,6 +29,10 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
         Object.Throw(t);
     };
 
+    var hasOwnProperty = function(obj, prop) {
+        return Object.prototype.hasOwnProperty.call(obj, prop);
+    };
+
     var original_scope = {
         define: function (n) {
             var t = this.def[n.value];
@@ -51,7 +55,7 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
             // into a "real" javascript object or not.
             var escape = (n === 'arguments');
             while (true) {
-                o = e.def.hasOwnProperty(n) ? e.def[n] : null;
+                o = hasOwnProperty(e.def, n) ? e.def[n] : null;
                 if (o) {
                     if (escape) { e.escape[n] = true; }
                     return o;
@@ -59,7 +63,7 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
                 e = e.parent;
                 escape = true;
                 if (!e) {
-                    return symbol_table[symbol_table.hasOwnProperty(n) ?
+                    return symbol_table[hasOwnProperty(symbol_table, n) ?
                         n : "(name)"];
                 }
             }
@@ -71,7 +75,7 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
             if (n.arity !== "name" || n.reserved) {
                 return;
             }
-            var t = this.def.hasOwnProperty(n.value) ? this.def[n.value] : null;
+            var t = hasOwnProperty(this.def, n.value) ? this.def[n.value] : null;
             if (t) {
                 if (t.reserved) {
                     return;
@@ -227,7 +231,7 @@ define(["text!parse.js", "tokenize"], function make_parse(parse_source, tokenize
     };
 
     var symbol = function (id, bp) {
-        var s = symbol_table.hasOwnProperty(id) ? symbol_table[id] : null;
+        var s = hasOwnProperty(symbol_table, id) ? symbol_table[id] : null;
         bp = bp || 0;
         if (s) {
             if (bp >= s.lbp) {
